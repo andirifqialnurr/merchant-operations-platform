@@ -16,6 +16,7 @@ Paket ini merupakan representasi penuh MVP Release 1.
 - POS Basic.
 - Cafe Profile.
 - Table/Order Management.
+- Table layout per lantai dan QR mapping per meja.
 - QR Self-Order.
 - KDS.
 - Manual Payment dan Cashier Shift.
@@ -92,7 +93,7 @@ Owner mengatur produk, recipe, dan opening stock
 
 Tidak ada platform fee per transaksi untuk manual payment.
 
-Onboarding standar mencakup satu outlet, maksimal 50 produk, 50 ingredient, 30 recipe, 10 supplier, 30 meja, satu POS, satu KDS, satu printer kompatibel, opening stock import, dan tiga sesi pelatihan remote.
+Onboarding standar mencakup satu outlet, maksimal 50 produk, 50 ingredient, 30 recipe, 10 supplier, 30 meja beserta layout per lantai, satu POS, satu KDS, satu printer kompatibel, opening stock import, dan tiga sesi pelatihan remote.
 
 ## 7. Batas pemakaian awal
 
@@ -110,6 +111,7 @@ Onboarding standar mencakup satu outlet, maksimal 50 produk, 50 ingredient, 30 r
 - Shift menampilkan expected cash dan variance.
 - Owner melihat sales, expense, estimated HPP, gross profit, dan operating profit.
 - Data/report dapat difilter per outlet dan dikonsolidasikan.
+- Table layout per lantai dan QR mapping memenuhi acceptance criteria Cafe Digital.
 
 ## 9. Upgrade path
 

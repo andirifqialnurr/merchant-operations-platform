@@ -18,7 +18,7 @@ Menyediakan transaksi kasir, pembayaran manual, shift, dan laporan penjualan das
 ### POS
 
 - Dine-in dan takeaway.
-- Pilih meja dasar untuk order kasir.
+- Pilih meja dasar melalui list untuk order kasir.
 - Cart, modifier, note, discount sederhana, tax, dan service charge.
 - Hold, cancel dengan alasan, manager approval, dan reprint.
 - Manual payment: cash, merchant QRIS, transfer, EDC, dan other.
@@ -33,6 +33,7 @@ Menyediakan transaksi kasir, pembayaran manual, shift, dan laporan penjualan das
 ## 3. Tidak termasuk
 
 - QR Self-Order.
+- Visual table layout per lantai dan pengelolaan QR meja.
 - Customer order-status page.
 - KDS sebagai layar terpisah.
 - Inventory dan recipe.

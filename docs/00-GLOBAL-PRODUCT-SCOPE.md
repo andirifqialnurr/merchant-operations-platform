@@ -85,6 +85,8 @@ Satu tenant dapat memiliki beberapa brand dan outlet. Pada merchant sederhana, s
 
 - Sumber pesanan: cashier, table QR, waiter, delivery, dan API.
 - Order status, payment status, dan timeline.
+- Lantai, area opsional, meja, dan table layout visual per lantai.
+- Posisi, ukuran grid, bentuk sederhana, capacity, dan status meja.
 - Sesi meja, pindah/gabung meja, split bill, dan tutup bill.
 - Beberapa batch pesanan dalam satu table session.
 
@@ -95,7 +97,8 @@ Satu tenant dapat memiliki beberapa brand dan outlet. Pada merchant sederhana, s
 
 ### 4.8 QR Self-Order
 
-- QR outlet/meja, menu, keranjang, modifier, dan catatan.
+- QR outlet/meja yang dipetakan ke table layout, menu, keranjang, modifier, dan catatan.
+- Generate, print, revoke, dan rotate QR token per meja.
 - Pesan lagi, status pesanan, panggil pelayan, dan minta bill.
 - Pembayaran manual pada MVP dan otomatis pada Integrated Payment.
 
@@ -192,7 +195,7 @@ Platform tidak akan menyimpan saldo konsumen atau membangun wallet sendiri tanpa
 
 - Platform Super Admin dan subscription manual.
 - Tenant, brand, outlet, staff, role, dan entitlement.
-- Product/menu, POS, Order, Table, Cafe Profile, QR Self-Order, dan KDS.
+- Product/menu, POS, Order, table layout per lantai, Cafe Profile, QR Self-Order, dan KDS.
 - Manual payment dan manual reconciliation.
 - Inventory Basic, Finance Basic, Basic Reports, device/printer, dan audit.
 
@@ -230,7 +233,7 @@ Platform tidak akan menyimpan saldo konsumen atau membangun wallet sendiri tanpa
 |---|---|---|
 | Profile | Kafe yang hanya perlu profil/katalog | Cafe Profile dan menu publik |
 | POS Basic | Outlet yang mengganti aplikasi kasir | POS, manual payment, shift, basic report |
-| Cafe Digital | Kafe dine-in dengan QR ordering | POS Basic, table, self-order, KDS |
+| Cafe Digital | Kafe dine-in dengan QR ordering | POS Basic, Table Layout, QR Self-Order, KDS |
 | Cafe Operations | Operasional kafe lengkap versi basic | Cafe Digital, Inventory Basic, Finance Basic, Customer Basic |
 | Custom Modular | Merchant dengan kombinasi khusus | Modul dipilih dengan dependency rules |
 | Integrated Payment Add-on | Pembayaran otomatis | Dynamic QRIS, webhook, settlement, reconciliation |
@@ -240,6 +243,7 @@ Platform tidak akan menyimpan saldo konsumen atau membangun wallet sendiri tanpa
 - Hardware tidak termasuk subscription standar.
 - Merchant bertanggung jawab atas koneksi internet dan perangkat.
 - Full offline synchronization bukan bagian MVP.
+- Table layout MVP hanya memetakan meja per lantai; tidak mencakup dinding, pintu, dekorasi, fasilitas, atau editor denah bangunan.
 - Finance Basic bukan laporan akuntansi formal.
 - HPP basic merupakan estimasi berdasarkan recipe dan harga bahan.
 - Manual QRIS dicatat setelah kasir memverifikasi notifikasi merchant.

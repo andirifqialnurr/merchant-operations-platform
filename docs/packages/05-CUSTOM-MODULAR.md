@@ -26,7 +26,7 @@ Core tidak menyediakan transaksi sampai POS atau Digital Cafe diaktifkan.
 | Core Platform | Tenant/bulan | Rp149.000 |
 | Cafe Profile | Brand/bulan | Rp75.000 |
 | POS | Outlet/bulan | Rp175.000 |
-| Table + QR Self-Order | Outlet/bulan | Rp125.000 |
+| Table Layout + QR Self-Order | Outlet/bulan | Rp125.000 |
 | KDS | Device/station/bulan | Rp75.000 |
 | Inventory Basic | Outlet/bulan | Rp125.000 |
 | Finance Basic | Tenant/bulan | Rp100.000 |
@@ -38,7 +38,8 @@ Harga paket bundle dapat lebih murah daripada total modul satu per satu.
 ## 4. Dependency rules
 
 - POS memerlukan Core dan Product/Menu.
-- Self-Order memerlukan Cafe Profile, Order Management, dan Table Management.
+- Self-Order memerlukan Cafe Profile, Order Management, serta Table Layout/Management.
+- Table Layout mencakup lantai, posisi meja snap-to-grid, bentuk/ukuran sederhana, status POS, dan QR mapping; bukan editor denah bangunan.
 - KDS memerlukan POS atau Self-Order sebagai sumber order.
 - Inventory memerlukan Product/Menu; automatic consumption memerlukan Order Management.
 - Finance memerlukan Payment/Sales data; HPP memerlukan Inventory dan Recipe.
@@ -71,11 +72,11 @@ Total               Rp449.000/outlet/bulan
 ### Self-Order dan KDS tanpa POS penuh
 
 ```text
-Core Platform       Rp149.000
-Cafe Profile         Rp75.000
-Table/Self-Order    Rp125.000
-KDS                  Rp75.000
-Total               Rp424.000/outlet/bulan
+Core Platform             Rp149.000
+Cafe Profile               Rp75.000
+Table Layout/Self-Order   Rp125.000
+KDS                        Rp75.000
+Total                     Rp424.000/outlet/bulan
 ```
 
 ## 6. Onboarding
@@ -87,7 +88,7 @@ Total               Rp424.000/outlet/bulan
 | Empat modul atau lebih | Rp1.500.000 |
 | Migrasi/data/custom workflow | Quotation |
 
-Onboarding final mengikuti jumlah outlet, produk, recipe, meja, perangkat, dan kompleksitas migrasi.
+Onboarding final mengikuti jumlah outlet, produk, recipe, lantai, meja, table layout, perangkat, dan kompleksitas migrasi.
 
 ## 7. Business rules komersial
 
@@ -113,4 +114,3 @@ Karena itu, Custom Modular sebaiknya ditawarkan setelah discovery oleh sales, bu
 - Upgrade tidak memerlukan migrasi data ulang.
 - Downgrade tidak merusak histori transaksi.
 - Invoice menjelaskan modul, scope, outlet, dan perangkat.
-

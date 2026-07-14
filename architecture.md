@@ -17,7 +17,7 @@ Version 1 harus mendukung alur lengkap kafe:
 
 ```text
 Platform membuat tenant dan subscription
--> Owner mengatur brand, outlet, staff, menu, meja, recipe, dan stok
+-> Owner mengatur brand, outlet, staff, menu, lantai, tata letak meja, recipe, dan stok
 -> Order dibuat dari POS atau QR Self-Order
 -> KDS menerima dan memproses order
 -> Kasir mengonfirmasi pembayaran manual
@@ -182,7 +182,7 @@ Core domain bukan paket jualan dan tidak ditampilkan sebagai checkbox merchant.
 
 - Cafe Profile.
 - POS.
-- Table dan QR Self-Order.
+- Table Layout dan QR Self-Order.
 - KDS.
 - Inventory Basic.
 - Finance Basic.
@@ -204,7 +204,7 @@ Integration bridge diaktifkan sistem berdasarkan entitlement. User tidak diberi 
 |---|---|---|
 | Cafe Profile | Catalog Core | Customer Basic |
 | POS | Catalog, Order, Bill, Payment Ledger | Inventory, Finance |
-| Self-Order | Cafe Profile, Catalog, Order, Bill | KDS, Customer, Integrated Payment |
+| Table Layout/Self-Order | Cafe Profile, Catalog, Order, Bill | KDS, Customer, Integrated Payment |
 | KDS | Order Core | Multi-station routing |
 | Inventory Basic | Catalog Core | Order consumption, Finance HPP |
 | Finance Basic | Order, Bill, Payment Ledger | Inventory HPP |
@@ -243,9 +243,15 @@ Finance tetap dapat berjalan tanpa Inventory, tetapi bagian HPP/margin berbasis 
 ### Order/Table/Self-Order
 
 - Order dari cashier, table QR, dan waiter.
-- Area, table, QR token, table session, pindah meja, dan beberapa order batch.
+- Lantai, area opsional, meja, QR token, table session, pindah meja, dan beberapa order batch.
+- Table layout per lantai dengan canvas snap-to-grid yang hanya memetakan posisi meja.
+- Table layout mendukung label, capacity, bentuk sederhana `ROUND`, `SQUARE`, atau `RECTANGLE`, grid position, grid size, active state, dan display order.
+- Backoffice mengelola layout; POS memakai layout read-only dengan status meja realtime.
+- QR unik dipetakan ke satu meja dan dapat dicetak, dinonaktifkan, atau dirotasi tanpa mengubah identitas meja.
 - Guest menu, cart, note, submit, pesan lagi, status, dan minta bill.
 - Satu bill per table session pada UI Version 1; schema memisahkan bill agar split bill dapat dikembangkan.
+
+Table layout Version 1 bukan editor denah bangunan. Dinding, pintu, jendela, bar, kasir, dekorasi, background image, arbitrary shape, dan rotasi bebas tidak dimodelkan.
 
 ### KDS
 
@@ -295,6 +301,7 @@ Default role: `OWNER`, `MANAGER`, `CASHIER`, `KITCHEN`, `WAITER`, `INVENTORY_STA
 Permission berbasis use case, misalnya:
 
 - `order.create`, `order.cancel`, `order.move_table`.
+- `table.view`, `table.manage`, `table.layout.manage`, `table.qr.manage`.
 - `payment.confirm`, `payment.refund`, `payment.reconcile`.
 - `shift.open`, `shift.close`, `cash_variance.approve`.
 - `inventory.receive`, `inventory.adjust`, `inventory.stocktake`.
@@ -321,7 +328,7 @@ Contextual policy menangani status dan approval. Contoh: cashier dapat membatalk
 | Order dan order item | Order module |
 | Bill dan allocation | Bill module |
 | Payment/refund record | Payment module |
-| Table session/KDS ticket | F&B fulfillment module |
+| Floor/table layout/QR/table session/KDS ticket | F&B fulfillment module |
 | Stock ledger | Inventory module |
 | Expense/cashbook/summary | Finance module |
 | Customer profile | Customer module |
@@ -355,9 +362,23 @@ categories, products, product_variants
 modifier_groups, modifier_options, product_modifier_groups
 outlet_products, product_images
 recipes, recipe_items
-service_areas, service_tables, table_sessions
+service_floors, service_areas, service_tables
+table_layout_items, table_qr_tokens, table_sessions
 kitchen_stations, kitchen_tickets, kitchen_ticket_items
 ```
+
+### Table layout data rules
+
+- `service_floors` dimiliki outlet dan menyimpan nama lantai, urutan, serta ukuran grid logical.
+- `service_areas` bersifat opsional untuk zona seperti indoor, outdoor, atau smoking pada satu lantai.
+- `service_tables` adalah identitas operasional meja dan tidak menyimpan session aktif sebagai mutable foreign key.
+- `table_layout_items` menyimpan `grid_x`, `grid_y`, `grid_w`, `grid_h`, dan bentuk sederhana; satu meja hanya memiliki satu posisi aktif pada lantainya di Version 1.
+- `table_qr_tokens` menyimpan token hash, status, waktu dibuat/dicabut, dan actor agar QR dapat dirotasi serta diaudit.
+- URL QR membawa opaque random token; database menyimpan hash token dan resolver hanya menerima token, outlet, serta meja yang aktif.
+- Layout coordinate memakai integer grid, bukan pixel absolut atau satu JSON blob.
+- Server memvalidasi posisi berada dalam batas canvas dan tidak overlap. Client menggunakan drag-and-drop snap-to-grid.
+- Memindahkan tile pada layout hanya mengubah posisi visual. Memindahkan order/table session memakai command `order.move_table` yang terpisah.
+- Mengubah layout atau lantai tidak mengganti QR token. Regenerate QR tidak menghapus histori order/table session.
 
 ### Order, bill, dan payment
 
@@ -479,7 +500,7 @@ Finance Basic mengambil sales dari bill/payment, bukan menyalinnya sebagai pemas
 - Tenant isolation test dan RLS defense-in-depth untuk tabel kritis.
 - Signed upload URL, size/type validation, dan object ownership.
 - Secrets berada di environment/secret manager, bukan repository atau plain database.
-- Audit untuk login, role, price, stock, cancel, payment, refund, shift, support access, dan entitlement.
+- Audit untuk login, role, price, floor/table layout, QR rotation/revocation, stock, cancel, payment, refund, shift, support access, dan entitlement.
 - Backup terjadwal, point-in-time recovery bila tersedia, serta restore drill.
 - PII/sensitive value tidak ditulis ke log.
 
@@ -519,6 +540,9 @@ Production memakai container deployment, managed PostgreSQL, Redis, object stora
 - Finance sales/HPP/expense calculation.
 - Subscription suspend/reactivation.
 - End-to-end POS dan QR Self-Order.
+- Tenant/outlet isolation untuk floor, table layout, dan QR token.
+- Table layout bounds, overlap, reorder, serta persistence setelah reload.
+- QR rotation/revocation dan resolusi token ke tenant/outlet/table yang benar.
 
 ## 22. Observability
 
@@ -540,6 +564,7 @@ Production memakai container deployment, managed PostgreSQL, Redis, object stora
 - General ledger, journal, balance sheet, tax, dan accounting formal.
 - Loyalty, campaign, advanced promotion, reservation, delivery, marketplace, dan public API.
 - Retail barcode/self-checkout dan toko bangunan multi-unit advanced.
+- Editor denah bangunan: dinding, pintu, jendela, fasilitas, dekorasi, background image, dan rotasi objek bebas.
 
 Schema core tidak boleh memakai nama F&B untuk konsep generik. Extension vertikal dapat ditambahkan sebagai `fnb_*`, `retail_*`, atau `building_supply_*` tanpa mengubah Order, Bill, Payment, Tenant, dan Catalog Core.
 
@@ -550,6 +575,8 @@ Version 1 siap pilot jika:
 - Dua tenant dapat berjalan tanpa kebocoran data.
 - Owner multi-outlet memperoleh laporan terisolasi dan konsolidasi.
 - POS dan Self-Order menghasilkan order pada KDS yang sama.
+- Owner dapat menyusun meja per lantai; POS menampilkan posisi dan status meja dari layout yang sama.
+- Setiap QR aktif terhubung tepat ke satu meja, sedangkan QR yang dicabut tidak dapat membuat order.
 - Manual cash/QRIS/transfer dapat diselesaikan dan direkonsiliasi.
 - Recipe menghasilkan stock movement; cancel menghasilkan reversal/waste.
 - Finance Basic menghasilkan sales, expense, HPP, gross profit, dan operating profit.

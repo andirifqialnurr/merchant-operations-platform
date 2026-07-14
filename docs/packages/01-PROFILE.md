@@ -24,7 +24,7 @@ Memberikan halaman publik yang dapat dibagikan melalui link atau QR agar pelangg
 
 - POS dan transaksi kasir.
 - Keranjang dan pemesanan.
-- Table QR/Self-Order.
+- Table layout per lantai dan QR Self-Order.
 - KDS.
 - Payment.
 - Inventory dan Finance.
@@ -81,4 +81,3 @@ Onboarding standar mencakup satu brand, satu outlet, bantuan input maksimal 30 p
 - Merchant memperbarui menu tanpa bantuan support.
 - Kunjungan halaman/menu.
 - Konversi upgrade ke POS atau Cafe Digital.
-

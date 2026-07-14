@@ -7,13 +7,13 @@
 
 ## 1. Tujuan
 
-MVP harus menggantikan proses kasir dasar sekaligus menyelesaikan pain point pemesanan QR meja, tanpa menunggu integrasi payment gateway.
+MVP harus menggantikan proses kasir dasar sekaligus menyelesaikan pain point pemesanan QR meja dan pemetaan meja per lantai, tanpa menunggu integrasi payment gateway.
 
 MVP dianggap selesai ketika satu kafe dapat menjalankan alur berikut:
 
 ```text
 Platform membuat tenant
-→ Owner mengatur outlet, menu, meja, staff, dan pembayaran
+→ Owner mengatur outlet, menu, lantai, layout meja, staff, dan pembayaran
 → Kasir atau pelanggan membuat pesanan
 → Dapur menerima dan menyelesaikan pesanan
 → Kasir mengonfirmasi pembayaran manual
@@ -64,7 +64,7 @@ Platform membuat tenant
 
 - Dine-in dan takeaway.
 - Product search, cart, modifier, note, discount sederhana, tax, dan service charge.
-- Pilih meja, hold, cancel dengan alasan, manager approval, dan reprint.
+- Pilih meja melalui list atau layout lantai, hold, cancel dengan alasan, manager approval, dan reprint.
 - Manual payment: cash, merchant QRIS, transfer, EDC, dan other.
 - Open/close shift, opening cash, cash in/out, counted cash, dan variance.
 
@@ -73,13 +73,18 @@ Platform membuat tenant
 - Order source: cashier, table QR, dan waiter.
 - Status: draft, submitted, accepted, preparing, ready, served, completed, cancelled.
 - Payment status terpisah dari order status.
-- Area, table, QR token, open/close session, pindah meja, dan beberapa order batch.
+- Floor/lantai, area opsional, table, QR token, open/close session, pindah meja, dan beberapa order batch.
+- Backoffice table-layout editor per lantai dengan drag-and-drop snap-to-grid.
+- Meja memiliki label, capacity, bentuk sederhana, grid position, grid size, active state, dan QR mapping.
+- POS menampilkan table layout read-only beserta status meja realtime.
+- Generate, print/download, revoke, dan rotate QR token per meja.
 - Satu table session ditutup menjadi satu bill.
 
 ### 3.6 Cafe Profile and QR Self-Order
 
 - Brand/outlet profile, address, maps link, hours, contact, menu, dan sold-out status.
 - Guest scan QR, melihat menu, memilih variant/modifier, note, cart, dan submit.
+- Guest hanya melihat konteks outlet/lantai/meja dari QR dan tidak melihat table-layout internal.
 - Guest dapat pesan lagi dan melihat status.
 - Payment option: bayar di kasir, QRIS merchant, atau transfer.
 - Klaim “sudah membayar” masuk status verifying; kasir tetap memverifikasi.
@@ -125,7 +130,7 @@ Platform membuat tenant
 
 - POS/KDS device registration sederhana.
 - Printer configuration, test print, reprint marker, dan print fallback.
-- Audit untuk price, stock, cancel, refund, payment confirmation, shift, role, dan entitlement.
+- Audit untuk price, floor/table layout, QR rotation/revocation, stock, cancel, refund, payment confirmation, shift, role, dan entitlement.
 
 ## 4. Business rules utama
 
@@ -138,6 +143,8 @@ Platform membuat tenant
 7. Order cancellation menghasilkan reversal atau waste sesuai status produksi.
 8. Modul dinonaktifkan oleh entitlement di backend dan antarmuka.
 9. Finance Basic selalu diberi label estimasi dan bukan accounting formal.
+10. Mengubah posisi meja pada layout tidak memindahkan order atau table session.
+11. Satu QR token aktif hanya memetakan satu tenant, outlet, dan meja; token yang dicabut tidak dapat membuat order.
 
 ## 5. Di luar ruang lingkup MVP
 
@@ -150,6 +157,7 @@ Platform membuat tenant
 - General ledger, journal, balance sheet, tax, dan accounting formal.
 - Reservation, delivery, marketplace, franchise, dan public API.
 - Native Android/iOS app.
+- Editor denah bangunan termasuk dinding, pintu, jendela, bar, dekorasi, background image, dan rotasi objek bebas.
 
 ## 6. Non-functional requirements minimum
 
@@ -162,6 +170,8 @@ Platform membuat tenant
 - Idempotency untuk submit order/payment confirmation yang rawan double-click.
 - Indikator koneksi dan retry pada KDS.
 - Error monitoring dan basic operational log.
+- Table-layout editor minimum tablet-landscape/desktop; POS layout view tetap responsif pada tablet.
+- Layout menggunakan logical grid agar posisi tidak bergantung pada resolusi perangkat.
 
 ## 7. Acceptance criteria release
 
@@ -169,6 +179,9 @@ Platform membuat tenant
 - Satu tenant dapat memiliki minimal dua outlet dan owner melihat laporan gabungan.
 - Kasir dapat menyelesaikan order cash dan manual QRIS.
 - Guest dapat scan QR, order, pesan lagi, dan melihat status.
+- Owner dapat membuat lebih dari satu lantai, menyusun meja pada tiap lantai, dan melihat layout yang sama di POS.
+- QR yang dicetak membuka outlet dan meja yang benar; QR yang dicabut ditolak.
+- Posisi meja tetap tersimpan setelah reload dan meja tidak dapat saling overlap.
 - Kitchen menerima order dari POS dan QR pada antrean yang sama.
 - Order menu ber-recipe menghasilkan stock movement yang dapat diaudit.
 - Pembatalan sebelum/sesudah produksi mengikuti reversal/waste rule.

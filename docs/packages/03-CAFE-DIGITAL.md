@@ -1,7 +1,7 @@
 # Paket Cafe Digital
 
 **Status:** Hipotesis paket awal  
-**Target:** Kafe dine-in yang membutuhkan POS, QR Self-Order, dan Kitchen Display
+**Target:** Kafe dine-in yang membutuhkan POS, table layout per lantai, QR Self-Order, dan Kitchen Display
 
 ## 1. Tujuan paket
 
@@ -20,8 +20,13 @@ Mengurangi ketergantungan pada pelayan untuk mencatat pesanan dan menghubungkan 
 
 ### Table and Self-Order
 
-- Area, meja, QR token, open/close table session, dan pindah meja.
+- Lantai, area opsional, meja, QR token, open/close table session, dan pindah meja.
+- Table-layout editor per lantai dengan drag-and-drop snap-to-grid.
+- Label, capacity, bentuk sederhana, posisi, ukuran grid, dan active state meja.
+- POS table-layout view read-only dengan status meja realtime.
+- Generate, print/download, revoke, dan rotate QR per meja.
 - Guest menu, cart, variant, modifier, note, submit, dan pesan lagi.
+- Guest hanya melihat identitas lantai/meja dari QR, bukan layout internal outlet.
 - Customer melihat status pesanan dan meminta bill.
 - Pilihan bayar di kasir, QRIS merchant, atau transfer merchant.
 - Klaim sudah membayar tetap diverifikasi kasir.
@@ -68,6 +73,8 @@ Manager membuka meja
 - Order dapur tidak boleh hilang ketika print gagal; KDS merupakan sumber utama.
 - Payment manual tidak otomatis paid setelah customer menekan tombol sudah membayar.
 - Satu table session dapat memiliki beberapa order batch namun satu bill.
+- Menggeser posisi meja pada layout tidak memindahkan order atau table session.
+- Table layout hanya memetakan meja; dinding, pintu, fasilitas, dekorasi, dan denah bangunan tidak termasuk.
 
 ## 6. Pricelist hipotesis
 
@@ -83,13 +90,14 @@ Manager membuka meja
 
 Tidak ada platform fee per transaksi untuk manual payment. Subscription sudah mencakup penggunaan QR Self-Order pada outlet.
 
-Onboarding standar mencakup satu outlet, maksimal 50 produk, maksimal 30 meja, satu POS, satu KDS, QR siap cetak, satu printer kompatibel, dan dua sesi pelatihan remote.
+Onboarding standar mencakup satu outlet, maksimal 50 produk, maksimal 30 meja, table layout per lantai, satu POS, satu KDS, QR siap cetak, satu printer kompatibel, dan dua sesi pelatihan remote.
 
 ## 7. Batas pemakaian awal
 
 - Satu POS dan satu KDS device termasuk.
 - Maksimal 10 user aktif per outlet.
 - Maksimal 30 meja pada onboarding standar.
+- Table layout hanya berisi meja dengan bentuk dan ukuran sederhana pada logical grid.
 - Satu KDS station; station tambahan merupakan add-on.
 
 ## 8. Acceptance criteria paket
@@ -98,6 +106,9 @@ Onboarding standar mencakup satu outlet, maksimal 50 produk, maksimal 30 meja, s
 - Guest dapat pesan lagi tanpa membuat bill baru.
 - Kasir dapat memverifikasi manual QRIS sebelum menandai paid.
 - Pindah meja tercatat dalam timeline.
+- Owner dapat membuat beberapa lantai dan menyusun meja tanpa overlap.
+- POS menampilkan posisi serta status meja sesuai lantai yang dipilih.
+- QR aktif membuka meja yang benar dan QR revoked tidak dapat digunakan untuk order.
 - Owner dapat membandingkan order cashier dan QR.
 
 ## 9. Upgrade path
@@ -112,4 +123,3 @@ Cafe Digital → Cafe Operations untuk recipe, stock, purchasing sederhana, expe
 - Pesanan yang ditolak/dibatalkan.
 - Jumlah payment mismatch.
 - Pengurangan beban pencatatan pesanan oleh staff.
-

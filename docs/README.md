@@ -9,6 +9,7 @@ Dokumentasi ini memisahkan tiga hal yang berbeda:
 ## Dokumen utama
 
 - [Architecture Version 1](../architecture.md)
+- [Design System Version 1](../design-system.md)
 - [Global Product Scope](./00-GLOBAL-PRODUCT-SCOPE.md)
 - [PRD MVP Release 1](./versions/01-MVP-RELEASE-1.md)
 
