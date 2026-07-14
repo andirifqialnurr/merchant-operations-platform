@@ -40,9 +40,9 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Tahap 1 - Inisialisasi workspace dan struktur project.**
+> **NEXT: Review, commit, dan push Tahap 1; lalu mulai Tahap 2 - Instalasi dependency fondasi.**
 
-Belum boleh mulai color token atau komponen UI sebelum Tahap 1 dan Tahap 2 selesai serta dipush.
+Belum boleh mulai color token atau komponen UI sebelum Tahap 2 selesai serta dipush.
 
 ## 3. Keputusan stack yang dikunci
 
@@ -80,41 +80,41 @@ Versi package tidak ditulis longgar sebagai asumsi di TODO. Saat tahap instalasi
 
 #### 1.1 Root workspace
 
-- [ ] Buat root `package.json` dengan `packageManager` pnpm yang dipin.
-- [ ] Buat `pnpm-workspace.yaml`.
-- [ ] Buat `turbo.json`.
-- [ ] Buat `.nvmrc` atau `.node-version` untuk Node.js 24 LTS.
-- [ ] Buat `.editorconfig`.
-- [ ] Lengkapi `.gitignore` untuk Node, Next.js, NestJS, Prisma, Storybook, coverage, dan environment file.
-- [ ] Buat `.env.example` tanpa secret.
-- [ ] Tentukan script root minimum: `dev`, `build`, `lint`, `typecheck`, `test`, dan `format:check`.
+- [x] Buat root `package.json` dengan `packageManager` pnpm yang dipin.
+- [x] Buat `pnpm-workspace.yaml`.
+- [x] Buat `turbo.json`.
+- [x] Buat `.nvmrc` atau `.node-version` untuk Node.js 24 LTS.
+- [x] Buat `.editorconfig`.
+- [x] Lengkapi `.gitignore` untuk Node, Next.js, NestJS, Prisma, Storybook, coverage, dan environment file.
+- [x] Buat `.env.example` tanpa secret.
+- [x] Tentukan script root minimum: `dev`, `build`, `lint`, `typecheck`, `test`, dan `format:check`.
 
 #### 1.2 Struktur monorepo
 
-- [ ] Buat `apps/web` untuk Next.js.
-- [ ] Buat `apps/api` untuk NestJS.
-- [ ] Buat `apps/worker` untuk background worker.
-- [ ] Buat `packages/ui` untuk token dan primitive component.
-- [ ] Buat `packages/contracts` untuk shared schema/API contract.
-- [ ] Buat `packages/database` untuk Prisma schema dan migration.
-- [ ] Buat `packages/typescript-config`.
-- [ ] Buat `packages/eslint-config`.
-- [ ] Buat folder `infrastructure/docker` dan `infrastructure/deployment` tanpa deployment production dahulu.
+- [x] Buat `apps/web` untuk Next.js.
+- [x] Buat `apps/api` untuk NestJS.
+- [x] Buat `apps/worker` untuk background worker.
+- [x] Buat `packages/ui` untuk token dan primitive component.
+- [x] Buat `packages/contracts` untuk shared schema/API contract.
+- [x] Buat `packages/database` untuk Prisma schema dan migration.
+- [x] Buat `packages/typescript-config`.
+- [x] Buat `packages/eslint-config`.
+- [x] Buat folder `infrastructure/docker` dan `infrastructure/deployment` tanpa deployment production dahulu.
 
 #### 1.3 Boundary awal
 
-- [ ] `apps/web` tidak menyimpan business rule backend.
-- [ ] `packages/ui` tidak bergantung pada domain POS/inventory/finance.
-- [ ] `packages/contracts` tidak mengimpor kode dari `apps/*`.
-- [ ] Belum membuat route fitur, database table, atau screen bisnis.
+- [x] `apps/web` tidak menyimpan business rule backend.
+- [x] `packages/ui` tidak bergantung pada domain POS/inventory/finance.
+- [x] `packages/contracts` tidak mengimpor kode dari `apps/*`.
+- [x] Belum membuat route fitur, database table, atau screen bisnis.
 
 #### Acceptance gate Tahap 1
 
-- [ ] Seluruh struktur sesuai `architecture.md`.
-- [ ] Semua manifest/config dapat dibaca tanpa syntax error.
-- [ ] Tidak ada secret atau `.env` aktual yang ikut repository.
-- [ ] `git status` hanya menunjukkan file yang memang bagian Tahap 1.
-- [ ] TODO Tahap 1 diperbarui.
+- [x] Seluruh struktur sesuai `architecture.md`.
+- [x] Semua manifest/config dapat dibaca tanpa syntax error.
+- [x] Tidak ada secret atau `.env` aktual yang ikut repository.
+- [x] `git status` hanya menunjukkan file yang memang bagian Tahap 1.
+- [x] TODO Tahap 1 diperbarui.
 
 **Commit yang disarankan:**
 
@@ -690,7 +690,6 @@ Jangan menggabungkan Push 1 sampai Push 7 menjadi satu commit. Tujuan pemisahan 
 
 ## 10. Hal yang belum dikerjakan sekarang
 
-- Belum membuat project skeleton.
 - Belum menginstal package.
 - Belum membuat color token CSS.
 - Belum membuat theme provider.
@@ -699,4 +698,4 @@ Jangan menggabungkan Push 1 sampai Push 7 menjadi satu commit. Tujuan pemisahan 
 - Belum membuat custom component.
 - Belum membuat database atau backend module.
 
-Dokumen TODO ini adalah satu-satunya hasil tahap perencanaan saat ini. Implementasi dimulai dari **Tahap 1** setelah TODO direview dan disetujui.
+Project skeleton Tahap 1 sudah dibuat dan diverifikasi secara lokal. Implementasi berikutnya dimulai dari **Tahap 2** setelah hasil Tahap 1 direview, di-commit, dan di-push.

@@ -1,0 +1,48 @@
+# Dependencies and package-manager state
+node_modules/
+.pnpm-store/
+.pnp.*
+
+# Build output and framework caches
+.next/
+out/
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+
+# Tests and component previews
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+storybook-static/
+
+# Generated application files
+generated/
+.prisma/
+
+# Runtime data and logs
+*.log
+logs/
+.cache/
+.docker-data/
+
+# Environment files (templates stay tracked)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Local tooling and editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*.swo
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+Desktop.ini
