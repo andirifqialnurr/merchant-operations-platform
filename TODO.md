@@ -40,9 +40,9 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 1; lalu mulai Tahap 2 - Instalasi dependency fondasi.**
+> **NEXT: Review, commit, dan push Tahap 2; lalu mulai Tahap 3 - Color bank dan design token.**
 
-Belum boleh mulai color token atau komponen UI sebelum Tahap 2 selesai serta dipush.
+Tahap 2 sudah selesai dan terverifikasi secara lokal. Belum boleh mulai color token atau komponen UI sebelum hasil Tahap 2 direview, di-commit, dan di-push.
 
 ## 3. Keputusan stack yang dikunci
 
@@ -132,46 +132,46 @@ chore: initialize pnpm turborepo workspace
 
 #### 2.1 Root tooling
 
-- [ ] Install dan pin Turborepo.
-- [ ] Install TypeScript.
-- [ ] Install ESLint dan config yang dipilih.
-- [ ] Install Prettier serta plugin yang benar-benar diperlukan.
-- [ ] Buat shared TypeScript strict config.
-- [ ] Buat shared lint config.
+- [x] Install dan pin Turborepo.
+- [x] Install TypeScript.
+- [x] Install ESLint dan config yang dipilih.
+- [x] Install Prettier serta plugin yang benar-benar diperlukan.
+- [x] Buat shared TypeScript strict config.
+- [x] Buat shared lint config.
 
 #### 2.2 Web foundation
 
-- [ ] Install Next.js, React, dan React DOM.
-- [ ] Install Tailwind CSS dan integration package resminya.
-- [ ] Install `geist`.
-- [ ] Install `next-themes` atau implementasi theme provider setara yang disepakati.
-- [ ] Install `lucide-react`.
-- [ ] Install `radix-ui` atau primitive Radix individual yang benar-benar digunakan.
-- [ ] Install `class-variance-authority`.
-- [ ] Install `clsx` dan `tailwind-merge`.
+- [x] Install Next.js, React, dan React DOM.
+- [x] Install Tailwind CSS dan integration package resminya.
+- [x] Install `geist`.
+- [x] Install `next-themes` atau implementasi theme provider setara yang disepakati.
+- [x] Install `lucide-react`.
+- [x] Install `radix-ui` atau primitive Radix individual yang benar-benar digunakan.
+- [x] Install `class-variance-authority`.
+- [x] Install `clsx` dan `tailwind-merge`.
 
 #### 2.3 API dan worker skeleton
 
-- [ ] Install NestJS core, platform HTTP, `reflect-metadata`, dan RxJS.
-- [ ] Install package minimal worker runtime.
-- [ ] Jangan install payment, chart, drag-and-drop, printer, atau notification package pada tahap ini.
+- [x] Install NestJS core, platform HTTP, `reflect-metadata`, dan RxJS.
+- [x] Install package minimal worker runtime.
+- [x] Jangan install payment, chart, drag-and-drop, printer, atau notification package pada tahap ini.
 
 #### 2.4 Skeleton verification
 
-- [ ] `apps/web` menampilkan halaman placeholder tanpa feature UI.
-- [ ] `apps/api` menyediakan health endpoint sederhana.
-- [ ] `apps/worker` dapat boot dan shutdown secara bersih.
-- [ ] Root `build`, `lint`, dan `typecheck` berjalan melalui Turborepo.
-- [ ] `pnpm-lock.yaml` terbentuk dan masuk repository.
+- [x] `apps/web` menampilkan halaman placeholder tanpa feature UI.
+- [x] `apps/api` menyediakan health endpoint sederhana.
+- [x] `apps/worker` dapat boot dan shutdown secara bersih.
+- [x] Root `build`, `lint`, dan `typecheck` berjalan melalui Turborepo.
+- [x] `pnpm-lock.yaml` terbentuk dan masuk repository.
 
 #### Acceptance gate Tahap 2
 
-- [ ] Fresh `pnpm install --frozen-lockfile` berhasil.
-- [ ] `pnpm build` berhasil.
-- [ ] `pnpm lint` berhasil.
-- [ ] `pnpm typecheck` berhasil.
-- [ ] Tidak ada dependency yang belum dipakai oleh fondasi.
-- [ ] TODO Tahap 2 diperbarui.
+- [x] Fresh `pnpm install --frozen-lockfile` berhasil.
+- [x] `pnpm build` berhasil.
+- [x] `pnpm lint` berhasil.
+- [x] `pnpm typecheck` berhasil.
+- [x] Tidak ada dependency yang belum dipakai oleh fondasi.
+- [x] TODO Tahap 2 diperbarui.
 
 **Commit yang disarankan:**
 
@@ -690,7 +690,6 @@ Jangan menggabungkan Push 1 sampai Push 7 menjadi satu commit. Tujuan pemisahan 
 
 ## 10. Hal yang belum dikerjakan sekarang
 
-- Belum menginstal package.
 - Belum membuat color token CSS.
 - Belum membuat theme provider.
 - Belum memasang Geist pada aplikasi.
@@ -698,4 +697,4 @@ Jangan menggabungkan Push 1 sampai Push 7 menjadi satu commit. Tujuan pemisahan 
 - Belum membuat custom component.
 - Belum membuat database atau backend module.
 
-Project skeleton Tahap 1 sudah dibuat dan diverifikasi secara lokal. Implementasi berikutnya dimulai dari **Tahap 2** setelah hasil Tahap 1 direview, di-commit, dan di-push.
+Dependency dan skeleton Tahap 2 sudah dibuat serta diverifikasi secara lokal. Implementasi berikutnya dimulai dari **Tahap 3** setelah hasil Tahap 2 direview, di-commit, dan di-push.
