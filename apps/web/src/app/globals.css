@@ -9,10 +9,20 @@
   font-family: Arial, sans-serif;
 }
 
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
 * {
   box-sizing: border-box;
 }
 
 body {
+  background: var(--color-bg-canvas);
+  color: var(--color-text-primary);
   margin: 0;
 }

@@ -1,4 +1,5 @@
-:root {
+:root,
+[data-theme-preview="light"] {
   /* Background surfaces */
   --color-bg-canvas: var(--primitive-color-slate-50);
   --color-bg-surface: var(--primitive-color-white);

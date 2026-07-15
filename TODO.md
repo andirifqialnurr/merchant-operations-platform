@@ -40,9 +40,9 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review screenshot Color Bank Tahap 3; lalu commit/push Tahap 3 dan mulai Tahap 4 - Theme engine.**
+> **NEXT: Runtime/visual review Tahap 4; lalu commit/push Theme Engine sebelum mulai Tahap 5 - Typography.**
 
-Implementasi Color Bank Tahap 3 sudah selesai dan terverifikasi secara lokal. Review screenshot light/dark masih menjadi gate terakhir sebelum Tahap 3 di-commit, di-push, dan pekerjaan Theme Engine Tahap 4 dimulai.
+Theme Engine Tahap 4 sudah diimplementasikan dan lolos verifikasi statis, build, serta HTTP smoke test. Runtime browser untuk reload, keyboard, hydration, dan visual theme masih harus direview sebelum Tahap 4 ditutup.
 
 ## 3. Keputusan stack yang dikunci
 
@@ -257,16 +257,16 @@ feat(ui): add light and dark color token bank
 
 **Tujuan:** Menerapkan theme runtime yang stabil sebelum typography dan component.
 
-- [ ] Implementasikan `ThemeProvider` pada root web.
-- [ ] Mendukung `light`, `dark`, dan `system`.
-- [ ] Gunakan `data-theme` atau class root yang konsisten.
-- [ ] Set `color-scheme` sesuai theme aktif.
-- [ ] Cegah flash theme yang salah saat initial render/hydration.
-- [ ] Simpan preference sementara secara lokal; integrasi user/device dilakukan setelah identity tersedia.
-- [ ] Buat temporary development theme switcher.
-- [ ] Theme switch tidak me-refresh halaman.
-- [ ] Theme switch tidak menghapus state/draft lokal.
-- [ ] Siapkan contract persistence per user untuk backoffice dan per device untuk POS/KDS.
+- [x] Implementasikan `ThemeProvider` pada root web.
+- [x] Mendukung `light`, `dark`, dan `system`.
+- [x] Gunakan `data-theme` atau class root yang konsisten.
+- [x] Set `color-scheme` sesuai theme aktif.
+- [x] Cegah flash theme yang salah saat initial render/hydration.
+- [x] Simpan preference sementara secara lokal; integrasi user/device dilakukan setelah identity tersedia.
+- [x] Buat temporary development theme switcher.
+- [x] Theme switch tidak me-refresh halaman.
+- [x] Theme switch tidak menghapus state/draft lokal.
+- [x] Siapkan contract persistence per user untuk backoffice dan per device untuk POS/KDS.
 
 #### Acceptance gate Tahap 4
 
@@ -275,7 +275,7 @@ feat(ui): add light and dark color token bank
 - [ ] Tidak ada hydration warning atau visible theme flash.
 - [ ] Seluruh color bank berubah melalui semantic token.
 - [ ] Keyboard dapat menggunakan theme switcher.
-- [ ] Build, lint, typecheck, dan smoke test lulus.
+- [x] Build, lint, typecheck, dan smoke test lulus.
 
 **Commit yang disarankan:**
 
@@ -691,10 +691,10 @@ Jangan menggabungkan Push 1 sampai Push 7 menjadi satu commit. Tujuan pemisahan 
 ## 10. Hal yang belum dikerjakan sekarang
 
 - Color token CSS dan development Color Bank sudah dibuat; review screenshot light/dark masih pending.
-- Belum membuat theme provider.
+- Theme Provider dan development theme switcher sudah dibuat; runtime/visual review Tahap 4 masih pending.
 - Belum memasang Geist pada aplikasi.
 - Belum membuat Storybook.
 - Belum membuat custom component.
 - Belum membuat database atau backend module.
 
-Color token dan development Color Bank Tahap 3 sudah dibuat serta diverifikasi secara lokal. Implementasi berikutnya dimulai dari **Tahap 4** setelah screenshot Color Bank direview dan hasil Tahap 3 di-commit serta di-push.
+Theme Engine Tahap 4 sudah diimplementasikan serta lolos verifikasi statis, production build, dan HTTP smoke test. Tahap 5 dimulai setelah runtime/visual review Theme Engine selesai dan hasil Tahap 4 di-commit serta di-push.

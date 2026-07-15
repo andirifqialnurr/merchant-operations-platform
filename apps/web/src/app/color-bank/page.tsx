@@ -2,6 +2,8 @@ import type { CSSProperties } from "react";
 
 import Link from "next/link";
 
+import { ThemeSwitcher } from "@/components/theme/theme-switcher";
+
 type PrimitiveGroup = {
   name: string;
   description: string;
@@ -235,6 +237,9 @@ export default function ColorBankPage() {
             Source of truth visual untuk primitive palette, semantic theme light/dark, status, dan
             preset warna storefront merchant.
           </p>
+          <div className="mt-6">
+            <ThemeSwitcher />
+          </div>
         </header>
 
         <div className="grid gap-6">
