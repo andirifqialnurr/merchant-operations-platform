@@ -6,7 +6,8 @@
     "**/*.css"
   ],
   "exports": {
-    "./styles/primitives.css": "./src/styles/primitives.css"
+    "./styles/primitives.css": "./src/styles/primitives.css",
+    "./styles/tokens.css": "./src/styles/tokens.css"
   },
   "scripts": {
     "format:check": "prettier --check . --ignore-path ../../.gitignore"

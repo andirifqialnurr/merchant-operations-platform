@@ -1,0 +1,44 @@
+:root {
+  /* Background surfaces */
+  --color-bg-canvas: var(--primitive-color-slate-50);
+  --color-bg-surface: var(--primitive-color-white);
+  --color-bg-surface-subtle: var(--primitive-color-slate-100);
+  --color-bg-surface-raised: var(--primitive-color-white);
+  --color-bg-surface-inverse: var(--primitive-color-slate-900);
+  --color-bg-overlay: color-mix(in srgb, var(--primitive-color-slate-900) 48%, transparent);
+
+  /* Text */
+  --color-text-primary: var(--primitive-color-slate-900);
+  --color-text-secondary: var(--primitive-color-slate-600);
+  --color-text-muted: var(--primitive-color-slate-500);
+  --color-text-disabled: var(--primitive-color-slate-400);
+  --color-text-inverse: var(--primitive-color-white);
+
+  /* Borders */
+  --color-border-subtle: var(--primitive-color-slate-200);
+  --color-border-default: var(--primitive-color-slate-300);
+  --color-border-control: var(--primitive-color-slate-500);
+  --color-border-strong: var(--primitive-color-slate-600);
+
+  /* Primary action */
+  --color-action-primary: var(--primitive-color-teal-700);
+  --color-action-primary-hover: var(--primitive-color-teal-800);
+  --color-action-primary-pressed: var(--primitive-color-teal-900);
+  --color-action-on-primary: var(--primitive-color-white);
+  --color-action-primary-subtle: var(--primitive-color-teal-100);
+
+  /* Focus */
+  --color-focus-ring: var(--primitive-color-teal-600);
+
+  /* Status */
+  --color-status-info-text: var(--primitive-color-blue-700);
+  --color-status-info-bg: var(--primitive-color-blue-50);
+  --color-status-success-text: var(--primitive-color-green-700);
+  --color-status-success-bg: var(--primitive-color-green-50);
+  --color-status-warning-text: var(--primitive-color-amber-700);
+  --color-status-warning-bg: var(--primitive-color-amber-50);
+  --color-status-danger-text: var(--primitive-color-red-700);
+  --color-status-danger-bg: var(--primitive-color-red-50);
+  --color-status-special-text: var(--primitive-color-violet-700);
+  --color-status-special-bg: var(--primitive-color-violet-50);
+}

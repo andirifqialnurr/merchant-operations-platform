@@ -196,12 +196,12 @@ chore: install workspace foundation dependencies
 
 #### 3.2 Semantic token light
 
-- [ ] Canvas, surface, surface subtle, raised, inverse, dan overlay.
-- [ ] Text primary, secondary, muted, disabled, dan inverse.
-- [ ] Border subtle, default, control, dan strong.
-- [ ] Action primary, hover, pressed, on-primary, dan primary subtle.
-- [ ] Focus ring.
-- [ ] Info, success, warning, danger, dan special.
+- [x] Canvas, surface, surface subtle, raised, inverse, dan overlay.
+- [x] Text primary, secondary, muted, disabled, dan inverse.
+- [x] Border subtle, default, control, dan strong.
+- [x] Action primary, hover, pressed, on-primary, dan primary subtle.
+- [x] Focus ring.
+- [x] Info, success, warning, danger, dan special.
 
 #### 3.3 Semantic token dark
 
