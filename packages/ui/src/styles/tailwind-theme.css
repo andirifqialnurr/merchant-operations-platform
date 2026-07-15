@@ -1,0 +1,52 @@
+/*
+ * Tailwind v4 theme aliases. Keep these names semantic so feature code uses
+ * utilities such as bg-canvas, text-foreground, and border-line-default.
+ */
+@theme inline {
+  /* Background surfaces */
+  --color-canvas: var(--color-bg-canvas);
+  --color-surface: var(--color-bg-surface);
+  --color-surface-subtle: var(--color-bg-surface-subtle);
+  --color-surface-raised: var(--color-bg-surface-raised);
+  --color-surface-inverse: var(--color-bg-surface-inverse);
+  --color-overlay: var(--color-bg-overlay);
+
+  /* Text */
+  --color-foreground: var(--color-text-primary);
+  --color-foreground-secondary: var(--color-text-secondary);
+  --color-foreground-muted: var(--color-text-muted);
+  --color-foreground-disabled: var(--color-text-disabled);
+  --color-foreground-inverse: var(--color-text-inverse);
+
+  /* Borders */
+  --color-line-subtle: var(--color-border-subtle);
+  --color-line-default: var(--color-border-default);
+  --color-line-control: var(--color-border-control);
+  --color-line-strong: var(--color-border-strong);
+
+  /* Primary action */
+  --color-primary: var(--color-action-primary);
+  --color-primary-hover: var(--color-action-primary-hover);
+  --color-primary-pressed: var(--color-action-primary-pressed);
+  --color-on-primary: var(--color-action-on-primary);
+  --color-primary-subtle: var(--color-action-primary-subtle);
+
+  /* Focus */
+  --color-focus: var(--color-focus-ring);
+
+  /* Status */
+  --color-info: var(--color-status-info-text);
+  --color-info-surface: var(--color-status-info-bg);
+  --color-success: var(--color-status-success-text);
+  --color-success-surface: var(--color-status-success-bg);
+  --color-warning: var(--color-status-warning-text);
+  --color-warning-surface: var(--color-status-warning-bg);
+  --color-danger: var(--color-status-danger-text);
+  --color-danger-surface: var(--color-status-danger-bg);
+  --color-special: var(--color-status-special-text);
+  --color-special-surface: var(--color-status-special-bg);
+
+  /* Customer storefront brand */
+  --color-brand: var(--color-brand-primary);
+  --color-on-brand: var(--color-brand-on-primary);
+}

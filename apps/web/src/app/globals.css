@@ -2,6 +2,7 @@
 @import "@merchant/ui/styles/primitives.css";
 @import "@merchant/ui/styles/tokens.css";
 @import "@merchant/ui/styles/merchant-presets.css";
+@import "@merchant/ui/styles/tailwind-theme.css";
 
 :root {
   color-scheme: light;

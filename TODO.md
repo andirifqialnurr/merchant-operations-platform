@@ -223,9 +223,9 @@ chore: install workspace foundation dependencies
 
 #### 3.5 Tailwind mapping
 
-- [ ] Hubungkan CSS variables ke Tailwind theme variables.
-- [ ] Nama utility harus semantic, bukan berdasarkan feature.
-- [ ] Tambahkan guard/lint convention untuk melarang raw arbitrary color pada feature.
+- [x] Hubungkan CSS variables ke Tailwind theme variables.
+- [x] Nama utility harus semantic, bukan berdasarkan feature.
+- [x] Tambahkan guard/lint convention untuk melarang raw arbitrary color pada feature.
 
 #### 3.6 Color bank preview
 

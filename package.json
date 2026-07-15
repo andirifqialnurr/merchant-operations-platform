@@ -10,7 +10,8 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "lint": "turbo run lint",
+    "lint": "turbo run lint && node scripts/check-color-guardrails.mjs",
+    "lint:colors": "node scripts/check-color-guardrails.mjs",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "format:check": "turbo run format:check"
