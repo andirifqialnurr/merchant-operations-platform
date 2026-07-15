@@ -42,3 +42,48 @@
   --color-status-special-text: var(--primitive-color-violet-700);
   --color-status-special-bg: var(--primitive-color-violet-50);
 }
+
+:root[data-theme="dark"] {
+  /* Navy-slate background surfaces */
+  --color-bg-canvas: #0b1120;
+  --color-bg-surface: #111827;
+  --color-bg-surface-subtle: #182235;
+  --color-bg-surface-raised: var(--primitive-color-slate-800);
+  --color-bg-surface-inverse: var(--primitive-color-slate-50);
+  --color-bg-overlay: color-mix(in srgb, var(--primitive-color-slate-950) 72%, transparent);
+
+  /* Text */
+  --color-text-primary: var(--primitive-color-slate-50);
+  --color-text-secondary: var(--primitive-color-slate-300);
+  --color-text-muted: var(--primitive-color-slate-400);
+  --color-text-disabled: var(--primitive-color-slate-500);
+  --color-text-inverse: var(--primitive-color-slate-900);
+
+  /* Borders */
+  --color-border-subtle: #253247;
+  --color-border-default: var(--primitive-color-slate-700);
+  --color-border-control: var(--primitive-color-slate-500);
+  --color-border-strong: var(--primitive-color-slate-400);
+
+  /* Primary action */
+  --color-action-primary: var(--primitive-color-teal-400);
+  --color-action-primary-hover: var(--primitive-color-teal-300);
+  --color-action-primary-pressed: var(--primitive-color-teal-500);
+  --color-action-on-primary: var(--primitive-color-teal-950);
+  --color-action-primary-subtle: var(--primitive-color-teal-900);
+
+  /* Focus */
+  --color-focus-ring: var(--primitive-color-teal-300);
+
+  /* Status */
+  --color-status-info-text: var(--primitive-color-blue-300);
+  --color-status-info-bg: var(--primitive-color-blue-950);
+  --color-status-success-text: var(--primitive-color-green-300);
+  --color-status-success-bg: var(--primitive-color-green-950);
+  --color-status-warning-text: var(--primitive-color-amber-300);
+  --color-status-warning-bg: var(--primitive-color-amber-950);
+  --color-status-danger-text: var(--primitive-color-red-300);
+  --color-status-danger-bg: var(--primitive-color-red-950);
+  --color-status-special-text: var(--primitive-color-violet-300);
+  --color-status-special-bg: var(--primitive-color-violet-950);
+}

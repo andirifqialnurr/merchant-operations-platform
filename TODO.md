@@ -205,10 +205,10 @@ chore: install workspace foundation dependencies
 
 #### 3.3 Semantic token dark
 
-- [ ] Buat pasangan semantic token dark untuk seluruh token light.
-- [ ] Gunakan navy-slate, bukan black murni.
-- [ ] Pastikan surface dibedakan oleh luminance dan border.
-- [ ] Pastikan primary dark memakai teal terang dengan foreground aman.
+- [x] Buat pasangan semantic token dark untuk seluruh token light.
+- [x] Gunakan navy-slate, bukan black murni.
+- [x] Pastikan surface dibedakan oleh luminance dan border.
+- [x] Pastikan primary dark memakai teal terang dengan foreground aman.
 
 #### 3.4 Merchant storefront preset
 
