@@ -3,10 +3,10 @@
 @import "@merchant/ui/styles/tokens.css";
 @import "@merchant/ui/styles/merchant-presets.css";
 @import "@merchant/ui/styles/tailwind-theme.css";
+@import "@merchant/ui/styles/typography.css";
 
 :root {
   color-scheme: light;
-  font-family: Arial, sans-serif;
 }
 
 :root[data-theme="light"] {
@@ -24,5 +24,6 @@
 body {
   background: var(--color-bg-canvas);
   color: var(--color-text-primary);
+  font-family: var(--font-family-sans);
   margin: 0;
 }

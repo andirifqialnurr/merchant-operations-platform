@@ -40,9 +40,9 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Runtime/visual review Tahap 4; lalu commit/push Theme Engine sebelum mulai Tahap 5 - Typography.**
+> **NEXT: Runtime/visual review Typography Bank Tahap 5; lalu commit/push sebelum mulai Tahap 6.**
 
-Theme Engine Tahap 4 sudah diimplementasikan dan lolos verifikasi statis, build, serta HTTP smoke test. Runtime browser untuk reload, keyboard, hydration, dan visual theme masih harus direview sebelum Tahap 4 ditutup.
+Typography Bank Tahap 5 sudah diimplementasikan dan lolos verifikasi statis, production build, font-asset check, serta HTTP smoke test. Review visual light/dark dan zoom 200% masih harus dilakukan sebelum Tahap 5 ditutup.
 
 ## 3. Keputusan stack yang dikunci
 
@@ -293,50 +293,50 @@ feat(ui): add light dark and system theme engine
 
 #### 5.1 Font loading
 
-- [ ] Load Geist Sans dari package `geist`.
-- [ ] Load Geist Mono hanya untuk utility teknis.
-- [ ] Gunakan Inter/system sans sebagai fallback.
-- [ ] Tidak menggunakan runtime external font CDN.
-- [ ] Pastikan font tersedia pada production build dan PWA cache strategy nanti.
+- [x] Load Geist Sans dari package `geist`.
+- [x] Load Geist Mono hanya untuk utility teknis.
+- [x] Gunakan Inter/system sans sebagai fallback.
+- [x] Tidak menggunakan runtime external font CDN.
+- [x] Pastikan font tersedia pada production build dan PWA cache strategy nanti.
 
 #### 5.2 Text style token
 
-- [ ] `caption-xs`.
-- [ ] `caption`.
-- [ ] `body-sm`.
-- [ ] `body`.
-- [ ] `body-lg`.
-- [ ] `label`.
-- [ ] `heading-sm`.
-- [ ] `heading`.
-- [ ] `heading-lg`.
-- [ ] `title`.
-- [ ] `display-sm`.
-- [ ] `display`.
+- [x] `caption-xs`.
+- [x] `caption`.
+- [x] `body-sm`.
+- [x] `body`.
+- [x] `body-lg`.
+- [x] `label`.
+- [x] `heading-sm`.
+- [x] `heading`.
+- [x] `heading-lg`.
+- [x] `title`.
+- [x] `display-sm`.
+- [x] `display`.
 
 #### 5.3 Typography utility
 
-- [ ] Weight 400, 500, 600, dan 700.
-- [ ] Tracking untuk display, heading, body, dan caption.
-- [ ] Tabular numbers utility.
-- [ ] Money/quantity/timer numeric style.
-- [ ] Truncate satu baris dan line-clamp dua/tiga baris.
-- [ ] Prose/long-content style hanya jika dibutuhkan docs/help.
+- [x] Weight 400, 500, 600, dan 700.
+- [x] Tracking untuk display, heading, body, dan caption.
+- [x] Tabular numbers utility.
+- [x] Money/quantity/timer numeric style.
+- [x] Truncate satu baris dan line-clamp dua/tiga baris.
+- [x] Prose/long-content style belum ditambahkan karena belum dibutuhkan docs/help.
 
 #### 5.4 Text-style preview
 
-- [ ] Tampilkan seluruh style dengan contoh Bahasa Indonesia.
-- [ ] Tampilkan angka, nominal, order number, dan timer.
-- [ ] Tampilkan long label dan mixed-case.
-- [ ] Verifikasi light dan dark.
+- [x] Tampilkan seluruh style dengan contoh Bahasa Indonesia.
+- [x] Tampilkan angka, nominal, order number, dan timer.
+- [x] Tampilkan long label dan mixed-case.
+- [x] Verifikasi light dan dark.
 - [ ] Verifikasi zoom 200% dan font scaling.
 
 #### Acceptance gate Tahap 5
 
-- [ ] Seluruh type scale `design-system.md` tersedia.
-- [ ] Tidak ada font-size/weight arbitrary pada preview.
-- [ ] Nominal dan table number memakai tabular numbers.
-- [ ] Geist Mono tidak digunakan untuk UI normal.
+- [x] Seluruh type scale `design-system.md` tersedia.
+- [x] Tidak ada font-size/weight arbitrary pada preview.
+- [x] Nominal dan table number memakai tabular numbers.
+- [x] Geist Mono tidak digunakan untuk UI normal.
 - [ ] Build, lint, typecheck, dan visual review lulus.
 
 **Commit yang disarankan:**
@@ -692,9 +692,9 @@ Jangan menggabungkan Push 1 sampai Push 7 menjadi satu commit. Tujuan pemisahan 
 
 - Color token CSS dan development Color Bank sudah dibuat; review screenshot light/dark masih pending.
 - Theme Provider dan development theme switcher sudah dibuat; runtime/visual review Tahap 4 masih pending.
-- Belum memasang Geist pada aplikasi.
+- Geist Sans/Mono dan Typography Bank sudah dibuat; review visual/zoom Tahap 5 masih pending.
 - Belum membuat Storybook.
 - Belum membuat custom component.
 - Belum membuat database atau backend module.
 
-Theme Engine Tahap 4 sudah diimplementasikan serta lolos verifikasi statis, production build, dan HTTP smoke test. Tahap 5 dimulai setelah runtime/visual review Theme Engine selesai dan hasil Tahap 4 di-commit serta di-push.
+Typography Bank Tahap 5 sudah diimplementasikan serta lolos verifikasi statis, production build, font-asset check, dan HTTP smoke test. Tahap 6 dimulai setelah review visual light/dark dan zoom 200% selesai serta hasil Tahap 5 di-commit dan di-push.

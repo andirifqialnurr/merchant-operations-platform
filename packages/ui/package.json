@@ -9,7 +9,8 @@
     "./styles/merchant-presets.css": "./src/styles/merchant-presets.css",
     "./styles/primitives.css": "./src/styles/primitives.css",
     "./styles/tailwind-theme.css": "./src/styles/tailwind-theme.css",
-    "./styles/tokens.css": "./src/styles/tokens.css"
+    "./styles/tokens.css": "./src/styles/tokens.css",
+    "./styles/typography.css": "./src/styles/typography.css"
   },
   "scripts": {
     "format:check": "prettier --check . --ignore-path ../../.gitignore"
