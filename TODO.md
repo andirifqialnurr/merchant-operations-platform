@@ -212,14 +212,14 @@ chore: install workspace foundation dependencies
 
 #### 3.4 Merchant storefront preset
 
-- [ ] Teal.
-- [ ] Blue.
-- [ ] Indigo.
-- [ ] Violet.
-- [ ] Rose.
-- [ ] Orange.
-- [ ] Simpan `primary` dan `on-primary` sebagai satu preset contract.
-- [ ] Batasi override hanya untuk customer storefront.
+- [x] Teal.
+- [x] Blue.
+- [x] Indigo.
+- [x] Violet.
+- [x] Rose.
+- [x] Orange.
+- [x] Simpan `primary` dan `on-primary` sebagai satu preset contract.
+- [x] Batasi override hanya untuk customer storefront.
 
 #### 3.5 Tailwind mapping
 

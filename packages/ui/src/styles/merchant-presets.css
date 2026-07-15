@@ -1,0 +1,63 @@
+/*
+ * Both attributes are required so merchant branding cannot leak into
+ * POS, KDS, backoffice, inventory, finance, or platform surfaces.
+ */
+[data-customer-storefront][data-brand-preset="teal"] {
+  --color-brand-primary: var(--primitive-color-teal-700);
+  --color-brand-on-primary: var(--primitive-color-white);
+}
+
+[data-customer-storefront][data-brand-preset="blue"] {
+  --color-brand-primary: var(--primitive-color-blue-700);
+  --color-brand-on-primary: var(--primitive-color-white);
+}
+
+[data-customer-storefront][data-brand-preset="indigo"] {
+  --color-brand-primary: var(--primitive-color-indigo-700);
+  --color-brand-on-primary: var(--primitive-color-white);
+}
+
+[data-customer-storefront][data-brand-preset="violet"] {
+  --color-brand-primary: var(--primitive-color-violet-700);
+  --color-brand-on-primary: var(--primitive-color-white);
+}
+
+[data-customer-storefront][data-brand-preset="rose"] {
+  --color-brand-primary: var(--primitive-color-rose-700);
+  --color-brand-on-primary: var(--primitive-color-white);
+}
+
+[data-customer-storefront][data-brand-preset="orange"] {
+  --color-brand-primary: var(--primitive-color-orange-700);
+  --color-brand-on-primary: var(--primitive-color-white);
+}
+
+:root[data-theme="dark"] [data-customer-storefront][data-brand-preset="teal"] {
+  --color-brand-primary: var(--primitive-color-teal-400);
+  --color-brand-on-primary: var(--primitive-color-slate-900);
+}
+
+:root[data-theme="dark"] [data-customer-storefront][data-brand-preset="blue"] {
+  --color-brand-primary: var(--primitive-color-blue-400);
+  --color-brand-on-primary: var(--primitive-color-slate-900);
+}
+
+:root[data-theme="dark"] [data-customer-storefront][data-brand-preset="indigo"] {
+  --color-brand-primary: var(--primitive-color-indigo-400);
+  --color-brand-on-primary: var(--primitive-color-slate-900);
+}
+
+:root[data-theme="dark"] [data-customer-storefront][data-brand-preset="violet"] {
+  --color-brand-primary: var(--primitive-color-violet-400);
+  --color-brand-on-primary: var(--primitive-color-slate-900);
+}
+
+:root[data-theme="dark"] [data-customer-storefront][data-brand-preset="rose"] {
+  --color-brand-primary: var(--primitive-color-rose-400);
+  --color-brand-on-primary: var(--primitive-color-slate-900);
+}
+
+:root[data-theme="dark"] [data-customer-storefront][data-brand-preset="orange"] {
+  --color-brand-primary: var(--primitive-color-orange-400);
+  --color-brand-on-primary: var(--primitive-color-slate-900);
+}

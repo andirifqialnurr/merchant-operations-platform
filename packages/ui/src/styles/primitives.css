@@ -31,8 +31,12 @@
   /* Status primitives: only the Version 1 stops used by semantic tokens. */
   --primitive-color-blue-50: #eff6ff;
   --primitive-color-blue-300: #93c5fd;
+  --primitive-color-blue-400: #60a5fa;
   --primitive-color-blue-700: #1d4ed8;
   --primitive-color-blue-950: #172554;
+
+  --primitive-color-indigo-400: #818cf8;
+  --primitive-color-indigo-700: #4338ca;
 
   --primitive-color-green-50: #f0fdf4;
   --primitive-color-green-300: #86efac;
@@ -51,6 +55,13 @@
 
   --primitive-color-violet-50: #f5f3ff;
   --primitive-color-violet-300: #c4b5fd;
+  --primitive-color-violet-400: #a78bfa;
   --primitive-color-violet-700: #6d28d9;
   --primitive-color-violet-950: #2e1065;
+
+  --primitive-color-rose-400: #fb7185;
+  --primitive-color-rose-700: #be123c;
+
+  --primitive-color-orange-400: #fb923c;
+  --primitive-color-orange-700: #c2410c;
 }

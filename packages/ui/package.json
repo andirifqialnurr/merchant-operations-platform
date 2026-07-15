@@ -6,6 +6,7 @@
     "**/*.css"
   ],
   "exports": {
+    "./styles/merchant-presets.css": "./src/styles/merchant-presets.css",
     "./styles/primitives.css": "./src/styles/primitives.css",
     "./styles/tokens.css": "./src/styles/tokens.css"
   },
