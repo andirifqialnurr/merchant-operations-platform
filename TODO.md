@@ -189,10 +189,10 @@ chore: install workspace foundation dependencies
 
 #### 3.1 Primitive color token
 
-- [ ] Implementasikan Operational Teal `50-950` sesuai `design-system.md`.
-- [ ] Implementasikan Slate `50-950` dan white.
-- [ ] Implementasikan primitive Blue, Green, Amber, Red, dan Violet untuk status.
-- [ ] Jangan menggunakan raw hex di luar file token.
+- [x] Implementasikan Operational Teal `50-950` sesuai `design-system.md`.
+- [x] Implementasikan Slate `50-950` dan white.
+- [x] Implementasikan primitive Blue, Green, Amber, Red, dan Violet untuk status.
+- [x] Jangan menggunakan raw hex di luar file token.
 
 #### 3.2 Semantic token light
 

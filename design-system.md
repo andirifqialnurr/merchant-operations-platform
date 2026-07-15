@@ -89,6 +89,7 @@ Primitive token
 ### 4.1 Primitive token
 
 Primitive berisi nilai mentah seperti `teal-700` atau `slate-900`. Primitive tidak boleh digunakan langsung oleh halaman fitur.
+Implementasi CSS memakai pola `--primitive-color-<token>` agar primitive tidak terekspos sebagai utility semantic Tailwind.
 
 ### 4.2 Semantic token
 
@@ -157,17 +158,34 @@ Override merchant hanya berlaku pada Cafe Profile dan customer self-order. POS, 
 | `slate-900` | `#0F172A` |
 | `slate-950` | `#020617` |
 
-### 5.3 Semantic primitive
+### 5.3 Status primitive
 
-| Fungsi | Skala utama |
-|---|---|
-| Information | Blue |
-| Success | Green |
-| Warning | Amber |
-| Danger | Red |
-| Special/refund | Violet |
+Version 1 hanya menyediakan stop yang dipakai oleh status light/dark. Stop lain tidak ditambahkan sampai memiliki use case yang jelas.
 
-Palet semantic tidak digunakan sebagai warna dekoratif atau pembeda kategori produk.
+| Fungsi | Token | Hex |
+|---|---|---:|
+| Information | `blue-50` | `#EFF6FF` |
+| Information | `blue-300` | `#93C5FD` |
+| Information | `blue-700` | `#1D4ED8` |
+| Information | `blue-950` | `#172554` |
+| Success | `green-50` | `#F0FDF4` |
+| Success | `green-300` | `#86EFAC` |
+| Success | `green-700` | `#15803D` |
+| Success | `green-950` | `#052E16` |
+| Warning | `amber-50` | `#FFFBEB` |
+| Warning | `amber-300` | `#FCD34D` |
+| Warning | `amber-700` | `#B45309` |
+| Warning | `amber-950` | `#451A03` |
+| Danger | `red-50` | `#FEF2F2` |
+| Danger | `red-300` | `#FCA5A5` |
+| Danger | `red-700` | `#B91C1C` |
+| Danger | `red-950` | `#450A0A` |
+| Special/refund | `violet-50` | `#F5F3FF` |
+| Special/refund | `violet-300` | `#C4B5FD` |
+| Special/refund | `violet-700` | `#6D28D9` |
+| Special/refund | `violet-950` | `#2E1065` |
+
+Palet status tidak digunakan sebagai warna dekoratif atau pembeda kategori produk.
 
 ## 6. Semantic theme
 

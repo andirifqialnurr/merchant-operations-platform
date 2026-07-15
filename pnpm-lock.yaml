@@ -54,6 +54,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@merchant/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@tailwindcss/postcss':
         specifier: 4.3.2
         version: 4.3.2
@@ -129,6 +132,8 @@ importers:
         version: 8.63.0(eslint@9.39.5(jiti@2.7.0))(typescript@6.0.3)
 
   packages/typescript-config: {}
+
+  packages/ui: {}
 
 packages:
 
