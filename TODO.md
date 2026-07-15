@@ -40,9 +40,9 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 2; lalu mulai Tahap 3 - Color bank dan design token.**
+> **NEXT: Review screenshot Color Bank Tahap 3; lalu commit/push Tahap 3 dan mulai Tahap 4 - Theme engine.**
 
-Tahap 2 sudah selesai dan terverifikasi secara lokal. Belum boleh mulai color token atau komponen UI sebelum hasil Tahap 2 direview, di-commit, dan di-push.
+Implementasi Color Bank Tahap 3 sudah selesai dan terverifikasi secara lokal. Review screenshot light/dark masih menjadi gate terakhir sebelum Tahap 3 di-commit, di-push, dan pekerjaan Theme Engine Tahap 4 dimulai.
 
 ## 3. Keputusan stack yang dikunci
 
@@ -229,19 +229,19 @@ chore: install workspace foundation dependencies
 
 #### 3.6 Color bank preview
 
-- [ ] Buat preview development khusus seluruh primitive palette.
-- [ ] Tampilkan semantic token light dan dark berdampingan.
-- [ ] Tampilkan merchant preset dan pasangan foreground.
-- [ ] Tampilkan status color dengan label, bukan swatch saja.
+- [x] Buat preview development khusus seluruh primitive palette.
+- [x] Tampilkan semantic token light dan dark berdampingan.
+- [x] Tampilkan merchant preset dan pasangan foreground.
+- [x] Tampilkan status color dengan label, bukan swatch saja.
 
 #### Acceptance gate Tahap 3
 
-- [ ] Semua token di `design-system.md` mempunyai implementasi.
-- [ ] Contrast teks normal minimal `4.5:1`.
-- [ ] Contrast control/focus penting minimal `3:1`.
-- [ ] Tidak ada raw color pada feature/skeleton app.
+- [x] Semua token di `design-system.md` mempunyai implementasi.
+- [x] Contrast teks normal minimal `4.5:1`.
+- [x] Contrast control/focus penting minimal `3:1`.
+- [x] Tidak ada raw color pada feature/skeleton app.
 - [ ] Screenshot color bank light/dark diperiksa.
-- [ ] Build, lint, dan typecheck lulus.
+- [x] Build, lint, dan typecheck lulus.
 
 **Commit yang disarankan:**
 
@@ -690,11 +690,11 @@ Jangan menggabungkan Push 1 sampai Push 7 menjadi satu commit. Tujuan pemisahan 
 
 ## 10. Hal yang belum dikerjakan sekarang
 
-- Belum membuat color token CSS.
+- Color token CSS dan development Color Bank sudah dibuat; review screenshot light/dark masih pending.
 - Belum membuat theme provider.
 - Belum memasang Geist pada aplikasi.
 - Belum membuat Storybook.
 - Belum membuat custom component.
 - Belum membuat database atau backend module.
 
-Dependency dan skeleton Tahap 2 sudah dibuat serta diverifikasi secara lokal. Implementasi berikutnya dimulai dari **Tahap 3** setelah hasil Tahap 2 direview, di-commit, dan di-push.
+Color token dan development Color Bank Tahap 3 sudah dibuat serta diverifikasi secara lokal. Implementasi berikutnya dimulai dari **Tahap 4** setelah screenshot Color Bank direview dan hasil Tahap 3 di-commit serta di-push.

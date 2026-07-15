@@ -43,7 +43,8 @@
   --color-status-special-bg: var(--primitive-color-violet-50);
 }
 
-:root[data-theme="dark"] {
+:root[data-theme="dark"],
+[data-theme-preview="dark"] {
   /* Navy-slate background surfaces */
   --color-bg-canvas: #0b1120;
   --color-bg-surface: #111827;
