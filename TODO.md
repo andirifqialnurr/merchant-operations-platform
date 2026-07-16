@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 7.3 - Story contract; lalu lanjut Tahap 8.1 - Button foundation.**
+> **NEXT: Review, commit, dan push Tahap 8.1 - Button foundation; lalu lanjut Tahap 8.2 - Form field dan text input.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -496,12 +496,12 @@ Setiap sub-tahap P1 dipush terpisah. Jangan membuat seluruh component dalam satu
 
 ### Tahap 8.1 - Button foundation
 
-- [ ] `Button`: primary, secondary, outline, ghost, destructive, dan link.
-- [ ] Size `xs`, `sm`, `md`, `lg`, dan `xl`.
-- [ ] Loading, disabled, icon-left, icon-right, dan full-width.
-- [ ] `IconButton` seluruh size.
-- [ ] Focus-visible, keyboard, tooltip contract, dan touch target.
-- [ ] Story light/dark dan component test.
+- [x] `Button`: primary, secondary, outline, ghost, destructive, dan link.
+- [x] Size `xs`, `sm`, `md`, `lg`, dan `xl`.
+- [x] Loading, disabled, icon-left, icon-right, dan full-width.
+- [x] `IconButton` seluruh size.
+- [x] Focus-visible, keyboard, tooltip contract, dan touch target.
+- [x] Story light/dark dan component test.
 
 **Commit:** `feat(ui): add custom button primitives`
 

@@ -6,6 +6,7 @@ import "@merchant/ui/styles/merchant-presets.css";
 import "@merchant/ui/styles/tailwind-theme.css";
 import "@merchant/ui/styles/typography.css";
 import "@merchant/ui/styles/foundation.css";
+import "@merchant/ui/styles/button.css";
 
 import "./preview.css";
 
