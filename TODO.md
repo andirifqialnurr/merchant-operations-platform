@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 6.1 - Design System Overview Hub; lalu mulai Tahap 7 - Component bank dan test harness.**
+> **NEXT: Review, commit, dan push Tahap 6.2 - Bun development runner pada port 4000; lalu mulai Tahap 7 - Component bank dan test harness.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -405,6 +405,29 @@ feat(web): add design system overview hub
 ```
 
 **STOP:** Report, review, commit, dan push Tahap 6.1 sebelum memulai Storybook/Tahap 7.
+
+---
+
+### Tahap 6.2 - Bun development runner pada port 4000
+
+**Tujuan:** Menjadikan `bun run dev` dari root sebagai satu perintah untuk menjalankan workspace dengan aplikasi web pada port `4000`.
+
+- [x] Ubah script development web ke `next dev --port 4000`.
+- [x] Verifikasi `bun run dev` dari root menjalankan Design System Hub pada `http://localhost:4000/design-system`.
+
+#### Acceptance gate Tahap 6.2
+
+- [x] `bun run dev` berhasil menjalankan seluruh task development melalui Turborepo.
+- [x] Design System Hub merespons HTTP `200` pada port `4000`.
+- [x] Port development web tidak perlu diberikan manual melalui CLI.
+
+#### Commit checkpoint Tahap 6.2
+
+```text
+chore(web): run Bun development server on port 4000
+```
+
+**STOP:** Report, review, commit, dan push Tahap 6.2 sebelum memulai Tahap 7.
 
 ---
 
