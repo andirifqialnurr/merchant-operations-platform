@@ -12,6 +12,10 @@ export default function HomePage() {
       <Link className="mt-2 inline-block text-label text-primary underline" href="/typography">
         Buka development Typography Bank
       </Link>
+      <br />
+      <Link className="mt-2 inline-block text-label text-primary underline" href="/foundation">
+        Buka development Layout dan Icon Foundation
+      </Link>
     </main>
   );
 }

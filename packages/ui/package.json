@@ -6,6 +6,8 @@
     "**/*.css"
   ],
   "exports": {
+    "./app-icon": "./src/components/app-icon.tsx",
+    "./styles/foundation.css": "./src/styles/foundation.css",
     "./styles/merchant-presets.css": "./src/styles/merchant-presets.css",
     "./styles/primitives.css": "./src/styles/primitives.css",
     "./styles/tailwind-theme.css": "./src/styles/tailwind-theme.css",
@@ -13,6 +15,21 @@
     "./styles/typography.css": "./src/styles/typography.css"
   },
   "scripts": {
-    "format:check": "prettier --check . --ignore-path ../../.gitignore"
+    "format:check": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "lucide-react": "1.24.0"
+  },
+  "devDependencies": {
+    "@merchant/eslint-config": "workspace:*",
+    "@merchant/typescript-config": "workspace:*",
+    "@types/react": "19.2.17",
+    "eslint": "9.39.5",
+    "typescript": "6.0.3"
+  },
+  "peerDependencies": {
+    "react": "19.2.7"
   }
 }

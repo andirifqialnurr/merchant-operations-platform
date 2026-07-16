@@ -40,9 +40,9 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Runtime/visual review Typography Bank Tahap 5; lalu commit/push sebelum mulai Tahap 6.**
+> **NEXT: Review, commit, dan push Tahap 6; lalu mulai Tahap 7 - Component bank dan test harness.**
 
-Typography Bank Tahap 5 sudah diimplementasikan dan lolos verifikasi statis, production build, font-asset check, serta HTTP smoke test. Review visual light/dark dan zoom 200% masih harus dilakukan sebelum Tahap 5 ditutup.
+Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
 ## 3. Keputusan stack yang dikunci
 
@@ -329,7 +329,7 @@ feat(ui): add light dark and system theme engine
 - [x] Tampilkan angka, nominal, order number, dan timer.
 - [x] Tampilkan long label dan mixed-case.
 - [x] Verifikasi light dan dark.
-- [ ] Verifikasi zoom 200% dan font scaling.
+- [x] Verifikasi zoom 200% dan font scaling.
 
 #### Acceptance gate Tahap 5
 
@@ -337,7 +337,7 @@ feat(ui): add light dark and system theme engine
 - [x] Tidak ada font-size/weight arbitrary pada preview.
 - [x] Nominal dan table number memakai tabular numbers.
 - [x] Geist Mono tidak digunakan untuk UI normal.
-- [ ] Build, lint, typecheck, dan visual review lulus.
+- [x] Build, lint, typecheck, dan visual review lulus.
 
 **Commit yang disarankan:**
 
@@ -353,23 +353,23 @@ feat(ui): add Geist typography and text style bank
 
 **Tujuan:** Menyelesaikan seluruh visual foundation selain component.
 
-- [ ] Implementasikan spacing scale berbasis 4px.
-- [ ] Implementasikan control-height `xs`, `sm`, `md`, `lg`, dan `xl`.
-- [ ] Implementasikan radius `none`, `xs`, `sm`, `md`, `lg`, `xl`, dan `full`.
-- [ ] Implementasikan shadow `none`, `xs`, `sm`, `md`, dan `lg`.
-- [ ] Implementasikan motion duration/easing tokens.
-- [ ] Hormati `prefers-reduced-motion`.
-- [ ] Buat `AppIcon` wrapper untuk Lucide.
-- [ ] Kunci icon size `xs`, `sm`, `md`, `lg`, dan `xl`.
-- [ ] Buat preview spacing, radius, shadow, motion, dan icon.
+- [x] Implementasikan spacing scale berbasis 4px.
+- [x] Implementasikan control-height `xs`, `sm`, `md`, `lg`, dan `xl`.
+- [x] Implementasikan radius `none`, `xs`, `sm`, `md`, `lg`, `xl`, dan `full`.
+- [x] Implementasikan shadow `none`, `xs`, `sm`, `md`, dan `lg`.
+- [x] Implementasikan motion duration/easing tokens.
+- [x] Hormati `prefers-reduced-motion`.
+- [x] Buat `AppIcon` wrapper untuk Lucide.
+- [x] Kunci icon size `xs`, `sm`, `md`, `lg`, dan `xl`.
+- [x] Buat preview spacing, radius, shadow, motion, dan icon.
 
 #### Acceptance gate Tahap 6
 
-- [ ] Tidak ada arbitrary spacing/radius/shadow pada preview.
-- [ ] Icon menggunakan current color dan accessible rule.
-- [ ] Dark mode tidak bergantung pada shadow untuk membedakan surface.
-- [ ] Reduced-motion behavior diuji.
-- [ ] Build, lint, typecheck, dan visual review lulus.
+- [x] Tidak ada arbitrary spacing/radius/shadow pada preview.
+- [x] Icon menggunakan current color dan accessible rule.
+- [x] Dark mode tidak bergantung pada shadow untuk membedakan surface.
+- [x] Reduced-motion behavior diuji.
+- [x] Build, lint, typecheck, dan visual review lulus.
 
 **Commit yang disarankan:**
 

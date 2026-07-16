@@ -6,6 +6,7 @@ const workspaceRoot = fileURLToPath(new URL("../", import.meta.url));
 const sourceRoots = ["apps/web/src", "packages/ui/src"];
 const sourceExtensions = new Set([".css", ".js", ".jsx", ".mjs", ".ts", ".tsx"]);
 const allowedTokenFiles = new Set([
+  "packages/ui/src/styles/foundation.css",
   "packages/ui/src/styles/merchant-presets.css",
   "packages/ui/src/styles/primitives.css",
   "packages/ui/src/styles/tailwind-theme.css",
