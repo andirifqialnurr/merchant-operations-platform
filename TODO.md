@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 6; lalu mulai Tahap 7 - Component bank dan test harness.**
+> **NEXT: Review, commit, dan push Tahap 6.1 - Design System Overview Hub; lalu mulai Tahap 7 - Component bank dan test harness.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -378,6 +378,33 @@ feat(ui): add layout and icon foundation tokens
 ```
 
 **STOP:** Push dan review seluruh foundation sebelum component bank.
+
+---
+
+### Tahap 6.1 - Design System Overview Hub
+
+**Tujuan:** Menyediakan satu entry point untuk melihat dan menavigasi seluruh foundation sebelum component bank dibangun.
+
+- [x] Buat route development `/design-system`.
+- [x] Ringkas Color Bank, Typography Bank, dan Layout/Icon Foundation.
+- [x] Pertahankan halaman bank detail sebagai drill-down.
+- [x] Tampilkan semantic light/dark, status, typography, control height, dan icon reference.
+- [x] Arahkan homepage ke Design System Hub sebagai entry point tunggal.
+
+#### Acceptance gate Tahap 6.1
+
+- [x] Seluruh link ke halaman bank detail valid.
+- [x] Light/dark semantic comparison tampil konsisten.
+- [x] Desktop dan viewport sempit tidak mengalami overflow.
+- [x] Build, lint, typecheck, test, format, HTTP smoke test, dan visual review lulus.
+
+**Commit yang disarankan:**
+
+```text
+feat(web): add design system overview hub
+```
+
+**STOP:** Report, review, commit, dan push Tahap 6.1 sebelum memulai Storybook/Tahap 7.
 
 ---
 
