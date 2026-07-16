@@ -17,17 +17,27 @@
   "scripts": {
     "format:check": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint . --max-warnings=0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "lucide-react": "1.24.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.2",
+    "@testing-library/user-event": "14.6.1",
     "@merchant/eslint-config": "workspace:*",
     "@merchant/typescript-config": "workspace:*",
     "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "axe-core": "4.12.1",
     "eslint": "9.39.5",
-    "typescript": "6.0.3"
+    "jsdom": "29.1.1",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10",
+    "vitest-axe": "0.1.0"
   },
   "peerDependencies": {
     "react": "19.2.7"

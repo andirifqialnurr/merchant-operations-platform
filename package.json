@@ -14,6 +14,9 @@
     "lint:colors": "node scripts/check-color-guardrails.mjs",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "test:components": "turbo run test --filter=@merchant/ui",
+    "test:e2e": "turbo run test:e2e --filter=@merchant/storybook",
+    "build:storybook": "turbo run build --filter=@merchant/storybook",
     "format:check": "turbo run format:check"
   },
   "devDependencies": {

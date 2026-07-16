@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 7.1 - Storybook foundation; lalu lanjut Tahap 7.2 - Test tooling.**
+> **NEXT: Review, commit, dan push Tahap 7.2 - Test tooling; lalu lanjut Tahap 7.3 - Story contract.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -450,11 +450,15 @@ chore(web): run Bun development server on port 4000
 
 #### 7.2 Test tooling
 
-- [ ] Install Vitest.
-- [ ] Install Testing Library dan user-event.
-- [ ] Install axe integration untuk component accessibility.
-- [ ] Siapkan Playwright untuk visual/smoke test ketika story kritis tersedia.
-- [ ] Tambahkan script root untuk component test dan Storybook build.
+- [x] Install Vitest.
+- [x] Install Testing Library dan user-event.
+- [x] Install axe integration untuk component accessibility.
+- [x] Siapkan Playwright untuk visual/smoke test ketika story kritis tersedia.
+- [x] Tambahkan script root untuk component test dan Storybook build.
+
+**Checkpoint 7.2:** `chore(test): add component and Storybook smoke test tooling`
+
+**STOP:** Report, review, commit, dan push Tahap 7.2 sebelum melanjutkan Story contract Tahap 7.3.
 
 #### 7.3 Story contract
 
