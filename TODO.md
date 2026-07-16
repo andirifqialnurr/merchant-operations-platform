@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 8.1 - Button foundation; lalu lanjut Tahap 8.2 - Form field dan text input.**
+> **NEXT: Review, commit, dan push Tahap 8.2 - Form field dan text input; lalu lanjut Tahap 8.3 - Selection controls.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -507,10 +507,10 @@ Setiap sub-tahap P1 dipush terpisah. Jangan membuat seluruh component dalam satu
 
 ### Tahap 8.2 - Form field dan text input
 
-- [ ] `FormField`, label, helper, error, required indicator.
-- [ ] `Input`, search, password, prefix, suffix, read-only, dan invalid.
-- [ ] `Textarea` sm/md/lg dan auto-grow variant.
-- [ ] Story light/dark, long label, error, disabled, dan keyboard test.
+- [x] `FormField`, label, helper, error, required indicator.
+- [x] `Input`, search, password, prefix, suffix, read-only, dan invalid.
+- [x] `Textarea` sm/md/lg dan auto-grow variant.
+- [x] Story light/dark, long label, error, disabled, dan keyboard test.
 
 **Commit:** `feat(ui): add custom text field primitives`
 

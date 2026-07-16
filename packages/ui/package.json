@@ -9,12 +9,16 @@
     "./app-icon": "./src/components/app-icon.tsx",
     "./button": "./src/components/button.tsx",
     "./icon-button": "./src/components/button.tsx",
+    "./form-field": "./src/components/text-field.tsx",
+    "./input": "./src/components/text-field.tsx",
+    "./textarea": "./src/components/text-field.tsx",
     "./styles/foundation.css": "./src/styles/foundation.css",
     "./styles/merchant-presets.css": "./src/styles/merchant-presets.css",
     "./styles/primitives.css": "./src/styles/primitives.css",
     "./styles/tailwind-theme.css": "./src/styles/tailwind-theme.css",
     "./styles/tokens.css": "./src/styles/tokens.css",
     "./styles/button.css": "./src/styles/button.css",
+    "./styles/text-field.css": "./src/styles/text-field.css",
     "./styles/typography.css": "./src/styles/typography.css"
   },
   "scripts": {

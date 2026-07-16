@@ -7,6 +7,7 @@ import "@merchant/ui/styles/tailwind-theme.css";
 import "@merchant/ui/styles/typography.css";
 import "@merchant/ui/styles/foundation.css";
 import "@merchant/ui/styles/button.css";
+import "@merchant/ui/styles/text-field.css";
 
 import "./preview.css";
 
