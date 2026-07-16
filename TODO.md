@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 7.2 - Test tooling; lalu lanjut Tahap 7.3 - Story contract.**
+> **NEXT: Review, commit, dan push Tahap 7.3 - Story contract; lalu lanjut Tahap 8.1 - Button foundation.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -462,11 +462,15 @@ chore(web): run Bun development server on port 4000
 
 #### 7.3 Story contract
 
-- [ ] Template story menampilkan size, variant, dan state.
-- [ ] Template light/dark visual comparison.
-- [ ] Template keyboard/accessibility notes.
-- [ ] Template long Indonesian label.
-- [ ] Template loading, empty, error, dan disabled.
+- [x] Template story menampilkan size, variant, dan state.
+- [x] Template light/dark visual comparison.
+- [x] Template keyboard/accessibility notes.
+- [x] Template long Indonesian label.
+- [x] Template loading, empty, error, dan disabled.
+
+**Checkpoint 7.3:** `chore(ui): add component story contract template`
+
+**STOP:** Report, review, commit, dan push Tahap 7.3 sebelum melanjutkan Button foundation Tahap 8.1.
 
 #### Acceptance gate Tahap 7
 

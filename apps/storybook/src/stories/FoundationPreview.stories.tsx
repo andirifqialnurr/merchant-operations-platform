@@ -3,11 +3,14 @@ import { Check, Store } from "lucide-react";
 
 import { AppIcon } from "@merchant/ui/app-icon";
 
+import { storyContractParameters } from "./story-contract";
+
 const meta = {
   title: "Foundation/AppIcon",
   component: AppIcon,
   parameters: {
     layout: "centered",
+    ...storyContractParameters,
   },
   tags: ["autodocs"],
   argTypes: {
