@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 6.2 - Bun development runner pada port 4000; lalu mulai Tahap 7 - Component bank dan test harness.**
+> **NEXT: Review, commit, dan push Tahap 7.1 - Storybook foundation; lalu lanjut Tahap 7.2 - Test tooling.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -67,6 +67,7 @@ Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasik
 | Component bank | Storybook |
 | Component test | Vitest + Testing Library + axe |
 | E2E | Playwright |
+| Chart | ApexCharts + `react-apexcharts` melalui wrapper `packages/ui` |
 
 Versi package tidak ditulis longgar sebagai asumsi di TODO. Saat tahap instalasi dimulai, cek kompatibilitas resmi, pilih versi stabil, lalu kunci melalui `pnpm-lock.yaml`.
 
@@ -437,11 +438,15 @@ chore(web): run Bun development server on port 4000
 
 #### 7.1 Storybook
 
-- [ ] Install Storybook hanya setelah foundation selesai.
-- [ ] Integrasikan `packages/ui`.
-- [ ] Tambahkan toolbar light/dark/system.
-- [ ] Tambahkan viewport mobile, tablet portrait, tablet landscape, desktop, dan large display.
-- [ ] Load stylesheet dan Geist yang sama dengan aplikasi.
+- [x] Install Storybook hanya setelah foundation selesai.
+- [x] Integrasikan `packages/ui`.
+- [x] Tambahkan toolbar light/dark/system.
+- [x] Tambahkan viewport mobile, tablet portrait, tablet landscape, desktop, dan large display.
+- [x] Load stylesheet dan Geist yang sama dengan aplikasi.
+
+**Checkpoint 7.1:** `chore(ui): add Storybook foundation`
+
+**STOP:** Report, review, commit, dan push Tahap 7.1 sebelum melanjutkan Test tooling Tahap 7.2.
 
 #### 7.2 Test tooling
 
@@ -538,6 +543,7 @@ Setiap sub-tahap P1 dipush terpisah. Jangan membuat seluruh component dalam satu
 - [ ] Badge xs/sm/md dan semantic variants.
 - [ ] Alert compact/default.
 - [ ] Toast stack dan placement per surface.
+- [ ] Status Bar untuk info, success, warning, danger, loading, dan offline state.
 - [ ] Spinner, Progress, dan Skeleton variants.
 - [ ] Empty State dan Error State.
 - [ ] Live-region behavior dan reduced motion.
@@ -549,6 +555,7 @@ Setiap sub-tahap P1 dipush terpisah. Jangan membuat seluruh component dalam satu
 - [ ] Dialog xs/sm/md/lg/xl/full.
 - [ ] Alert Dialog destructive flow.
 - [ ] Drawer/Sheet sm/md/lg dan mobile behavior.
+- [ ] Overflow Modal/Sheet untuk action padat dan mobile behavior.
 - [ ] Popover.
 - [ ] Dropdown Menu.
 - [ ] Tooltip.
@@ -576,7 +583,9 @@ Setiap sub-tahap P1 dipush terpisah. Jangan membuat seluruh component dalam satu
 - [ ] Metric Card.
 - [ ] Avatar.
 - [ ] Divider, Accordion, dan Timeline.
-- [ ] Chart wrapper hanya setelah report use case disepakati.
+- [ ] Chart wrapper berbasis ApexCharts hanya setelah report use case disepakati.
+- [ ] Install `apexcharts` dan `react-apexcharts` hanya pada tahap ini.
+- [ ] Chart mempunyai loading, empty, error, tooltip, legend, responsive, dan reduced-motion state.
 
 **Commit:** `feat(ui): add data display components`
 
@@ -743,7 +752,7 @@ Jangan menggabungkan Push 1 sampai Push 7 menjadi satu commit. Tujuan pemisahan 
 - Color token CSS dan development Color Bank sudah dibuat; review screenshot light/dark masih pending.
 - Theme Provider dan development theme switcher sudah dibuat; runtime/visual review Tahap 4 masih pending.
 - Geist Sans/Mono dan Typography Bank sudah dibuat; review visual/zoom Tahap 5 masih pending.
-- Belum membuat Storybook.
+- Storybook foundation sudah dibuat; test harness dan custom component masih pending.
 - Belum membuat custom component.
 - Belum membuat database atau backend module.
 

@@ -1,0 +1,32 @@
+{
+  "name": "@merchant/storybook",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "storybook dev --port 6006",
+    "build": "storybook build",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test",
+    "format:check": "prettier --check . --ignore-path ../../.gitignore"
+  },
+  "dependencies": {
+    "@merchant/ui": "workspace:*",
+    "geist": "1.7.2",
+    "lucide-react": "1.24.0",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {
+    "@storybook/react-vite": "10.5.0",
+    "@tailwindcss/postcss": "4.3.2",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "@merchant/eslint-config": "workspace:*",
+    "@merchant/typescript-config": "workspace:*",
+    "storybook": "10.5.0",
+    "tailwindcss": "4.3.2",
+    "typescript": "6.0.3",
+    "vite": "8.1.4"
+  }
+}
