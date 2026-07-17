@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 8.9 - Data-display components; lalu lanjut Tahap 9 - Database dan API foundation.**
+> **NEXT: Review, commit, dan push Tahap 9 database baseline; lalu lanjut pecahan API contract pada Tahap 9.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -614,10 +614,10 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 ### Tahap 9 - Database dan API foundation
 
-- [ ] Install Prisma dan PostgreSQL driver pada tahap ini, bukan sebelumnya.
-- [ ] Buat tenant/outlet scope foundation.
-- [ ] Buat migration baseline.
-- [ ] Buat audit, idempotency, dan outbox foundation.
+- [x] Install Prisma, PostgreSQL driver adapter, dan client pada tahap ini, bukan sebelumnya.
+- [x] Buat tenant/outlet scope foundation.
+- [x] Buat migration baseline.
+- [x] Buat audit, idempotency, dan outbox foundation.
 - [ ] Buat OpenAPI dan shared contract generation/validation.
 - [ ] Siapkan Redis/BullMQ setelah use case worker pertama ditetapkan.
 - [ ] Siapkan Docker Compose PostgreSQL/Redis/object storage untuk development.

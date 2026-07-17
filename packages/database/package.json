@@ -1,0 +1,30 @@
+{
+  "name": "@merchant/database",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/client.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:validate": "prisma validate",
+    "format:check": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "pg": "^8.22.0"
+  },
+  "devDependencies": {
+    "@merchant/eslint-config": "workspace:*",
+    "@merchant/typescript-config": "workspace:*",
+    "dotenv": "^17.4.2",
+    "prisma": "^7.8.0"
+  }
+}

@@ -1,0 +1,127 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum IdempotencyStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model Tenant {
+  id              String           @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  name            String           @db.VarChar(160)
+  slug            String           @unique @db.VarChar(80)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  brands          Brand[]
+  outlets         Outlet[]
+  auditLogs       AuditLog[]
+  idempotencyKeys IdempotencyKey[]
+  outboxEvents    OutboxEvent[]
+
+  @@map("tenants")
+}
+
+model Brand {
+  id        String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  name      String   @db.VarChar(160)
+  slug      String   @db.VarChar(80)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlets   Outlet[]
+
+  @@unique([tenantId, slug])
+  @@index([tenantId, createdAt])
+  @@map("brands")
+}
+
+model Outlet {
+  id              String           @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId        String           @map("tenant_id") @db.Uuid
+  brandId         String           @map("brand_id") @db.Uuid
+  code            String           @db.VarChar(40)
+  name            String           @db.VarChar(160)
+  timezone        String           @default("Asia/Jakarta") @db.VarChar(64)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  brand           Brand            @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  auditLogs       AuditLog[]
+  idempotencyKeys IdempotencyKey[]
+  outboxEvents    OutboxEvent[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, brandId])
+  @@index([tenantId, createdAt])
+  @@map("outlets")
+}
+
+model AuditLog {
+  id         String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId   String    @map("tenant_id") @db.Uuid
+  outletId   String?   @map("outlet_id") @db.Uuid
+  actorId    String?   @map("actor_id") @db.Uuid
+  action     String    @db.VarChar(120)
+  entityType String    @map("entity_type") @db.VarChar(120)
+  entityId   String?   @map("entity_id") @db.Uuid
+  requestId  String?   @map("request_id") @db.VarChar(100)
+  metadata   Json?
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet     Outlet?   @relation(fields: [outletId], references: [id], onDelete: Restrict)
+
+  @@index([tenantId, outletId, createdAt])
+  @@index([tenantId, entityType, entityId, createdAt])
+  @@map("audit_logs")
+}
+
+model IdempotencyKey {
+  id             String            @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId       String            @map("tenant_id") @db.Uuid
+  outletId       String            @map("outlet_id") @db.Uuid
+  scope          String            @db.VarChar(120)
+  key            String            @db.VarChar(255)
+  requestHash    String?           @map("request_hash") @db.VarChar(128)
+  status         IdempotencyStatus @default(PENDING)
+  responseStatus Int?              @map("response_status")
+  responseBody   Json?             @map("response_body")
+  expiresAt      DateTime          @map("expires_at") @db.Timestamptz(6)
+  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant         Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet         Outlet            @relation(fields: [outletId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, outletId, scope, key])
+  @@index([tenantId, outletId, expiresAt])
+  @@map("idempotency_keys")
+}
+
+model OutboxEvent {
+  id           String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  outletId     String?  @map("outlet_id") @db.Uuid
+  type         String   @db.VarChar(160)
+  aggregateType String  @map("aggregate_type") @db.VarChar(120)
+  aggregateId  String   @map("aggregate_id") @db.Uuid
+  payload      Json
+  occurredAt   DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  availableAt  DateTime @default(now()) @map("available_at") @db.Timestamptz(6)
+  processedAt  DateTime? @map("processed_at") @db.Timestamptz(6)
+  attemptCount Int      @default(0) @map("attempt_count")
+  lastError    String?  @map("last_error") @db.Text
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet       Outlet?  @relation(fields: [outletId], references: [id], onDelete: Restrict)
+
+  @@index([tenantId, outletId, occurredAt])
+  @@index([processedAt, availableAt])
+  @@map("outbox_events")
+}
