@@ -28,6 +28,7 @@
     "./dialog": "./src/components/overlay.tsx",
     "./sheet": "./src/components/overlay.tsx",
     "./navigation": "./src/components/navigation.tsx",
+    "./data-display": "./src/components/data-display.tsx",
     "./styles/foundation.css": "./src/styles/foundation.css",
     "./styles/merchant-presets.css": "./src/styles/merchant-presets.css",
     "./styles/primitives.css": "./src/styles/primitives.css",
@@ -41,6 +42,7 @@
     "./styles/feedback.css": "./src/styles/feedback.css",
     "./styles/overlay.css": "./src/styles/overlay.css",
     "./styles/navigation.css": "./src/styles/navigation.css",
+    "./styles/data-display.css": "./src/styles/data-display.css",
     "./styles/typography.css": "./src/styles/typography.css"
   },
   "scripts": {
@@ -51,15 +53,17 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "apexcharts": "^5.16.0",
     "lucide-react": "1.24.0",
+    "react-apexcharts": "^2.1.1",
     "react-dom": "19.2.7"
   },
   "devDependencies": {
+    "@merchant/eslint-config": "workspace:*",
+    "@merchant/typescript-config": "workspace:*",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.2",
     "@testing-library/user-event": "14.6.1",
-    "@merchant/eslint-config": "workspace:*",
-    "@merchant/typescript-config": "workspace:*",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "axe-core": "4.12.1",

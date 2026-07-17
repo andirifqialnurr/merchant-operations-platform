@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 8.8 - Navigation components; lalu lanjut Tahap 8.9 - Data-display components.**
+> **NEXT: Review, commit, dan push Tahap 8.9 - Data-display components; lalu lanjut Tahap 9 - Database dan API foundation.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -585,15 +585,15 @@ Setiap sub-tahap P1 dipush terpisah. Jangan membuat seluruh component dalam satu
 
 ### Tahap 8.9 - Data-display components
 
-- [ ] Card/Panel variants.
-- [ ] Data Table compact/default/comfortable.
-- [ ] Description List.
-- [ ] Metric Card.
-- [ ] Avatar.
-- [ ] Divider, Accordion, dan Timeline.
-- [ ] Chart wrapper berbasis ApexCharts hanya setelah report use case disepakati.
-- [ ] Install `apexcharts` dan `react-apexcharts` hanya pada tahap ini.
-- [ ] Chart mempunyai loading, empty, error, tooltip, legend, responsive, dan reduced-motion state.
+- [x] Card/Panel variants.
+- [x] Data Table compact/default/comfortable.
+- [x] Description List.
+- [x] Metric Card.
+- [x] Avatar.
+- [x] Divider, Accordion, dan Timeline.
+- [x] Chart wrapper berbasis ApexCharts untuk line, area, bar, dan donut; dapat dipakai fitur future report setelah metriknya tervalidasi.
+- [x] Install `apexcharts` dan `react-apexcharts` hanya pada tahap ini.
+- [x] Chart mempunyai loading, empty, error, tooltip, legend, responsive, reduced-motion state, dan ringkasan nonvisual.
 
 **Commit:** `feat(ui): add data display components`
 

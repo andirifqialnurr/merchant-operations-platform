@@ -1,0 +1,189 @@
+.ui-card {
+  color: var(--color-text-primary);
+}
+.ui-card--outlined,
+.ui-card--interactive,
+.ui-card--elevated,
+.ui-card--selected {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+}
+.ui-card--elevated {
+  box-shadow: var(--foundation-shadow-md);
+}
+.ui-card--selected {
+  background: var(--color-action-primary-subtle);
+  border-color: var(--color-action-primary);
+}
+.ui-card--sm {
+  padding: var(--space-3);
+}
+.ui-card--md {
+  padding: var(--space-4);
+}
+.ui-card--lg {
+  padding: var(--space-6);
+}
+.ui-table {
+  overflow: auto;
+}
+.ui-table table {
+  border-collapse: collapse;
+  inline-size: 100%;
+}
+.ui-table th,
+.ui-table td {
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding: var(--space-3);
+  text-align: left;
+}
+.ui-table th {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+}
+.ui-table--compact th,
+.ui-table--compact td {
+  padding: var(--space-2);
+}
+.ui-table--comfortable th,
+.ui-table--comfortable td {
+  padding: var(--space-4);
+}
+.ui-description-list {
+  display: grid;
+  gap: var(--space-3);
+}
+.ui-description-list div {
+  display: grid;
+  gap: var(--space-1);
+  grid-template-columns: minmax(8rem, 1fr) 2fr;
+}
+.ui-description-list dt {
+  color: var(--color-text-secondary);
+}
+.ui-description-list dd {
+  color: var(--color-text-primary);
+  margin: 0;
+}
+.ui-card p,
+.ui-card small {
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+.ui-card strong {
+  display: block;
+  font-size: var(--text-heading-lg);
+}
+.ui-avatar {
+  align-items: center;
+  background: var(--color-action-primary-subtle);
+  border-radius: var(--foundation-radius-full);
+  color: var(--color-action-primary);
+  display: inline-flex;
+  font-weight: 600;
+  justify-content: center;
+  overflow: hidden;
+}
+.ui-avatar img {
+  block-size: 100%;
+  inline-size: 100%;
+  object-fit: cover;
+}
+.ui-avatar--sm {
+  block-size: 2rem;
+  inline-size: 2rem;
+}
+.ui-avatar--md {
+  block-size: 2.5rem;
+  inline-size: 2.5rem;
+}
+.ui-avatar--lg {
+  block-size: 3rem;
+  inline-size: 3rem;
+}
+.ui-divider {
+  background: var(--color-border-subtle);
+  display: block;
+  block-size: 1px;
+  inline-size: 100%;
+}
+.ui-divider--vertical {
+  block-size: 100%;
+  inline-size: 1px;
+}
+.ui-accordion section {
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.ui-accordion button {
+  background: transparent;
+  border: 0;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font: inherit;
+  inline-size: 100%;
+  padding: var(--space-3);
+  text-align: left;
+}
+.ui-accordion section > div {
+  color: var(--color-text-secondary);
+  padding: 0 var(--space-3) var(--space-3);
+}
+.ui-timeline {
+  display: grid;
+  gap: var(--space-4);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ui-timeline li {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: var(--space-3) 1fr;
+}
+.ui-timeline li > span {
+  background: var(--color-action-primary);
+  border-radius: var(--foundation-radius-full);
+  block-size: var(--space-3);
+  margin-top: var(--space-1);
+}
+.ui-timeline p,
+.ui-timeline time {
+  color: var(--color-text-secondary);
+  margin: var(--space-1) 0 0;
+}
+.ui-chart {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-text-primary);
+  min-inline-size: 0;
+  padding: var(--space-4);
+}
+.ui-chart header h2 {
+  font-size: var(--text-heading-sm);
+  margin: 0 0 var(--space-4);
+}
+.ui-chart__loading .ui-skeleton {
+  block-size: 17.5rem;
+  inline-size: 100%;
+}
+.ui-chart .ui-state {
+  min-block-size: 17.5rem;
+}
+.ui-chart__summary {
+  border-top: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+}
+.ui-chart__summary strong {
+  color: var(--color-text-primary);
+}
+@media (max-width: 40rem) {
+  .ui-description-list div {
+    grid-template-columns: 1fr;
+  }
+}
