@@ -9,6 +9,7 @@ import "@merchant/ui/styles/foundation.css";
 import "@merchant/ui/styles/button.css";
 import "@merchant/ui/styles/text-field.css";
 import "@merchant/ui/styles/selection-control.css";
+import "@merchant/ui/styles/select.css";
 
 import "./preview.css";
 

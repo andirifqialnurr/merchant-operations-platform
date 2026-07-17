@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 8.2 - Form field dan text input; lalu lanjut Tahap 8.3 - Selection controls.**
+> **NEXT: Review, commit, dan push Tahap 8.4 - Select dan Combobox; lalu lanjut Tahap 8.5 - Numeric, Money, Date, dan Time.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -527,11 +527,11 @@ Setiap sub-tahap P1 dipush terpisah. Jangan membuat seluruh component dalam satu
 
 ### Tahap 8.4 - Select dan Combobox
 
-- [ ] Custom Select sm/md/lg.
-- [ ] Searchable Combobox single select.
+- [x] Custom Select sm/md/lg.
+- [x] Searchable Combobox single select.
 - [ ] Multi-select hanya jika sudah ada use case.
-- [ ] Loading, no-result, error, disabled option, dan async search state.
-- [ ] Keyboard navigation, portal, focus, mobile sheet behavior.
+- [x] Loading, no-result, error, disabled option, dan async search state.
+- [x] Keyboard navigation, portal, focus, mobile sheet behavior.
 
 **Commit:** `feat(ui): add custom select and combobox`
 

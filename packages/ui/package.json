@@ -13,6 +13,8 @@
     "./input": "./src/components/text-field.tsx",
     "./textarea": "./src/components/text-field.tsx",
     "./selection-control": "./src/components/selection-control.tsx",
+    "./select": "./src/components/select.tsx",
+    "./combobox": "./src/components/select.tsx",
     "./styles/foundation.css": "./src/styles/foundation.css",
     "./styles/merchant-presets.css": "./src/styles/merchant-presets.css",
     "./styles/primitives.css": "./src/styles/primitives.css",
@@ -21,6 +23,7 @@
     "./styles/button.css": "./src/styles/button.css",
     "./styles/text-field.css": "./src/styles/text-field.css",
     "./styles/selection-control.css": "./src/styles/selection-control.css",
+    "./styles/select.css": "./src/styles/select.css",
     "./styles/typography.css": "./src/styles/typography.css"
   },
   "scripts": {
@@ -31,7 +34,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "lucide-react": "1.24.0"
+    "lucide-react": "1.24.0",
+    "react-dom": "19.2.7"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "6.9.1",
@@ -49,6 +53,7 @@
     "vitest-axe": "0.1.0"
   },
   "peerDependencies": {
-    "react": "19.2.7"
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
   }
 }
