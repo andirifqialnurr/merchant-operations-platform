@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 8.4 - Select dan Combobox; lalu lanjut Tahap 8.5 - Numeric, Money, Date, dan Time.**
+> **NEXT: Review, commit, dan push Tahap 8.5 - Numeric, Money, Date, dan Time; lalu lanjut Tahap 8.6 - Feedback components.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -537,12 +537,12 @@ Setiap sub-tahap P1 dipush terpisah. Jangan membuat seluruh component dalam satu
 
 ### Tahap 8.5 - Numeric, Money, Date, dan Time
 
-- [ ] Number Input.
-- [ ] Money Input dengan format IDR.
-- [ ] Percentage dan unit variant.
-- [ ] Date Picker, Date Range Picker, dan Month Picker.
-- [ ] Time Input format 24 jam.
-- [ ] Locale Indonesia, keyboard, light/dark, dan validation test.
+- [x] Number Input.
+- [x] Money Input dengan format IDR.
+- [x] Percentage dan unit variant.
+- [x] Date Picker, Date Range Picker, dan Month Picker.
+- [x] Time Input format 24 jam.
+- [x] Locale Indonesia, keyboard, light/dark, dan validation test.
 
 **Commit:** `feat(ui): add numeric and date input primitives`
 

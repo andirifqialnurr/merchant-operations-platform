@@ -25,7 +25,7 @@ export type DatePickerProps = {
   label: string;
   onValueChange?: (value: string | undefined) => void;
   placeholder?: string;
-  value?: string;
+  value?: string | undefined;
 };
 export type DateRangePickerProps = {
   disabled?: boolean;
@@ -57,9 +57,6 @@ function formatDate(value?: string) {
         new Date(`${value}T00:00:00`),
       )
     : "Pilih tanggal";
-}
-function pad(value: number) {
-  return String(value).padStart(2, "0");
 }
 
 export function NumericInput({
@@ -117,10 +114,15 @@ export function MoneyInput({
   );
 }
 
-function Calendar({ onSelect, value }: { onSelect: (value: string) => void; value?: string | undefined }) {
+function Calendar({
+  onSelect,
+  value,
+}: {
+  onSelect: (value: string) => void;
+  value?: string | undefined;
+}) {
   const [month, setMonth] = useState(() => (value ? new Date(`${value}T00:00:00`) : new Date()));
   const days = useMemo(() => {
-    const first = new Date(month.getFullYear(), month.getMonth(), 1);
     const count = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
     return Array.from({ length: count }, (_, index) =>
       new Date(month.getFullYear(), month.getMonth(), index + 1).toISOString().slice(0, 10),
@@ -182,7 +184,7 @@ export function DatePicker({
   const id = useId();
   const [open, setOpen] = useState(false);
   return (
-    <div className="ui-date-control">
+    <div aria-label={label} className="ui-date-control">
       <button
         aria-controls={id}
         aria-expanded={open}
