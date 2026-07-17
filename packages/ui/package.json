@@ -27,6 +27,7 @@
     "./overlay": "./src/components/overlay.tsx",
     "./dialog": "./src/components/overlay.tsx",
     "./sheet": "./src/components/overlay.tsx",
+    "./navigation": "./src/components/navigation.tsx",
     "./styles/foundation.css": "./src/styles/foundation.css",
     "./styles/merchant-presets.css": "./src/styles/merchant-presets.css",
     "./styles/primitives.css": "./src/styles/primitives.css",
@@ -39,6 +40,7 @@
     "./styles/numeric-date.css": "./src/styles/numeric-date.css",
     "./styles/feedback.css": "./src/styles/feedback.css",
     "./styles/overlay.css": "./src/styles/overlay.css",
+    "./styles/navigation.css": "./src/styles/navigation.css",
     "./styles/typography.css": "./src/styles/typography.css"
   },
   "scripts": {

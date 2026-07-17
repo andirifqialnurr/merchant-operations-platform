@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 8.7 - Overlay components; lalu lanjut Tahap 8.8 - Navigation components.**
+> **NEXT: Review, commit, dan push Tahap 8.8 - Navigation components; lalu lanjut Tahap 8.9 - Data-display components.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -573,13 +573,13 @@ Setiap sub-tahap P1 dipush terpisah. Jangan membuat seluruh component dalam satu
 
 ### Tahap 8.8 - Navigation components
 
-- [ ] Sidebar expanded/collapsed/mobile.
-- [ ] Top Bar.
-- [ ] Tabs line/contained/vertical.
-- [ ] Breadcrumb.
-- [ ] Pagination.
-- [ ] Stepper.
-- [ ] Responsive dan keyboard behavior.
+- [x] Sidebar expanded/collapsed/mobile.
+- [x] Top Bar.
+- [x] Tabs line/contained/vertical.
+- [x] Breadcrumb.
+- [x] Pagination.
+- [x] Stepper.
+- [x] Responsive dan keyboard behavior.
 
 **Commit:** `feat(ui): add navigation components`
 
