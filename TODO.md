@@ -46,28 +46,28 @@ Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasik
 
 ## 3. Keputusan stack yang dikunci
 
-| Area | Pilihan |
-|---|---|
-| Bahasa | TypeScript strict |
-| Runtime | Node.js 24 LTS |
-| Package manager | pnpm |
-| Monorepo | pnpm workspace + Turborepo |
-| Web | Next.js App Router + React |
-| API | NestJS modular monolith |
-| Worker | Node.js worker process |
-| Styling | Tailwind CSS + CSS design tokens |
-| UI behavior | Radix/headless primitives |
-| Font | Geist Sans + Geist Mono terbatas |
-| Icon | Lucide |
-| Server state | TanStack Query |
-| Local state | Zustand secukupnya |
-| Form | React Hook Form + Zod |
-| Database | PostgreSQL + Prisma |
-| Queue | Redis + BullMQ |
-| Component bank | Storybook |
-| Component test | Vitest + Testing Library + axe |
-| E2E | Playwright |
-| Chart | ApexCharts + `react-apexcharts` melalui wrapper `packages/ui` |
+| Area            | Pilihan                                                       |
+| --------------- | ------------------------------------------------------------- |
+| Bahasa          | TypeScript strict                                             |
+| Runtime         | Node.js 24 LTS                                                |
+| Package manager | pnpm                                                          |
+| Monorepo        | pnpm workspace + Turborepo                                    |
+| Web             | Next.js App Router + React                                    |
+| API             | NestJS modular monolith                                       |
+| Worker          | Node.js worker process                                        |
+| Styling         | Tailwind CSS + CSS design tokens                              |
+| UI behavior     | Radix/headless primitives                                     |
+| Font            | Geist Sans + Geist Mono terbatas                              |
+| Icon            | Lucide                                                        |
+| Server state    | TanStack Query                                                |
+| Local state     | Zustand secukupnya                                            |
+| Form            | React Hook Form + Zod                                         |
+| Database        | PostgreSQL + Prisma                                           |
+| Queue           | Redis + BullMQ                                                |
+| Component bank  | Storybook                                                     |
+| Component test  | Vitest + Testing Library + axe                                |
+| E2E             | Playwright                                                    |
+| Chart           | ApexCharts + `react-apexcharts` melalui wrapper `packages/ui` |
 
 Versi package tidak ditulis longgar sebagai asumsi di TODO. Saat tahap instalasi dimulai, cek kompatibilitas resmi, pilih versi stabil, lalu kunci melalui `pnpm-lock.yaml`.
 
@@ -516,12 +516,12 @@ Setiap sub-tahap P1 dipush terpisah. Jangan membuat seluruh component dalam satu
 
 ### Tahap 8.3 - Selection controls
 
-- [ ] Checkbox sm/md/lg dan indeterminate.
-- [ ] Radio sm/md/lg.
-- [ ] Switch sm/md/lg.
-- [ ] Segmented Control sm/md/lg.
-- [ ] Quantity Stepper sm/md/lg.
-- [ ] Keyboard, touch, accessible label, light/dark stories.
+- [x] Checkbox sm/md/lg dan indeterminate.
+- [x] Radio sm/md/lg.
+- [x] Switch sm/md/lg.
+- [x] Segmented Control sm/md/lg.
+- [x] Quantity Stepper sm/md/lg.
+- [x] Keyboard, touch, accessible label, light/dark stories.
 
 **Commit:** `feat(ui): add custom selection controls`
 
