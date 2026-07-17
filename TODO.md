@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 8.6 - Feedback components; lalu lanjut Tahap 8.7 - Overlay components.**
+> **NEXT: Review, commit, dan push Tahap 8.7 - Overlay components; lalu lanjut Tahap 8.8 - Navigation components.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -560,14 +560,14 @@ Setiap sub-tahap P1 dipush terpisah. Jangan membuat seluruh component dalam satu
 
 ### Tahap 8.7 - Overlay components
 
-- [ ] Dialog xs/sm/md/lg/xl/full.
-- [ ] Alert Dialog destructive flow.
-- [ ] Drawer/Sheet sm/md/lg dan mobile behavior.
-- [ ] Overflow Modal/Sheet untuk action padat dan mobile behavior.
-- [ ] Popover.
-- [ ] Dropdown Menu.
-- [ ] Tooltip.
-- [ ] Focus trap/restore, Escape, portal, scroll lock, light/dark test.
+- [x] Dialog xs/sm/md/lg/xl/full.
+- [x] Alert Dialog destructive flow.
+- [x] Drawer/Sheet sm/md/lg dan mobile behavior.
+- [x] Overflow Modal/Sheet untuk action padat dan mobile behavior.
+- [x] Popover.
+- [x] Dropdown Menu.
+- [x] Tooltip.
+- [x] Focus trap/restore, Escape, portal, scroll lock, light/dark test.
 
 **Commit:** `feat(ui): add custom overlay components`
 

@@ -12,6 +12,7 @@ import "@merchant/ui/styles/selection-control.css";
 import "@merchant/ui/styles/select.css";
 import "@merchant/ui/styles/numeric-date.css";
 import "@merchant/ui/styles/feedback.css";
+import "@merchant/ui/styles/overlay.css";
 
 import "./preview.css";
 

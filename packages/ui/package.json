@@ -24,6 +24,9 @@
     "./badge": "./src/components/feedback.tsx",
     "./alert": "./src/components/feedback.tsx",
     "./toast": "./src/components/feedback.tsx",
+    "./overlay": "./src/components/overlay.tsx",
+    "./dialog": "./src/components/overlay.tsx",
+    "./sheet": "./src/components/overlay.tsx",
     "./styles/foundation.css": "./src/styles/foundation.css",
     "./styles/merchant-presets.css": "./src/styles/merchant-presets.css",
     "./styles/primitives.css": "./src/styles/primitives.css",
@@ -35,6 +38,7 @@
     "./styles/select.css": "./src/styles/select.css",
     "./styles/numeric-date.css": "./src/styles/numeric-date.css",
     "./styles/feedback.css": "./src/styles/feedback.css",
+    "./styles/overlay.css": "./src/styles/overlay.css",
     "./styles/typography.css": "./src/styles/typography.css"
   },
   "scripts": {
