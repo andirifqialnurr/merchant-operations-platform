@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 8.5 - Numeric, Money, Date, dan Time; lalu lanjut Tahap 8.6 - Feedback components.**
+> **NEXT: Review, commit, dan push Tahap 8.6 - Feedback components; lalu lanjut Tahap 8.7 - Overlay components.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -548,13 +548,13 @@ Setiap sub-tahap P1 dipush terpisah. Jangan membuat seluruh component dalam satu
 
 ### Tahap 8.6 - Feedback components
 
-- [ ] Badge xs/sm/md dan semantic variants.
-- [ ] Alert compact/default.
-- [ ] Toast stack dan placement per surface.
-- [ ] Status Bar untuk info, success, warning, danger, loading, dan offline state.
-- [ ] Spinner, Progress, dan Skeleton variants.
-- [ ] Empty State dan Error State.
-- [ ] Live-region behavior dan reduced motion.
+- [x] Badge xs/sm/md dan semantic variants.
+- [x] Alert compact/default.
+- [x] Toast stack dan placement per surface.
+- [x] Status Bar untuk info, success, warning, danger, loading, dan offline state.
+- [x] Spinner, Progress, dan Skeleton variants.
+- [x] Empty State dan Error State.
+- [x] Live-region behavior dan reduced motion.
 
 **Commit:** `feat(ui): add feedback and status components`
 

@@ -1,0 +1,187 @@
+.ui-badge {
+  align-items: center;
+  border-radius: var(--foundation-radius-full);
+  display: inline-flex;
+  font-weight: 600;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+}
+.ui-badge--xs {
+  font-size: var(--text-caption);
+  min-block-size: 1.25rem;
+}
+.ui-badge--sm {
+  font-size: var(--text-caption);
+  min-block-size: 1.5rem;
+}
+.ui-badge--md {
+  font-size: var(--text-body-sm);
+  min-block-size: 1.75rem;
+}
+.ui-badge--info,
+.ui-alert--info,
+.ui-status-bar--info {
+  background: var(--color-status-info-subtle);
+  color: var(--color-status-info-text);
+}
+.ui-badge--success,
+.ui-alert--success,
+.ui-status-bar--success {
+  background: var(--color-status-success-subtle);
+  color: var(--color-status-success-text);
+}
+.ui-badge--warning,
+.ui-alert--warning,
+.ui-status-bar--warning {
+  background: var(--color-status-warning-subtle);
+  color: var(--color-status-warning-text);
+}
+.ui-badge--danger,
+.ui-alert--danger,
+.ui-status-bar--danger {
+  background: var(--color-status-danger-subtle);
+  color: var(--color-status-danger-text);
+}
+.ui-badge--loading,
+.ui-alert--loading,
+.ui-status-bar--loading {
+  background: var(--color-bg-surface-subtle);
+  color: var(--color-text-secondary);
+}
+.ui-badge--offline,
+.ui-alert--offline,
+.ui-status-bar--offline {
+  background: var(--color-bg-surface-subtle);
+  color: var(--color-text-secondary);
+}
+.ui-alert {
+  align-items: flex-start;
+  border: 1px solid currentColor;
+  border-radius: var(--foundation-radius-sm);
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3);
+}
+.ui-alert > div {
+  display: grid;
+  gap: var(--space-1);
+  flex: 1;
+}
+.ui-alert button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+}
+.ui-alert--compact {
+  font-size: var(--text-body-sm);
+  padding: var(--space-2);
+}
+.ui-toast-stack {
+  display: grid;
+  gap: var(--space-2);
+  max-inline-size: 24rem;
+  position: fixed;
+  z-index: 60;
+}
+.ui-toast-stack--top-right {
+  inset-block-start: var(--space-4);
+  inset-inline-end: var(--space-4);
+}
+.ui-toast-stack--bottom-right {
+  inset-block-end: var(--space-4);
+  inset-inline-end: var(--space-4);
+}
+.ui-status-bar {
+  align-items: center;
+  display: flex;
+  font-size: var(--text-body-sm);
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+}
+.ui-spinner {
+  display: inline-flex;
+}
+.ui-spinner__visual {
+  animation: ui-spin var(--motion-duration-slow) linear infinite;
+  border: 2px solid var(--color-border-control);
+  border-radius: var(--foundation-radius-full);
+  border-top-color: var(--color-action-primary);
+  block-size: 1.25rem;
+  inline-size: 1.25rem;
+}
+.ui-progress {
+  background: var(--color-bg-surface-subtle);
+  border-radius: var(--foundation-radius-full);
+  block-size: var(--space-2);
+  overflow: hidden;
+}
+.ui-progress > span {
+  background: var(--color-action-primary);
+  block-size: 100%;
+  display: block;
+  transition: inline-size var(--motion-duration-normal) var(--motion-easing-enter);
+}
+.ui-skeleton {
+  background: var(--color-bg-surface-subtle);
+  border-radius: var(--foundation-radius-xs);
+  display: block;
+  min-block-size: 1em;
+}
+.ui-skeleton--avatar {
+  border-radius: var(--foundation-radius-full);
+  block-size: var(--space-10);
+  inline-size: var(--space-10);
+}
+.ui-skeleton--product-card,
+.ui-skeleton--metric-card,
+.ui-skeleton--ticket {
+  min-block-size: var(--space-20);
+}
+.ui-skeleton--table-row {
+  min-block-size: var(--control-height-md);
+}
+.ui-state {
+  align-items: center;
+  border: 1px dashed var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-text-secondary);
+  display: grid;
+  justify-items: center;
+  padding: var(--space-8);
+  text-align: center;
+}
+.ui-state h2,
+.ui-state p {
+  margin: 0;
+}
+.ui-state h2 {
+  color: var(--color-text-primary);
+  font-size: var(--text-heading-sm);
+}
+.ui-state--error {
+  border-color: var(--color-status-danger-text);
+  color: var(--color-status-danger-text);
+}
+.ui-visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  block-size: 1px;
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
+@keyframes ui-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-spinner__visual {
+    animation: none;
+  }
+  .ui-progress > span {
+    transition: none;
+  }
+}

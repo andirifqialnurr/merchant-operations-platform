@@ -20,6 +20,10 @@
     "./money-input": "./src/components/numeric-date.tsx",
     "./date-picker": "./src/components/numeric-date.tsx",
     "./time-input": "./src/components/numeric-date.tsx",
+    "./feedback": "./src/components/feedback.tsx",
+    "./badge": "./src/components/feedback.tsx",
+    "./alert": "./src/components/feedback.tsx",
+    "./toast": "./src/components/feedback.tsx",
     "./styles/foundation.css": "./src/styles/foundation.css",
     "./styles/merchant-presets.css": "./src/styles/merchant-presets.css",
     "./styles/primitives.css": "./src/styles/primitives.css",
@@ -30,6 +34,7 @@
     "./styles/selection-control.css": "./src/styles/selection-control.css",
     "./styles/select.css": "./src/styles/select.css",
     "./styles/numeric-date.css": "./src/styles/numeric-date.css",
+    "./styles/feedback.css": "./src/styles/feedback.css",
     "./styles/typography.css": "./src/styles/typography.css"
   },
   "scripts": {
