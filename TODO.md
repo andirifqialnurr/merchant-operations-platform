@@ -619,6 +619,8 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] Buat migration baseline.
 - [x] Buat audit, idempotency, dan outbox foundation.
 - [x] Buat OpenAPI dan shared contract generation/validation.
+- [x] Sediakan Swagger UI interaktif di `/api/docs` serta dokumen JSON/YAML untuk development; nonaktifkan seluruh endpoint dokumentasi di production sampai proteksi admin tersedia.
+- [x] Tetapkan quality gate API: setiap endpoint baru wajib memvalidasi header, path parameter, query, body, dan response yang relevan melalui shared Zod contract sebelum fiturnya dianggap selesai.
 - [ ] **[DEFERRED]** Siapkan Redis/BullMQ setelah use case worker pertama ditetapkan.
 - [ ] **[DEFERRED]** Siapkan Docker Compose PostgreSQL/Redis/object storage setelah kebutuhan local service terkonfirmasi.
 - [ ] **[DEFERRED]** Tambahkan integration test dengan PostgreSQL asli saat test database lokal tersedia.
@@ -633,6 +635,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [ ] Subscription/module/entitlement core.
 - [ ] Tenant-isolation test.
 - [ ] Platform owner master foundation.
+- [ ] Lindungi Swagger UI dan dokumen OpenAPI dengan authentication serta permission platform admin sebelum dokumentasi boleh diaktifkan di production.
 
 ### Tahap 11 - Catalog foundation
 

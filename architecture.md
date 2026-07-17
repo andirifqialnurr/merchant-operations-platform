@@ -485,8 +485,10 @@ Finance Basic mengambil sales dari bill/payment, bukan menyalinnya sebagai pemas
 
 - Base path `/api/v1`.
 - REST resource dan command endpoint untuk operasi stateful.
-- OpenAPI menjadi kontrak API.
-- Zod/shared contract atau generated client mencegah kontrak frontend/backend berbeda.
+- OpenAPI menjadi kontrak API; Swagger UI interaktif tersedia di `/api/docs` hanya pada environment yang diizinkan.
+- Endpoint dokumentasi OpenAPI dinonaktifkan di production sampai dapat dilindungi oleh authentication dan permission platform admin.
+- Shared Zod contract wajib menjadi boundary validation untuk header, path parameter, query, body, dan response yang relevan pada setiap endpoint baru.
+- Frontend menggunakan tipe atau generated client dari contract yang sama agar payload kirim/terima tidak berbeda dari backend.
 - Pagination cursor untuk transaction list besar.
 - Idempotency key untuk submit order, payment confirmation, refund, dan stock adjustment.
 - Error response memiliki stable code, message, request ID, dan safe details.

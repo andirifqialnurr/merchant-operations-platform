@@ -7,7 +7,7 @@ import { NestFactory } from "@nestjs/core";
 
 import { mapExceptionToApiError } from "./api-exception.filter.js";
 import { AppModule } from "./app.module.js";
-import { createOpenApiDocument } from "./openapi.js";
+import { createOpenApiDocument, isOpenApiEnabled } from "./openapi.js";
 import { ZodValidationPipe } from "./zod-validation.pipe.js";
 
 test("maps known and unknown exceptions to the stable error contract", () => {
@@ -32,6 +32,12 @@ test("validates and normalizes input through shared Zod schemas", () => {
 
   assert.deepEqual(pipe.transform({ limit: "10" }), { limit: 10 });
   assert.throws(() => pipe.transform({ limit: 0 }), BadRequestException);
+});
+
+test("only enables interactive API documentation outside production", () => {
+  assert.equal(isOpenApiEnabled({ NODE_ENV: "development" }), true);
+  assert.equal(isOpenApiEnabled({ API_DOCS_ENABLED: "false", NODE_ENV: "development" }), false);
+  assert.equal(isOpenApiEnabled({ API_DOCS_ENABLED: "true", NODE_ENV: "production" }), false);
 });
 
 test("generates versioned OpenAPI paths and shared schemas", async () => {
