@@ -4,7 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/client.ts"
+    ".": {
+      "types": "./src/client.d.ts",
+      "default": "./src/client.ts"
+    }
   },
   "scripts": {
     "build": "tsc --noEmit",

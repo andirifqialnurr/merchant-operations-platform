@@ -1,5 +1,8 @@
 {
   "extends": "@merchant/typescript-config/react-library.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true
+  },
   "include": ["src/**/*.ts", "prisma.config.ts"],
   "exclude": ["node_modules"]
 }

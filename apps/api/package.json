@@ -9,11 +9,12 @@
     "start": "node dist/main.js",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/*.spec.ts",
+    "test": "tsx --test src/*.spec.ts src/**/*.spec.ts",
     "format:check": "prettier --check . --ignore-path ../../.gitignore"
   },
   "dependencies": {
     "@merchant/contracts": "workspace:*",
+    "@merchant/database": "workspace:*",
     "@nestjs/common": "11.1.28",
     "@nestjs/core": "11.1.28",
     "@nestjs/platform-express": "11.1.28",

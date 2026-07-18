@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 9 API contract foundation; lalu lanjut Tahap 10 - Identity, tenant, outlet, dan entitlement.**
+> **NEXT: Review, commit, dan push Tahap 10.1 authentication/session foundation; lalu lanjut Tahap 10.2 - Tenant, brand, dan outlet.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -629,13 +629,17 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 ### Tahap 10 - Identity, tenant, outlet, dan entitlement
 
-- [ ] Authentication/session foundation.
+- [x] Authentication/session foundation.
 - [ ] Tenant, brand, dan outlet.
 - [ ] Membership, role, permission, dan outlet assignment.
 - [ ] Subscription/module/entitlement core.
 - [ ] Tenant-isolation test.
 - [ ] Platform owner master foundation.
 - [ ] Lindungi Swagger UI dan dokumen OpenAPI dengan authentication serta permission platform admin sebelum dokumentasi boleh diaktifkan di production.
+
+**Checkpoint 10.1:** `feat(identity): add authentication and session foundation`
+
+**STOP:** Report, review, commit, dan push Tahap 10.1 sebelum melanjutkan Tenant, Brand, dan Outlet Tahap 10.2.
 
 ### Tahap 11 - Catalog foundation
 
@@ -760,11 +764,8 @@ Jangan menggabungkan Push 1 sampai Push 7 menjadi satu commit. Tujuan pemisahan 
 
 ## 10. Hal yang belum dikerjakan sekarang
 
-- Color token CSS dan development Color Bank sudah dibuat; review screenshot light/dark masih pending.
-- Theme Provider dan development theme switcher sudah dibuat; runtime/visual review Tahap 4 masih pending.
-- Geist Sans/Mono dan Typography Bank sudah dibuat; review visual/zoom Tahap 5 masih pending.
-- Storybook foundation sudah dibuat; test harness dan custom component masih pending.
-- Belum membuat custom component.
-- Belum membuat database atau backend module.
-
-Typography Bank Tahap 5 sudah diimplementasikan serta lolos verifikasi statis, production build, font-asset check, dan HTTP smoke test. Tahap 6 dimulai setelah review visual light/dark dan zoom 200% selesai serta hasil Tahap 5 di-commit dan di-push.
+- Review screenshot Color Bank dan runtime Theme Engine yang masih terbuka pada acceptance gate Tahap 3-4.
+- Audit penutupan acceptance gate Storybook dan seluruh primitive P1 yang masih belum dicentang sebagai satu gate konsolidasi.
+- Redis/BullMQ, Docker Compose local services, dan integration test PostgreSQL Tahap 9 tetap deferred sampai prerequisite-nya tersedia.
+- Authentication/session foundation Tahap 10.1 sudah diimplementasikan; migration PostgreSQL asli belum dijalankan karena test database lokal belum tersedia.
+- Tenant/brand/outlet API, membership/RBAC, entitlement, tenant-isolation test, dan Platform Owner Tahap 10 masih belum dikerjakan.

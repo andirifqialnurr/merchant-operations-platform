@@ -7,15 +7,10 @@ export const API_HEADERS = {
   tenantId: "x-tenant-id",
 } as const;
 
-export const requestIdSchema = z
-  .string()
-  .trim()
-  .min(1)
-  .max(100)
-  .meta({
-    description: "Request correlation identifier",
-    example: "req_01JZ8X4VYAT7Y0G4E5JD2Y6D9M",
-  });
+export const requestIdSchema = z.string().trim().min(1).max(100).meta({
+  description: "Request correlation identifier",
+  example: "req_01JZ8X4VYAT7Y0G4E5JD2Y6D9M",
+});
 
 export const idempotencyKeySchema = z
   .string()
@@ -72,7 +67,33 @@ export const healthResponseSchema = z.object({
   status: z.literal("ok"),
 });
 
+export const authLoginRequestSchema = z.object({
+  email: z.string().trim().toLowerCase().pipe(z.email().max(254)),
+  password: z.string().min(8).max(128),
+});
+
+export const authUserSchema = z.object({
+  id: z.uuid(),
+  email: z.email(),
+  displayName: z.string().min(1).max(160),
+});
+
+export const authSessionSchema = z.object({
+  expiresAt: z.iso.datetime(),
+  user: authUserSchema,
+});
+
+export const authLogoutResponseSchema = z.object({
+  success: z.literal(true),
+});
+
+export const sessionTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{43}$/);
+
 export type ApiError = z.infer<typeof apiErrorSchema>;
+export type AuthLoginRequest = z.infer<typeof authLoginRequestSchema>;
+export type AuthLogoutResponse = z.infer<typeof authLogoutResponseSchema>;
+export type AuthSession = z.infer<typeof authSessionSchema>;
+export type AuthUser = z.infer<typeof authUserSchema>;
 export type ContractSchema = z.ZodType;
 export type CursorPaginationQuery = z.infer<typeof cursorPaginationQuerySchema>;
 export type HealthResponse = z.infer<typeof healthResponseSchema>;
@@ -84,6 +105,10 @@ export function toOpenApiSchema(schema: ContractSchema) {
 
 export const commonOpenApiSchemas = {
   ApiError: toOpenApiSchema(apiErrorSchema),
+  AuthLoginRequest: toOpenApiSchema(authLoginRequestSchema),
+  AuthLogoutResponse: toOpenApiSchema(authLogoutResponseSchema),
+  AuthSession: toOpenApiSchema(authSessionSchema),
+  AuthUser: toOpenApiSchema(authUserSchema),
   CursorPageInfo: toOpenApiSchema(cursorPageInfoSchema),
   HealthResponse: toOpenApiSchema(healthResponseSchema),
   RequestContextHeaders: toOpenApiSchema(requestContextHeadersSchema),

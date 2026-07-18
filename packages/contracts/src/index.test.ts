@@ -3,6 +3,8 @@ import test from "node:test";
 
 import {
   API_HEADERS,
+  authLoginRequestSchema,
+  authSessionSchema,
   commonOpenApiSchemas,
   cursorPaginationQuerySchema,
   requestContextHeadersSchema,
@@ -26,5 +28,25 @@ test("requires valid tenant and outlet scope headers", () => {
 
 test("exports OpenAPI-compatible common schemas", () => {
   assert.equal(commonOpenApiSchemas.ApiError.type, "object");
+  assert.equal(commonOpenApiSchemas.AuthSession.type, "object");
   assert.equal(commonOpenApiSchemas.HealthResponse.type, "object");
+});
+
+test("normalizes login input and validates session output", () => {
+  assert.deepEqual(
+    authLoginRequestSchema.parse({ email: "  Owner@Example.com ", password: "rahasia-kuat" }),
+    { email: "owner@example.com", password: "rahasia-kuat" },
+  );
+
+  assert.equal(
+    authSessionSchema.safeParse({
+      expiresAt: "2026-08-17T10:00:00.000Z",
+      user: {
+        displayName: "Pemilik Merchant",
+        email: "owner@example.com",
+        id: "019f738d-e61f-7d46-92de-17b35f970b91",
+      },
+    }).success,
+    true,
+  );
 });

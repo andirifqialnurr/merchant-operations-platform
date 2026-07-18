@@ -2,6 +2,8 @@ import { commonOpenApiSchemas } from "@merchant/contracts";
 import { type INestApplication } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule, type OpenAPIObject } from "@nestjs/swagger";
 
+import { SESSION_COOKIE_NAME } from "./auth/session-cookie.js";
+
 type OpenApiSchemas = NonNullable<OpenAPIObject["components"]>["schemas"];
 type OpenApiEnvironment = {
   API_DOCS_ENABLED?: string;
@@ -21,6 +23,7 @@ function createOpenApiConfig() {
     .setTitle("Merchant Operations Platform API")
     .setDescription("REST contract for merchant, customer, and platform surfaces.")
     .setVersion("1.0")
+    .addCookieAuth(SESSION_COOKIE_NAME, undefined, SESSION_COOKIE_NAME)
     .addApiKey({ in: "header", name: "Idempotency-Key", type: "apiKey" }, "idempotency-key")
     .build();
 }
