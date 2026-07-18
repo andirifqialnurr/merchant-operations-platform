@@ -6,6 +6,7 @@ import { AuthService } from "./auth.service.js";
 
 @Module({
   controllers: [AuthController],
+  exports: [AuthService],
   providers: [
     AuthService,
     PrismaAuthRepository,

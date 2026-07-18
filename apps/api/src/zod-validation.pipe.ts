@@ -1,5 +1,15 @@
 import { type ContractSchema } from "@merchant/contracts";
-import { BadRequestException, type PipeTransform } from "@nestjs/common";
+import {
+  BadRequestException,
+  createParamDecorator,
+  type ExecutionContext,
+  type PipeTransform,
+} from "@nestjs/common";
+
+export const RequestHeaders = createParamDecorator(
+  (_data: unknown, context: ExecutionContext) =>
+    context.switchToHttp().getRequest<{ headers: unknown }>().headers,
+);
 
 export class ZodValidationPipe implements PipeTransform {
   constructor(private readonly schema: ContractSchema) {}

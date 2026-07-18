@@ -51,9 +51,18 @@ test("generates versioned OpenAPI paths and shared schemas", async () => {
     assert.ok(document.paths["/api/v1/auth/logout"]);
     assert.ok(document.paths["/api/v1/auth/session"]);
     assert.ok(document.paths["/api/v1/health"]);
+    assert.ok(document.paths["/api/v1/access/context"]);
+    assert.ok(document.paths["/api/v1/access/memberships"]);
+    assert.ok(document.paths["/api/v1/access/roles"]);
+    assert.ok(document.paths["/api/v1/organization"]);
+    assert.ok(document.paths["/api/v1/organization/brands"]);
+    assert.ok(document.paths["/api/v1/organization/outlets"]);
     assert.ok(document.components?.schemas?.ApiError);
     assert.ok(document.components?.schemas?.AuthSession);
     assert.ok(document.components?.schemas?.OrganizationSnapshot);
+    assert.ok(document.components?.schemas?.AuthorizationContext);
+    assert.ok(document.components?.schemas?.Membership);
+    assert.ok(document.components?.schemas?.Role);
     assert.ok(document.components?.schemas?.HealthResponse);
     assert.ok(document.components?.schemas?.RequestContextHeaders);
     assert.ok(document.components?.securitySchemes?.merchant_session);

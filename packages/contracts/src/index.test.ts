@@ -9,8 +9,13 @@ import {
   createOutletSchema,
   createTenantSchema,
   commonOpenApiSchemas,
+  createMembershipSchema,
+  createRoleSchema,
   cursorPaginationQuerySchema,
   requestContextHeadersSchema,
+  PERMISSIONS,
+  tenantRequestHeadersSchema,
+  updateMembershipSchema,
   updateTenantSchema,
 } from "./index.js";
 
@@ -88,4 +93,45 @@ test("exports organization schemas for future authorized routes", () => {
   assert.equal(commonOpenApiSchemas.Brand.type, "object");
   assert.equal(commonOpenApiSchemas.Outlet.type, "object");
   assert.equal(commonOpenApiSchemas.OrganizationSnapshot.type, "object");
+});
+
+test("validates tenant access contracts and rejects ambiguous outlet scope", () => {
+  const tenantId = "019f738d-e61f-7d46-92de-17b35f970b91";
+  const outletId = "019f738d-e61f-7d46-92de-17b35f970b92";
+  const roleId = "019f738d-e61f-7d46-92de-17b35f970b93";
+  const userId = "019f738d-e61f-7d46-92de-17b35f970b94";
+
+  assert.equal(
+    tenantRequestHeadersSchema.safeParse({ [API_HEADERS.tenantId]: tenantId }).success,
+    true,
+  );
+  assert.deepEqual(
+    createRoleSchema.parse({
+      code: " kasir_cabang ",
+      name: "Kasir Cabang",
+      permissionKeys: [PERMISSIONS.orderCreate, PERMISSIONS.paymentConfirm],
+    }),
+    {
+      code: "KASIR_CABANG",
+      name: "Kasir Cabang",
+      permissionKeys: [PERMISSIONS.orderCreate, PERMISSIONS.paymentConfirm],
+    },
+  );
+  assert.equal(
+    createMembershipSchema.safeParse({
+      allOutlets: true,
+      outletIds: [outletId],
+      roleIds: [roleId],
+      userId,
+    }).success,
+    false,
+  );
+  assert.equal(updateMembershipSchema.safeParse({}).success, false);
+});
+
+test("exports access-control schemas to OpenAPI", () => {
+  assert.equal(commonOpenApiSchemas.AuthorizationContext.type, "object");
+  assert.equal(commonOpenApiSchemas.Membership.type, "object");
+  assert.equal(commonOpenApiSchemas.Role.type, "object");
+  assert.equal(commonOpenApiSchemas.TenantRequestHeaders.type, "object");
 });

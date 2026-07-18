@@ -27,6 +27,12 @@ export const requestContextHeadersSchema = z.object({
   [API_HEADERS.idempotencyKey]: idempotencyKeySchema.optional(),
 });
 
+export const tenantRequestHeadersSchema = z.object({
+  [API_HEADERS.tenantId]: z.uuid(),
+  [API_HEADERS.outletId]: z.uuid().optional(),
+  [API_HEADERS.requestId]: requestIdSchema.optional(),
+});
+
 export const cursorPaginationQuerySchema = z.object({
   cursor: z.string().trim().min(1).max(512).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(25),
@@ -191,24 +197,168 @@ export const organizationSnapshotSchema = z.object({
   outlets: z.array(outletSchema),
 });
 
+export const PERMISSIONS = {
+  accessMembershipManage: "access.membership.manage",
+  accessRoleManage: "access.role.manage",
+  accessRoleRead: "access.role.read",
+  cashVarianceApprove: "cash_variance.approve",
+  financeDashboardView: "finance.dashboard.view",
+  financeExpenseCreate: "finance.expense.create",
+  financeReportExport: "finance.report.export",
+  inventoryAdjust: "inventory.adjust",
+  inventoryReceive: "inventory.receive",
+  inventoryStocktake: "inventory.stocktake",
+  orderCancel: "order.cancel",
+  orderCreate: "order.create",
+  orderMoveTable: "order.move_table",
+  organizationManage: "organization.manage",
+  organizationRead: "organization.read",
+  paymentConfirm: "payment.confirm",
+  paymentReconcile: "payment.reconcile",
+  paymentRefund: "payment.refund",
+  shiftClose: "shift.close",
+  shiftOpen: "shift.open",
+  tableLayoutManage: "table.layout.manage",
+  tableManage: "table.manage",
+  tableQrManage: "table.qr.manage",
+  tableView: "table.view",
+} as const;
+
+export const permissionKeySchema = z.enum(Object.values(PERMISSIONS));
+export const membershipStatusSchema = z.enum(["ACTIVE", "INACTIVE"]);
+export const roleCodeSchema = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .min(2)
+  .max(80)
+  .regex(/^[A-Z0-9]+(?:_[A-Z0-9]+)*$/);
+
+const uniqueIds = (values: string[]) => new Set(values).size === values.length;
+const uniquePermissions = (values: PermissionKey[]) => new Set(values).size === values.length;
+
+export const roleSchema = organizationRecordTimestampsSchema.extend({
+  id: z.uuid(),
+  tenantId: z.uuid(),
+  code: roleCodeSchema,
+  name: organizationNameSchema,
+  isSystem: z.boolean(),
+  status: organizationUnitStatusSchema,
+  permissionKeys: z.array(permissionKeySchema),
+});
+
+export const createRoleSchema = z.object({
+  code: roleCodeSchema,
+  name: organizationNameSchema,
+  permissionKeys: z
+    .array(permissionKeySchema)
+    .min(1)
+    .refine(uniquePermissions, { message: "Permission tidak boleh duplikat." }),
+});
+
+export const updateRoleSchema = z
+  .object({
+    name: organizationNameSchema.optional(),
+    permissionKeys: z
+      .array(permissionKeySchema)
+      .min(1)
+      .refine(uniquePermissions, { message: "Permission tidak boleh duplikat." })
+      .optional(),
+    status: organizationUnitStatusSchema.optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, {
+    message: "Perubahan role wajib diisi.",
+  });
+
+export const membershipSchema = organizationRecordTimestampsSchema.extend({
+  id: z.uuid(),
+  tenantId: z.uuid(),
+  userId: z.uuid(),
+  status: membershipStatusSchema,
+  allOutlets: z.boolean(),
+  roleIds: z.array(z.uuid()),
+  outletIds: z.array(z.uuid()),
+});
+
+export const createMembershipSchema = z
+  .object({
+    userId: z.uuid(),
+    roleIds: z.array(z.uuid()).min(1).refine(uniqueIds, { message: "Role tidak boleh duplikat." }),
+    allOutlets: z.boolean().default(false),
+    outletIds: z.array(z.uuid()).default([]).refine(uniqueIds, {
+      message: "Outlet tidak boleh duplikat.",
+    }),
+  })
+  .refine((value) => !value.allOutlets || value.outletIds.length === 0, {
+    message: "outletIds harus kosong ketika allOutlets aktif.",
+    path: ["outletIds"],
+  });
+
+export const updateMembershipSchema = z
+  .object({
+    status: membershipStatusSchema.optional(),
+    roleIds: z
+      .array(z.uuid())
+      .min(1)
+      .refine(uniqueIds, {
+        message: "Role tidak boleh duplikat.",
+      })
+      .optional(),
+    allOutlets: z.boolean().optional(),
+    outletIds: z
+      .array(z.uuid())
+      .refine(uniqueIds, {
+        message: "Outlet tidak boleh duplikat.",
+      })
+      .optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, {
+    message: "Perubahan membership wajib diisi.",
+  })
+  .refine(
+    (value) => !(value.allOutlets === true && value.outletIds && value.outletIds.length > 0),
+    { message: "outletIds harus kosong ketika allOutlets aktif.", path: ["outletIds"] },
+  );
+
+export const authorizationContextSchema = z.object({
+  allOutlets: z.boolean(),
+  membershipId: z.uuid(),
+  outletIds: z.array(z.uuid()),
+  permissionKeys: z.array(permissionKeySchema),
+  tenantId: z.uuid(),
+  userId: z.uuid(),
+});
+
+export const entityIdParamsSchema = z.object({ id: z.uuid() });
+
 export type ApiError = z.infer<typeof apiErrorSchema>;
 export type AuthLoginRequest = z.infer<typeof authLoginRequestSchema>;
 export type AuthLogoutResponse = z.infer<typeof authLogoutResponseSchema>;
 export type AuthSession = z.infer<typeof authSessionSchema>;
 export type AuthUser = z.infer<typeof authUserSchema>;
 export type Brand = z.infer<typeof brandSchema>;
+export type AuthorizationContext = z.infer<typeof authorizationContextSchema>;
 export type ContractSchema = z.ZodType;
 export type CreateBrand = z.infer<typeof createBrandSchema>;
+export type CreateMembership = z.infer<typeof createMembershipSchema>;
+export type CreateRole = z.infer<typeof createRoleSchema>;
 export type CreateOutlet = z.infer<typeof createOutletSchema>;
 export type CreateTenant = z.infer<typeof createTenantSchema>;
 export type CursorPaginationQuery = z.infer<typeof cursorPaginationQuerySchema>;
 export type HealthResponse = z.infer<typeof healthResponseSchema>;
 export type OrganizationSnapshot = z.infer<typeof organizationSnapshotSchema>;
 export type OrganizationUnitStatus = z.infer<typeof organizationUnitStatusSchema>;
+export type Membership = z.infer<typeof membershipSchema>;
+export type MembershipStatus = z.infer<typeof membershipStatusSchema>;
 export type Outlet = z.infer<typeof outletSchema>;
 export type RequestContextHeaders = z.infer<typeof requestContextHeadersSchema>;
+export type PermissionKey = z.infer<typeof permissionKeySchema>;
+export type Role = z.infer<typeof roleSchema>;
+export type TenantRequestHeaders = z.infer<typeof tenantRequestHeadersSchema>;
 export type Tenant = z.infer<typeof tenantSchema>;
 export type UpdateBrand = z.infer<typeof updateBrandSchema>;
+export type UpdateMembership = z.infer<typeof updateMembershipSchema>;
+export type UpdateRole = z.infer<typeof updateRoleSchema>;
 export type UpdateOutlet = z.infer<typeof updateOutletSchema>;
 export type UpdateTenant = z.infer<typeof updateTenantSchema>;
 
@@ -222,17 +372,25 @@ export const commonOpenApiSchemas = {
   AuthLogoutResponse: toOpenApiSchema(authLogoutResponseSchema),
   AuthSession: toOpenApiSchema(authSessionSchema),
   AuthUser: toOpenApiSchema(authUserSchema),
+  AuthorizationContext: toOpenApiSchema(authorizationContextSchema),
   Brand: toOpenApiSchema(brandSchema),
   CreateBrand: toOpenApiSchema(createBrandSchema),
+  CreateMembership: toOpenApiSchema(createMembershipSchema),
+  CreateRole: toOpenApiSchema(createRoleSchema),
   CreateOutlet: toOpenApiSchema(createOutletSchema),
   CreateTenant: toOpenApiSchema(createTenantSchema),
   CursorPageInfo: toOpenApiSchema(cursorPageInfoSchema),
   HealthResponse: toOpenApiSchema(healthResponseSchema),
+  Membership: toOpenApiSchema(membershipSchema),
   OrganizationSnapshot: toOpenApiSchema(organizationSnapshotSchema),
   Outlet: toOpenApiSchema(outletSchema),
   RequestContextHeaders: toOpenApiSchema(requestContextHeadersSchema),
+  Role: toOpenApiSchema(roleSchema),
+  TenantRequestHeaders: toOpenApiSchema(tenantRequestHeadersSchema),
   Tenant: toOpenApiSchema(tenantSchema),
   UpdateBrand: toOpenApiSchema(updateBrandSchema),
+  UpdateMembership: toOpenApiSchema(updateMembershipSchema),
+  UpdateRole: toOpenApiSchema(updateRoleSchema),
   UpdateOutlet: toOpenApiSchema(updateOutletSchema),
   UpdateTenant: toOpenApiSchema(updateTenantSchema),
   ValidationError: toOpenApiSchema(validationErrorSchema),

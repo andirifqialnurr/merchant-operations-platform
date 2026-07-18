@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 10.2 organization registry foundation; lalu lanjut Tahap 10.3 - Membership, role, permission, dan outlet assignment.**
+> **NEXT: Review, commit, dan push Tahap 10.3 membership/RBAC foundation; lalu lanjut Tahap 10.4 - Subscription, module, dan entitlement core.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -631,7 +631,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 - [x] Authentication/session foundation.
 - [x] Tenant, brand, dan outlet registry foundation; authorized HTTP routes menunggu membership/permission Tahap 10.3.
-- [ ] Membership, role, permission, dan outlet assignment.
+- [x] Membership, role, permission, dan outlet assignment; organization route kini dilindungi session, active membership, permission, dan tenant/outlet scope.
 - [ ] Subscription/module/entitlement core.
 - [ ] Tenant-isolation test.
 - [ ] Platform owner master foundation.
@@ -641,9 +641,13 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Checkpoint 10.2:** `feat(organization): add tenant brand and outlet registry foundation`
 
-**Authorization gate:** Registry service tidak diekspos sebagai HTTP route sebelum membership, permission, dan tenant scope Tahap 10.3 dapat memvalidasi actor. Header tenant/outlet tidak boleh menjadi bukti authorization.
+**Checkpoint 10.3:** `feat(identity): add membership role and outlet access control`
 
-**STOP:** Report, review, commit, dan push Tahap 10.2 sebelum melanjutkan Membership, Role, Permission, dan Outlet Assignment Tahap 10.3.
+**Authorization gate:** Registry route hanya dapat diakses setelah session, active membership, permission, serta tenant/outlet scope tervalidasi. Header tenant/outlet hanya memilih context dan tidak pernah menjadi bukti authorization.
+
+**Provisioning gate:** Provisioning role default dan owner pertama tersedia sebagai application service internal. Route provisioning tenant/platform belum dibuka sampai Platform Owner foundation tersedia.
+
+**STOP:** Report, review, commit, dan push Tahap 10.3 sebelum melanjutkan Subscription, Module, dan Entitlement Core Tahap 10.4.
 
 ### Tahap 11 - Catalog foundation
 
@@ -771,5 +775,5 @@ Jangan menggabungkan Push 1 sampai Push 7 menjadi satu commit. Tujuan pemisahan 
 - Review screenshot Color Bank dan runtime Theme Engine yang masih terbuka pada acceptance gate Tahap 3-4.
 - Audit penutupan acceptance gate Storybook dan seluruh primitive P1 yang masih belum dicentang sebagai satu gate konsolidasi.
 - Redis/BullMQ, Docker Compose local services, dan integration test PostgreSQL Tahap 9 tetap deferred sampai prerequisite-nya tersedia.
-- Authentication/session Tahap 10.1 dan organization registry Tahap 10.2 sudah diimplementasikan; migration PostgreSQL asli belum dijalankan karena test database lokal belum tersedia.
-- Authorized tenant/brand/outlet HTTP routes, membership/RBAC, entitlement, tenant-isolation test, dan Platform Owner Tahap 10 masih belum dikerjakan.
+- Authentication/session Tahap 10.1, organization registry Tahap 10.2, serta membership/RBAC/outlet assignment Tahap 10.3 sudah diimplementasikan; migration PostgreSQL asli belum dijalankan karena test database lokal belum tersedia.
+- Entitlement, tenant-isolation integration test, Platform Owner, dan proteksi dokumentasi production Tahap 10 masih belum dikerjakan.

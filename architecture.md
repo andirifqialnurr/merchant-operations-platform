@@ -298,6 +298,8 @@ AND contextual policy
 
 Default role: `OWNER`, `MANAGER`, `CASHIER`, `KITCHEN`, `WAITER`, `INVENTORY_STAFF`, dan `FINANCE_STAFF`. Merchant dapat membuat custom role sebagai kumpulan permission.
 
+Role default diprovisikan secara internal bersama owner pertama tenant. System role bersifat immutable; custom role tenant dapat mengubah nama, status, dan kumpulan permission. Membership unik per pasangan tenant-user, sedangkan outlet scope dinyatakan eksplisit sebagai seluruh outlet atau daftar `outlet_assignments`; daftar kosong tidak diartikan otomatis sebagai seluruh outlet.
+
 Permission berbasis use case, misalnya:
 
 - `order.create`, `order.cancel`, `order.move_table`.
@@ -494,6 +496,7 @@ Finance Basic mengambil sales dari bill/payment, bukan menyalinnya sebagai pemas
 - Error response memiliki stable code, message, request ID, dan safe details.
 - Tenant/outlet context tidak dipercaya hanya dari request body; divalidasi dari membership dan resource.
 - Tenant/brand/outlet registry application service boleh dibangun sebelum IAM, tetapi route HTTP tidak boleh diekspos sampai active membership, permission, dan tenant scope dapat memvalidasi actor.
+- Route organization dan pengelolaan access-control memvalidasi cookie session, active user, active tenant membership, permission use-case, serta scope seluruh outlet karena operasinya tenant-wide. Header tenant/outlet hanya memilih context dan bukan bukti authorization; user outlet-scoped tidak dapat menaikkan scope melalui header.
 
 ## 19. Security minimum
 

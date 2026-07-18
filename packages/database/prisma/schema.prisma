@@ -25,17 +25,23 @@ enum OrganizationUnitStatus {
   INACTIVE
 }
 
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+}
+
 model User {
-  id                String         @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  email             String         @unique @db.VarChar(254)
-  passwordHash      String         @map("password_hash") @db.VarChar(255)
-  displayName       String         @map("display_name") @db.VarChar(160)
-  status            UserStatus     @default(ACTIVE)
-  passwordChangedAt DateTime       @default(now()) @map("password_changed_at") @db.Timestamptz(6)
-  lastLoginAt       DateTime?      @map("last_login_at") @db.Timestamptz(6)
-  createdAt         DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id                String             @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  email             String             @unique @db.VarChar(254)
+  passwordHash      String             @map("password_hash") @db.VarChar(255)
+  displayName       String             @map("display_name") @db.VarChar(160)
+  status            UserStatus         @default(ACTIVE)
+  passwordChangedAt DateTime           @default(now()) @map("password_changed_at") @db.Timestamptz(6)
+  lastLoginAt       DateTime?          @map("last_login_at") @db.Timestamptz(6)
+  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
   loginSessions     LoginSession[]
+  tenantMemberships TenantMembership[]
 
   @@map("users")
 }
@@ -58,30 +64,32 @@ model LoginSession {
 }
 
 model Tenant {
-  id              String           @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  name            String           @db.VarChar(160)
-  slug            String           @unique @db.VarChar(80)
+  id              String                 @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  name            String                 @db.VarChar(160)
+  slug            String                 @unique @db.VarChar(80)
   status          OrganizationUnitStatus @default(ACTIVE)
-  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt       DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
   brands          Brand[]
   outlets         Outlet[]
   auditLogs       AuditLog[]
   idempotencyKeys IdempotencyKey[]
   outboxEvents    OutboxEvent[]
+  memberships     TenantMembership[]
+  roles           Role[]
 
   @@map("tenants")
 }
 
 model Brand {
-  id        String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  tenantId  String   @map("tenant_id") @db.Uuid
-  name      String   @db.VarChar(160)
-  slug      String   @db.VarChar(80)
+  id        String                 @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId  String                 @map("tenant_id") @db.Uuid
+  name      String                 @db.VarChar(160)
+  slug      String                 @db.VarChar(80)
   status    OrganizationUnitStatus @default(ACTIVE)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  createdAt DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant    Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   outlets   Outlet[]
 
   @@unique([tenantId, slug])
@@ -91,40 +99,124 @@ model Brand {
 }
 
 model Outlet {
-  id              String           @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  tenantId        String           @map("tenant_id") @db.Uuid
-  brandId         String           @map("brand_id") @db.Uuid
-  code            String           @db.VarChar(40)
-  name            String           @db.VarChar(160)
-  timezone        String           @default("Asia/Jakarta") @db.VarChar(64)
+  id              String                 @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId        String                 @map("tenant_id") @db.Uuid
+  brandId         String                 @map("brand_id") @db.Uuid
+  code            String                 @db.VarChar(40)
+  name            String                 @db.VarChar(160)
+  timezone        String                 @default("Asia/Jakarta") @db.VarChar(64)
   status          OrganizationUnitStatus @default(ACTIVE)
-  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
-  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  brand           Brand            @relation(fields: [tenantId, brandId], references: [tenantId, id], onDelete: Restrict)
+  createdAt       DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant          Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  brand           Brand                  @relation(fields: [tenantId, brandId], references: [tenantId, id], onDelete: Restrict)
   auditLogs       AuditLog[]
   idempotencyKeys IdempotencyKey[]
   outboxEvents    OutboxEvent[]
+  assignments     OutletAssignment[]
 
   @@unique([tenantId, code])
+  @@unique([tenantId, id])
   @@index([tenantId, brandId])
   @@index([tenantId, createdAt])
   @@map("outlets")
 }
 
+model TenantMembership {
+  id          String             @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId    String             @map("tenant_id") @db.Uuid
+  userId      String             @map("user_id") @db.Uuid
+  status      MembershipStatus   @default(ACTIVE)
+  allOutlets  Boolean            @default(false) @map("all_outlets")
+  createdAt   DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant      Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  user        User               @relation(fields: [userId], references: [id], onDelete: Restrict)
+  roles       UserRole[]
+  assignments OutletAssignment[]
+
+  @@unique([tenantId, userId])
+  @@unique([tenantId, id])
+  @@index([userId, status])
+  @@map("tenant_memberships")
+}
+
+model Permission {
+  key         String           @id @db.VarChar(120)
+  description String           @db.VarChar(255)
+  roleLinks   RolePermission[]
+
+  @@map("permissions")
+}
+
+model Role {
+  id          String                 @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId    String                 @map("tenant_id") @db.Uuid
+  code        String                 @db.VarChar(80)
+  name        String                 @db.VarChar(160)
+  isSystem    Boolean                @default(false) @map("is_system")
+  status      OrganizationUnitStatus @default(ACTIVE)
+  createdAt   DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant      Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  permissions RolePermission[]
+  userLinks   UserRole[]
+
+  @@unique([tenantId, code])
+  @@unique([tenantId, id])
+  @@index([tenantId, status, createdAt])
+  @@map("roles")
+}
+
+model RolePermission {
+  tenantId      String     @map("tenant_id") @db.Uuid
+  roleId        String     @map("role_id") @db.Uuid
+  permissionKey String     @map("permission_key") @db.VarChar(120)
+  role          Role       @relation(fields: [tenantId, roleId], references: [tenantId, id], onDelete: Cascade)
+  permission    Permission @relation(fields: [permissionKey], references: [key], onDelete: Restrict)
+
+  @@id([tenantId, roleId, permissionKey])
+  @@index([permissionKey])
+  @@map("role_permissions")
+}
+
+model UserRole {
+  tenantId     String           @map("tenant_id") @db.Uuid
+  membershipId String           @map("membership_id") @db.Uuid
+  roleId       String           @map("role_id") @db.Uuid
+  membership   TenantMembership @relation(fields: [tenantId, membershipId], references: [tenantId, id], onDelete: Cascade)
+  role         Role             @relation(fields: [tenantId, roleId], references: [tenantId, id], onDelete: Cascade)
+
+  @@id([tenantId, membershipId, roleId])
+  @@index([tenantId, roleId])
+  @@map("user_roles")
+}
+
+model OutletAssignment {
+  tenantId     String           @map("tenant_id") @db.Uuid
+  membershipId String           @map("membership_id") @db.Uuid
+  outletId     String           @map("outlet_id") @db.Uuid
+  membership   TenantMembership @relation(fields: [tenantId, membershipId], references: [tenantId, id], onDelete: Cascade)
+  outlet       Outlet           @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Cascade)
+
+  @@id([tenantId, membershipId, outletId])
+  @@index([tenantId, outletId])
+  @@map("outlet_assignments")
+}
+
 model AuditLog {
-  id         String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  tenantId   String    @map("tenant_id") @db.Uuid
-  outletId   String?   @map("outlet_id") @db.Uuid
-  actorId    String?   @map("actor_id") @db.Uuid
-  action     String    @db.VarChar(120)
-  entityType String    @map("entity_type") @db.VarChar(120)
-  entityId   String?   @map("entity_id") @db.Uuid
-  requestId  String?   @map("request_id") @db.VarChar(100)
+  id         String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId   String   @map("tenant_id") @db.Uuid
+  outletId   String?  @map("outlet_id") @db.Uuid
+  actorId    String?  @map("actor_id") @db.Uuid
+  action     String   @db.VarChar(120)
+  entityType String   @map("entity_type") @db.VarChar(120)
+  entityId   String?  @map("entity_id") @db.Uuid
+  requestId  String?  @map("request_id") @db.VarChar(100)
   metadata   Json?
-  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  outlet     Outlet?   @relation(fields: [outletId], references: [id], onDelete: Restrict)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet     Outlet?  @relation(fields: [outletId], references: [id], onDelete: Restrict)
 
   @@index([tenantId, outletId, createdAt])
   @@index([tenantId, entityType, entityId, createdAt])
@@ -153,20 +245,20 @@ model IdempotencyKey {
 }
 
 model OutboxEvent {
-  id           String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  tenantId     String   @map("tenant_id") @db.Uuid
-  outletId     String?  @map("outlet_id") @db.Uuid
-  type         String   @db.VarChar(160)
-  aggregateType String  @map("aggregate_type") @db.VarChar(120)
-  aggregateId  String   @map("aggregate_id") @db.Uuid
-  payload      Json
-  occurredAt   DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
-  availableAt  DateTime @default(now()) @map("available_at") @db.Timestamptz(6)
-  processedAt  DateTime? @map("processed_at") @db.Timestamptz(6)
-  attemptCount Int      @default(0) @map("attempt_count")
-  lastError    String?  @map("last_error") @db.Text
-  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  outlet       Outlet?  @relation(fields: [outletId], references: [id], onDelete: Restrict)
+  id            String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId      String    @map("tenant_id") @db.Uuid
+  outletId      String?   @map("outlet_id") @db.Uuid
+  type          String    @db.VarChar(160)
+  aggregateType String    @map("aggregate_type") @db.VarChar(120)
+  aggregateId   String    @map("aggregate_id") @db.Uuid
+  payload       Json
+  occurredAt    DateTime  @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  availableAt   DateTime  @default(now()) @map("available_at") @db.Timestamptz(6)
+  processedAt   DateTime? @map("processed_at") @db.Timestamptz(6)
+  attemptCount  Int       @default(0) @map("attempt_count")
+  lastError     String?   @map("last_error") @db.Text
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet        Outlet?   @relation(fields: [outletId], references: [id], onDelete: Restrict)
 
   @@index([tenantId, outletId, occurredAt])
   @@index([processedAt, availableAt])
