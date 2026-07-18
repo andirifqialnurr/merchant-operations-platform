@@ -493,6 +493,7 @@ Finance Basic mengambil sales dari bill/payment, bukan menyalinnya sebagai pemas
 - Idempotency key untuk submit order, payment confirmation, refund, dan stock adjustment.
 - Error response memiliki stable code, message, request ID, dan safe details.
 - Tenant/outlet context tidak dipercaya hanya dari request body; divalidasi dari membership dan resource.
+- Tenant/brand/outlet registry application service boleh dibangun sebelum IAM, tetapi route HTTP tidak boleh diekspos sampai active membership, permission, dan tenant scope dapat memvalidasi actor.
 
 ## 19. Security minimum
 

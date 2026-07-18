@@ -20,6 +20,11 @@ enum UserStatus {
   DISABLED
 }
 
+enum OrganizationUnitStatus {
+  ACTIVE
+  INACTIVE
+}
+
 model User {
   id                String         @id @default(dbgenerated("uuidv7()")) @db.Uuid
   email             String         @unique @db.VarChar(254)
@@ -56,6 +61,7 @@ model Tenant {
   id              String           @id @default(dbgenerated("uuidv7()")) @db.Uuid
   name            String           @db.VarChar(160)
   slug            String           @unique @db.VarChar(80)
+  status          OrganizationUnitStatus @default(ACTIVE)
   createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
   brands          Brand[]
@@ -72,12 +78,14 @@ model Brand {
   tenantId  String   @map("tenant_id") @db.Uuid
   name      String   @db.VarChar(160)
   slug      String   @db.VarChar(80)
+  status    OrganizationUnitStatus @default(ACTIVE)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   outlets   Outlet[]
 
   @@unique([tenantId, slug])
+  @@unique([tenantId, id])
   @@index([tenantId, createdAt])
   @@map("brands")
 }
@@ -89,10 +97,11 @@ model Outlet {
   code            String           @db.VarChar(40)
   name            String           @db.VarChar(160)
   timezone        String           @default("Asia/Jakarta") @db.VarChar(64)
+  status          OrganizationUnitStatus @default(ACTIVE)
   createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
   tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  brand           Brand            @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  brand           Brand            @relation(fields: [tenantId, brandId], references: [tenantId, id], onDelete: Restrict)
   auditLogs       AuditLog[]
   idempotencyKeys IdempotencyKey[]
   outboxEvents    OutboxEvent[]

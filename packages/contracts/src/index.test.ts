@@ -5,9 +5,13 @@ import {
   API_HEADERS,
   authLoginRequestSchema,
   authSessionSchema,
+  createBrandSchema,
+  createOutletSchema,
+  createTenantSchema,
   commonOpenApiSchemas,
   cursorPaginationQuerySchema,
   requestContextHeadersSchema,
+  updateTenantSchema,
 } from "./index.js";
 
 test("normalizes cursor pagination input", () => {
@@ -49,4 +53,39 @@ test("normalizes login input and validates session output", () => {
     }).success,
     true,
   );
+});
+
+test("normalizes tenant, brand, and outlet registry input", () => {
+  assert.deepEqual(
+    createTenantSchema.parse({ name: "  Kopi Nusantara ", slug: "Kopi-Nusantara" }),
+    {
+      name: "Kopi Nusantara",
+      slug: "kopi-nusantara",
+    },
+  );
+  assert.deepEqual(createBrandSchema.parse({ name: "Kopi Kita", slug: "kopi-kita" }), {
+    name: "Kopi Kita",
+    slug: "kopi-kita",
+  });
+  assert.deepEqual(
+    createOutletSchema.parse({
+      brandId: "019f738d-e61f-7d46-92de-17b35f970b91",
+      code: " bdg-01 ",
+      name: "Bandung Utama",
+    }),
+    {
+      brandId: "019f738d-e61f-7d46-92de-17b35f970b91",
+      code: "BDG-01",
+      name: "Bandung Utama",
+      timezone: "Asia/Jakarta",
+    },
+  );
+  assert.equal(updateTenantSchema.safeParse({}).success, false);
+});
+
+test("exports organization schemas for future authorized routes", () => {
+  assert.equal(commonOpenApiSchemas.Tenant.type, "object");
+  assert.equal(commonOpenApiSchemas.Brand.type, "object");
+  assert.equal(commonOpenApiSchemas.Outlet.type, "object");
+  assert.equal(commonOpenApiSchemas.OrganizationSnapshot.type, "object");
 });

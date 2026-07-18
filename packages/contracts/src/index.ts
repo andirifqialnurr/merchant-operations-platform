@@ -89,15 +89,128 @@ export const authLogoutResponseSchema = z.object({
 
 export const sessionTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{43}$/);
 
+export const organizationUnitStatusSchema = z.enum(["ACTIVE", "INACTIVE"]);
+export const organizationNameSchema = z.string().trim().min(2).max(160);
+export const organizationSlugSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(2)
+  .max(80)
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+export const outletCodeSchema = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .min(2)
+  .max(40)
+  .regex(/^[A-Z0-9]+(?:[-_][A-Z0-9]+)*$/);
+export const timezoneSchema = z
+  .string()
+  .trim()
+  .min(3)
+  .max(64)
+  .regex(/^(?:UTC|[A-Za-z_]+\/[A-Za-z0-9_+.-]+)$/);
+
+const organizationRecordTimestampsSchema = z.object({
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+});
+
+export const tenantSchema = organizationRecordTimestampsSchema.extend({
+  id: z.uuid(),
+  name: organizationNameSchema,
+  slug: organizationSlugSchema,
+  status: organizationUnitStatusSchema,
+});
+
+export const brandSchema = organizationRecordTimestampsSchema.extend({
+  id: z.uuid(),
+  tenantId: z.uuid(),
+  name: organizationNameSchema,
+  slug: organizationSlugSchema,
+  status: organizationUnitStatusSchema,
+});
+
+export const outletSchema = organizationRecordTimestampsSchema.extend({
+  id: z.uuid(),
+  tenantId: z.uuid(),
+  brandId: z.uuid(),
+  code: outletCodeSchema,
+  name: organizationNameSchema,
+  timezone: timezoneSchema,
+  status: organizationUnitStatusSchema,
+});
+
+export const createTenantSchema = z.object({
+  name: organizationNameSchema,
+  slug: organizationSlugSchema,
+});
+
+export const updateTenantSchema = z
+  .object({
+    name: organizationNameSchema.optional(),
+    slug: organizationSlugSchema.optional(),
+    status: organizationUnitStatusSchema.optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, { message: "Perubahan tenant wajib diisi." });
+
+export const createBrandSchema = z.object({
+  name: organizationNameSchema,
+  slug: organizationSlugSchema,
+});
+
+export const updateBrandSchema = z
+  .object({
+    name: organizationNameSchema.optional(),
+    slug: organizationSlugSchema.optional(),
+    status: organizationUnitStatusSchema.optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, { message: "Perubahan brand wajib diisi." });
+
+export const createOutletSchema = z.object({
+  brandId: z.uuid(),
+  code: outletCodeSchema,
+  name: organizationNameSchema,
+  timezone: timezoneSchema.default("Asia/Jakarta"),
+});
+
+export const updateOutletSchema = z
+  .object({
+    brandId: z.uuid().optional(),
+    code: outletCodeSchema.optional(),
+    name: organizationNameSchema.optional(),
+    timezone: timezoneSchema.optional(),
+    status: organizationUnitStatusSchema.optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, { message: "Perubahan outlet wajib diisi." });
+
+export const organizationSnapshotSchema = z.object({
+  tenant: tenantSchema,
+  brands: z.array(brandSchema),
+  outlets: z.array(outletSchema),
+});
+
 export type ApiError = z.infer<typeof apiErrorSchema>;
 export type AuthLoginRequest = z.infer<typeof authLoginRequestSchema>;
 export type AuthLogoutResponse = z.infer<typeof authLogoutResponseSchema>;
 export type AuthSession = z.infer<typeof authSessionSchema>;
 export type AuthUser = z.infer<typeof authUserSchema>;
+export type Brand = z.infer<typeof brandSchema>;
 export type ContractSchema = z.ZodType;
+export type CreateBrand = z.infer<typeof createBrandSchema>;
+export type CreateOutlet = z.infer<typeof createOutletSchema>;
+export type CreateTenant = z.infer<typeof createTenantSchema>;
 export type CursorPaginationQuery = z.infer<typeof cursorPaginationQuerySchema>;
 export type HealthResponse = z.infer<typeof healthResponseSchema>;
+export type OrganizationSnapshot = z.infer<typeof organizationSnapshotSchema>;
+export type OrganizationUnitStatus = z.infer<typeof organizationUnitStatusSchema>;
+export type Outlet = z.infer<typeof outletSchema>;
 export type RequestContextHeaders = z.infer<typeof requestContextHeadersSchema>;
+export type Tenant = z.infer<typeof tenantSchema>;
+export type UpdateBrand = z.infer<typeof updateBrandSchema>;
+export type UpdateOutlet = z.infer<typeof updateOutletSchema>;
+export type UpdateTenant = z.infer<typeof updateTenantSchema>;
 
 export function toOpenApiSchema(schema: ContractSchema) {
   return z.toJSONSchema(schema, { target: "openapi-3.0" });
@@ -109,8 +222,18 @@ export const commonOpenApiSchemas = {
   AuthLogoutResponse: toOpenApiSchema(authLogoutResponseSchema),
   AuthSession: toOpenApiSchema(authSessionSchema),
   AuthUser: toOpenApiSchema(authUserSchema),
+  Brand: toOpenApiSchema(brandSchema),
+  CreateBrand: toOpenApiSchema(createBrandSchema),
+  CreateOutlet: toOpenApiSchema(createOutletSchema),
+  CreateTenant: toOpenApiSchema(createTenantSchema),
   CursorPageInfo: toOpenApiSchema(cursorPageInfoSchema),
   HealthResponse: toOpenApiSchema(healthResponseSchema),
+  OrganizationSnapshot: toOpenApiSchema(organizationSnapshotSchema),
+  Outlet: toOpenApiSchema(outletSchema),
   RequestContextHeaders: toOpenApiSchema(requestContextHeadersSchema),
+  Tenant: toOpenApiSchema(tenantSchema),
+  UpdateBrand: toOpenApiSchema(updateBrandSchema),
+  UpdateOutlet: toOpenApiSchema(updateOutletSchema),
+  UpdateTenant: toOpenApiSchema(updateTenantSchema),
   ValidationError: toOpenApiSchema(validationErrorSchema),
 } as const;

@@ -53,9 +53,11 @@ test("generates versioned OpenAPI paths and shared schemas", async () => {
     assert.ok(document.paths["/api/v1/health"]);
     assert.ok(document.components?.schemas?.ApiError);
     assert.ok(document.components?.schemas?.AuthSession);
+    assert.ok(document.components?.schemas?.OrganizationSnapshot);
     assert.ok(document.components?.schemas?.HealthResponse);
     assert.ok(document.components?.schemas?.RequestContextHeaders);
     assert.ok(document.components?.securitySchemes?.merchant_session);
+    assert.equal(document.paths["/api/v1/tenants"], undefined);
   } finally {
     await app.close();
   }
