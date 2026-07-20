@@ -10,7 +10,12 @@ import {
   createTenantSchema,
   commonOpenApiSchemas,
   createCatalogCategorySchema,
+  createCatalogModifierGroupSchema,
+  createCatalogModifierOptionSchema,
   createCatalogProductSchema,
+  createCatalogProductImageSchema,
+  createCatalogProductModifierGroupSchema,
+  createCatalogProductVariantSchema,
   createMembershipSchema,
   createRoleSchema,
   cursorPaginationQuerySchema,
@@ -23,6 +28,7 @@ import {
   tenantRequestHeadersSchema,
   setTenantEntitlementSchema,
   updateMembershipSchema,
+  updateCatalogModifierGroupSchema,
   updateCatalogProductSchema,
   updateTenantSchema,
 } from "./index.js";
@@ -191,4 +197,67 @@ test("normalizes catalog defaults and preserves exact minor-unit prices", () => 
   );
   assert.equal(updateCatalogProductSchema.safeParse({}).success, false);
   assert.equal(commonOpenApiSchemas.CatalogSnapshot.type, "object");
+});
+
+test("validates product composition defaults and modifier selection rules", () => {
+  const productId = "019f738d-e61f-7d46-92de-17b35f971201";
+  const groupId = "019f738d-e61f-7d46-92de-17b35f971202";
+
+  assert.deepEqual(createCatalogProductVariantSchema.parse({ name: "Regular", productId }), {
+    availability: "AVAILABLE",
+    displayOrder: 0,
+    name: "Regular",
+    priceDeltaMinor: "0",
+    productId,
+  });
+  assert.deepEqual(createCatalogModifierGroupSchema.parse({ name: "Pilihan Gula" }), {
+    displayOrder: 0,
+    maxSelections: 1,
+    minSelections: 0,
+    name: "Pilihan Gula",
+    selectionType: "SINGLE",
+  });
+  assert.equal(
+    createCatalogModifierGroupSchema.safeParse({
+      maxSelections: 2,
+      minSelections: 0,
+      name: "Ukuran",
+      selectionType: "SINGLE",
+    }).success,
+    false,
+  );
+  assert.equal(updateCatalogModifierGroupSchema.safeParse({}).success, false);
+  assert.equal(
+    createCatalogModifierOptionSchema.parse({ groupId, name: "Tanpa Gula" }).priceDeltaMinor,
+    "0",
+  );
+  assert.equal(
+    createCatalogProductModifierGroupSchema.parse({ modifierGroupId: groupId, productId })
+      .displayOrder,
+    0,
+  );
+});
+
+test("validates product image object keys and safe image metadata", () => {
+  const productId = "019f738d-e61f-7d46-92de-17b35f971203";
+  const image = createCatalogProductImageSchema.parse({
+    contentType: "image/webp",
+    height: 1200,
+    objectKey: "tenant-a/catalog/kopi-susu.webp",
+    productId,
+    width: 1200,
+  });
+
+  assert.equal(image.isPrimary, false);
+  assert.equal(image.displayOrder, 0);
+  assert.equal(
+    createCatalogProductImageSchema.safeParse({
+      contentType: "image/svg+xml",
+      objectKey: "../unsafe.svg",
+      productId,
+    }).success,
+    false,
+  );
+  assert.equal(commonOpenApiSchemas.CatalogProductImage.type, "object");
+  assert.equal(commonOpenApiSchemas.CatalogProductVariant.type, "object");
 });

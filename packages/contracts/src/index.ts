@@ -308,8 +308,221 @@ export const updateCatalogProductSchema = z
     message: "Perubahan produk wajib diisi.",
   });
 
+export const modifierSelectionTypeSchema = z.enum(["SINGLE", "MULTIPLE"]);
+export const selectionCountSchema = z.number().int().min(0).max(100);
+export const productImageObjectKeySchema = z
+  .string()
+  .trim()
+  .min(3)
+  .max(512)
+  .regex(/^[A-Za-z0-9][A-Za-z0-9._/-]*$/)
+  .refine((value) => !value.split("/").includes(".."), {
+    message: "Object key tidak boleh memuat path traversal.",
+  });
+export const productImageContentTypeSchema = z.enum([
+  "image/avif",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+export const productImageDimensionSchema = z.number().int().min(1).max(100_000);
+
+const modifierSelectionRuleSchema = z
+  .object({
+    maxSelections: selectionCountSchema,
+    minSelections: selectionCountSchema,
+    selectionType: modifierSelectionTypeSchema,
+  })
+  .refine((value) => value.minSelections <= value.maxSelections, {
+    message: "Minimum pilihan tidak boleh melebihi maksimum pilihan.",
+  })
+  .refine((value) => value.selectionType === "MULTIPLE" || value.maxSelections <= 1, {
+    message: "Modifier SINGLE hanya boleh memiliki maksimum satu pilihan.",
+  });
+
+export const catalogProductVariantSchema = organizationRecordTimestampsSchema.extend({
+  availability: productAvailabilitySchema,
+  displayOrder: displayOrderSchema,
+  id: z.uuid(),
+  name: catalogNameSchema,
+  priceDeltaMinor: moneyMinorSchema,
+  productId: z.uuid(),
+  status: catalogRecordStatusSchema,
+  tenantId: z.uuid(),
+});
+
+export const createCatalogProductVariantSchema = z.object({
+  availability: productAvailabilitySchema.default("AVAILABLE"),
+  displayOrder: displayOrderSchema.default(0),
+  name: catalogNameSchema,
+  priceDeltaMinor: moneyMinorSchema.default("0"),
+  productId: z.uuid(),
+});
+
+export const updateCatalogProductVariantSchema = z
+  .object({
+    availability: productAvailabilitySchema.optional(),
+    displayOrder: displayOrderSchema.optional(),
+    name: catalogNameSchema.optional(),
+    priceDeltaMinor: moneyMinorSchema.optional(),
+    status: catalogRecordStatusSchema.optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, {
+    message: "Perubahan variant wajib diisi.",
+  });
+
+export const catalogModifierGroupSchema = organizationRecordTimestampsSchema
+  .extend({
+    displayOrder: displayOrderSchema,
+    id: z.uuid(),
+    name: catalogNameSchema,
+    ...modifierSelectionRuleSchema.shape,
+    status: catalogRecordStatusSchema,
+    tenantId: z.uuid(),
+  })
+  .refine((value) => value.minSelections <= value.maxSelections, {
+    message: "Minimum pilihan tidak boleh melebihi maksimum pilihan.",
+  })
+  .refine((value) => value.selectionType === "MULTIPLE" || value.maxSelections <= 1, {
+    message: "Modifier SINGLE hanya boleh memiliki maksimum satu pilihan.",
+  });
+
+export const createCatalogModifierGroupSchema = z
+  .object({
+    displayOrder: displayOrderSchema.default(0),
+    name: catalogNameSchema,
+    maxSelections: selectionCountSchema.default(1),
+    minSelections: selectionCountSchema.default(0),
+    selectionType: modifierSelectionTypeSchema.default("SINGLE"),
+  })
+  .pipe(
+    z
+      .object({
+        displayOrder: displayOrderSchema,
+        name: catalogNameSchema,
+        ...modifierSelectionRuleSchema.shape,
+      })
+      .refine((value) => value.minSelections <= value.maxSelections, {
+        message: "Minimum pilihan tidak boleh melebihi maksimum pilihan.",
+      })
+      .refine((value) => value.selectionType === "MULTIPLE" || value.maxSelections <= 1, {
+        message: "Modifier SINGLE hanya boleh memiliki maksimum satu pilihan.",
+      }),
+  );
+
+export const updateCatalogModifierGroupSchema = z
+  .object({
+    displayOrder: displayOrderSchema.optional(),
+    maxSelections: selectionCountSchema.optional(),
+    minSelections: selectionCountSchema.optional(),
+    name: catalogNameSchema.optional(),
+    selectionType: modifierSelectionTypeSchema.optional(),
+    status: catalogRecordStatusSchema.optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, {
+    message: "Perubahan modifier group wajib diisi.",
+  });
+
+export const catalogModifierOptionSchema = organizationRecordTimestampsSchema.extend({
+  availability: productAvailabilitySchema,
+  displayOrder: displayOrderSchema,
+  groupId: z.uuid(),
+  id: z.uuid(),
+  name: catalogNameSchema,
+  priceDeltaMinor: moneyMinorSchema,
+  status: catalogRecordStatusSchema,
+  tenantId: z.uuid(),
+});
+
+export const createCatalogModifierOptionSchema = z.object({
+  availability: productAvailabilitySchema.default("AVAILABLE"),
+  displayOrder: displayOrderSchema.default(0),
+  groupId: z.uuid(),
+  name: catalogNameSchema,
+  priceDeltaMinor: moneyMinorSchema.default("0"),
+});
+
+export const updateCatalogModifierOptionSchema = z
+  .object({
+    availability: productAvailabilitySchema.optional(),
+    displayOrder: displayOrderSchema.optional(),
+    name: catalogNameSchema.optional(),
+    priceDeltaMinor: moneyMinorSchema.optional(),
+    status: catalogRecordStatusSchema.optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, {
+    message: "Perubahan modifier option wajib diisi.",
+  });
+
+export const catalogProductModifierGroupSchema = organizationRecordTimestampsSchema.extend({
+  displayOrder: displayOrderSchema,
+  id: z.uuid(),
+  modifierGroupId: z.uuid(),
+  productId: z.uuid(),
+  status: catalogRecordStatusSchema,
+  tenantId: z.uuid(),
+});
+
+export const createCatalogProductModifierGroupSchema = z.object({
+  displayOrder: displayOrderSchema.default(0),
+  modifierGroupId: z.uuid(),
+  productId: z.uuid(),
+});
+
+export const updateCatalogProductModifierGroupSchema = z
+  .object({
+    displayOrder: displayOrderSchema.optional(),
+    status: catalogRecordStatusSchema.optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, {
+    message: "Perubahan assignment modifier wajib diisi.",
+  });
+
+export const catalogProductImageSchema = organizationRecordTimestampsSchema.extend({
+  altText: z.string().trim().min(1).max(300).nullable(),
+  contentType: productImageContentTypeSchema,
+  displayOrder: displayOrderSchema,
+  height: productImageDimensionSchema.nullable(),
+  id: z.uuid(),
+  isPrimary: z.boolean(),
+  objectKey: productImageObjectKeySchema,
+  productId: z.uuid(),
+  status: catalogRecordStatusSchema,
+  tenantId: z.uuid(),
+  width: productImageDimensionSchema.nullable(),
+});
+
+export const createCatalogProductImageSchema = z.object({
+  altText: z.string().trim().min(1).max(300).nullable().optional(),
+  contentType: productImageContentTypeSchema,
+  displayOrder: displayOrderSchema.default(0),
+  height: productImageDimensionSchema.nullable().optional(),
+  isPrimary: z.boolean().default(false),
+  objectKey: productImageObjectKeySchema,
+  productId: z.uuid(),
+  width: productImageDimensionSchema.nullable().optional(),
+});
+
+export const updateCatalogProductImageSchema = z
+  .object({
+    altText: z.string().trim().min(1).max(300).nullable().optional(),
+    displayOrder: displayOrderSchema.optional(),
+    height: productImageDimensionSchema.nullable().optional(),
+    isPrimary: z.boolean().optional(),
+    status: catalogRecordStatusSchema.optional(),
+    width: productImageDimensionSchema.nullable().optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, {
+    message: "Perubahan product image wajib diisi.",
+  });
+
 export const catalogSnapshotSchema = z.object({
   categories: z.array(catalogCategorySchema),
+  modifierGroups: z.array(catalogModifierGroupSchema),
+  modifierOptions: z.array(catalogModifierOptionSchema),
+  productImages: z.array(catalogProductImageSchema),
+  productModifierGroups: z.array(catalogProductModifierGroupSchema),
+  productVariants: z.array(catalogProductVariantSchema),
   products: z.array(catalogProductSchema),
 });
 
@@ -557,14 +770,26 @@ export type AuthSession = z.infer<typeof authSessionSchema>;
 export type AuthUser = z.infer<typeof authUserSchema>;
 export type Brand = z.infer<typeof brandSchema>;
 export type CatalogCategory = z.infer<typeof catalogCategorySchema>;
+export type CatalogModifierGroup = z.infer<typeof catalogModifierGroupSchema>;
+export type CatalogModifierOption = z.infer<typeof catalogModifierOptionSchema>;
 export type CatalogProduct = z.infer<typeof catalogProductSchema>;
+export type CatalogProductImage = z.infer<typeof catalogProductImageSchema>;
+export type CatalogProductModifierGroup = z.infer<typeof catalogProductModifierGroupSchema>;
+export type CatalogProductVariant = z.infer<typeof catalogProductVariantSchema>;
 export type CatalogRecordStatus = z.infer<typeof catalogRecordStatusSchema>;
 export type CatalogSnapshot = z.infer<typeof catalogSnapshotSchema>;
 export type AuthorizationContext = z.infer<typeof authorizationContextSchema>;
 export type ContractSchema = z.ZodType;
 export type CreateBrand = z.infer<typeof createBrandSchema>;
 export type CreateCatalogCategory = z.infer<typeof createCatalogCategorySchema>;
+export type CreateCatalogModifierGroup = z.infer<typeof createCatalogModifierGroupSchema>;
+export type CreateCatalogModifierOption = z.infer<typeof createCatalogModifierOptionSchema>;
 export type CreateCatalogProduct = z.infer<typeof createCatalogProductSchema>;
+export type CreateCatalogProductImage = z.infer<typeof createCatalogProductImageSchema>;
+export type CreateCatalogProductModifierGroup = z.infer<
+  typeof createCatalogProductModifierGroupSchema
+>;
+export type CreateCatalogProductVariant = z.infer<typeof createCatalogProductVariantSchema>;
 export type CreateMembership = z.infer<typeof createMembershipSchema>;
 export type CreateRole = z.infer<typeof createRoleSchema>;
 export type CreateOutlet = z.infer<typeof createOutletSchema>;
@@ -575,6 +800,7 @@ export type OrganizationSnapshot = z.infer<typeof organizationSnapshotSchema>;
 export type OrganizationUnitStatus = z.infer<typeof organizationUnitStatusSchema>;
 export type Membership = z.infer<typeof membershipSchema>;
 export type MembershipStatus = z.infer<typeof membershipStatusSchema>;
+export type ModifierSelectionType = z.infer<typeof modifierSelectionTypeSchema>;
 export type ModuleEntitlement = z.infer<typeof moduleEntitlementSchema>;
 export type ModuleKey = z.infer<typeof moduleKeySchema>;
 export type ModuleKind = z.infer<typeof moduleKindSchema>;
@@ -602,7 +828,14 @@ export type TenantRequestHeaders = z.infer<typeof tenantRequestHeadersSchema>;
 export type Tenant = z.infer<typeof tenantSchema>;
 export type UpdateBrand = z.infer<typeof updateBrandSchema>;
 export type UpdateCatalogCategory = z.infer<typeof updateCatalogCategorySchema>;
+export type UpdateCatalogModifierGroup = z.infer<typeof updateCatalogModifierGroupSchema>;
+export type UpdateCatalogModifierOption = z.infer<typeof updateCatalogModifierOptionSchema>;
 export type UpdateCatalogProduct = z.infer<typeof updateCatalogProductSchema>;
+export type UpdateCatalogProductImage = z.infer<typeof updateCatalogProductImageSchema>;
+export type UpdateCatalogProductModifierGroup = z.infer<
+  typeof updateCatalogProductModifierGroupSchema
+>;
+export type UpdateCatalogProductVariant = z.infer<typeof updateCatalogProductVariantSchema>;
 export type UpdateMembership = z.infer<typeof updateMembershipSchema>;
 export type UpdateRole = z.infer<typeof updateRoleSchema>;
 export type UpdateOutlet = z.infer<typeof updateOutletSchema>;
@@ -621,11 +854,21 @@ export const commonOpenApiSchemas = {
   AuthorizationContext: toOpenApiSchema(authorizationContextSchema),
   Brand: toOpenApiSchema(brandSchema),
   CatalogCategory: toOpenApiSchema(catalogCategorySchema),
+  CatalogModifierGroup: toOpenApiSchema(catalogModifierGroupSchema),
+  CatalogModifierOption: toOpenApiSchema(catalogModifierOptionSchema),
   CatalogProduct: toOpenApiSchema(catalogProductSchema),
+  CatalogProductImage: toOpenApiSchema(catalogProductImageSchema),
+  CatalogProductModifierGroup: toOpenApiSchema(catalogProductModifierGroupSchema),
+  CatalogProductVariant: toOpenApiSchema(catalogProductVariantSchema),
   CatalogSnapshot: toOpenApiSchema(catalogSnapshotSchema),
   CreateBrand: toOpenApiSchema(createBrandSchema),
   CreateCatalogCategory: toOpenApiSchema(createCatalogCategorySchema),
+  CreateCatalogModifierGroup: toOpenApiSchema(createCatalogModifierGroupSchema),
+  CreateCatalogModifierOption: toOpenApiSchema(createCatalogModifierOptionSchema),
   CreateCatalogProduct: toOpenApiSchema(createCatalogProductSchema),
+  CreateCatalogProductImage: toOpenApiSchema(createCatalogProductImageSchema),
+  CreateCatalogProductModifierGroup: toOpenApiSchema(createCatalogProductModifierGroupSchema),
+  CreateCatalogProductVariant: toOpenApiSchema(createCatalogProductVariantSchema),
   CreateMembership: toOpenApiSchema(createMembershipSchema),
   CreateRole: toOpenApiSchema(createRoleSchema),
   CreateOutlet: toOpenApiSchema(createOutletSchema),
@@ -653,7 +896,12 @@ export const commonOpenApiSchemas = {
   Subscription: toOpenApiSchema(subscriptionSchema),
   UpdateBrand: toOpenApiSchema(updateBrandSchema),
   UpdateCatalogCategory: toOpenApiSchema(updateCatalogCategorySchema),
+  UpdateCatalogModifierGroup: toOpenApiSchema(updateCatalogModifierGroupSchema),
+  UpdateCatalogModifierOption: toOpenApiSchema(updateCatalogModifierOptionSchema),
   UpdateCatalogProduct: toOpenApiSchema(updateCatalogProductSchema),
+  UpdateCatalogProductImage: toOpenApiSchema(updateCatalogProductImageSchema),
+  UpdateCatalogProductModifierGroup: toOpenApiSchema(updateCatalogProductModifierGroupSchema),
+  UpdateCatalogProductVariant: toOpenApiSchema(updateCatalogProductVariantSchema),
   UpdateMembership: toOpenApiSchema(updateMembershipSchema),
   UpdateRole: toOpenApiSchema(updateRoleSchema),
   UpdateOutlet: toOpenApiSchema(updateOutletSchema),

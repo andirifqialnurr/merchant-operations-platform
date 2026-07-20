@@ -41,6 +41,13 @@ const catalogMigration = readFileSync(
   ),
   "utf8",
 );
+const catalogCompositionMigration = readFileSync(
+  new URL(
+    "../../../packages/database/prisma/migrations/20260720190000_catalog_product_composition/migration.sql",
+    import.meta.url,
+  ),
+  "utf8",
+);
 
 test("keeps organization and access relations scoped by tenant composite keys", () => {
   assert.match(
@@ -110,4 +117,35 @@ test("keeps catalog products scoped to their tenant category and exact non-negat
     /CONSTRAINT "products_base_price_minor_check" CHECK \("base_price_minor" >= 0\)/,
   );
   assert.match(catalogMigration, /'catalog\.manage', 'Manage tenant catalog'/);
+});
+
+test("keeps product composition parents tenant-scoped and composition prices non-negative", () => {
+  assert.match(
+    schema,
+    /product\s+CatalogProduct\s+@relation\(fields: \[tenantId, productId\], references: \[tenantId, id\]/,
+  );
+  assert.match(
+    schema,
+    /modifierGroup\s+CatalogModifierGroup\s+@relation\(fields: \[tenantId, modifierGroupId\], references: \[tenantId, id\]/,
+  );
+  assert.match(
+    catalogCompositionMigration,
+    /FOREIGN KEY \("tenant_id", "product_id"\) REFERENCES "products"\("tenant_id", "id"\)/,
+  );
+  assert.match(
+    catalogCompositionMigration,
+    /FOREIGN KEY \("tenant_id", "modifier_group_id"\) REFERENCES "modifier_groups"\("tenant_id", "id"\)/,
+  );
+  assert.match(
+    catalogCompositionMigration,
+    /CONSTRAINT "modifier_groups_single_selection_check" CHECK/,
+  );
+  assert.match(
+    catalogCompositionMigration,
+    /CONSTRAINT "product_variants_price_delta_minor_check" CHECK \("price_delta_minor" >= 0\)/,
+  );
+  assert.match(
+    catalogCompositionMigration,
+    /CREATE UNIQUE INDEX "product_images_active_primary_product_key"[\s\S]*WHERE "is_primary" = TRUE AND "status" = 'ACTIVE'/,
+  );
 });
