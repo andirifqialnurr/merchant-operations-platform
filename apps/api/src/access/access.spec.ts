@@ -323,3 +323,38 @@ test("rejects outlet-scoped actors from tenant-wide protected routes", async () 
   await assert.rejects(() => guard.canActivate(context), ForbiddenException);
   assert.equal(checkedModule, MODULES.cafeProfile);
 });
+
+test("does not expose roles, memberships, or authorization across tenants", async () => {
+  const repository = new InMemoryAccessRepository();
+  const service = new AccessService(repository);
+  const roleA = await service.createRole(IDS.tenantA, {
+    code: "VIEWER_A",
+    name: "Viewer A",
+    permissionKeys: [PERMISSIONS.organizationRead],
+  });
+  const roleB = await service.createRole(IDS.tenantB, {
+    code: "VIEWER_B",
+    name: "Viewer B",
+    permissionKeys: [PERMISSIONS.organizationRead],
+  });
+  await service.createMembership(IDS.tenantA, {
+    allOutlets: false,
+    outletIds: [IDS.outletA],
+    roleIds: [roleA.id],
+    userId: IDS.userStaff,
+  });
+
+  assert.deepEqual(
+    (await service.listRoles(IDS.tenantA)).map((role) => role.id),
+    [roleA.id],
+  );
+  assert.deepEqual(
+    (await service.listRoles(IDS.tenantB)).map((role) => role.id),
+    [roleB.id],
+  );
+  assert.equal((await service.listMemberships(IDS.tenantB)).length, 0);
+  await assert.rejects(
+    () => service.authorize(IDS.userStaff, IDS.tenantB, PERMISSIONS.organizationRead),
+    ForbiddenException,
+  );
+});

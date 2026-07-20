@@ -242,3 +242,44 @@ test("prevents new organization units below an inactive tenant", async () => {
     (error: unknown) => responseCode(error) === "TENANT_INACTIVE",
   );
 });
+
+test("returns only brands and outlets owned by the requested tenant", async () => {
+  const repository = new InMemoryOrganizationRepository();
+  const service = new OrganizationService(repository);
+  const tenantA = await service.createTenant({ name: "Tenant A", slug: "tenant-a" });
+  const tenantB = await service.createTenant({ name: "Tenant B", slug: "tenant-b" });
+  const brandA = await service.createBrand(tenantA.id, { name: "Brand A", slug: "brand-a" });
+  const brandB = await service.createBrand(tenantB.id, { name: "Brand B", slug: "brand-b" });
+  const outletA = await service.createOutlet(tenantA.id, {
+    brandId: brandA.id,
+    code: "A-01",
+    name: "Outlet A",
+    timezone: "Asia/Jakarta",
+  });
+  const outletB = await service.createOutlet(tenantB.id, {
+    brandId: brandB.id,
+    code: "B-01",
+    name: "Outlet B",
+    timezone: "Asia/Jakarta",
+  });
+
+  const snapshotA = await service.getSnapshot(tenantA.id);
+  const snapshotB = await service.getSnapshot(tenantB.id);
+
+  assert.deepEqual(
+    snapshotA.brands.map((brand) => brand.id),
+    [brandA.id],
+  );
+  assert.deepEqual(
+    snapshotA.outlets.map((outlet) => outlet.id),
+    [outletA.id],
+  );
+  assert.deepEqual(
+    snapshotB.brands.map((brand) => brand.id),
+    [brandB.id],
+  );
+  assert.deepEqual(
+    snapshotB.outlets.map((outlet) => outlet.id),
+    [outletB.id],
+  );
+});

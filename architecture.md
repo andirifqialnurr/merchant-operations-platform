@@ -540,6 +540,8 @@ Production memakai container deployment, managed PostgreSQL, Redis, object stora
 
 ## 21. Testing prioritas
 
+Tenant-isolation regression yang dapat berjalan tanpa service eksternal menguji application service dan authorization guard dengan dua tenant, serta menjaga composite tenant constraint melalui schema-contract test. Gate ini tidak menggantikan integration test PostgreSQL/RLS; test database asli tetap diperlukan sebelum pilot atau production readiness.
+
 - Tenant isolation dan outlet scope.
 - Entitlement serta custom role.
 - Order/payment state transition.

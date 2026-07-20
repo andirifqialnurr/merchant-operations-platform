@@ -16,6 +16,7 @@ import type {
 import { EntitlementService } from "./entitlement.service.js";
 
 const TENANT_ID = "019f7900-0000-7000-8000-000000000101";
+const TENANT_B_ID = "019f7900-0000-7000-8000-000000000103";
 const ACTOR_ID = "019f7900-0000-7000-8000-000000000102";
 
 const moduleDefinitions: EntitlementStateRecord["modules"] = [
@@ -74,21 +75,38 @@ const plans: PlanRecord[] = [
 ];
 
 class MemoryEntitlementRepository implements EntitlementRepository {
-  readonly state: EntitlementStateRecord = {
-    modules: moduleDefinitions,
-    overrides: [],
-    subscription: null,
-    tenant: { id: TENANT_ID, status: "ACTIVE" },
+  readonly states: Record<string, EntitlementStateRecord> = {
+    [TENANT_ID]: {
+      modules: moduleDefinitions,
+      overrides: [],
+      subscription: null,
+      tenant: { id: TENANT_ID, status: "ACTIVE" },
+    },
+    [TENANT_B_ID]: {
+      modules: moduleDefinitions,
+      overrides: [],
+      subscription: null,
+      tenant: { id: TENANT_B_ID, status: "ACTIVE" },
+    },
   };
+
+  get state() {
+    return this.states[TENANT_ID]!;
+  }
 
   async findPlanByCode(code: PlanCode) {
     return plans.find((plan) => plan.code === code) ?? null;
   }
 
   async getState(tenantId: string) {
-    return tenantId === TENANT_ID
-      ? this.state
-      : { modules: moduleDefinitions, overrides: [], subscription: null, tenant: null };
+    return (
+      this.states[tenantId] ?? {
+        modules: moduleDefinitions,
+        overrides: [],
+        subscription: null,
+        tenant: null,
+      }
+    );
   }
 
   async replaceSubscription(tenantId: string, input: ReplaceSubscriptionRecordInput) {
@@ -99,7 +117,10 @@ class MemoryEntitlementRepository implements EntitlementRepository {
       createdAt: now,
       endsAt: input.endsAt,
       graceEndsAt: input.graceEndsAt,
-      id: "019f7900-0000-7000-8000-000000000301",
+      id:
+        tenantId === TENANT_ID
+          ? "019f7900-0000-7000-8000-000000000301"
+          : "019f7900-0000-7000-8000-000000000302",
       planCode: plan.code,
       planId: plan.id,
       planModuleKeys: plan.moduleKeys,
@@ -109,12 +130,14 @@ class MemoryEntitlementRepository implements EntitlementRepository {
       tenantId,
       updatedAt: now,
     };
-    this.state.subscription = subscription;
+    const state = this.states[tenantId];
+    assert.ok(state);
+    state.subscription = subscription;
     return subscription;
   }
 
   async upsertEntitlement(
-    _tenantId: string,
+    tenantId: string,
     input: { enabled: boolean; moduleKey: ModuleKey; reason: string },
     context?: EntitlementMutationContext,
   ) {
@@ -123,8 +146,10 @@ class MemoryEntitlementRepository implements EntitlementRepository {
       effectiveAt: new Date("2026-07-20T00:00:00.000Z"),
       ...input,
     };
-    this.state.overrides = [
-      ...this.state.overrides.filter((item) => item.moduleKey !== input.moduleKey),
+    const state = this.states[tenantId];
+    assert.ok(state);
+    state.overrides = [
+      ...state.overrides.filter((item) => item.moduleKey !== input.moduleKey),
       override,
     ];
     return override;
@@ -196,5 +221,31 @@ test("denies every tenant route while subscription is suspended", async () => {
   assert.equal(
     snapshot.modules.every((item) => !item.enabled),
     true,
+  );
+});
+
+test("keeps subscription plans and entitlement overrides isolated per tenant", async () => {
+  const repository = new MemoryEntitlementRepository();
+  const service = new EntitlementService(repository);
+  await service.replaceSubscription(TENANT_ID, activeSubscription(PLAN_CODES.profile));
+  await service.replaceSubscription(TENANT_B_ID, activeSubscription(PLAN_CODES.customModular));
+  await service.setEntitlement(TENANT_B_ID, {
+    enabled: true,
+    moduleKey: MODULES.inventoryBasic,
+    reason: "Tenant B inventory pilot",
+  });
+
+  const snapshotA = await service.getSnapshot(TENANT_ID);
+  const snapshotB = await service.getSnapshot(TENANT_B_ID);
+
+  assert.equal(snapshotA.subscription?.planCode, PLAN_CODES.profile);
+  assert.equal(snapshotB.subscription?.planCode, PLAN_CODES.customModular);
+  assert.equal(
+    snapshotA.modules.find((module) => module.key === MODULES.inventoryBasic)?.enabled,
+    false,
+  );
+  assert.equal(
+    snapshotB.modules.find((module) => module.key === MODULES.inventoryBasic)?.source,
+    "OVERRIDE",
   );
 });
