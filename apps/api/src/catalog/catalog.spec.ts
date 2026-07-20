@@ -9,6 +9,7 @@ import {
   type CatalogModifierGroupRecord,
   type CatalogModifierOptionRecord,
   type CatalogMutationContext,
+  type CatalogOutletProductRecord,
   type CatalogProductRecord,
   type CatalogProductImageRecord,
   type CatalogProductModifierGroupRecord,
@@ -22,12 +23,20 @@ const TENANT_A = "019f738d-e61f-7d46-92de-17b35f971101";
 const TENANT_B = "019f738d-e61f-7d46-92de-17b35f971102";
 const TENANT_INACTIVE = "019f738d-e61f-7d46-92de-17b35f971103";
 const ACTOR_ID = "019f738d-e61f-7d46-92de-17b35f971104";
+const OUTLET_A = "019f738d-e61f-7d46-92de-17b35f971105";
+const OUTLET_B = "019f738d-e61f-7d46-92de-17b35f971106";
+const OUTLET_INACTIVE = "019f738d-e61f-7d46-92de-17b35f971107";
 
 class InMemoryCatalogRepository implements CatalogRepository {
   private readonly tenants = new Map<string, CatalogTenantRecord>([
     [TENANT_A, { id: TENANT_A, status: "ACTIVE" }],
     [TENANT_B, { id: TENANT_B, status: "ACTIVE" }],
     [TENANT_INACTIVE, { id: TENANT_INACTIVE, status: "INACTIVE" }],
+  ]);
+  private readonly outlets = new Map([
+    [OUTLET_A, { id: OUTLET_A, status: "ACTIVE" as const, tenantId: TENANT_A }],
+    [OUTLET_B, { id: OUTLET_B, status: "ACTIVE" as const, tenantId: TENANT_B }],
+    [OUTLET_INACTIVE, { id: OUTLET_INACTIVE, status: "INACTIVE" as const, tenantId: TENANT_A }],
   ]);
   private readonly categories = new Map<string, CatalogCategoryRecord>();
   private readonly products = new Map<string, CatalogProductRecord>();
@@ -36,6 +45,7 @@ class InMemoryCatalogRepository implements CatalogRepository {
   private readonly modifierOptions = new Map<string, CatalogModifierOptionRecord>();
   private readonly productModifierGroups = new Map<string, CatalogProductModifierGroupRecord>();
   private readonly productImages = new Map<string, CatalogProductImageRecord>();
+  private readonly outletProducts = new Map<string, CatalogOutletProductRecord>();
   readonly mutationContexts: Array<CatalogMutationContext | undefined> = [];
 
   private key(tenantId: string, id: string) {
@@ -436,6 +446,70 @@ class InMemoryCatalogRepository implements CatalogRepository {
     return image;
   }
 
+  async findOutlet(tenantId: string, outletId: string) {
+    const outlet = this.outlets.get(outletId);
+    return outlet?.tenantId === tenantId ? outlet : null;
+  }
+
+  async findOutletProductById(tenantId: string, outletProductId: string) {
+    return this.outletProducts.get(this.key(tenantId, outletProductId)) ?? null;
+  }
+
+  async findOutletProduct(tenantId: string, outletId: string, productId: string) {
+    return (
+      [...this.outletProducts.values()].find(
+        (assignment) =>
+          assignment.tenantId === tenantId &&
+          assignment.outletId === outletId &&
+          assignment.productId === productId,
+      ) ?? null
+    );
+  }
+
+  async createOutletProduct(
+    tenantId: string,
+    input: Parameters<CatalogRepository["createOutletProduct"]>[1],
+    context?: CatalogMutationContext,
+  ) {
+    const now = new Date();
+    const outletProduct: CatalogOutletProductRecord = {
+      ...input,
+      createdAt: now,
+      id: randomUUID(),
+      status: "ACTIVE",
+      tenantId,
+      updatedAt: now,
+    };
+    this.outletProducts.set(this.key(tenantId, outletProduct.id), outletProduct);
+    this.mutationContexts.push(context);
+    return outletProduct;
+  }
+
+  async updateOutletProduct(
+    tenantId: string,
+    outletProductId: string,
+    input: Parameters<CatalogRepository["updateOutletProduct"]>[2],
+    context?: CatalogMutationContext,
+  ) {
+    const current = this.outletProducts.get(this.key(tenantId, outletProductId));
+    assert.ok(current);
+    const outletProduct: CatalogOutletProductRecord = {
+      ...current,
+      ...(input.availabilityOverride !== undefined
+        ? { availabilityOverride: input.availabilityOverride }
+        : {}),
+      ...(input.displayOrder !== undefined ? { displayOrder: input.displayOrder } : {}),
+      ...(input.priceOverrideMinor !== undefined
+        ? { priceOverrideMinor: input.priceOverrideMinor }
+        : {}),
+      ...(input.status !== undefined ? { status: input.status } : {}),
+      updatedAt: new Date(),
+    };
+    this.outletProducts.set(this.key(tenantId, outletProductId), outletProduct);
+    this.mutationContexts.push(context);
+    return outletProduct;
+  }
+
   async getSnapshot(tenantId: string) {
     if (!this.tenants.has(tenantId)) return null;
     return {
@@ -444,6 +518,9 @@ class InMemoryCatalogRepository implements CatalogRepository {
         (item) => item.tenantId === tenantId,
       ),
       modifierOptions: [...this.modifierOptions.values()].filter(
+        (item) => item.tenantId === tenantId,
+      ),
+      outletProducts: [...this.outletProducts.values()].filter(
         (item) => item.tenantId === tenantId,
       ),
       productImages: [...this.productImages.values()].filter((item) => item.tenantId === tenantId),
@@ -735,4 +812,118 @@ test("blocks new options and assignments below inactive composition parents", as
       }),
     ConflictException,
   );
+});
+
+test("inherits master price and availability for an outlet assignment", async () => {
+  const repository = new InMemoryCatalogRepository();
+  const service = new CatalogService(repository);
+  const product = await createProduct(service, TENANT_A, "outlet-inherit");
+  const assignment = await service.createOutletProduct(
+    TENANT_A,
+    {
+      availabilityOverride: null,
+      displayOrder: 0,
+      outletId: OUTLET_A,
+      priceOverrideMinor: null,
+      productId: product.id,
+    },
+    { actorId: ACTOR_ID, requestId: "req_outlet_catalog" },
+  );
+  const outletCatalog = await service.getOutletCatalog(TENANT_A, OUTLET_A);
+  const item = outletCatalog.items[0];
+
+  assert.ok(item);
+  assert.equal(item.assignment.id, assignment.id);
+  assert.equal(item.effectivePriceMinor, "20000");
+  assert.equal(item.effectiveAvailability, "AVAILABLE");
+  assert.equal(item.inheritsPrice, true);
+  assert.equal(item.inheritsAvailability, true);
+  assert.equal(item.sellable, true);
+  assert.deepEqual(repository.mutationContexts.at(-1), {
+    actorId: ACTOR_ID,
+    requestId: "req_outlet_catalog",
+  });
+});
+
+test("applies and clears exact outlet price and sold-out overrides", async () => {
+  const repository = new InMemoryCatalogRepository();
+  const service = new CatalogService(repository);
+  const product = await createProduct(service, TENANT_A, "outlet-override");
+  const assignment = await service.createOutletProduct(TENANT_A, {
+    availabilityOverride: "SOLD_OUT",
+    displayOrder: 1,
+    outletId: OUTLET_A,
+    priceOverrideMinor: "27500",
+    productId: product.id,
+  });
+  let item = (await service.getOutletCatalog(TENANT_A, OUTLET_A)).items[0];
+
+  assert.equal(item?.effectivePriceMinor, "27500");
+  assert.equal(item?.effectiveAvailability, "SOLD_OUT");
+  assert.equal(item?.sellable, false);
+
+  await service.updateOutletProduct(TENANT_A, assignment.id, {
+    availabilityOverride: null,
+    priceOverrideMinor: null,
+  });
+  item = (await service.getOutletCatalog(TENANT_A, OUTLET_A)).items[0];
+  assert.equal(item?.effectivePriceMinor, "20000");
+  assert.equal(item?.effectiveAvailability, "AVAILABLE");
+  assert.equal(item?.inheritsPrice, true);
+  assert.equal(item?.sellable, true);
+});
+
+test("rejects cross-tenant, duplicate, and inactive-outlet assignments", async () => {
+  const repository = new InMemoryCatalogRepository();
+  const service = new CatalogService(repository);
+  const product = await createProduct(service, TENANT_A, "outlet-isolation");
+  const input = {
+    availabilityOverride: null,
+    displayOrder: 0,
+    priceOverrideMinor: null,
+    productId: product.id,
+  } as const;
+
+  await assert.rejects(
+    () => service.createOutletProduct(TENANT_A, { ...input, outletId: OUTLET_B }),
+    NotFoundException,
+  );
+  await assert.rejects(
+    () => service.createOutletProduct(TENANT_B, { ...input, outletId: OUTLET_B }),
+    NotFoundException,
+  );
+  await assert.rejects(
+    () => service.createOutletProduct(TENANT_A, { ...input, outletId: OUTLET_INACTIVE }),
+    ConflictException,
+  );
+
+  await service.createOutletProduct(TENANT_A, { ...input, outletId: OUTLET_A });
+  await assert.rejects(
+    () => service.createOutletProduct(TENANT_A, { ...input, outletId: OUTLET_A }),
+    ConflictException,
+  );
+});
+
+test("marks an inactive outlet assignment as non-sellable without deleting it", async () => {
+  const repository = new InMemoryCatalogRepository();
+  const service = new CatalogService(repository);
+  const product = await createProduct(service, TENANT_A, "outlet-inactive-assignment");
+  const assignment = await service.createOutletProduct(TENANT_A, {
+    availabilityOverride: null,
+    displayOrder: 0,
+    outletId: OUTLET_A,
+    priceOverrideMinor: null,
+    productId: product.id,
+  });
+  await service.updateOutletProduct(TENANT_A, assignment.id, { status: "INACTIVE" });
+  await service.updateProduct(TENANT_A, product.id, { status: "INACTIVE" });
+  await assert.rejects(
+    () => service.updateOutletProduct(TENANT_A, assignment.id, { status: "ACTIVE" }),
+    ConflictException,
+  );
+  const item = (await service.getOutletCatalog(TENANT_A, OUTLET_A)).items[0];
+
+  assert.equal(item?.assignment.status, "INACTIVE");
+  assert.equal(item?.sellable, false);
+  assert.equal((await service.getSnapshot(TENANT_A)).outletProducts.length, 1);
 });

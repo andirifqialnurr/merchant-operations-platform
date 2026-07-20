@@ -154,6 +154,7 @@ model Tenant {
   catalogModifierOptions       CatalogModifierOption[]
   catalogProductModifierGroups CatalogProductModifierGroup[]
   catalogProductImages         CatalogProductImage[]
+  catalogOutletProducts        CatalogOutletProduct[]
 
   @@map("tenants")
 }
@@ -191,6 +192,7 @@ model Outlet {
   idempotencyKeys IdempotencyKey[]
   outboxEvents    OutboxEvent[]
   assignments     OutletAssignment[]
+  catalogProducts CatalogOutletProduct[]
 
   @@unique([tenantId, code])
   @@unique([tenantId, id])
@@ -235,6 +237,7 @@ model CatalogProduct {
   variants       CatalogProductVariant[]
   modifierGroups CatalogProductModifierGroup[]
   images         CatalogProductImage[]
+  outletProducts CatalogOutletProduct[]
 
   @@unique([tenantId, slug])
   @@unique([tenantId, id])
@@ -345,6 +348,28 @@ model CatalogProductImage {
   @@unique([tenantId, objectKey])
   @@index([tenantId, productId, status, displayOrder])
   @@map("product_images")
+}
+
+model CatalogOutletProduct {
+  id                   String               @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId             String               @map("tenant_id") @db.Uuid
+  outletId             String               @map("outlet_id") @db.Uuid
+  productId            String               @map("product_id") @db.Uuid
+  priceOverrideMinor   BigInt?              @map("price_override_minor") @db.BigInt
+  availabilityOverride ProductAvailability? @map("availability_override")
+  displayOrder         Int                  @default(0) @map("display_order")
+  status               CatalogRecordStatus  @default(ACTIVE)
+  createdAt            DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant               Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet               Outlet               @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
+  product              CatalogProduct       @relation(fields: [tenantId, productId], references: [tenantId, id], onDelete: Restrict)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, outletId, productId])
+  @@index([tenantId, outletId, status, displayOrder])
+  @@index([tenantId, productId, status])
+  @@map("outlet_products")
 }
 
 model TenantMembership {

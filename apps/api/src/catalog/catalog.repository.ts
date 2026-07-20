@@ -1,5 +1,6 @@
 import type {
   CatalogRecordStatus,
+  CreateCatalogOutletProduct,
   CreateCatalogModifierGroup,
   CreateCatalogModifierOption,
   CreateCatalogCategory,
@@ -12,6 +13,7 @@ import type {
   ProductAvailability,
   UpdateCatalogModifierGroup,
   UpdateCatalogModifierOption,
+  UpdateCatalogOutletProduct,
   UpdateCatalogCategory,
   UpdateCatalogProduct,
   UpdateCatalogProductImage,
@@ -28,6 +30,12 @@ type RecordTimestamps = { createdAt: Date; updatedAt: Date };
 export type CatalogTenantRecord = {
   id: string;
   status: OrganizationUnitStatus;
+};
+
+export type CatalogOutletRecord = {
+  id: string;
+  status: OrganizationUnitStatus;
+  tenantId: string;
 };
 
 export type CatalogCategoryRecord = RecordTimestamps & {
@@ -108,10 +116,22 @@ export type CatalogProductImageRecord = RecordTimestamps & {
   width: number | null;
 };
 
+export type CatalogOutletProductRecord = RecordTimestamps & {
+  availabilityOverride: ProductAvailability | null;
+  displayOrder: number;
+  id: string;
+  outletId: string;
+  priceOverrideMinor: string | null;
+  productId: string;
+  status: CatalogRecordStatus;
+  tenantId: string;
+};
+
 export type CatalogSnapshotRecord = {
   categories: CatalogCategoryRecord[];
   modifierGroups: CatalogModifierGroupRecord[];
   modifierOptions: CatalogModifierOptionRecord[];
+  outletProducts: CatalogOutletProductRecord[];
   productImages: CatalogProductImageRecord[];
   productModifierGroups: CatalogProductModifierGroupRecord[];
   productVariants: CatalogProductVariantRecord[];
@@ -154,6 +174,11 @@ export interface CatalogRepository {
     input: CreateCatalogProductImage,
     context?: CatalogMutationContext,
   ): Promise<CatalogProductImageRecord>;
+  createOutletProduct(
+    tenantId: string,
+    input: CreateCatalogOutletProduct,
+    context?: CatalogMutationContext,
+  ): Promise<CatalogOutletProductRecord>;
   findCategoryById(tenantId: string, categoryId: string): Promise<CatalogCategoryRecord | null>;
   findCategoryBySlug(tenantId: string, slug: string): Promise<CatalogCategoryRecord | null>;
   findProductById(tenantId: string, productId: string): Promise<CatalogProductRecord | null>;
@@ -196,6 +221,16 @@ export interface CatalogRepository {
     tenantId: string,
     objectKey: string,
   ): Promise<CatalogProductImageRecord | null>;
+  findOutlet(tenantId: string, outletId: string): Promise<CatalogOutletRecord | null>;
+  findOutletProductById(
+    tenantId: string,
+    outletProductId: string,
+  ): Promise<CatalogOutletProductRecord | null>;
+  findOutletProduct(
+    tenantId: string,
+    outletId: string,
+    productId: string,
+  ): Promise<CatalogOutletProductRecord | null>;
   findTenant(tenantId: string): Promise<CatalogTenantRecord | null>;
   getSnapshot(tenantId: string): Promise<CatalogSnapshotRecord | null>;
   updateCategory(
@@ -240,6 +275,12 @@ export interface CatalogRepository {
     input: UpdateCatalogProductImage,
     context?: CatalogMutationContext,
   ): Promise<CatalogProductImageRecord>;
+  updateOutletProduct(
+    tenantId: string,
+    outletProductId: string,
+    input: UpdateCatalogOutletProduct,
+    context?: CatalogMutationContext,
+  ): Promise<CatalogOutletProductRecord>;
 }
 
 export const CATALOG_REPOSITORY = Symbol("CATALOG_REPOSITORY");
@@ -336,6 +377,19 @@ const productImageSelect = {
   width: true,
 } as const;
 
+const outletProductSelect = {
+  availabilityOverride: true,
+  createdAt: true,
+  displayOrder: true,
+  id: true,
+  outletId: true,
+  priceOverrideMinor: true,
+  productId: true,
+  status: true,
+  tenantId: true,
+  updatedAt: true,
+} as const;
+
 type PrismaProductRecord = Omit<CatalogProductRecord, "basePriceMinor"> & {
   basePriceMinor: bigint;
 };
@@ -345,6 +399,9 @@ type PrismaProductVariantRecord = Omit<CatalogProductVariantRecord, "priceDeltaM
 type PrismaModifierOptionRecord = Omit<CatalogModifierOptionRecord, "priceDeltaMinor"> & {
   priceDeltaMinor: bigint;
 };
+type PrismaOutletProductRecord = Omit<CatalogOutletProductRecord, "priceOverrideMinor"> & {
+  priceOverrideMinor: bigint | null;
+};
 type CatalogChangeRecord =
   | CatalogCategoryRecord
   | CatalogProductRecord
@@ -352,7 +409,8 @@ type CatalogChangeRecord =
   | CatalogModifierGroupRecord
   | CatalogModifierOptionRecord
   | CatalogProductModifierGroupRecord
-  | CatalogProductImageRecord;
+  | CatalogProductImageRecord
+  | CatalogOutletProductRecord;
 type TransactionClient = Pick<DatabaseClient, "auditLog" | "catalogProductImage" | "outboxEvent">;
 
 function mapProduct(record: PrismaProductRecord): CatalogProductRecord {
@@ -376,6 +434,13 @@ function mapProductImage(
   };
 }
 
+function mapOutletProduct(record: PrismaOutletProductRecord): CatalogOutletProductRecord {
+  return {
+    ...record,
+    priceOverrideMinor: record.priceOverrideMinor?.toString() ?? null,
+  };
+}
+
 function serializeRecord(record: CatalogChangeRecord) {
   return {
     ...record,
@@ -394,6 +459,7 @@ async function writeCatalogChange(
       | "catalog_category"
       | "catalog_modifier_group"
       | "catalog_modifier_option"
+      | "catalog_outlet_product"
       | "catalog_product"
       | "catalog_product_image"
       | "catalog_product_modifier_group"
@@ -407,6 +473,7 @@ async function writeCatalogChange(
     ...(options.before ? { before: serializeRecord(options.before) } : {}),
   };
   const action = `${options.entityType}.${options.operation === "created" ? "create" : "update"}`;
+  const outletId = "outletId" in options.after ? options.after.outletId : undefined;
 
   await transaction.auditLog.create({
     data: {
@@ -415,6 +482,7 @@ async function writeCatalogChange(
       entityId: options.after.id,
       entityType: options.entityType,
       metadata: payload,
+      ...(outletId ? { outletId } : {}),
       ...(options.context?.requestId ? { requestId: options.context.requestId } : {}),
       tenantId: options.tenantId,
     },
@@ -424,6 +492,7 @@ async function writeCatalogChange(
       aggregateId: options.after.id,
       aggregateType: options.entityType,
       payload,
+      ...(outletId ? { outletId } : {}),
       tenantId: options.tenantId,
       type: `catalog.${options.entityType.slice("catalog_".length)}.${options.operation}`,
     },
@@ -1005,6 +1074,101 @@ export class PrismaCatalogRepository implements CatalogRepository {
     });
   }
 
+  async findOutlet(tenantId: string, outletId: string) {
+    return getPrismaClient().outlet.findUnique({
+      select: { id: true, status: true, tenantId: true },
+      where: { tenantId_id: { id: outletId, tenantId } },
+    });
+  }
+
+  async findOutletProductById(tenantId: string, outletProductId: string) {
+    const outletProduct = await getPrismaClient().catalogOutletProduct.findUnique({
+      select: outletProductSelect,
+      where: { tenantId_id: { id: outletProductId, tenantId } },
+    });
+    return outletProduct ? mapOutletProduct(outletProduct) : null;
+  }
+
+  async findOutletProduct(tenantId: string, outletId: string, productId: string) {
+    const outletProduct = await getPrismaClient().catalogOutletProduct.findUnique({
+      select: outletProductSelect,
+      where: { tenantId_outletId_productId: { outletId, productId, tenantId } },
+    });
+    return outletProduct ? mapOutletProduct(outletProduct) : null;
+  }
+
+  async createOutletProduct(
+    tenantId: string,
+    input: CreateCatalogOutletProduct,
+    context?: CatalogMutationContext,
+  ) {
+    return getPrismaClient().$transaction(async (transaction) => {
+      const outletProductRecord = await transaction.catalogOutletProduct.create({
+        data: {
+          availabilityOverride: input.availabilityOverride,
+          displayOrder: input.displayOrder,
+          outletId: input.outletId,
+          priceOverrideMinor:
+            input.priceOverrideMinor === null ? null : BigInt(input.priceOverrideMinor),
+          productId: input.productId,
+          tenantId,
+        },
+        select: outletProductSelect,
+      });
+      const outletProduct = mapOutletProduct(outletProductRecord);
+      await writeCatalogChange(transaction, {
+        after: outletProduct,
+        ...(context ? { context } : {}),
+        entityType: "catalog_outlet_product",
+        operation: "created",
+        tenantId,
+      });
+      return outletProduct;
+    });
+  }
+
+  async updateOutletProduct(
+    tenantId: string,
+    outletProductId: string,
+    input: UpdateCatalogOutletProduct,
+    context?: CatalogMutationContext,
+  ) {
+    return getPrismaClient().$transaction(async (transaction) => {
+      const beforeRecord = await transaction.catalogOutletProduct.findUniqueOrThrow({
+        select: outletProductSelect,
+        where: { tenantId_id: { id: outletProductId, tenantId } },
+      });
+      const outletProductRecord = await transaction.catalogOutletProduct.update({
+        data: {
+          ...(input.availabilityOverride !== undefined
+            ? { availabilityOverride: input.availabilityOverride }
+            : {}),
+          ...(input.displayOrder !== undefined ? { displayOrder: input.displayOrder } : {}),
+          ...(input.priceOverrideMinor !== undefined
+            ? {
+                priceOverrideMinor:
+                  input.priceOverrideMinor === null ? null : BigInt(input.priceOverrideMinor),
+              }
+            : {}),
+          ...(input.status !== undefined ? { status: input.status } : {}),
+        },
+        select: outletProductSelect,
+        where: { tenantId_id: { id: outletProductId, tenantId } },
+      });
+      const before = mapOutletProduct(beforeRecord);
+      const outletProduct = mapOutletProduct(outletProductRecord);
+      await writeCatalogChange(transaction, {
+        after: outletProduct,
+        before,
+        ...(context ? { context } : {}),
+        entityType: "catalog_outlet_product",
+        operation: "updated",
+        tenantId,
+      });
+      return outletProduct;
+    });
+  }
+
   async getSnapshot(tenantId: string) {
     const tenant = await getPrismaClient().tenant.findUnique({
       select: {
@@ -1037,6 +1201,10 @@ export class PrismaCatalogRepository implements CatalogRepository {
           orderBy: [{ productId: "asc" }, { displayOrder: "asc" }],
           select: productImageSelect,
         },
+        catalogOutletProducts: {
+          orderBy: [{ outletId: "asc" }, { displayOrder: "asc" }],
+          select: outletProductSelect,
+        },
       },
       where: { id: tenantId },
     });
@@ -1045,6 +1213,7 @@ export class PrismaCatalogRepository implements CatalogRepository {
           categories: tenant.catalogCategories,
           modifierGroups: tenant.catalogModifierGroups,
           modifierOptions: tenant.catalogModifierOptions.map(mapModifierOption),
+          outletProducts: tenant.catalogOutletProducts.map(mapOutletProduct),
           productImages: tenant.catalogProductImages.map(mapProductImage),
           productModifierGroups: tenant.catalogProductModifierGroups,
           productVariants: tenant.catalogProductVariants.map(mapProductVariant),

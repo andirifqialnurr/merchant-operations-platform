@@ -48,6 +48,13 @@ const catalogCompositionMigration = readFileSync(
   ),
   "utf8",
 );
+const catalogOutletMigration = readFileSync(
+  new URL(
+    "../../../packages/database/prisma/migrations/20260720200000_catalog_outlet_overrides/migration.sql",
+    import.meta.url,
+  ),
+  "utf8",
+);
 
 test("keeps organization and access relations scoped by tenant composite keys", () => {
   assert.match(
@@ -147,5 +154,28 @@ test("keeps product composition parents tenant-scoped and composition prices non
   assert.match(
     catalogCompositionMigration,
     /CREATE UNIQUE INDEX "product_images_active_primary_product_key"[\s\S]*WHERE "is_primary" = TRUE AND "status" = 'ACTIVE'/,
+  );
+});
+
+test("keeps outlet catalog assignments scoped to both outlet and product tenant keys", () => {
+  assert.match(
+    schema,
+    /outlet\s+Outlet\s+@relation\(fields: \[tenantId, outletId\], references: \[tenantId, id\]/,
+  );
+  assert.match(
+    catalogOutletMigration,
+    /FOREIGN KEY \("tenant_id", "outlet_id"\) REFERENCES "outlets"\("tenant_id", "id"\)/,
+  );
+  assert.match(
+    catalogOutletMigration,
+    /FOREIGN KEY \("tenant_id", "product_id"\) REFERENCES "products"\("tenant_id", "id"\)/,
+  );
+  assert.match(
+    catalogOutletMigration,
+    /CREATE UNIQUE INDEX "outlet_products_tenant_id_outlet_id_product_id_key"/,
+  );
+  assert.match(
+    catalogOutletMigration,
+    /CONSTRAINT "outlet_products_price_override_minor_check" CHECK \([\s\S]*"price_override_minor" IS NULL OR "price_override_minor" >= 0/,
   );
 });

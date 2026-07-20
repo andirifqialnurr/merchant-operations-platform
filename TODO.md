@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 11.2 Product Composition; lalu lanjut Tahap 11.3 - outlet catalog override.**
+> **NEXT: Review, commit, dan push Tahap 11.3 Outlet Catalog Override; lalu lanjut Tahap 11.4 - authorized Catalog API/backoffice flow.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -667,7 +667,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 - [x] **11.1 Category/product core:** category dan product tenant-scoped, base price minor-unit, lifecycle status, manual availability, audit/outbox, serta service foundation tanpa route HTTP.
 - [x] **11.2 Product composition:** variant, modifier group/option, product-modifier assignment, dan product image.
-- [ ] **11.3 Outlet catalog override:** product/outlet assignment, outlet price override, dan outlet availability/sold-out.
+- [x] **11.3 Outlet catalog override:** product/outlet assignment, outlet price override, dan outlet availability/sold-out.
 - [ ] **11.4 Catalog API/backoffice flow:** authorized contract/API untuk master dan outlet catalog, lalu backoffice flow.
 - [ ] Jangan membangun POS sebelum catalog minimal stabil.
 
@@ -675,13 +675,17 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Checkpoint 11.2:** `feat(catalog): add product composition foundation`
 
+**Checkpoint 11.3:** `feat(catalog): add outlet catalog overrides`
+
 **Catalog gate:** Harga disimpan sebagai integer minor-unit non-negatif dan dikirim sebagai decimal string agar tidak kehilangan presisi. `ACTIVE/INACTIVE` mengatur lifecycle master, sedangkan `AVAILABLE/SOLD_OUT` mengatur ketersediaan jual manual. Product wajib menunjuk category pada tenant yang sama melalui composite foreign key. Tidak ada hard delete pada master catalog.
 
 **Composition gate:** Variant dan modifier option menyimpan surcharge minor-unit non-negatif. Modifier group menjaga `minSelections <= maxSelections` dan group `SINGLE` maksimal satu pilihan. Product-modifier assignment, variant, option, dan image memakai composite foreign key tenant. Product image menyimpan object key/metadata, menolak path traversal/content type non-raster, serta hanya mengizinkan satu primary image aktif per product. Seluruh master composition memakai lifecycle status dan mutasinya menulis audit/outbox.
 
-**Exposure gate:** Category/product/composition application service masih internal pada 11.2. Route HTTP menunggu outlet override stabil dan baru dibuka dengan session, permission `catalog.read|manage`, tenant/outlet scope, dan entitlement Core Catalog pada 11.4.
+**Outlet override gate:** Satu `outlet_products` row menjadi assignment product ke outlet. `priceOverrideMinor = null` dan `availabilityOverride = null` berarti mewarisi master product. Effective price/availability serta `sellable` dihitung server-side dari lifecycle tenant, outlet, product, assignment, dan availability efektif. Assignment tidak dihapus permanen, wajib memakai composite foreign key tenant/outlet/product, dan setiap mutasi menulis audit/outbox dengan `outletId`.
 
-**STOP:** Report, review, commit, dan push Tahap 11.2 sebelum melanjutkan Outlet Catalog Override Tahap 11.3.
+**Exposure gate:** Category/product/composition/outlet override application service masih internal pada 11.3. Route HTTP baru dibuka pada 11.4 dengan session, permission `catalog.read|manage`, tenant/outlet scope, entitlement Core Catalog, shared validation untuk header/params/query/body/response, serta OpenAPI internal.
+
+**STOP:** Report, review, commit, dan push Tahap 11.3 sebelum melanjutkan Authorized Catalog API/Backoffice Flow Tahap 11.4.
 
 ---
 

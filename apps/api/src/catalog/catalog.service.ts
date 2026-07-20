@@ -2,6 +2,8 @@ import {
   catalogCategorySchema,
   catalogModifierGroupSchema,
   catalogModifierOptionSchema,
+  catalogOutletProductSchema,
+  catalogOutletSnapshotSchema,
   catalogProductSchema,
   catalogProductImageSchema,
   catalogProductModifierGroupSchema,
@@ -10,6 +12,7 @@ import {
   createCatalogCategorySchema,
   createCatalogModifierGroupSchema,
   createCatalogModifierOptionSchema,
+  createCatalogOutletProductSchema,
   createCatalogProductSchema,
   createCatalogProductImageSchema,
   createCatalogProductModifierGroupSchema,
@@ -17,6 +20,7 @@ import {
   updateCatalogCategorySchema,
   updateCatalogModifierGroupSchema,
   updateCatalogModifierOptionSchema,
+  updateCatalogOutletProductSchema,
   updateCatalogProductSchema,
   updateCatalogProductImageSchema,
   updateCatalogProductModifierGroupSchema,
@@ -24,6 +28,7 @@ import {
   type CatalogCategory,
   type CatalogModifierGroup,
   type CatalogModifierOption,
+  type CatalogOutletProduct,
   type CatalogProduct,
   type CatalogProductImage,
   type CatalogProductModifierGroup,
@@ -31,6 +36,7 @@ import {
   type CreateCatalogCategory,
   type CreateCatalogModifierGroup,
   type CreateCatalogModifierOption,
+  type CreateCatalogOutletProduct,
   type CreateCatalogProduct,
   type CreateCatalogProductImage,
   type CreateCatalogProductModifierGroup,
@@ -38,6 +44,7 @@ import {
   type UpdateCatalogCategory,
   type UpdateCatalogModifierGroup,
   type UpdateCatalogModifierOption,
+  type UpdateCatalogOutletProduct,
   type UpdateCatalogProduct,
   type UpdateCatalogProductImage,
   type UpdateCatalogProductModifierGroup,
@@ -50,6 +57,7 @@ import {
   type CatalogCategoryRecord,
   type CatalogModifierGroupRecord,
   type CatalogModifierOptionRecord,
+  type CatalogOutletProductRecord,
   type CatalogMutationContext,
   type CatalogProductRecord,
   type CatalogProductImageRecord,
@@ -123,14 +131,42 @@ function toProductImage(record: CatalogProductImageRecord): CatalogProductImage 
   });
 }
 
+function toOutletProduct(record: CatalogOutletProductRecord): CatalogOutletProduct {
+  return catalogOutletProductSchema.parse({
+    ...record,
+    createdAt: record.createdAt.toISOString(),
+    updatedAt: record.updatedAt.toISOString(),
+  });
+}
+
 @Injectable()
 export class CatalogService {
   constructor(@Inject(CATALOG_REPOSITORY) private readonly repository: CatalogRepository) {}
 
-  private async requireActiveTenant(tenantId: string) {
+  private async requireTenant(tenantId: string) {
     const tenant = await this.repository.findTenant(tenantId);
     if (!tenant) throw notFound("TENANT_NOT_FOUND", "Tenant tidak ditemukan.");
+    return tenant;
+  }
+
+  private async requireActiveTenant(tenantId: string) {
+    const tenant = await this.requireTenant(tenantId);
     if (tenant.status !== "ACTIVE") throw conflict("TENANT_INACTIVE", "Tenant tidak aktif.");
+    return tenant;
+  }
+
+  private async requireOutlet(tenantId: string, outletId: string) {
+    const outlet = await this.repository.findOutlet(tenantId, outletId);
+    if (!outlet) {
+      throw notFound("OUTLET_NOT_FOUND", "Outlet tidak ditemukan pada tenant ini.");
+    }
+    return outlet;
+  }
+
+  private async requireActiveOutlet(tenantId: string, outletId: string) {
+    const outlet = await this.requireOutlet(tenantId, outletId);
+    if (outlet.status !== "ACTIVE") throw conflict("OUTLET_INACTIVE", "Outlet tidak aktif.");
+    return outlet;
   }
 
   private async requireCategory(tenantId: string, categoryId: string) {
@@ -520,6 +556,93 @@ export class CatalogService {
     );
   }
 
+  async createOutletProduct(
+    tenantId: string,
+    input: CreateCatalogOutletProduct,
+    context?: CatalogMutationContext,
+  ) {
+    await this.requireActiveTenant(tenantId);
+    const parsed = createCatalogOutletProductSchema.parse(input);
+    await this.requireActiveOutlet(tenantId, parsed.outletId);
+    await this.requireActiveProduct(tenantId, parsed.productId);
+    if (await this.repository.findOutletProduct(tenantId, parsed.outletId, parsed.productId)) {
+      throw conflict("CATALOG_OUTLET_PRODUCT_CONFLICT", "Produk sudah terhubung ke outlet ini.");
+    }
+    const record = await this.uniqueMutation(
+      () => this.repository.createOutletProduct(tenantId, parsed, context),
+      "CATALOG_OUTLET_PRODUCT_CONFLICT",
+      "Produk sudah terhubung ke outlet ini.",
+    );
+    return toOutletProduct(record);
+  }
+
+  async updateOutletProduct(
+    tenantId: string,
+    outletProductId: string,
+    input: UpdateCatalogOutletProduct,
+    context?: CatalogMutationContext,
+  ) {
+    await this.requireActiveTenant(tenantId);
+    const current = await this.repository.findOutletProductById(tenantId, outletProductId);
+    if (!current) {
+      throw notFound(
+        "CATALOG_OUTLET_PRODUCT_NOT_FOUND",
+        "Outlet product tidak ditemukan pada tenant ini.",
+      );
+    }
+    const parsed = updateCatalogOutletProductSchema.parse(input);
+    if (parsed.status === "ACTIVE") {
+      await this.requireActiveOutlet(tenantId, current.outletId);
+      await this.requireActiveProduct(tenantId, current.productId);
+    }
+    return toOutletProduct(
+      await this.repository.updateOutletProduct(tenantId, outletProductId, parsed, context),
+    );
+  }
+
+  async getOutletCatalog(tenantId: string, outletId: string) {
+    const tenant = await this.requireTenant(tenantId);
+    const outlet = await this.requireOutlet(tenantId, outletId);
+    const snapshot = await this.repository.getSnapshot(tenantId);
+    if (!snapshot) throw notFound("TENANT_NOT_FOUND", "Tenant tidak ditemukan.");
+    const products = new Map(snapshot.products.map((product) => [product.id, product]));
+    const items = snapshot.outletProducts
+      .filter((assignment) => assignment.outletId === outletId)
+      .map((assignmentRecord) => {
+        const productRecord = products.get(assignmentRecord.productId);
+        if (!productRecord) {
+          throw conflict(
+            "CATALOG_OUTLET_PRODUCT_INVALID",
+            "Outlet product tidak memiliki master product yang valid.",
+          );
+        }
+        const assignment = toOutletProduct(assignmentRecord);
+        const product = toProduct(productRecord);
+        const effectiveAvailability = assignment.availabilityOverride ?? product.availability;
+        const effectivePriceMinor = assignment.priceOverrideMinor ?? product.basePriceMinor;
+        return {
+          assignment,
+          effectiveAvailability,
+          effectivePriceMinor,
+          inheritsAvailability: assignment.availabilityOverride === null,
+          inheritsPrice: assignment.priceOverrideMinor === null,
+          product,
+          sellable:
+            tenant.status === "ACTIVE" &&
+            outlet.status === "ACTIVE" &&
+            assignment.status === "ACTIVE" &&
+            product.status === "ACTIVE" &&
+            effectiveAvailability === "AVAILABLE",
+        };
+      });
+    return catalogOutletSnapshotSchema.parse({
+      items,
+      outletId,
+      outletStatus: outlet.status,
+      tenantId,
+    });
+  }
+
   async getSnapshot(tenantId: string) {
     const snapshot = await this.repository.getSnapshot(tenantId);
     if (!snapshot) throw notFound("TENANT_NOT_FOUND", "Tenant tidak ditemukan.");
@@ -527,6 +650,7 @@ export class CatalogService {
       categories: snapshot.categories.map(toCategory),
       modifierGroups: snapshot.modifierGroups.map(toModifierGroup),
       modifierOptions: snapshot.modifierOptions.map(toModifierOption),
+      outletProducts: snapshot.outletProducts.map(toOutletProduct),
       productImages: snapshot.productImages.map(toProductImage),
       productModifierGroups: snapshot.productModifierGroups.map(toProductModifierGroup),
       productVariants: snapshot.productVariants.map(toProductVariant),

@@ -12,6 +12,7 @@ import {
   createCatalogCategorySchema,
   createCatalogModifierGroupSchema,
   createCatalogModifierOptionSchema,
+  createCatalogOutletProductSchema,
   createCatalogProductSchema,
   createCatalogProductImageSchema,
   createCatalogProductModifierGroupSchema,
@@ -29,6 +30,7 @@ import {
   setTenantEntitlementSchema,
   updateMembershipSchema,
   updateCatalogModifierGroupSchema,
+  updateCatalogOutletProductSchema,
   updateCatalogProductSchema,
   updateTenantSchema,
 } from "./index.js";
@@ -260,4 +262,37 @@ test("validates product image object keys and safe image metadata", () => {
   );
   assert.equal(commonOpenApiSchemas.CatalogProductImage.type, "object");
   assert.equal(commonOpenApiSchemas.CatalogProductVariant.type, "object");
+});
+
+test("normalizes outlet catalog inheritance and exact price overrides", () => {
+  const outletId = "019f738d-e61f-7d46-92de-17b35f971301";
+  const productId = "019f738d-e61f-7d46-92de-17b35f971302";
+  const inherited = createCatalogOutletProductSchema.parse({ outletId, productId });
+
+  assert.deepEqual(inherited, {
+    availabilityOverride: null,
+    displayOrder: 0,
+    outletId,
+    priceOverrideMinor: null,
+    productId,
+  });
+  assert.equal(
+    createCatalogOutletProductSchema.parse({
+      availabilityOverride: "SOLD_OUT",
+      outletId,
+      priceOverrideMinor: "27500",
+      productId,
+    }).priceOverrideMinor,
+    "27500",
+  );
+  assert.equal(
+    createCatalogOutletProductSchema.safeParse({
+      outletId,
+      priceOverrideMinor: "-1",
+      productId,
+    }).success,
+    false,
+  );
+  assert.equal(updateCatalogOutletProductSchema.safeParse({}).success, false);
+  assert.equal(commonOpenApiSchemas.CatalogOutletSnapshot.type, "object");
 });

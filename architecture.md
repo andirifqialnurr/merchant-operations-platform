@@ -383,8 +383,12 @@ kitchen_stations, kitchen_tickets, kitchen_ticket_items
 - Modifier group menetapkan mode `SINGLE/MULTIPLE` dan batas minimum/maksimum pilihan. Modifier option dimiliki group tenant yang sama serta menyimpan surcharge dan availability sendiri.
 - Product-modifier assignment menghubungkan product dan modifier group pada tenant yang sama, memiliki display order dan lifecycle, serta tidak dihapus permanen.
 - Product image menyimpan object-storage key, raster content type, alt text, dimensi opsional, urutan, lifecycle, dan flag primary. Partial unique index menjaga maksimal satu primary image aktif per product.
+- Outlet product adalah assignment tenant-scoped antara outlet dan product. Price serta availability override nullable; nilai `null` berarti mewarisi master product.
+- Effective outlet price dan availability dihitung server-side. Item hanya `sellable` ketika tenant, outlet, product, dan assignment aktif serta availability efektif `AVAILABLE`.
+- Outlet assignment tidak dihapus permanen. Composite foreign key mencegah outlet/product lintas tenant dan unique constraint mencegah assignment ganda.
 - Mutasi category, product, variant, modifier, assignment, dan image menulis audit log serta outbox event.
-- Category/product/composition service dibangun sebelum route HTTP. Exposure merchant menunggu outlet override, permission, tenant/outlet scope, dan entitlement Catalog Core stabil.
+- Mutasi outlet product menulis audit log serta outbox event dengan `outlet_id` agar jejak operasional tetap outlet-scoped.
+- Category/product/composition/outlet override service dibangun sebelum route HTTP. Exposure merchant menunggu permission, tenant/outlet scope, entitlement Catalog Core, shared validation, dan OpenAPI internal pada Tahap 11.4.
 
 ### Table layout data rules
 

@@ -516,10 +516,58 @@ export const updateCatalogProductImageSchema = z
     message: "Perubahan product image wajib diisi.",
   });
 
+export const catalogOutletProductSchema = organizationRecordTimestampsSchema.extend({
+  availabilityOverride: productAvailabilitySchema.nullable(),
+  displayOrder: displayOrderSchema,
+  id: z.uuid(),
+  outletId: z.uuid(),
+  priceOverrideMinor: moneyMinorSchema.nullable(),
+  productId: z.uuid(),
+  status: catalogRecordStatusSchema,
+  tenantId: z.uuid(),
+});
+
+export const createCatalogOutletProductSchema = z.object({
+  availabilityOverride: productAvailabilitySchema.nullable().default(null),
+  displayOrder: displayOrderSchema.default(0),
+  outletId: z.uuid(),
+  priceOverrideMinor: moneyMinorSchema.nullable().default(null),
+  productId: z.uuid(),
+});
+
+export const updateCatalogOutletProductSchema = z
+  .object({
+    availabilityOverride: productAvailabilitySchema.nullable().optional(),
+    displayOrder: displayOrderSchema.optional(),
+    priceOverrideMinor: moneyMinorSchema.nullable().optional(),
+    status: catalogRecordStatusSchema.optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, {
+    message: "Perubahan outlet product wajib diisi.",
+  });
+
+export const catalogOutletProductItemSchema = z.object({
+  assignment: catalogOutletProductSchema,
+  effectiveAvailability: productAvailabilitySchema,
+  effectivePriceMinor: moneyMinorSchema,
+  inheritsAvailability: z.boolean(),
+  inheritsPrice: z.boolean(),
+  product: catalogProductSchema,
+  sellable: z.boolean(),
+});
+
+export const catalogOutletSnapshotSchema = z.object({
+  items: z.array(catalogOutletProductItemSchema),
+  outletId: z.uuid(),
+  outletStatus: organizationUnitStatusSchema,
+  tenantId: z.uuid(),
+});
+
 export const catalogSnapshotSchema = z.object({
   categories: z.array(catalogCategorySchema),
   modifierGroups: z.array(catalogModifierGroupSchema),
   modifierOptions: z.array(catalogModifierOptionSchema),
+  outletProducts: z.array(catalogOutletProductSchema),
   productImages: z.array(catalogProductImageSchema),
   productModifierGroups: z.array(catalogProductModifierGroupSchema),
   productVariants: z.array(catalogProductVariantSchema),
@@ -772,6 +820,9 @@ export type Brand = z.infer<typeof brandSchema>;
 export type CatalogCategory = z.infer<typeof catalogCategorySchema>;
 export type CatalogModifierGroup = z.infer<typeof catalogModifierGroupSchema>;
 export type CatalogModifierOption = z.infer<typeof catalogModifierOptionSchema>;
+export type CatalogOutletProduct = z.infer<typeof catalogOutletProductSchema>;
+export type CatalogOutletProductItem = z.infer<typeof catalogOutletProductItemSchema>;
+export type CatalogOutletSnapshot = z.infer<typeof catalogOutletSnapshotSchema>;
 export type CatalogProduct = z.infer<typeof catalogProductSchema>;
 export type CatalogProductImage = z.infer<typeof catalogProductImageSchema>;
 export type CatalogProductModifierGroup = z.infer<typeof catalogProductModifierGroupSchema>;
@@ -784,6 +835,7 @@ export type CreateBrand = z.infer<typeof createBrandSchema>;
 export type CreateCatalogCategory = z.infer<typeof createCatalogCategorySchema>;
 export type CreateCatalogModifierGroup = z.infer<typeof createCatalogModifierGroupSchema>;
 export type CreateCatalogModifierOption = z.infer<typeof createCatalogModifierOptionSchema>;
+export type CreateCatalogOutletProduct = z.infer<typeof createCatalogOutletProductSchema>;
 export type CreateCatalogProduct = z.infer<typeof createCatalogProductSchema>;
 export type CreateCatalogProductImage = z.infer<typeof createCatalogProductImageSchema>;
 export type CreateCatalogProductModifierGroup = z.infer<
@@ -830,6 +882,7 @@ export type UpdateBrand = z.infer<typeof updateBrandSchema>;
 export type UpdateCatalogCategory = z.infer<typeof updateCatalogCategorySchema>;
 export type UpdateCatalogModifierGroup = z.infer<typeof updateCatalogModifierGroupSchema>;
 export type UpdateCatalogModifierOption = z.infer<typeof updateCatalogModifierOptionSchema>;
+export type UpdateCatalogOutletProduct = z.infer<typeof updateCatalogOutletProductSchema>;
 export type UpdateCatalogProduct = z.infer<typeof updateCatalogProductSchema>;
 export type UpdateCatalogProductImage = z.infer<typeof updateCatalogProductImageSchema>;
 export type UpdateCatalogProductModifierGroup = z.infer<
@@ -856,6 +909,9 @@ export const commonOpenApiSchemas = {
   CatalogCategory: toOpenApiSchema(catalogCategorySchema),
   CatalogModifierGroup: toOpenApiSchema(catalogModifierGroupSchema),
   CatalogModifierOption: toOpenApiSchema(catalogModifierOptionSchema),
+  CatalogOutletProduct: toOpenApiSchema(catalogOutletProductSchema),
+  CatalogOutletProductItem: toOpenApiSchema(catalogOutletProductItemSchema),
+  CatalogOutletSnapshot: toOpenApiSchema(catalogOutletSnapshotSchema),
   CatalogProduct: toOpenApiSchema(catalogProductSchema),
   CatalogProductImage: toOpenApiSchema(catalogProductImageSchema),
   CatalogProductModifierGroup: toOpenApiSchema(catalogProductModifierGroupSchema),
@@ -865,6 +921,7 @@ export const commonOpenApiSchemas = {
   CreateCatalogCategory: toOpenApiSchema(createCatalogCategorySchema),
   CreateCatalogModifierGroup: toOpenApiSchema(createCatalogModifierGroupSchema),
   CreateCatalogModifierOption: toOpenApiSchema(createCatalogModifierOptionSchema),
+  CreateCatalogOutletProduct: toOpenApiSchema(createCatalogOutletProductSchema),
   CreateCatalogProduct: toOpenApiSchema(createCatalogProductSchema),
   CreateCatalogProductImage: toOpenApiSchema(createCatalogProductImageSchema),
   CreateCatalogProductModifierGroup: toOpenApiSchema(createCatalogProductModifierGroupSchema),
@@ -898,6 +955,7 @@ export const commonOpenApiSchemas = {
   UpdateCatalogCategory: toOpenApiSchema(updateCatalogCategorySchema),
   UpdateCatalogModifierGroup: toOpenApiSchema(updateCatalogModifierGroupSchema),
   UpdateCatalogModifierOption: toOpenApiSchema(updateCatalogModifierOptionSchema),
+  UpdateCatalogOutletProduct: toOpenApiSchema(updateCatalogOutletProductSchema),
   UpdateCatalogProduct: toOpenApiSchema(updateCatalogProductSchema),
   UpdateCatalogProductImage: toOpenApiSchema(updateCatalogProductImageSchema),
   UpdateCatalogProductModifierGroup: toOpenApiSchema(updateCatalogProductModifierGroupSchema),
