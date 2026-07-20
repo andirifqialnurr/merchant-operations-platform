@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  MODULES,
   PERMISSIONS,
   type CreateMembership,
   type CreateRole,
@@ -13,6 +14,7 @@ import type { ExecutionContext } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 
 import type { AuthService } from "../auth/auth.service.js";
+import type { EntitlementService } from "../entitlement/entitlement.service.js";
 import type {
   AccessRepository,
   AuthorizationRecord,
@@ -281,6 +283,7 @@ test("rejects outlet-scoped actors from tenant-wide protected routes", async () 
   };
   const handler = () => undefined;
   Reflect.defineMetadata("require-all-outlets", true, handler);
+  Reflect.defineMetadata("required-entitlement-module", MODULES.cafeProfile, handler);
   const context = {
     getClass: () => class TenantWideController {},
     getHandler: () => handler,
@@ -302,7 +305,21 @@ test("rejects outlet-scoped actors from tenant-wide protected routes", async () 
       userId: IDS.userStaff,
     }),
   } as unknown as AccessService;
-  const guard = new SessionPermissionGuard(authService, accessService, new Reflector());
+  let checkedModule: string | undefined;
+  const entitlementService = {
+    requireAccess: async (tenantId: string, moduleKey?: string) => {
+      assert.equal(tenantId, IDS.tenantA);
+      checkedModule = moduleKey;
+      return { modules: [], subscription: null };
+    },
+  } as unknown as EntitlementService;
+  const guard = new SessionPermissionGuard(
+    authService,
+    accessService,
+    entitlementService,
+    new Reflector(),
+  );
 
   await assert.rejects(() => guard.canActivate(context), ForbiddenException);
+  assert.equal(checkedModule, MODULES.cafeProfile);
 });

@@ -30,6 +30,19 @@ enum MembershipStatus {
   INACTIVE
 }
 
+enum ModuleKind {
+  CORE
+  COMMERCIAL
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  GRACE
+  SUSPENDED
+  TERMINATED
+}
+
 model User {
   id                String             @id @default(dbgenerated("uuidv7()")) @db.Uuid
   email             String             @unique @db.VarChar(254)
@@ -77,6 +90,8 @@ model Tenant {
   outboxEvents    OutboxEvent[]
   memberships     TenantMembership[]
   roles           Role[]
+  subscriptions   Subscription[]
+  entitlements    TenantEntitlement[]
 
   @@map("tenants")
 }
@@ -202,6 +217,95 @@ model OutletAssignment {
   @@id([tenantId, membershipId, outletId])
   @@index([tenantId, outletId])
   @@map("outlet_assignments")
+}
+
+model ModuleDefinition {
+  key          String                 @id @db.VarChar(80)
+  name         String                 @db.VarChar(160)
+  kind         ModuleKind
+  status       OrganizationUnitStatus @default(ACTIVE)
+  createdAt    DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
+  planLinks    PlanModule[]
+  entitlements TenantEntitlement[]
+  dependencies ModuleDependency[]     @relation("ModuleDependencies")
+  dependents   ModuleDependency[]     @relation("ModuleDependents")
+
+  @@index([kind, status])
+  @@map("modules")
+}
+
+model ModuleDependency {
+  moduleKey     String           @map("module_key") @db.VarChar(80)
+  dependencyKey String           @map("dependency_key") @db.VarChar(80)
+  module        ModuleDefinition @relation("ModuleDependencies", fields: [moduleKey], references: [key], onDelete: Cascade)
+  dependency    ModuleDefinition @relation("ModuleDependents", fields: [dependencyKey], references: [key], onDelete: Restrict)
+
+  @@id([moduleKey, dependencyKey])
+  @@index([dependencyKey])
+  @@map("module_dependencies")
+}
+
+model Plan {
+  id            String                 @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  code          String                 @unique @db.VarChar(80)
+  name          String                 @db.VarChar(160)
+  status        OrganizationUnitStatus @default(ACTIVE)
+  createdAt     DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
+  modules       PlanModule[]
+  subscriptions Subscription[]
+
+  @@index([status, createdAt])
+  @@map("plans")
+}
+
+model PlanModule {
+  planId    String           @map("plan_id") @db.Uuid
+  moduleKey String           @map("module_key") @db.VarChar(80)
+  plan      Plan             @relation(fields: [planId], references: [id], onDelete: Cascade)
+  module    ModuleDefinition @relation(fields: [moduleKey], references: [key], onDelete: Restrict)
+
+  @@id([planId, moduleKey])
+  @@index([moduleKey])
+  @@map("plan_modules")
+}
+
+model Subscription {
+  id           String             @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId     String             @map("tenant_id") @db.Uuid
+  planId       String             @map("plan_id") @db.Uuid
+  status       SubscriptionStatus
+  startsAt     DateTime           @map("starts_at") @db.Timestamptz(6)
+  endsAt       DateTime?          @map("ends_at") @db.Timestamptz(6)
+  graceEndsAt  DateTime?          @map("grace_ends_at") @db.Timestamptz(6)
+  supersededAt DateTime?          @map("superseded_at") @db.Timestamptz(6)
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant       Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  plan         Plan               @relation(fields: [planId], references: [id], onDelete: Restrict)
+
+  @@index([tenantId, createdAt])
+  @@index([planId, status])
+  @@map("subscriptions")
+}
+
+model TenantEntitlement {
+  id          String           @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId    String           @map("tenant_id") @db.Uuid
+  moduleKey   String           @map("module_key") @db.VarChar(80)
+  enabled     Boolean
+  reason      String           @db.VarChar(500)
+  effectiveAt DateTime         @default(now()) @map("effective_at") @db.Timestamptz(6)
+  actorId     String?          @map("actor_id") @db.Uuid
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant      Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  module      ModuleDefinition @relation(fields: [moduleKey], references: [key], onDelete: Restrict)
+
+  @@unique([tenantId, moduleKey])
+  @@index([moduleKey, enabled])
+  @@map("tenant_entitlements")
 }
 
 model AuditLog {

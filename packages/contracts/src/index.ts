@@ -197,6 +197,93 @@ export const organizationSnapshotSchema = z.object({
   outlets: z.array(outletSchema),
 });
 
+export const MODULES = {
+  coreAudit: "CORE_AUDIT",
+  coreBill: "CORE_BILL",
+  coreCatalog: "CORE_CATALOG",
+  coreIdentity: "CORE_IDENTITY",
+  coreOrder: "CORE_ORDER",
+  corePaymentLedger: "CORE_PAYMENT_LEDGER",
+  coreSubscription: "CORE_SUBSCRIPTION",
+  coreTenancy: "CORE_TENANCY",
+  cafeProfile: "CAFE_PROFILE",
+  customerBasic: "CUSTOMER_BASIC",
+  financeBasic: "FINANCE_BASIC",
+  inventoryBasic: "INVENTORY_BASIC",
+  kds: "KDS",
+  pos: "POS",
+  tableSelfOrder: "TABLE_SELF_ORDER",
+} as const;
+
+export const PLAN_CODES = {
+  cafeDigital: "CAFE_DIGITAL",
+  cafeOperations: "CAFE_OPERATIONS",
+  customModular: "CUSTOM_MODULAR",
+  posBasic: "POS_BASIC",
+  profile: "PROFILE",
+} as const;
+
+export const moduleKeySchema = z.enum(Object.values(MODULES));
+export const planCodeSchema = z.enum(Object.values(PLAN_CODES));
+export const moduleKindSchema = z.enum(["CORE", "COMMERCIAL"]);
+export const subscriptionStatusSchema = z.enum([
+  "TRIAL",
+  "ACTIVE",
+  "GRACE",
+  "SUSPENDED",
+  "TERMINATED",
+]);
+export const entitlementSourceSchema = z.enum(["CORE", "PLAN", "OVERRIDE", "DEPENDENCY", "NONE"]);
+
+export const replaceSubscriptionSchema = z.object({
+  planCode: planCodeSchema,
+  status: subscriptionStatusSchema,
+  startsAt: z.iso.datetime(),
+  endsAt: z.iso.datetime().nullable().optional(),
+  graceEndsAt: z.iso.datetime().nullable().optional(),
+});
+
+export const setTenantEntitlementSchema = z.object({
+  moduleKey: moduleKeySchema,
+  enabled: z.boolean(),
+  reason: z.string().trim().min(3).max(500),
+});
+
+const entitlementOverrideSchema = z.object({
+  actorId: z.uuid().nullable(),
+  effectiveAt: z.iso.datetime(),
+  enabled: z.boolean(),
+  reason: z.string().min(1).max(500),
+});
+
+export const subscriptionSchema = organizationRecordTimestampsSchema.extend({
+  id: z.uuid(),
+  tenantId: z.uuid(),
+  planCode: planCodeSchema,
+  planName: organizationNameSchema,
+  status: subscriptionStatusSchema,
+  startsAt: z.iso.datetime(),
+  endsAt: z.iso.datetime().nullable(),
+  graceEndsAt: z.iso.datetime().nullable(),
+});
+
+export const moduleEntitlementSchema = z.object({
+  key: moduleKeySchema,
+  name: organizationNameSchema,
+  kind: moduleKindSchema,
+  enabled: z.boolean(),
+  source: entitlementSourceSchema,
+  reason: z.string().min(1),
+  planDefault: z.boolean(),
+  override: entitlementOverrideSchema.nullable(),
+  requiredBy: z.array(moduleKeySchema),
+});
+
+export const entitlementSnapshotSchema = z.object({
+  subscription: subscriptionSchema.nullable(),
+  modules: z.array(moduleEntitlementSchema),
+});
+
 export const PERMISSIONS = {
   accessMembershipManage: "access.membership.manage",
   accessRoleManage: "access.role.manage",
@@ -350,10 +437,19 @@ export type OrganizationSnapshot = z.infer<typeof organizationSnapshotSchema>;
 export type OrganizationUnitStatus = z.infer<typeof organizationUnitStatusSchema>;
 export type Membership = z.infer<typeof membershipSchema>;
 export type MembershipStatus = z.infer<typeof membershipStatusSchema>;
+export type ModuleEntitlement = z.infer<typeof moduleEntitlementSchema>;
+export type ModuleKey = z.infer<typeof moduleKeySchema>;
+export type ModuleKind = z.infer<typeof moduleKindSchema>;
 export type Outlet = z.infer<typeof outletSchema>;
+export type PlanCode = z.infer<typeof planCodeSchema>;
 export type RequestContextHeaders = z.infer<typeof requestContextHeadersSchema>;
 export type PermissionKey = z.infer<typeof permissionKeySchema>;
+export type ReplaceSubscription = z.infer<typeof replaceSubscriptionSchema>;
 export type Role = z.infer<typeof roleSchema>;
+export type SetTenantEntitlement = z.infer<typeof setTenantEntitlementSchema>;
+export type Subscription = z.infer<typeof subscriptionSchema>;
+export type SubscriptionStatus = z.infer<typeof subscriptionStatusSchema>;
+export type EntitlementSnapshot = z.infer<typeof entitlementSnapshotSchema>;
 export type TenantRequestHeaders = z.infer<typeof tenantRequestHeadersSchema>;
 export type Tenant = z.infer<typeof tenantSchema>;
 export type UpdateBrand = z.infer<typeof updateBrandSchema>;
@@ -382,12 +478,17 @@ export const commonOpenApiSchemas = {
   CursorPageInfo: toOpenApiSchema(cursorPageInfoSchema),
   HealthResponse: toOpenApiSchema(healthResponseSchema),
   Membership: toOpenApiSchema(membershipSchema),
+  EntitlementSnapshot: toOpenApiSchema(entitlementSnapshotSchema),
+  ModuleEntitlement: toOpenApiSchema(moduleEntitlementSchema),
   OrganizationSnapshot: toOpenApiSchema(organizationSnapshotSchema),
   Outlet: toOpenApiSchema(outletSchema),
   RequestContextHeaders: toOpenApiSchema(requestContextHeadersSchema),
+  ReplaceSubscription: toOpenApiSchema(replaceSubscriptionSchema),
   Role: toOpenApiSchema(roleSchema),
   TenantRequestHeaders: toOpenApiSchema(tenantRequestHeadersSchema),
   Tenant: toOpenApiSchema(tenantSchema),
+  SetTenantEntitlement: toOpenApiSchema(setTenantEntitlementSchema),
+  Subscription: toOpenApiSchema(subscriptionSchema),
   UpdateBrand: toOpenApiSchema(updateBrandSchema),
   UpdateMembership: toOpenApiSchema(updateMembershipSchema),
   UpdateRole: toOpenApiSchema(updateRoleSchema),

@@ -300,6 +300,10 @@ Default role: `OWNER`, `MANAGER`, `CASHIER`, `KITCHEN`, `WAITER`, `INVENTORY_STA
 
 Role default diprovisikan secara internal bersama owner pertama tenant. System role bersifat immutable; custom role tenant dapat mengubah nama, status, dan kumpulan permission. Membership unik per pasangan tenant-user, sedangkan outlet scope dinyatakan eksplisit sebagai seluruh outlet atau daftar `outlet_assignments`; daftar kosong tidak diartikan otomatis sebagai seluruh outlet.
 
+Subscription tenant memiliki satu record current yang dijaga oleh partial unique index; pergantian paket menyimpan record lama sebagai histori dengan `superseded_at`. Status `TRIAL` dan `ACTIVE` dapat digunakan sampai `ends_at`, sedangkan `GRACE` hanya dapat digunakan sampai `grace_ends_at`; `SUSPENDED` dan `TERMINATED` selalu menolak akses tenant.
+
+Core module selalu aktif hanya ketika subscription usable. Commercial module berasal dari default plan atau override tenant yang diaudit. Hard dependency diselesaikan transitif oleh entitlement service, dan override yang mencoba mematikan module yang masih dibutuhkan ditolak. Core module tidak dapat dioverride. Seluruh route tenant melewati subscription gate; route fitur menambahkan module gate di atas permission serta tenant/outlet scope. Mutasi subscription dan override tetap berupa application service internal sampai Platform Owner foundation tersedia.
+
 Permission berbasis use case, misalnya:
 
 - `order.create`, `order.cancel`, `order.move_table`.
@@ -346,7 +350,7 @@ Database menggunakan shared schema multi-tenant. Semua tabel bisnis memiliki `te
 
 ```text
 platform_users, tenants, brands, outlets
-modules, plans, plan_modules
+modules, module_dependencies, plans, plan_modules
 subscriptions, tenant_entitlements, usage_records, subscription_invoices
 ```
 

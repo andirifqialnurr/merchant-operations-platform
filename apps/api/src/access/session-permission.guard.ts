@@ -2,6 +2,7 @@ import {
   API_HEADERS,
   tenantRequestHeadersSchema,
   type AuthorizationContext,
+  type ModuleKey,
   type PermissionKey,
 } from "@merchant/contracts";
 import {
@@ -18,9 +19,11 @@ import { Reflector } from "@nestjs/core";
 
 import { AuthService } from "../auth/auth.service.js";
 import { readSessionToken } from "../auth/session-cookie.js";
+import { EntitlementService } from "../entitlement/entitlement.service.js";
 import { AccessService } from "./access.service.js";
 
 const REQUIRED_PERMISSION = "required-access-permission";
+const REQUIRED_MODULE = "required-entitlement-module";
 const REQUIRE_ALL_OUTLETS = "require-all-outlets";
 
 type AuthorizedRequest = {
@@ -30,6 +33,7 @@ type AuthorizedRequest = {
 
 export const RequirePermission = (permission: PermissionKey) =>
   SetMetadata(REQUIRED_PERMISSION, permission);
+export const RequireModule = (moduleKey: ModuleKey) => SetMetadata(REQUIRED_MODULE, moduleKey);
 export const RequireAllOutlets = () => SetMetadata(REQUIRE_ALL_OUTLETS, true);
 
 export const CurrentAccess = createParamDecorator((_data: unknown, context: ExecutionContext) => {
@@ -42,6 +46,7 @@ export class SessionPermissionGuard implements CanActivate {
   constructor(
     @Inject(AuthService) private readonly authService: AuthService,
     @Inject(AccessService) private readonly accessService: AccessService,
+    @Inject(EntitlementService) private readonly entitlementService: EntitlementService,
     @Inject(Reflector) private readonly reflector: Reflector,
   ) {}
 
@@ -73,6 +78,14 @@ export class SessionPermissionGuard implements CanActivate {
       parsedHeaders.data[API_HEADERS.tenantId],
       permission,
       parsedHeaders.data[API_HEADERS.outletId],
+    );
+    const moduleKey = this.reflector.getAllAndOverride<ModuleKey | undefined>(REQUIRED_MODULE, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    await this.entitlementService.requireAccess(
+      parsedHeaders.data[API_HEADERS.tenantId],
+      moduleKey,
     );
     const requireAllOutlets = this.reflector.getAllAndOverride<boolean>(REQUIRE_ALL_OUTLETS, [
       context.getHandler(),

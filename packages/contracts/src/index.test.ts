@@ -12,9 +12,14 @@ import {
   createMembershipSchema,
   createRoleSchema,
   cursorPaginationQuerySchema,
+  entitlementSnapshotSchema,
+  MODULES,
+  PLAN_CODES,
+  replaceSubscriptionSchema,
   requestContextHeadersSchema,
   PERMISSIONS,
   tenantRequestHeadersSchema,
+  setTenantEntitlementSchema,
   updateMembershipSchema,
   updateTenantSchema,
 } from "./index.js";
@@ -134,4 +139,32 @@ test("exports access-control schemas to OpenAPI", () => {
   assert.equal(commonOpenApiSchemas.Membership.type, "object");
   assert.equal(commonOpenApiSchemas.Role.type, "object");
   assert.equal(commonOpenApiSchemas.TenantRequestHeaders.type, "object");
+});
+
+test("validates subscription and entitlement core contracts", () => {
+  assert.equal(
+    replaceSubscriptionSchema.safeParse({
+      planCode: PLAN_CODES.cafeOperations,
+      startsAt: "2026-07-20T00:00:00.000Z",
+      status: "ACTIVE",
+    }).success,
+    true,
+  );
+  assert.deepEqual(
+    setTenantEntitlementSchema.parse({
+      enabled: true,
+      moduleKey: MODULES.inventoryBasic,
+      reason: "  Add-on pilot merchant  ",
+    }),
+    {
+      enabled: true,
+      moduleKey: MODULES.inventoryBasic,
+      reason: "Add-on pilot merchant",
+    },
+  );
+  assert.equal(
+    entitlementSnapshotSchema.safeParse({ modules: [], subscription: null }).success,
+    true,
+  );
+  assert.equal(commonOpenApiSchemas.EntitlementSnapshot.type, "object");
 });
