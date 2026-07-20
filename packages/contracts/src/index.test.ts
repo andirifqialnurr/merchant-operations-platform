@@ -9,6 +9,8 @@ import {
   createOutletSchema,
   createTenantSchema,
   commonOpenApiSchemas,
+  createCatalogCategorySchema,
+  createCatalogProductSchema,
   createMembershipSchema,
   createRoleSchema,
   cursorPaginationQuerySchema,
@@ -21,6 +23,7 @@ import {
   tenantRequestHeadersSchema,
   setTenantEntitlementSchema,
   updateMembershipSchema,
+  updateCatalogProductSchema,
   updateTenantSchema,
 } from "./index.js";
 
@@ -167,4 +170,25 @@ test("validates subscription and entitlement core contracts", () => {
     true,
   );
   assert.equal(commonOpenApiSchemas.EntitlementSnapshot.type, "object");
+});
+
+test("normalizes catalog defaults and preserves exact minor-unit prices", () => {
+  const category = createCatalogCategorySchema.parse({ name: "  Minuman ", slug: "Minuman" });
+  assert.deepEqual(category, { displayOrder: 0, name: "Minuman", slug: "minuman" });
+
+  const product = createCatalogProductSchema.parse({
+    basePriceMinor: "25000",
+    categoryId: "019f738d-e61f-7d46-92de-17b35f971101",
+    name: "  Kopi Susu ",
+    slug: "Kopi-Susu",
+  });
+  assert.equal(product.basePriceMinor, "25000");
+  assert.equal(product.currency, "IDR");
+  assert.equal(product.availability, "AVAILABLE");
+  assert.equal(
+    createCatalogProductSchema.safeParse({ ...product, basePriceMinor: "-1" }).success,
+    false,
+  );
+  assert.equal(updateCatalogProductSchema.safeParse({}).success, false);
+  assert.equal(commonOpenApiSchemas.CatalogSnapshot.type, "object");
 });

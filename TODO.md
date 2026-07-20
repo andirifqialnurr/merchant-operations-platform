@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 10.7 proteksi dokumentasi API; lalu lanjut Tahap 11 - Catalog foundation.**
+> **NEXT: Review, commit, dan push Tahap 11.1 category/product core; lalu lanjut Tahap 11.2 - variant, modifier, dan product image.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -665,10 +665,19 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 ### Tahap 11 - Catalog foundation
 
-- [ ] Category, product, variant, modifier, image, price, dan availability.
-- [ ] Outlet override.
-- [ ] Contract/API dan backoffice flow.
+- [x] **11.1 Category/product core:** category dan product tenant-scoped, base price minor-unit, lifecycle status, manual availability, audit/outbox, serta service foundation tanpa route HTTP.
+- [ ] **11.2 Product composition:** variant, modifier group/option, product-modifier assignment, dan product image.
+- [ ] **11.3 Outlet catalog override:** product/outlet assignment, outlet price override, dan outlet availability/sold-out.
+- [ ] **11.4 Catalog API/backoffice flow:** authorized contract/API untuk master dan outlet catalog, lalu backoffice flow.
 - [ ] Jangan membangun POS sebelum catalog minimal stabil.
+
+**Checkpoint 11.1:** `feat(catalog): add category and product core`
+
+**Catalog gate:** Harga disimpan sebagai integer minor-unit non-negatif dan dikirim sebagai decimal string agar tidak kehilangan presisi. `ACTIVE/INACTIVE` mengatur lifecycle master, sedangkan `AVAILABLE/SOLD_OUT` mengatur ketersediaan jual manual. Product wajib menunjuk category pada tenant yang sama melalui composite foreign key. Tidak ada hard delete pada master catalog.
+
+**Exposure gate:** Category/product application service masih internal pada 11.1. Route HTTP menunggu variant/modifier/image serta outlet override stabil dan baru dibuka dengan session, permission `catalog.read|manage`, tenant/outlet scope, dan entitlement Core Catalog pada 11.4.
+
+**STOP:** Report, review, commit, dan push Tahap 11.1 sebelum melanjutkan Product Composition Tahap 11.2.
 
 ---
 

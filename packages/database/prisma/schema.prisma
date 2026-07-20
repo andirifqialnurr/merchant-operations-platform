@@ -49,6 +49,16 @@ enum SubscriptionStatus {
   TERMINATED
 }
 
+enum CatalogRecordStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ProductAvailability {
+  AVAILABLE
+  SOLD_OUT
+}
+
 model User {
   id                String             @id @default(dbgenerated("uuidv7()")) @db.Uuid
   email             String             @unique @db.VarChar(254)
@@ -117,21 +127,23 @@ model LoginSession {
 }
 
 model Tenant {
-  id              String                 @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  name            String                 @db.VarChar(160)
-  slug            String                 @unique @db.VarChar(80)
-  status          OrganizationUnitStatus @default(ACTIVE)
-  createdAt       DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
-  brands          Brand[]
-  outlets         Outlet[]
-  auditLogs       AuditLog[]
-  idempotencyKeys IdempotencyKey[]
-  outboxEvents    OutboxEvent[]
-  memberships     TenantMembership[]
-  roles           Role[]
-  subscriptions   Subscription[]
-  entitlements    TenantEntitlement[]
+  id                String                 @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  name              String                 @db.VarChar(160)
+  slug              String                 @unique @db.VarChar(80)
+  status            OrganizationUnitStatus @default(ACTIVE)
+  createdAt         DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
+  brands            Brand[]
+  outlets           Outlet[]
+  auditLogs         AuditLog[]
+  idempotencyKeys   IdempotencyKey[]
+  outboxEvents      OutboxEvent[]
+  memberships       TenantMembership[]
+  roles             Role[]
+  subscriptions     Subscription[]
+  entitlements      TenantEntitlement[]
+  catalogCategories CatalogCategory[]
+  catalogProducts   CatalogProduct[]
 
   @@map("tenants")
 }
@@ -175,6 +187,47 @@ model Outlet {
   @@index([tenantId, brandId])
   @@index([tenantId, createdAt])
   @@map("outlets")
+}
+
+model CatalogCategory {
+  id           String              @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId     String              @map("tenant_id") @db.Uuid
+  name         String              @db.VarChar(160)
+  slug         String              @db.VarChar(80)
+  displayOrder Int                 @default(0) @map("display_order")
+  status       CatalogRecordStatus @default(ACTIVE)
+  createdAt    DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant       Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  products     CatalogProduct[]
+
+  @@unique([tenantId, slug])
+  @@unique([tenantId, id])
+  @@index([tenantId, status, displayOrder])
+  @@map("categories")
+}
+
+model CatalogProduct {
+  id             String              @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId       String              @map("tenant_id") @db.Uuid
+  categoryId     String              @map("category_id") @db.Uuid
+  name           String              @db.VarChar(160)
+  slug           String              @db.VarChar(80)
+  description    String?             @db.VarChar(2000)
+  basePriceMinor BigInt              @map("base_price_minor") @db.BigInt
+  currency       String              @default("IDR") @db.Char(3)
+  availability   ProductAvailability @default(AVAILABLE)
+  status         CatalogRecordStatus @default(ACTIVE)
+  createdAt      DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant         Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  category       CatalogCategory     @relation(fields: [tenantId, categoryId], references: [tenantId, id], onDelete: Restrict)
+
+  @@unique([tenantId, slug])
+  @@unique([tenantId, id])
+  @@index([tenantId, categoryId, status])
+  @@index([tenantId, availability, status])
+  @@map("products")
 }
 
 model TenantMembership {

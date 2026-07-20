@@ -373,6 +373,14 @@ table_layout_items, table_qr_tokens, table_sessions
 kitchen_stations, kitchen_tickets, kitchen_ticket_items
 ```
 
+### Catalog core data rules
+
+- Category dan product dimiliki tenant. Product menunjuk category memakai composite foreign key `(tenant_id, category_id)` agar referensi lintas tenant ditolak oleh database.
+- Base price disimpan sebagai `BIGINT` minor-unit non-negatif bersama kode currency tiga huruf. Kontrak JSON memakai decimal string agar presisi tidak berubah di JavaScript.
+- Lifecycle `ACTIVE/INACTIVE` terpisah dari availability `AVAILABLE/SOLD_OUT`; sold-out manual tidak menonaktifkan atau menghapus product.
+- Master catalog tidak dihapus permanen. Perubahan category/product menulis audit log dan outbox event.
+- Category/product service dibangun sebelum route HTTP. Exposure merchant menunggu variant, modifier, image, outlet override, permission, tenant/outlet scope, dan entitlement Catalog Core stabil.
+
 ### Table layout data rules
 
 - `service_floors` dimiliki outlet dan menyimpan nama lantai, urutan, serta ukuran grid logical.

@@ -215,6 +215,8 @@ test("provisions an owner with all tenant permissions and all-outlet scope", asy
 
   assert.equal(access.allOutlets, true);
   assert.equal(access.permissionKeys.includes(PERMISSIONS.accessRoleManage), true);
+  assert.equal(access.permissionKeys.includes(PERMISSIONS.catalogRead), true);
+  assert.equal(access.permissionKeys.includes(PERMISSIONS.catalogManage), true);
 });
 
 test("enforces both permission and explicit outlet assignment", async () => {

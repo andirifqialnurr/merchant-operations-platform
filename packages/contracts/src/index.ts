@@ -228,6 +228,91 @@ export const organizationSnapshotSchema = z.object({
   outlets: z.array(outletSchema),
 });
 
+export const catalogRecordStatusSchema = z.enum(["ACTIVE", "INACTIVE"]);
+export const productAvailabilitySchema = z.enum(["AVAILABLE", "SOLD_OUT"]);
+export const catalogNameSchema = z.string().trim().min(2).max(160);
+export const catalogSlugSchema = organizationSlugSchema;
+export const moneyMinorSchema = z
+  .string()
+  .regex(/^(?:0|[1-9][0-9]{0,17})$/)
+  .meta({ description: "Non-negative amount in currency minor units", example: "25000" });
+export const currencyCodeSchema = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .regex(/^[A-Z]{3}$/)
+  .meta({ example: "IDR" });
+export const displayOrderSchema = z.number().int().min(0).max(100_000);
+
+export const catalogCategorySchema = organizationRecordTimestampsSchema.extend({
+  id: z.uuid(),
+  tenantId: z.uuid(),
+  name: catalogNameSchema,
+  slug: catalogSlugSchema,
+  displayOrder: displayOrderSchema,
+  status: catalogRecordStatusSchema,
+});
+
+export const catalogProductSchema = organizationRecordTimestampsSchema.extend({
+  id: z.uuid(),
+  tenantId: z.uuid(),
+  categoryId: z.uuid(),
+  name: catalogNameSchema,
+  slug: catalogSlugSchema,
+  description: z.string().trim().min(1).max(2_000).nullable(),
+  basePriceMinor: moneyMinorSchema,
+  currency: currencyCodeSchema,
+  availability: productAvailabilitySchema,
+  status: catalogRecordStatusSchema,
+});
+
+export const createCatalogCategorySchema = z.object({
+  name: catalogNameSchema,
+  slug: catalogSlugSchema,
+  displayOrder: displayOrderSchema.default(0),
+});
+
+export const updateCatalogCategorySchema = z
+  .object({
+    name: catalogNameSchema.optional(),
+    slug: catalogSlugSchema.optional(),
+    displayOrder: displayOrderSchema.optional(),
+    status: catalogRecordStatusSchema.optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, {
+    message: "Perubahan kategori wajib diisi.",
+  });
+
+export const createCatalogProductSchema = z.object({
+  categoryId: z.uuid(),
+  name: catalogNameSchema,
+  slug: catalogSlugSchema,
+  description: z.string().trim().min(1).max(2_000).nullable().optional(),
+  basePriceMinor: moneyMinorSchema,
+  currency: currencyCodeSchema.default("IDR"),
+  availability: productAvailabilitySchema.default("AVAILABLE"),
+});
+
+export const updateCatalogProductSchema = z
+  .object({
+    categoryId: z.uuid().optional(),
+    name: catalogNameSchema.optional(),
+    slug: catalogSlugSchema.optional(),
+    description: z.string().trim().min(1).max(2_000).nullable().optional(),
+    basePriceMinor: moneyMinorSchema.optional(),
+    currency: currencyCodeSchema.optional(),
+    availability: productAvailabilitySchema.optional(),
+    status: catalogRecordStatusSchema.optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, {
+    message: "Perubahan produk wajib diisi.",
+  });
+
+export const catalogSnapshotSchema = z.object({
+  categories: z.array(catalogCategorySchema),
+  products: z.array(catalogProductSchema),
+});
+
 export const MODULES = {
   coreAudit: "CORE_AUDIT",
   coreBill: "CORE_BILL",
@@ -333,6 +418,8 @@ export const PERMISSIONS = {
   accessMembershipManage: "access.membership.manage",
   accessRoleManage: "access.role.manage",
   accessRoleRead: "access.role.read",
+  catalogManage: "catalog.manage",
+  catalogRead: "catalog.read",
   cashVarianceApprove: "cash_variance.approve",
   financeDashboardView: "finance.dashboard.view",
   financeExpenseCreate: "finance.expense.create",
@@ -469,9 +556,15 @@ export type AuthLogoutResponse = z.infer<typeof authLogoutResponseSchema>;
 export type AuthSession = z.infer<typeof authSessionSchema>;
 export type AuthUser = z.infer<typeof authUserSchema>;
 export type Brand = z.infer<typeof brandSchema>;
+export type CatalogCategory = z.infer<typeof catalogCategorySchema>;
+export type CatalogProduct = z.infer<typeof catalogProductSchema>;
+export type CatalogRecordStatus = z.infer<typeof catalogRecordStatusSchema>;
+export type CatalogSnapshot = z.infer<typeof catalogSnapshotSchema>;
 export type AuthorizationContext = z.infer<typeof authorizationContextSchema>;
 export type ContractSchema = z.ZodType;
 export type CreateBrand = z.infer<typeof createBrandSchema>;
+export type CreateCatalogCategory = z.infer<typeof createCatalogCategorySchema>;
+export type CreateCatalogProduct = z.infer<typeof createCatalogProductSchema>;
 export type CreateMembership = z.infer<typeof createMembershipSchema>;
 export type CreateRole = z.infer<typeof createRoleSchema>;
 export type CreateOutlet = z.infer<typeof createOutletSchema>;
@@ -486,6 +579,7 @@ export type ModuleEntitlement = z.infer<typeof moduleEntitlementSchema>;
 export type ModuleKey = z.infer<typeof moduleKeySchema>;
 export type ModuleKind = z.infer<typeof moduleKindSchema>;
 export type Outlet = z.infer<typeof outletSchema>;
+export type ProductAvailability = z.infer<typeof productAvailabilitySchema>;
 export type PlanCode = z.infer<typeof planCodeSchema>;
 export type PlatformEntitlementParams = z.infer<typeof platformEntitlementParamsSchema>;
 export type PlatformPermissionKey = z.infer<typeof platformPermissionKeySchema>;
@@ -507,6 +601,8 @@ export type EntitlementSnapshot = z.infer<typeof entitlementSnapshotSchema>;
 export type TenantRequestHeaders = z.infer<typeof tenantRequestHeadersSchema>;
 export type Tenant = z.infer<typeof tenantSchema>;
 export type UpdateBrand = z.infer<typeof updateBrandSchema>;
+export type UpdateCatalogCategory = z.infer<typeof updateCatalogCategorySchema>;
+export type UpdateCatalogProduct = z.infer<typeof updateCatalogProductSchema>;
 export type UpdateMembership = z.infer<typeof updateMembershipSchema>;
 export type UpdateRole = z.infer<typeof updateRoleSchema>;
 export type UpdateOutlet = z.infer<typeof updateOutletSchema>;
@@ -524,7 +620,12 @@ export const commonOpenApiSchemas = {
   AuthUser: toOpenApiSchema(authUserSchema),
   AuthorizationContext: toOpenApiSchema(authorizationContextSchema),
   Brand: toOpenApiSchema(brandSchema),
+  CatalogCategory: toOpenApiSchema(catalogCategorySchema),
+  CatalogProduct: toOpenApiSchema(catalogProductSchema),
+  CatalogSnapshot: toOpenApiSchema(catalogSnapshotSchema),
   CreateBrand: toOpenApiSchema(createBrandSchema),
+  CreateCatalogCategory: toOpenApiSchema(createCatalogCategorySchema),
+  CreateCatalogProduct: toOpenApiSchema(createCatalogProductSchema),
   CreateMembership: toOpenApiSchema(createMembershipSchema),
   CreateRole: toOpenApiSchema(createRoleSchema),
   CreateOutlet: toOpenApiSchema(createOutletSchema),
@@ -551,6 +652,8 @@ export const commonOpenApiSchemas = {
   SetTenantEntitlement: toOpenApiSchema(setTenantEntitlementSchema),
   Subscription: toOpenApiSchema(subscriptionSchema),
   UpdateBrand: toOpenApiSchema(updateBrandSchema),
+  UpdateCatalogCategory: toOpenApiSchema(updateCatalogCategorySchema),
+  UpdateCatalogProduct: toOpenApiSchema(updateCatalogProductSchema),
   UpdateMembership: toOpenApiSchema(updateMembershipSchema),
   UpdateRole: toOpenApiSchema(updateRoleSchema),
   UpdateOutlet: toOpenApiSchema(updateOutletSchema),

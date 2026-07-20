@@ -34,6 +34,13 @@ const platformMigration = readFileSync(
   ),
   "utf8",
 );
+const catalogMigration = readFileSync(
+  new URL(
+    "../../../packages/database/prisma/migrations/20260720180000_catalog_category_product_core/migration.sql",
+    import.meta.url,
+  ),
+  "utf8",
+);
 
 test("keeps organization and access relations scoped by tenant composite keys", () => {
   assert.match(
@@ -87,4 +94,20 @@ test("keeps platform identities and sessions separate from tenant identities", (
     platformMigration,
     /FOREIGN KEY \("user_id"\) REFERENCES "platform_users"\("id"\) ON DELETE CASCADE/,
   );
+});
+
+test("keeps catalog products scoped to their tenant category and exact non-negative price", () => {
+  assert.match(
+    schema,
+    /category\s+CatalogCategory\s+@relation\(fields: \[tenantId, categoryId\], references: \[tenantId, id\]/,
+  );
+  assert.match(
+    catalogMigration,
+    /FOREIGN KEY \("tenant_id", "category_id"\) REFERENCES "categories"\("tenant_id", "id"\)/,
+  );
+  assert.match(
+    catalogMigration,
+    /CONSTRAINT "products_base_price_minor_check" CHECK \("base_price_minor" >= 0\)/,
+  );
+  assert.match(catalogMigration, /'catalog\.manage', 'Manage tenant catalog'/);
 });

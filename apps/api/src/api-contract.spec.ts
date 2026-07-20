@@ -174,6 +174,7 @@ test("generates versioned OpenAPI paths and shared schemas", async () => {
     assert.ok(document.components?.schemas?.RequestContextHeaders);
     assert.ok(document.components?.securitySchemes?.merchant_session);
     assert.ok(document.components?.securitySchemes?.platform_session);
+    assert.equal(document.paths["/api/v1/catalog"], undefined);
     assert.equal(document.paths["/api/v1/tenants"], undefined);
   } finally {
     await app.close();
