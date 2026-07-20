@@ -33,6 +33,10 @@ export const tenantRequestHeadersSchema = z.object({
   [API_HEADERS.requestId]: requestIdSchema.optional(),
 });
 
+export const platformRequestHeadersSchema = z.object({
+  [API_HEADERS.requestId]: requestIdSchema.optional(),
+});
+
 export const cursorPaginationQuerySchema = z.object({
   cursor: z.string().trim().min(1).max(512).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(25),
@@ -91,6 +95,33 @@ export const authSessionSchema = z.object({
 
 export const authLogoutResponseSchema = z.object({
   success: z.literal(true),
+});
+
+export const PLATFORM_PERMISSIONS = {
+  docsRead: "platform.docs.read",
+  subscriptionManage: "platform.subscription.manage",
+  subscriptionRead: "platform.subscription.read",
+  supportAccess: "platform.support.access",
+  tenantManage: "platform.tenant.manage",
+  tenantRead: "platform.tenant.read",
+} as const;
+
+export const platformRoleSchema = z.enum(["OWNER", "ADMIN", "SUPPORT"]);
+export const platformPermissionKeySchema = z.enum(Object.values(PLATFORM_PERMISSIONS));
+export const platformUserSchema = z.object({
+  id: z.uuid(),
+  email: z.email(),
+  displayName: z.string().min(1).max(160),
+  role: platformRoleSchema,
+  permissionKeys: z.array(platformPermissionKeySchema),
+});
+export const platformSessionSchema = z.object({
+  expiresAt: z.iso.datetime(),
+  user: platformUserSchema,
+});
+export const provisionPlatformUserSchema = authLoginRequestSchema.extend({
+  displayName: z.string().trim().min(2).max(160),
+  role: platformRoleSchema,
 });
 
 export const sessionTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{43}$/);
@@ -249,6 +280,15 @@ export const setTenantEntitlementSchema = z.object({
   reason: z.string().trim().min(3).max(500),
 });
 
+export const platformEntitlementParamsSchema = z.object({
+  id: z.uuid(),
+  moduleKey: moduleKeySchema,
+});
+
+export const platformSetTenantEntitlementSchema = setTenantEntitlementSchema.omit({
+  moduleKey: true,
+});
+
 const entitlementOverrideSchema = z.object({
   actorId: z.uuid().nullable(),
   effectiveAt: z.iso.datetime(),
@@ -282,6 +322,11 @@ export const moduleEntitlementSchema = z.object({
 export const entitlementSnapshotSchema = z.object({
   subscription: subscriptionSchema.nullable(),
   modules: z.array(moduleEntitlementSchema),
+});
+
+export const platformTenantMasterSchema = z.object({
+  entitlement: entitlementSnapshotSchema,
+  organization: organizationSnapshotSchema,
 });
 
 export const PERMISSIONS = {
@@ -442,6 +487,15 @@ export type ModuleKey = z.infer<typeof moduleKeySchema>;
 export type ModuleKind = z.infer<typeof moduleKindSchema>;
 export type Outlet = z.infer<typeof outletSchema>;
 export type PlanCode = z.infer<typeof planCodeSchema>;
+export type PlatformEntitlementParams = z.infer<typeof platformEntitlementParamsSchema>;
+export type PlatformPermissionKey = z.infer<typeof platformPermissionKeySchema>;
+export type PlatformRequestHeaders = z.infer<typeof platformRequestHeadersSchema>;
+export type PlatformRole = z.infer<typeof platformRoleSchema>;
+export type PlatformSession = z.infer<typeof platformSessionSchema>;
+export type PlatformSetTenantEntitlement = z.infer<typeof platformSetTenantEntitlementSchema>;
+export type PlatformTenantMaster = z.infer<typeof platformTenantMasterSchema>;
+export type PlatformUser = z.infer<typeof platformUserSchema>;
+export type ProvisionPlatformUser = z.infer<typeof provisionPlatformUserSchema>;
 export type RequestContextHeaders = z.infer<typeof requestContextHeadersSchema>;
 export type PermissionKey = z.infer<typeof permissionKeySchema>;
 export type ReplaceSubscription = z.infer<typeof replaceSubscriptionSchema>;
@@ -482,6 +536,13 @@ export const commonOpenApiSchemas = {
   ModuleEntitlement: toOpenApiSchema(moduleEntitlementSchema),
   OrganizationSnapshot: toOpenApiSchema(organizationSnapshotSchema),
   Outlet: toOpenApiSchema(outletSchema),
+  PlatformEntitlementParams: toOpenApiSchema(platformEntitlementParamsSchema),
+  PlatformRequestHeaders: toOpenApiSchema(platformRequestHeadersSchema),
+  PlatformSession: toOpenApiSchema(platformSessionSchema),
+  PlatformSetTenantEntitlement: toOpenApiSchema(platformSetTenantEntitlementSchema),
+  PlatformTenantMaster: toOpenApiSchema(platformTenantMasterSchema),
+  PlatformUser: toOpenApiSchema(platformUserSchema),
+  ProvisionPlatformUser: toOpenApiSchema(provisionPlatformUserSchema),
   RequestContextHeaders: toOpenApiSchema(requestContextHeadersSchema),
   ReplaceSubscription: toOpenApiSchema(replaceSubscriptionSchema),
   Role: toOpenApiSchema(roleSchema),

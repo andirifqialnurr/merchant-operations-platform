@@ -11,6 +11,7 @@ import { OrganizationService } from "./organization.service.js";
 
 @Module({
   controllers: [OrganizationController],
+  exports: [OrganizationService],
   imports: [AccessModule, AuthModule],
   providers: [
     OrganizationService,

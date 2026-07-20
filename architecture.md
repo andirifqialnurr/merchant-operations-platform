@@ -349,7 +349,7 @@ Database menggunakan shared schema multi-tenant. Semua tabel bisnis memiliki `te
 ### Platform dan subscription
 
 ```text
-platform_users, tenants, brands, outlets
+platform_users, platform_login_sessions, tenants, brands, outlets
 modules, module_dependencies, plans, plan_modules
 subscriptions, tenant_entitlements, usage_records, subscription_invoices
 ```
@@ -501,6 +501,9 @@ Finance Basic mengambil sales dari bill/payment, bukan menyalinnya sebagai pemas
 - Tenant/outlet context tidak dipercaya hanya dari request body; divalidasi dari membership dan resource.
 - Tenant/brand/outlet registry application service boleh dibangun sebelum IAM, tetapi route HTTP tidak boleh diekspos sampai active membership, permission, dan tenant scope dapat memvalidasi actor.
 - Route organization dan pengelolaan access-control memvalidasi cookie session, active user, active tenant membership, permission use-case, serta scope seluruh outlet karena operasinya tenant-wide. Header tenant/outlet hanya memilih context dan bukan bukti authorization; user outlet-scoped tidak dapat menaikkan scope melalui header.
+- Platform identity menggunakan tabel, session, dan cookie `platform_session` yang terpisah dari identity tenant. Cookie `merchant_session`, membership tenant, atau header tenant tidak pernah menjadi bukti authorization untuk route `/api/v1/platform/*`.
+- Platform master route memetakan role `OWNER`, `ADMIN`, dan `SUPPORT` ke permission platform eksplisit. Mutation tenant memerlukan `platform.tenant.manage`; mutation subscription/entitlement memerlukan `platform.subscription.manage`; support hanya memperoleh akses baca dan support context.
+- Platform user pertama diprovisikan melalui CLI internal dengan email, display name, password, dan role dari environment. Tidak ada default credential atau unauthenticated bootstrap route.
 
 ## 19. Security minimum
 

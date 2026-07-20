@@ -27,6 +27,13 @@ const entitlementMigration = readFileSync(
   ),
   "utf8",
 );
+const platformMigration = readFileSync(
+  new URL(
+    "../../../packages/database/prisma/migrations/20260720160000_platform_owner_foundation/migration.sql",
+    import.meta.url,
+  ),
+  "utf8",
+);
 
 test("keeps organization and access relations scoped by tenant composite keys", () => {
   assert.match(
@@ -68,5 +75,16 @@ test("keeps current subscription and entitlement overrides isolated per tenant",
   assert.match(
     entitlementMigration,
     /FOREIGN KEY \("tenant_id"\) REFERENCES "tenants"\("id"\) ON DELETE RESTRICT/,
+  );
+});
+
+test("keeps platform identities and sessions separate from tenant identities", () => {
+  assert.match(schema, /model PlatformUser[\s\S]*@@map\("platform_users"\)/);
+  assert.match(schema, /model PlatformLoginSession[\s\S]*@@map\("platform_login_sessions"\)/);
+  assert.match(platformMigration, /CREATE TABLE "platform_users"/);
+  assert.match(platformMigration, /CREATE TABLE "platform_login_sessions"/);
+  assert.match(
+    platformMigration,
+    /FOREIGN KEY \("user_id"\) REFERENCES "platform_users"\("id"\) ON DELETE CASCADE/,
   );
 });

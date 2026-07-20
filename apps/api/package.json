@@ -8,6 +8,7 @@
     "build": "tsc --project tsconfig.build.json",
     "start": "node dist/main.js",
     "lint": "eslint . --max-warnings=0",
+    "platform:user:provision": "tsx src/platform/provision-platform-user.ts",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test src/*.spec.ts src/**/*.spec.ts",
     "format:check": "prettier --check . --ignore-path ../../.gitignore"

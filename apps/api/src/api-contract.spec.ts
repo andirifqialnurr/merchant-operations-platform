@@ -57,15 +57,27 @@ test("generates versioned OpenAPI paths and shared schemas", async () => {
     assert.ok(document.paths["/api/v1/organization"]);
     assert.ok(document.paths["/api/v1/organization/brands"]);
     assert.ok(document.paths["/api/v1/organization/outlets"]);
+    assert.ok(document.paths["/api/v1/platform/auth/login"]);
+    assert.ok(document.paths["/api/v1/platform/auth/logout"]);
+    assert.ok(document.paths["/api/v1/platform/auth/session"]);
+    assert.ok(document.paths["/api/v1/platform/context"]);
+    assert.ok(document.paths["/api/v1/platform/tenants"]);
+    assert.ok(document.paths["/api/v1/platform/tenants/{id}"]);
+    assert.ok(document.paths["/api/v1/platform/tenants/{id}/subscriptions"]);
+    assert.ok(document.paths["/api/v1/platform/tenants/{id}/entitlements/{moduleKey}"]);
     assert.ok(document.components?.schemas?.ApiError);
     assert.ok(document.components?.schemas?.AuthSession);
     assert.ok(document.components?.schemas?.OrganizationSnapshot);
+    assert.ok(document.components?.schemas?.PlatformSession);
+    assert.ok(document.components?.schemas?.PlatformTenantMaster);
+    assert.ok(document.components?.schemas?.PlatformUser);
     assert.ok(document.components?.schemas?.AuthorizationContext);
     assert.ok(document.components?.schemas?.Membership);
     assert.ok(document.components?.schemas?.Role);
     assert.ok(document.components?.schemas?.HealthResponse);
     assert.ok(document.components?.schemas?.RequestContextHeaders);
     assert.ok(document.components?.securitySchemes?.merchant_session);
+    assert.ok(document.components?.securitySchemes?.platform_session);
     assert.equal(document.paths["/api/v1/tenants"], undefined);
   } finally {
     await app.close();

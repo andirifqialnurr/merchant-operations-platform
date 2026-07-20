@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 10.5 tenant-isolation regression test; lalu lanjut Tahap 10.6 - Platform Owner master foundation.**
+> **NEXT: Review, commit, dan push Tahap 10.6 Platform Owner master foundation; lalu lanjut Tahap 10.7 - lindungi Swagger UI dan OpenAPI di production dengan platform authentication dan permission.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -634,7 +634,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] Membership, role, permission, dan outlet assignment; organization route kini dilindungi session, active membership, permission, dan tenant/outlet scope.
 - [x] Subscription/module/entitlement core; active subscription kini menjadi gate seluruh route tenant dan feature route dapat menambahkan module entitlement.
 - [x] Tenant-isolation regression test pada application service, authorization guard, entitlement state, dan schema constraint; integration PostgreSQL/RLS tetap mengikuti deferred gate Tahap 9.
-- [ ] Platform owner master foundation.
+- [x] Platform owner master foundation; identity/session platform terpisah, role-permission guard, tenant/subscription/entitlement master route, serta bootstrap CLI tanpa default credential.
 - [ ] Lindungi Swagger UI dan dokumen OpenAPI dengan authentication serta permission platform admin sebelum dokumentasi boleh diaktifkan di production.
 
 **Checkpoint 10.1:** `feat(identity): add authentication and session foundation`
@@ -647,15 +647,17 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Checkpoint 10.5:** `test(tenancy): add cross-tenant isolation regression suite`
 
+**Checkpoint 10.6:** `feat(platform): add platform owner master foundation`
+
 **Authorization gate:** Registry route hanya dapat diakses setelah session, active membership, permission, serta tenant/outlet scope tervalidasi. Header tenant/outlet hanya memilih context dan tidak pernah menjadi bukti authorization.
 
-**Provisioning gate:** Provisioning role default dan owner pertama tersedia sebagai application service internal. Route provisioning tenant/platform belum dibuka sampai Platform Owner foundation tersedia.
+**Provisioning gate:** Provisioning role default dan tenant owner tetap application service internal. Platform user pertama dibuat melalui CLI `platform:user:provision` dengan environment eksplisit; tidak ada akun, password, atau route bootstrap default. Pembuatan registry tenant kini hanya tersedia melalui platform session dengan `platform.tenant.manage`; provisioning tenant owner belum digabung menjadi onboarding HTTP sampai transaction boundary-nya tersedia.
 
-**Entitlement gate:** Katalog module dan plan awal diprovisikan melalui migration. Mutasi subscription/override tersedia sebagai application service internal dan belum diekspos sebagai route platform sampai Platform Owner foundation tersedia. Route tenant wajib memiliki subscription usable; route fitur menambahkan module entitlement di atas permission dan scope.
+**Entitlement gate:** Katalog module dan plan awal diprovisikan melalui migration. Mutasi subscription/override kini tersedia pada route platform dengan `platform.subscription.manage`. Route tenant tetap wajib memiliki subscription usable; route fitur menambahkan module entitlement di atas permission dan scope.
 
 **Isolation gate:** Test tanpa database asli wajib membuktikan organization snapshot, role, membership, authorization, subscription, dan entitlement tenant A tidak membaca state tenant B. Schema-contract test menjaga composite foreign key serta unique constraint tenant tetap ada. PostgreSQL/RLS integration test belum dianggap terpenuhi sampai test database tersedia.
 
-**STOP:** Report, review, commit, dan push Tahap 10.5 sebelum melanjutkan Platform Owner Master Foundation Tahap 10.6.
+**STOP:** Report, review, commit, dan push Tahap 10.6 sebelum melanjutkan proteksi Swagger UI/OpenAPI production Tahap 10.7.
 
 ### Tahap 11 - Catalog foundation
 
