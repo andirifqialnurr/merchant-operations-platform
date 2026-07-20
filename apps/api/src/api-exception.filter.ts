@@ -21,7 +21,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function getRequestId(request: HttpRequest) {
+export function getRequestId(request: HttpRequest) {
   const header = request.headers?.[API_HEADERS.requestId];
   return typeof header === "string" && header.trim().length > 0
     ? header.slice(0, 100)
