@@ -897,10 +897,24 @@ test("rejects cross-tenant, duplicate, and inactive-outlet assignments", async (
     ConflictException,
   );
 
-  await service.createOutletProduct(TENANT_A, { ...input, outletId: OUTLET_A });
+  const assignment = await service.createOutletProduct(TENANT_A, {
+    ...input,
+    outletId: OUTLET_A,
+  });
   await assert.rejects(
     () => service.createOutletProduct(TENANT_A, { ...input, outletId: OUTLET_A }),
     ConflictException,
+  );
+  await assert.rejects(
+    () =>
+      service.updateOutletProduct(
+        TENANT_A,
+        assignment.id,
+        { status: "INACTIVE" },
+        undefined,
+        OUTLET_B,
+      ),
+    NotFoundException,
   );
 });
 

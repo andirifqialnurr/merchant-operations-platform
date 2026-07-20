@@ -13,6 +13,7 @@ import {
   createCatalogModifierGroupSchema,
   createCatalogModifierOptionSchema,
   createCatalogOutletProductSchema,
+  createCatalogOutletProductForOutletSchema,
   createCatalogProductSchema,
   createCatalogProductImageSchema,
   createCatalogProductModifierGroupSchema,
@@ -294,5 +295,11 @@ test("normalizes outlet catalog inheritance and exact price overrides", () => {
     false,
   );
   assert.equal(updateCatalogOutletProductSchema.safeParse({}).success, false);
+  assert.deepEqual(createCatalogOutletProductForOutletSchema.parse({ productId }), {
+    availabilityOverride: null,
+    displayOrder: 0,
+    priceOverrideMinor: null,
+    productId,
+  });
   assert.equal(commonOpenApiSchemas.CatalogOutletSnapshot.type, "object");
 });

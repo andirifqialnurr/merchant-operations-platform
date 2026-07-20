@@ -535,6 +535,13 @@ export const createCatalogOutletProductSchema = z.object({
   productId: z.uuid(),
 });
 
+export const createCatalogOutletProductForOutletSchema = createCatalogOutletProductSchema.omit({
+  outletId: true,
+});
+
+export const catalogOutletParamsSchema = z.object({ outletId: z.uuid() });
+export const catalogOutletProductParamsSchema = catalogOutletParamsSchema.extend({ id: z.uuid() });
+
 export const updateCatalogOutletProductSchema = z
   .object({
     availabilityOverride: productAvailabilitySchema.nullable().optional(),
@@ -822,6 +829,8 @@ export type CatalogModifierGroup = z.infer<typeof catalogModifierGroupSchema>;
 export type CatalogModifierOption = z.infer<typeof catalogModifierOptionSchema>;
 export type CatalogOutletProduct = z.infer<typeof catalogOutletProductSchema>;
 export type CatalogOutletProductItem = z.infer<typeof catalogOutletProductItemSchema>;
+export type CatalogOutletParams = z.infer<typeof catalogOutletParamsSchema>;
+export type CatalogOutletProductParams = z.infer<typeof catalogOutletProductParamsSchema>;
 export type CatalogOutletSnapshot = z.infer<typeof catalogOutletSnapshotSchema>;
 export type CatalogProduct = z.infer<typeof catalogProductSchema>;
 export type CatalogProductImage = z.infer<typeof catalogProductImageSchema>;
@@ -836,6 +845,9 @@ export type CreateCatalogCategory = z.infer<typeof createCatalogCategorySchema>;
 export type CreateCatalogModifierGroup = z.infer<typeof createCatalogModifierGroupSchema>;
 export type CreateCatalogModifierOption = z.infer<typeof createCatalogModifierOptionSchema>;
 export type CreateCatalogOutletProduct = z.infer<typeof createCatalogOutletProductSchema>;
+export type CreateCatalogOutletProductForOutlet = z.infer<
+  typeof createCatalogOutletProductForOutletSchema
+>;
 export type CreateCatalogProduct = z.infer<typeof createCatalogProductSchema>;
 export type CreateCatalogProductImage = z.infer<typeof createCatalogProductImageSchema>;
 export type CreateCatalogProductModifierGroup = z.infer<
@@ -922,6 +934,7 @@ export const commonOpenApiSchemas = {
   CreateCatalogModifierGroup: toOpenApiSchema(createCatalogModifierGroupSchema),
   CreateCatalogModifierOption: toOpenApiSchema(createCatalogModifierOptionSchema),
   CreateCatalogOutletProduct: toOpenApiSchema(createCatalogOutletProductSchema),
+  CreateCatalogOutletProductForOutlet: toOpenApiSchema(createCatalogOutletProductForOutletSchema),
   CreateCatalogProduct: toOpenApiSchema(createCatalogProductSchema),
   CreateCatalogProductImage: toOpenApiSchema(createCatalogProductImageSchema),
   CreateCatalogProductModifierGroup: toOpenApiSchema(createCatalogProductModifierGroupSchema),

@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 11.3 Outlet Catalog Override; lalu lanjut Tahap 11.4 - authorized Catalog API/backoffice flow.**
+> **NEXT: Review, commit, dan push Tahap 11.4a Authorized Catalog API; lalu lanjut Tahap 11.4b - backoffice Catalog flow.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -668,7 +668,8 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] **11.1 Category/product core:** category dan product tenant-scoped, base price minor-unit, lifecycle status, manual availability, audit/outbox, serta service foundation tanpa route HTTP.
 - [x] **11.2 Product composition:** variant, modifier group/option, product-modifier assignment, dan product image.
 - [x] **11.3 Outlet catalog override:** product/outlet assignment, outlet price override, dan outlet availability/sold-out.
-- [ ] **11.4 Catalog API/backoffice flow:** authorized contract/API untuk master dan outlet catalog, lalu backoffice flow.
+- [x] **11.4a Authorized Catalog API:** shared contract dan route HTTP untuk master serta outlet catalog dengan session, permission, scope, entitlement, validasi Zod, dan OpenAPI internal.
+- [ ] **11.4b Backoffice Catalog flow:** auth-aware web shell/client dan flow pengelolaan master serta outlet catalog.
 - [ ] Jangan membangun POS sebelum catalog minimal stabil.
 
 **Checkpoint 11.1:** `feat(catalog): add category and product core`
@@ -677,15 +678,17 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Checkpoint 11.3:** `feat(catalog): add outlet catalog overrides`
 
+**Checkpoint 11.4a:** `feat(catalog): expose authorized catalog api`
+
 **Catalog gate:** Harga disimpan sebagai integer minor-unit non-negatif dan dikirim sebagai decimal string agar tidak kehilangan presisi. `ACTIVE/INACTIVE` mengatur lifecycle master, sedangkan `AVAILABLE/SOLD_OUT` mengatur ketersediaan jual manual. Product wajib menunjuk category pada tenant yang sama melalui composite foreign key. Tidak ada hard delete pada master catalog.
 
 **Composition gate:** Variant dan modifier option menyimpan surcharge minor-unit non-negatif. Modifier group menjaga `minSelections <= maxSelections` dan group `SINGLE` maksimal satu pilihan. Product-modifier assignment, variant, option, dan image memakai composite foreign key tenant. Product image menyimpan object key/metadata, menolak path traversal/content type non-raster, serta hanya mengizinkan satu primary image aktif per product. Seluruh master composition memakai lifecycle status dan mutasinya menulis audit/outbox.
 
 **Outlet override gate:** Satu `outlet_products` row menjadi assignment product ke outlet. `priceOverrideMinor = null` dan `availabilityOverride = null` berarti mewarisi master product. Effective price/availability serta `sellable` dihitung server-side dari lifecycle tenant, outlet, product, assignment, dan availability efektif. Assignment tidak dihapus permanen, wajib memakai composite foreign key tenant/outlet/product, dan setiap mutasi menulis audit/outbox dengan `outletId`.
 
-**Exposure gate:** Category/product/composition/outlet override application service masih internal pada 11.3. Route HTTP baru dibuka pada 11.4 dengan session, permission `catalog.read|manage`, tenant/outlet scope, entitlement Core Catalog, shared validation untuk header/params/query/body/response, serta OpenAPI internal.
+**Exposure gate:** Route master Catalog tenant-wide memerlukan session, permission `catalog.read|manage`, scope `allOutlets`, dan entitlement Core Catalog. Route outlet memerlukan `x-outlet-id` yang sama dengan parameter route serta akses actor ke outlet tersebut. Seluruh header, params, body, dan response memakai shared Zod; route ini tidak memiliki query input. Kontrak route tersedia pada OpenAPI internal yang tetap mengikuti production documentation gate.
 
-**STOP:** Report, review, commit, dan push Tahap 11.3 sebelum melanjutkan Authorized Catalog API/Backoffice Flow Tahap 11.4.
+**STOP:** Report, review, commit, dan push Tahap 11.4a sebelum melanjutkan Backoffice Catalog Flow Tahap 11.4b.
 
 ---
 

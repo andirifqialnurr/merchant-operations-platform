@@ -581,6 +581,7 @@ export class CatalogService {
     outletProductId: string,
     input: UpdateCatalogOutletProduct,
     context?: CatalogMutationContext,
+    expectedOutletId?: string,
   ) {
     await this.requireActiveTenant(tenantId);
     const current = await this.repository.findOutletProductById(tenantId, outletProductId);
@@ -588,6 +589,12 @@ export class CatalogService {
       throw notFound(
         "CATALOG_OUTLET_PRODUCT_NOT_FOUND",
         "Outlet product tidak ditemukan pada tenant ini.",
+      );
+    }
+    if (expectedOutletId && current.outletId !== expectedOutletId) {
+      throw notFound(
+        "CATALOG_OUTLET_PRODUCT_NOT_FOUND",
+        "Outlet product tidak ditemukan pada outlet ini.",
       );
     }
     const parsed = updateCatalogOutletProductSchema.parse(input);

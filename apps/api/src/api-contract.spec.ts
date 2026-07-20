@@ -153,6 +153,24 @@ test("generates versioned OpenAPI paths and shared schemas", async () => {
     assert.ok(document.paths["/api/v1/organization"]);
     assert.ok(document.paths["/api/v1/organization/brands"]);
     assert.ok(document.paths["/api/v1/organization/outlets"]);
+    assert.ok(document.paths["/api/v1/catalog"]);
+    assert.ok(document.paths["/api/v1/catalog/categories"]);
+    assert.ok(document.paths["/api/v1/catalog/categories/{id}"]);
+    assert.ok(document.paths["/api/v1/catalog/products"]);
+    assert.ok(document.paths["/api/v1/catalog/products/{id}"]);
+    assert.ok(document.paths["/api/v1/catalog/variants"]);
+    assert.ok(document.paths["/api/v1/catalog/variants/{id}"]);
+    assert.ok(document.paths["/api/v1/catalog/modifier-groups"]);
+    assert.ok(document.paths["/api/v1/catalog/modifier-groups/{id}"]);
+    assert.ok(document.paths["/api/v1/catalog/modifier-options"]);
+    assert.ok(document.paths["/api/v1/catalog/modifier-options/{id}"]);
+    assert.ok(document.paths["/api/v1/catalog/product-modifier-groups"]);
+    assert.ok(document.paths["/api/v1/catalog/product-modifier-groups/{id}"]);
+    assert.ok(document.paths["/api/v1/catalog/product-images"]);
+    assert.ok(document.paths["/api/v1/catalog/product-images/{id}"]);
+    assert.ok(document.paths["/api/v1/catalog/outlets/{outletId}"]);
+    assert.ok(document.paths["/api/v1/catalog/outlets/{outletId}/products"]);
+    assert.ok(document.paths["/api/v1/catalog/outlets/{outletId}/products/{id}"]);
     assert.ok(document.paths["/api/v1/platform/auth/login"]);
     assert.ok(document.paths["/api/v1/platform/auth/logout"]);
     assert.ok(document.paths["/api/v1/platform/auth/session"]);
@@ -170,11 +188,12 @@ test("generates versioned OpenAPI paths and shared schemas", async () => {
     assert.ok(document.components?.schemas?.AuthorizationContext);
     assert.ok(document.components?.schemas?.Membership);
     assert.ok(document.components?.schemas?.Role);
+    assert.ok(document.components?.schemas?.CatalogSnapshot);
+    assert.ok(document.components?.schemas?.CatalogOutletSnapshot);
     assert.ok(document.components?.schemas?.HealthResponse);
     assert.ok(document.components?.schemas?.RequestContextHeaders);
     assert.ok(document.components?.securitySchemes?.merchant_session);
     assert.ok(document.components?.securitySchemes?.platform_session);
-    assert.equal(document.paths["/api/v1/catalog"], undefined);
     assert.equal(document.paths["/api/v1/tenants"], undefined);
   } finally {
     await app.close();
