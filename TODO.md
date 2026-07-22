@@ -623,7 +623,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] Tetapkan quality gate API: setiap endpoint baru wajib memvalidasi header, path parameter, query, body, dan response yang relevan melalui shared Zod contract sebelum fiturnya dianggap selesai.
 - [ ] **[DEFERRED]** Siapkan Redis/BullMQ setelah use case worker pertama ditetapkan.
 - [ ] **[DEFERRED]** Siapkan Docker Compose PostgreSQL/Redis/object storage setelah kebutuhan local service terkonfirmasi.
-- [ ] **[DEFERRED]** Tambahkan integration test dengan PostgreSQL asli saat test database lokal tersedia.
+- [ ] **[DEFERRED]** Tambahkan integration test PostgreSQL/RLS dengan database test terisolasi; PostgreSQL development lokal sudah tersedia, tetapi belum menjadi target test yang disposable.
 
 **Commit harus dipecah:** database baseline, API contract, lalu queue/infrastructure tidak digabung dalam satu push besar.
 
@@ -657,7 +657,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Entitlement gate:** Katalog module dan plan awal diprovisikan melalui migration. Mutasi subscription/override kini tersedia pada route platform dengan `platform.subscription.manage`. Route tenant tetap wajib memiliki subscription usable; route fitur menambahkan module entitlement di atas permission dan scope.
 
-**Isolation gate:** Test tanpa database asli wajib membuktikan organization snapshot, role, membership, authorization, subscription, dan entitlement tenant A tidak membaca state tenant B. Schema-contract test menjaga composite foreign key serta unique constraint tenant tetap ada. PostgreSQL/RLS integration test belum dianggap terpenuhi sampai test database tersedia.
+**Isolation gate:** Test tanpa database asli wajib membuktikan organization snapshot, role, membership, authorization, subscription, dan entitlement tenant A tidak membaca state tenant B. Schema-contract test menjaga composite foreign key serta unique constraint tenant tetap ada. PostgreSQL/RLS integration test belum dianggap terpenuhi sampai database test terisolasi dan disposable tersedia; database development lokal tidak dipakai sebagai pengganti gate ini.
 
 **Documentation gate:** Development dapat menonaktifkan dokumentasi dengan `API_DOCS_ENABLED=false`. Production tidak mendaftarkan route dokumentasi secara default; `API_DOCS_ENABLED=true` hanya mendaftarkan `/api/docs`, seluruh asset UI, `/api/openapi.json`, dan `/api/openapi.yaml` di belakang session platform aktif dengan `platform.docs.read`. `merchant_session` tidak diterima.
 
@@ -670,7 +670,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] **11.3 Outlet catalog override:** product/outlet assignment, outlet price override, dan outlet availability/sold-out.
 - [x] **11.4a Authorized Catalog API:** shared contract dan route HTTP untuk master serta outlet catalog dengan session, permission, scope, entitlement, validasi Zod, dan OpenAPI internal.
 - [x] **11.4b Backoffice Catalog flow:** auth-aware web shell/client, bootstrap tenant/outlet dari sesi, dan flow pengelolaan master, composition, serta outlet catalog.
-- [ ] **11.4c Browser acceptance:** login/session restore, switch tenant/outlet, mutation master/composition/outlet, light/dark, mobile/reflow, dan error state diperiksa pada runtime browser dengan database lokal.
+- [x] **11.4c Browser acceptance:** login/session restore, switch tenant/outlet, mutation master/composition/outlet, light/dark, mobile/reflow, dan error state diperiksa pada runtime browser dengan database lokal.
 - [ ] Jangan membangun POS sebelum catalog minimal stabil.
 
 **Checkpoint 11.1:** `feat(catalog): add category and product core`
@@ -683,6 +683,8 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Checkpoint 11.4b:** `feat(web): add authorized catalog backoffice flow`
 
+**Checkpoint 11.4c:** `fix(catalog): close local browser acceptance`
+
 **Catalog gate:** Harga disimpan sebagai integer minor-unit non-negatif dan dikirim sebagai decimal string agar tidak kehilangan presisi. `ACTIVE/INACTIVE` mengatur lifecycle master, sedangkan `AVAILABLE/SOLD_OUT` mengatur ketersediaan jual manual. Product wajib menunjuk category pada tenant yang sama melalui composite foreign key. Tidak ada hard delete pada master catalog.
 
 **Composition gate:** Variant dan modifier option menyimpan surcharge minor-unit non-negatif. Modifier group menjaga `minSelections <= maxSelections` dan group `SINGLE` maksimal satu pilihan. Product-modifier assignment, variant, option, dan image memakai composite foreign key tenant. Product image menyimpan object key/metadata, menolak path traversal/content type non-raster, serta hanya mengizinkan satu primary image aktif per product. Seluruh master composition memakai lifecycle status dan mutasinya menulis audit/outbox.
@@ -691,9 +693,9 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Exposure gate:** Route master Catalog tenant-wide memerlukan session, permission `catalog.read|manage`, scope `allOutlets`, dan entitlement Core Catalog. Route outlet memerlukan `x-outlet-id` yang sama dengan parameter route serta akses actor ke outlet tersebut. Seluruh header, params, body, dan response memakai shared Zod; route ini tidak memiliki query input. Kontrak route tersedia pada OpenAPI internal yang tetap mengikuti production documentation gate.
 
-**Backoffice gate:** Web memperoleh tenant, outlet, permission, dan scope dari `GET /api/v1/access/workspaces` setelah merchant session tervalidasi; UUID context tidak ditebak atau dipercaya dari local state. Semua request/response Catalog diparse dengan shared Zod melalui same-origin API rewrite. UI permission-aware hanya menjadi presentation gate; API tetap authorization boundary final. Master/composition memerlukan `allOutlets`, sedangkan actor outlet-scoped hanya menerima outlet yang ditugaskan. Browser acceptance 11.4c masih terbuka karena in-app browser dan database runtime tidak tersedia pada checkpoint implementasi.
+**Backoffice gate:** Web memperoleh tenant, outlet, permission, dan scope dari `GET /api/v1/access/workspaces` setelah merchant session tervalidasi; UUID context tidak ditebak atau dipercaya dari local state. Semua request/response Catalog diparse dengan shared Zod melalui same-origin API rewrite. UI permission-aware hanya menjadi presentation gate; API tetap authorization boundary final. Master/composition memerlukan `allOutlets`, sedangkan actor outlet-scoped hanya menerima outlet yang ditugaskan. Browser acceptance 11.4c sudah lolos pada Chrome/Playwright dengan PostgreSQL lokal: session restore, perpindahan dua tenant dan dua outlet, isolasi context, mutasi master/composition/outlet, error state, theme, serta reflow 390/1440 px tervalidasi.
 
-**STOP:** Report, review, commit, dan push Tahap 11.4b, lalu tutup browser acceptance Tahap 11.4c sebelum melanjutkan POS Tahap 12.
+**STOP:** Report, review, commit, dan push Tahap 11.4c sebelum melanjutkan POS Tahap 12.
 
 ---
 
@@ -813,6 +815,6 @@ Jangan menggabungkan Push 1 sampai Push 7 menjadi satu commit. Tujuan pemisahan 
 
 - Review screenshot Color Bank dan runtime Theme Engine yang masih terbuka pada acceptance gate Tahap 3-4.
 - Audit penutupan acceptance gate Storybook dan seluruh primitive P1 yang masih belum dicentang sebagai satu gate konsolidasi.
-- Redis/BullMQ, Docker Compose local services, dan integration test PostgreSQL Tahap 9 tetap deferred sampai prerequisite-nya tersedia.
-- Authentication/session Tahap 10.1, organization registry Tahap 10.2, serta membership/RBAC/outlet assignment Tahap 10.3 sudah diimplementasikan; migration PostgreSQL asli belum dijalankan karena test database lokal belum tersedia.
-- Subscription/module/entitlement core dan application/schema tenant-isolation regression test sudah diimplementasikan; integration PostgreSQL/RLS, Platform Owner, dan proteksi dokumentasi production Tahap 10 masih belum dikerjakan.
+- Redis/BullMQ dan Docker Compose local services tetap deferred sampai use case worker/infrastructure ditetapkan. PostgreSQL development lokal sudah tersedia; integration test PostgreSQL/RLS tetap menunggu database test terisolasi dan disposable.
+- Authentication/session Tahap 10.1, organization registry Tahap 10.2, membership/RBAC/outlet assignment Tahap 10.3, serta seluruh migration saat ini sudah diterapkan pada PostgreSQL development lokal.
+- Subscription/module/entitlement core, application/schema tenant-isolation regression, Platform Owner, dan proteksi dokumentasi production Tahap 10 sudah diimplementasikan; integration PostgreSQL/RLS tetap menjadi gate terpisah.

@@ -363,7 +363,7 @@ export class PrismaAccessRepository implements AccessRepository {
           name: input.name,
           tenantId,
           permissions: {
-            create: input.permissionKeys.map((permissionKey) => ({ permissionKey, tenantId })),
+            create: input.permissionKeys.map((permissionKey) => ({ permissionKey })),
           },
         },
         select: roleSelect,
@@ -402,10 +402,7 @@ export class PrismaAccessRepository implements AccessRepository {
           ...(input.permissionKeys
             ? {
                 permissions: {
-                  create: input.permissionKeys.map((permissionKey) => ({
-                    permissionKey,
-                    tenantId,
-                  })),
+                  create: input.permissionKeys.map((permissionKey) => ({ permissionKey })),
                 },
               }
             : {}),
@@ -437,8 +434,8 @@ export class PrismaAccessRepository implements AccessRepository {
           allOutlets: input.allOutlets,
           tenantId,
           userId: input.userId,
-          roles: { create: input.roleIds.map((roleId) => ({ roleId, tenantId })) },
-          assignments: { create: input.outletIds.map((outletId) => ({ outletId, tenantId })) },
+          roles: { create: input.roleIds.map((roleId) => ({ roleId })) },
+          assignments: { create: input.outletIds.map((outletId) => ({ outletId })) },
         },
         select: membershipSelect,
       });
@@ -475,12 +472,12 @@ export class PrismaAccessRepository implements AccessRepository {
           ...(input.allOutlets !== undefined ? { allOutlets: input.allOutlets } : {}),
           ...(input.status !== undefined ? { status: input.status } : {}),
           ...(input.roleIds
-            ? { roles: { create: input.roleIds.map((roleId) => ({ roleId, tenantId })) } }
+            ? { roles: { create: input.roleIds.map((roleId) => ({ roleId })) } }
             : {}),
           ...(input.outletIds
             ? {
                 assignments: {
-                  create: input.outletIds.map((outletId) => ({ outletId, tenantId })),
+                  create: input.outletIds.map((outletId) => ({ outletId })),
                 },
               }
             : {}),
@@ -549,10 +546,7 @@ export class PrismaAccessRepository implements AccessRepository {
             name: definition.name,
             tenantId,
             permissions: {
-              create: definition.permissionKeys.map((permissionKey) => ({
-                permissionKey,
-                tenantId,
-              })),
+              create: definition.permissionKeys.map((permissionKey) => ({ permissionKey })),
             },
           },
           update: {},
@@ -567,7 +561,7 @@ export class PrismaAccessRepository implements AccessRepository {
           allOutlets: true,
           tenantId,
           userId,
-          roles: { create: { roleId: ownerRole.id, tenantId } },
+          roles: { create: { roleId: ownerRole.id } },
         },
         select: membershipSelect,
       });
