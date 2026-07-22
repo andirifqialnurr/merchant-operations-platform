@@ -1,5 +1,11 @@
-import "dotenv/config";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { config } from "dotenv";
 import { defineConfig, env } from "prisma/config";
+
+const configDirectory = path.dirname(fileURLToPath(import.meta.url));
+config({ path: path.resolve(configDirectory, "../../.env") });
 
 export default defineConfig({
   migrations: {
