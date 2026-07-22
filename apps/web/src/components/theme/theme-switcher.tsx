@@ -1,8 +1,10 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { Monitor, Moon, Sun } from "lucide-react";
 
 import { useTheme } from "next-themes";
+import { IconButton } from "@merchant/ui/button";
 
 import { themeOptions, type ThemePreference } from "./theme-contract";
 
@@ -84,5 +86,39 @@ export function ThemeSwitcher() {
         id="theme-draft-check"
       />
     </section>
+  );
+}
+
+const nextTheme: Record<ThemePreference, ThemePreference> = {
+  system: "light",
+  light: "dark",
+  dark: "system",
+};
+
+const themeIcons = {
+  system: Monitor,
+  light: Sun,
+  dark: Moon,
+} as const;
+
+export function CompactThemeSwitcher() {
+  const mounted = useSyncExternalStore(
+    subscribeToHydration,
+    () => true,
+    () => false,
+  );
+  const { setTheme, theme } = useTheme();
+  const selectedTheme = mounted && isThemePreference(theme) ? theme : "system";
+  const label = `Tema ${themeLabels[selectedTheme]}. Ubah tema`;
+
+  return (
+    <IconButton
+      disabled={!mounted}
+      icon={themeIcons[selectedTheme]}
+      label={label}
+      onClick={() => setTheme(nextTheme[selectedTheme])}
+      size="sm"
+      tooltip={label}
+    />
   );
 }

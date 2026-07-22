@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 12.1 Product Tile dan Category Rail; lalu lanjutkan Modifier Picker sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push perbaikan Backoffice Shell/Catalog UI; lalu lanjutkan Modifier Picker sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -671,6 +671,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] **11.4a Authorized Catalog API:** shared contract dan route HTTP untuk master serta outlet catalog dengan session, permission, scope, entitlement, validasi Zod, dan OpenAPI internal.
 - [x] **11.4b Backoffice Catalog flow:** auth-aware web shell/client, bootstrap tenant/outlet dari sesi, dan flow pengelolaan master, composition, serta outlet catalog.
 - [x] **11.4c Browser acceptance:** login/session restore, switch tenant/outlet, mutation master/composition/outlet, light/dark, mobile/reflow, dan error state diperiksa pada runtime browser dengan database lokal.
+- [x] **11.4d Backoffice UI consistency:** shared application shell, sidebar responsif, top bar ringkas, context toolbar datar, section tanpa nested card, informasi teknis/metric berulang dihapus, dan alignment form distandarkan.
 - [x] Jangan membangun POS sebelum catalog minimal stabil.
 
 **Checkpoint 11.1:** `feat(catalog): add category and product core`
@@ -684,6 +685,8 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 **Checkpoint 11.4b:** `feat(web): add authorized catalog backoffice flow`
 
 **Checkpoint 11.4c:** `fix(catalog): close local browser acceptance`
+
+**Checkpoint 11.4d:** `fix(web): align catalog backoffice shell`
 
 **Catalog gate:** Harga disimpan sebagai integer minor-unit non-negatif dan dikirim sebagai decimal string agar tidak kehilangan presisi. `ACTIVE/INACTIVE` mengatur lifecycle master, sedangkan `AVAILABLE/SOLD_OUT` mengatur ketersediaan jual manual. Product wajib menunjuk category pada tenant yang sama melalui composite foreign key. Tidak ada hard delete pada master catalog.
 

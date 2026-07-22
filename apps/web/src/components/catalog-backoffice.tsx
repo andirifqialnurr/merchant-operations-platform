@@ -1,7 +1,7 @@
 "use client";
 
 import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react";
-import { Building2, LayoutDashboard, LogOut, Package, RefreshCw, Store } from "lucide-react";
+import { Package, RefreshCw, Store } from "lucide-react";
 
 import {
   PERMISSIONS,
@@ -13,13 +13,13 @@ import {
 import { AppIcon } from "@merchant/ui/app-icon";
 import { Alert, Badge, EmptyState, ErrorState, Skeleton } from "@merchant/ui/feedback";
 import { Button } from "@merchant/ui/button";
-import { Card, DataTable, MetricCard } from "@merchant/ui/data-display";
+import { Card, DataTable } from "@merchant/ui/data-display";
 import { FormField, Input, Textarea } from "@merchant/ui/form-field";
-import { Breadcrumb, Sidebar, Tabs, TopBar } from "@merchant/ui/navigation";
+import { Tabs } from "@merchant/ui/navigation";
 import { NumericInput } from "@merchant/ui/numeric-date";
 import { Select } from "@merchant/ui/select";
 
-import { ThemeSwitcher } from "@/components/theme/theme-switcher";
+import { BackofficeShell } from "@/components/backoffice-shell";
 import { ApiClientError, merchantApi, nextCatalogStatus } from "@/lib/api-client";
 
 type View = "master" | "composition" | "outlet";
@@ -51,7 +51,11 @@ function slugify(value: string) {
 }
 
 function StatusBadge({ status }: { status: "ACTIVE" | "INACTIVE" }) {
-  return <Badge tone={status === "ACTIVE" ? "success" : "warning"}>{status}</Badge>;
+  return (
+    <Badge tone={status === "ACTIVE" ? "success" : "warning"}>
+      {status === "ACTIVE" ? "Aktif" : "Nonaktif"}
+    </Badge>
+  );
 }
 
 function Login({ onLoggedIn }: { onLoggedIn: (session: AuthSession) => Promise<void> }) {
@@ -171,10 +175,7 @@ function MasterCatalog({ busy, canManage, onMutate, snapshot, tenantId }: Catalo
     <div className="catalog-view-stack">
       <section className="catalog-section">
         <div className="catalog-section__heading">
-          <div>
-            <p>Master</p>
-            <h2>Kategori</h2>
-          </div>
+          <h2>Kategori</h2>
           <span>{snapshot.categories.length} kategori</span>
         </div>
         {canManage ? (
@@ -265,10 +266,7 @@ function MasterCatalog({ busy, canManage, onMutate, snapshot, tenantId }: Catalo
 
       <section className="catalog-section">
         <div className="catalog-section__heading">
-          <div>
-            <p>Master</p>
-            <h2>Produk</h2>
-          </div>
+          <h2>Produk</h2>
           <span>{snapshot.products.length} produk</span>
         </div>
         {canManage ? (
@@ -363,7 +361,7 @@ function MasterCatalog({ busy, canManage, onMutate, snapshot, tenantId }: Catalo
                 key={`${item.id}-availability`}
                 tone={item.availability === "AVAILABLE" ? "success" : "warning"}
               >
-                {item.availability}
+                {item.availability === "AVAILABLE" ? "Tersedia" : "Habis"}
               </Badge>,
               <StatusBadge key={`${item.id}-status`} status={item.status} />,
               canManage ? (
@@ -444,6 +442,7 @@ function CompositionCatalog({ busy, canManage, onMutate, snapshot, tenantId }: C
     );
   const forms = [
     {
+      count: snapshot.productVariants.length,
       title: "Variant produk",
       content: (
         <>
@@ -490,6 +489,7 @@ function CompositionCatalog({ busy, canManage, onMutate, snapshot, tenantId }: C
       ),
     },
     {
+      count: snapshot.modifierGroups.length,
       title: "Modifier group",
       content: (
         <>
@@ -554,6 +554,7 @@ function CompositionCatalog({ busy, canManage, onMutate, snapshot, tenantId }: C
       ),
     },
     {
+      count: snapshot.modifierOptions.length,
       title: "Modifier option",
       content: (
         <>
@@ -600,6 +601,7 @@ function CompositionCatalog({ busy, canManage, onMutate, snapshot, tenantId }: C
       ),
     },
     {
+      count: snapshot.productModifierGroups.length,
       title: "Pasang modifier ke produk",
       content: (
         <>
@@ -636,6 +638,7 @@ function CompositionCatalog({ busy, canManage, onMutate, snapshot, tenantId }: C
       ),
     },
     {
+      count: snapshot.productImages.length,
       title: "Metadata gambar produk",
       content: (
         <>
@@ -698,37 +701,17 @@ function CompositionCatalog({ busy, canManage, onMutate, snapshot, tenantId }: C
     },
   ];
   return (
-    <div className="catalog-view-stack">
-      <section className="catalog-composition-grid">
-        {forms.map((form) => (
-          <Card key={form.title}>
+    <section className="catalog-composition-grid">
+      {forms.map((form) => (
+        <section className="catalog-composition-panel" key={form.title}>
+          <header>
             <h2>{form.title}</h2>
-            <div className="catalog-form">{form.content}</div>
-          </Card>
-        ))}
-      </section>
-      <section className="catalog-section">
-        <div className="catalog-section__heading">
-          <div>
-            <p>Ringkasan</p>
-            <h2>Composition aktif</h2>
-          </div>
-        </div>
-        <DataTable
-          columns={["Jenis", "Jumlah", "Catatan"]}
-          rows={[
-            ["Variant", snapshot.productVariants.length, "Pilihan per produk"],
-            [
-              "Modifier group",
-              snapshot.modifierGroups.length,
-              `${snapshot.modifierOptions.length} opsi`,
-            ],
-            ["Assignment", snapshot.productModifierGroups.length, "Product ke modifier group"],
-            ["Gambar", snapshot.productImages.length, "Metadata object storage"],
-          ]}
-        />
-      </section>
-    </div>
+            <span>{form.count}</span>
+          </header>
+          <div className="catalog-form">{form.content}</div>
+        </section>
+      ))}
+    </section>
   );
 }
 
@@ -763,10 +746,7 @@ function OutletCatalog({
       {canManage && master ? (
         <section className="catalog-section">
           <div className="catalog-section__heading">
-            <div>
-              <p>Outlet assignment</p>
-              <h2>Tambahkan produk ke outlet</h2>
-            </div>
+            <h2>Tambahkan produk ke outlet</h2>
           </div>
           <form
             className="catalog-inline-form"
@@ -826,10 +806,7 @@ function OutletCatalog({
       ) : null}
       <section className="catalog-section">
         <div className="catalog-section__heading">
-          <div>
-            <p>Effective catalog</p>
-            <h2>Produk outlet</h2>
-          </div>
+          <h2>Produk outlet</h2>
           <span>{outlet.items.length} produk</span>
         </div>
         {outlet.items.length ? (
@@ -842,7 +819,7 @@ function OutletCatalog({
                 key={`${item.assignment.id}-availability`}
                 tone={item.effectiveAvailability === "AVAILABLE" ? "success" : "warning"}
               >
-                {item.effectiveAvailability}
+                {item.effectiveAvailability === "AVAILABLE" ? "Tersedia" : "Habis"}
               </Badge>,
               `${item.inheritsPrice ? "Harga master" : "Harga outlet"} · ${item.inheritsAvailability ? "status master" : "status outlet"}`,
               <StatusBadge key={`${item.assignment.id}-status`} status={item.assignment.status} />,
@@ -894,7 +871,7 @@ function OutletCatalog({
         ) : (
           <EmptyState
             description="Belum ada produk yang ditugaskan ke outlet ini."
-            title="Catalog outlet kosong"
+            title="Katalog outlet kosong"
           />
         )}
       </section>
@@ -987,7 +964,7 @@ export function CatalogBackoffice() {
   const tabs = useMemo(
     () => [
       { disabled: !canReadMaster, label: "Master", value: "master" },
-      { disabled: !canReadMaster, label: "Composition", value: "composition" },
+      { disabled: !canReadMaster, label: "Komposisi", value: "composition" },
       { disabled: !outletId, label: "Outlet", value: "outlet" },
     ],
     [canReadMaster, outletId],
@@ -1019,178 +996,119 @@ export function CatalogBackoffice() {
     );
 
   return (
-    <div className="catalog-shell">
-      <a className="catalog-skip-link" href="#catalog-content">
-        Lewati navigasi
-      </a>
-      <aside className="catalog-shell__sidebar">
-        <div className="catalog-shell__brand">
-          <AppIcon icon={Store} size="lg" />
-          <span>Merchant Ops</span>
+    <BackofficeShell
+      navigation={[
+        {
+          active: true,
+          href: "/backoffice/catalog",
+          icon: <AppIcon icon={Package} />,
+          label: "Katalog",
+        },
+      ]}
+      onLogout={() => void merchantApi.logout().then(() => setSession(null))}
+      user={session.user}
+    >
+      <header className="catalog-page-header">
+        <div>
+          <h1>Katalog</h1>
+          <p>Kelola kategori, produk, komposisi, dan ketersediaan per outlet.</p>
         </div>
-        <Sidebar
-          items={[
-            { icon: <AppIcon icon={LayoutDashboard} />, label: "Ringkasan" },
-            {
-              active: true,
-              href: "/backoffice/catalog",
-              icon: <AppIcon icon={Package} />,
-              label: "Catalog",
-            },
-            { icon: <AppIcon icon={Building2} />, label: "Organisasi" },
-          ]}
+        <Button
+          iconLeft={RefreshCw}
+          loading={loading}
+          onClick={() => void refresh()}
+          variant="outline"
+        >
+          Segarkan
+        </Button>
+      </header>
+      <section aria-label="Konteks katalog" className="catalog-context-bar">
+        <div className="catalog-context-fields">
+          <LabeledSelect
+            label="Tenant"
+            onChange={(value) => {
+              const next = workspaces.find((item) => item.tenant.id === value);
+              setTenantId(value);
+              setOutletId(next?.outlets[0]?.id ?? "");
+              setView(next?.allOutlets ? "master" : "outlet");
+            }}
+            options={workspaces.map((item) => ({
+              label: item.tenant.name,
+              value: item.tenant.id,
+            }))}
+            value={tenantId}
+          />
+          <LabeledSelect
+            label="Outlet"
+            onChange={setOutletId}
+            options={(workspace?.outlets ?? []).map((item) => ({
+              description: item.code,
+              label: item.name,
+              value: item.id,
+            }))}
+            value={outletId}
+          />
+        </div>
+        {!canManage ? <Badge tone="info">Akses baca</Badge> : null}
+      </section>
+      {error ? (
+        <Alert onDismiss={() => setError(undefined)} title="Permintaan gagal" tone="danger">
+          {error}
+        </Alert>
+      ) : null}
+      {notice ? (
+        <Alert onDismiss={() => setNotice(undefined)} title="Perubahan tersimpan" tone="success">
+          {notice}
+        </Alert>
+      ) : null}
+      {!canRead ? (
+        <ErrorState
+          description="Role Anda tidak memiliki akses baca katalog pada tenant ini."
+          title="Akses katalog ditolak"
         />
-      </aside>
-      <div className="catalog-shell__main">
-        <TopBar>
-          <div className="catalog-topbar-context">
-            <strong>{workspace?.tenant.name}</strong>
-            <span>
-              {workspace?.allOutlets
-                ? "Akses semua outlet"
-                : `${workspace?.outlets.length ?? 0} outlet ditugaskan`}
-            </span>
+      ) : (
+        <>
+          <div className="catalog-tabs">
+            <Tabs items={tabs} onValueChange={(value) => setView(value as View)} value={view} />
           </div>
-          <div className="catalog-topbar-actions">
-            <ThemeSwitcher />
-            <span className="catalog-user">
-              <strong>{session.user.displayName}</strong>
-              <small>{session.user.email}</small>
-            </span>
-            <Button
-              iconLeft={LogOut}
-              onClick={() => void merchantApi.logout().then(() => setSession(null))}
-              size="sm"
-              variant="ghost"
-            >
-              Keluar
-            </Button>
-          </div>
-        </TopBar>
-        <main className="catalog-content" id="catalog-content">
-          <Breadcrumb items={[{ label: "Backoffice", href: "/" }, { label: "Catalog" }]} />
-          <header className="catalog-page-header">
-            <div>
-              <p>CORE CATALOG</p>
-              <h1>Catalog Control Center</h1>
-              <span>Kelola master produk, composition, dan aturan jual per outlet.</span>
+          {loading ? (
+            <div className="catalog-loading">
+              <Skeleton variant="table-row" />
+              <Skeleton variant="table-row" />
+              <Skeleton variant="table-row" />
             </div>
-            <Button
-              iconLeft={RefreshCw}
-              loading={loading}
-              onClick={() => void refresh()}
-              variant="outline"
-            >
-              Segarkan
-            </Button>
-          </header>
-          <section className="catalog-context-bar">
-            <LabeledSelect
-              label="Tenant"
-              onChange={(value) => {
-                const next = workspaces.find((item) => item.tenant.id === value);
-                setTenantId(value);
-                setOutletId(next?.outlets[0]?.id ?? "");
-                setView(next?.allOutlets ? "master" : "outlet");
-              }}
-              options={workspaces.map((item) => ({
-                label: item.tenant.name,
-                value: item.tenant.id,
-              }))}
-              value={tenantId}
-            />
-            <LabeledSelect
-              label="Outlet"
-              onChange={setOutletId}
-              options={(workspace?.outlets ?? []).map((item) => ({
-                description: item.code,
-                label: item.name,
-                value: item.id,
-              }))}
-              value={outletId}
-            />
-            <div className="catalog-context-badges">
-              <Badge tone={canRead ? "success" : "danger"}>
-                {canRead ? "catalog.read" : "Tanpa akses baca"}
-              </Badge>
-              <Badge tone={canManage ? "success" : "info"}>
-                {canManage ? "catalog.manage" : "Read only"}
-              </Badge>
-            </div>
-          </section>
-          {error ? (
-            <Alert onDismiss={() => setError(undefined)} title="Permintaan gagal" tone="danger">
-              {error}
-            </Alert>
           ) : null}
-          {notice ? (
-            <Alert
-              onDismiss={() => setNotice(undefined)}
-              title="Perubahan tersimpan"
-              tone="success"
-            >
-              {notice}
-            </Alert>
-          ) : null}
-          {!canRead ? (
-            <ErrorState
-              description="Role Anda tidak memiliki permission catalog.read pada tenant ini."
-              title="Akses Catalog ditolak"
+          {!loading && view === "master" && master ? (
+            <MasterCatalog
+              busy={busy}
+              canManage={canManage}
+              onMutate={mutate}
+              snapshot={master}
+              tenantId={tenantId}
             />
-          ) : (
-            <>
-              <section className="catalog-metrics">
-                <MetricCard label="Kategori" value={master?.categories.length ?? "-"} />
-                <MetricCard label="Produk master" value={master?.products.length ?? "-"} />
-                <MetricCard label="Produk outlet" value={outlet?.items.length ?? "-"} />
-                <MetricCard
-                  label="Modifier"
-                  value={
-                    master ? master.modifierGroups.length + master.modifierOptions.length : "-"
-                  }
-                />
-              </section>
-              <Tabs items={tabs} onValueChange={(value) => setView(value as View)} value={view} />
-              {loading ? (
-                <div className="catalog-loading">
-                  <Skeleton variant="table-row" />
-                  <Skeleton variant="table-row" />
-                  <Skeleton variant="table-row" />
-                </div>
-              ) : null}
-              {!loading && view === "master" && master ? (
-                <MasterCatalog
-                  busy={busy}
-                  canManage={canManage}
-                  onMutate={mutate}
-                  snapshot={master}
-                  tenantId={tenantId}
-                />
-              ) : null}
-              {!loading && view === "composition" && master ? (
-                <CompositionCatalog
-                  busy={busy}
-                  canManage={canManage}
-                  onMutate={mutate}
-                  snapshot={master}
-                  tenantId={tenantId}
-                />
-              ) : null}
-              {!loading && view === "outlet" && outlet ? (
-                <OutletCatalog
-                  busy={busy}
-                  canManage={canManage}
-                  master={master}
-                  onMutate={mutate}
-                  outlet={outlet}
-                  outletId={outletId}
-                  tenantId={tenantId}
-                />
-              ) : null}
-            </>
-          )}
-        </main>
-      </div>
-    </div>
+          ) : null}
+          {!loading && view === "composition" && master ? (
+            <CompositionCatalog
+              busy={busy}
+              canManage={canManage}
+              onMutate={mutate}
+              snapshot={master}
+              tenantId={tenantId}
+            />
+          ) : null}
+          {!loading && view === "outlet" && outlet ? (
+            <OutletCatalog
+              busy={busy}
+              canManage={canManage}
+              master={master}
+              onMutate={mutate}
+              outlet={outlet}
+              outletId={outletId}
+              tenantId={tenantId}
+            />
+          ) : null}
+        </>
+      )}
+    </BackofficeShell>
   );
 }

@@ -1,0 +1,200 @@
+.backoffice-shell {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.backoffice-shell__sidebar {
+  background: var(--color-bg-surface);
+  border-inline-end: 1px solid var(--color-border-default);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  inset-block-start: 0;
+  position: sticky;
+}
+
+.backoffice-shell__brand {
+  align-items: center;
+  border-block-end: 1px solid var(--color-border-subtle);
+  display: flex;
+  gap: var(--space-3);
+  min-block-size: 4rem;
+  padding-inline: var(--space-4);
+}
+
+.backoffice-shell__brand > span {
+  align-items: center;
+  background: var(--color-action-primary);
+  border-radius: var(--foundation-radius-sm);
+  color: var(--color-action-on-primary);
+  display: flex;
+  justify-content: center;
+  padding: var(--space-2);
+}
+
+.backoffice-shell__navigation {
+  flex: 1 1 auto;
+  padding-block: var(--space-4);
+}
+
+.backoffice-shell__navigation-label {
+  color: var(--color-text-muted);
+  display: block;
+  font-size: var(--text-caption);
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  padding: 0 var(--space-6) var(--space-2);
+  text-transform: uppercase;
+}
+
+.backoffice-shell__navigation .ui-sidebar {
+  border: 0;
+  inline-size: 100%;
+}
+
+.backoffice-shell__account {
+  border-block-start: 1px solid var(--color-border-subtle);
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.backoffice-shell__user {
+  align-items: center;
+  display: flex;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.backoffice-shell__user > span {
+  display: grid;
+  min-inline-size: 0;
+}
+
+.backoffice-shell__user strong,
+.backoffice-shell__user small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.backoffice-shell__user small {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+}
+
+.backoffice-shell__main {
+  min-inline-size: 0;
+}
+
+.backoffice-shell__main > .ui-top-bar {
+  inset-block-start: 0;
+  position: sticky;
+  z-index: 20;
+}
+
+.backoffice-shell__topbar-title {
+  font-size: var(--text-label);
+}
+
+.backoffice-shell__topbar-actions {
+  align-items: center;
+  display: flex;
+  gap: var(--space-2);
+  margin-inline-start: auto;
+}
+
+.backoffice-shell__content {
+  margin-inline: auto;
+  max-inline-size: 90rem;
+  padding: var(--space-8);
+}
+
+.backoffice-shell__menu-trigger,
+.backoffice-shell__mobile-navigation {
+  display: none;
+}
+
+.backoffice-shell__skip-link {
+  background: var(--color-bg-surface);
+  inset-block-start: -5rem;
+  inset-inline-start: var(--space-3);
+  padding: var(--space-3);
+  position: fixed;
+  z-index: 100;
+}
+
+.backoffice-shell__skip-link:focus {
+  inset-block-start: var(--space-3);
+}
+
+@media (max-width: 64rem) {
+  .backoffice-shell {
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+  }
+
+  .backoffice-shell__brand {
+    justify-content: center;
+    padding-inline: var(--space-2);
+  }
+
+  .backoffice-shell__brand > strong,
+  .backoffice-shell__navigation-label,
+  .backoffice-shell__navigation .ui-sidebar a span,
+  .backoffice-shell__user > span,
+  .backoffice-shell__account .ui-button__label {
+    clip: rect(0 0 0 0);
+    position: absolute;
+  }
+
+  .backoffice-shell__navigation .ui-sidebar {
+    inline-size: 4.5rem;
+  }
+
+  .backoffice-shell__account {
+    justify-items: center;
+    padding-inline: var(--space-2);
+  }
+
+  .backoffice-shell__account .ui-button {
+    inline-size: var(--control-height-sm);
+    padding: 0;
+  }
+
+  .backoffice-shell__content {
+    padding: var(--space-6);
+  }
+}
+
+@media (max-width: 40rem) {
+  .backoffice-shell {
+    display: block;
+  }
+
+  .backoffice-shell__sidebar {
+    display: none;
+  }
+
+  .backoffice-shell__menu-trigger {
+    display: inline-flex;
+  }
+
+  .backoffice-shell__content {
+    padding: var(--space-4);
+  }
+
+  .backoffice-shell__mobile-navigation {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100dvh - 8rem);
+  }
+
+  .backoffice-shell__mobile-navigation .backoffice-shell__navigation {
+    padding-block-start: 0;
+  }
+
+  .backoffice-shell__mobile-navigation .backoffice-shell__account {
+    margin-block-start: auto;
+  }
+}

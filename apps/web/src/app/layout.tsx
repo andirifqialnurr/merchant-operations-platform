@@ -7,6 +7,7 @@ import { GeistSans } from "geist/font/sans";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 
 import "./globals.css";
+import "./backoffice-shell.css";
 import "./catalog.css";
 
 export const metadata: Metadata = {
