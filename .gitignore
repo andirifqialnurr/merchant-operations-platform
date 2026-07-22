@@ -33,6 +33,7 @@ logs/
 .env.*
 !.env.example
 !.env.*.example
+CREDENTIALS.local.md
 
 # Local tooling and editors
 .idea/

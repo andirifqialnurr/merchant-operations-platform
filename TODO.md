@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 11.4b Backoffice Catalog Flow; lalu selesaikan browser visual/runtime review sebelum memulai POS Tahap 12.**
+> **NEXT: Review, commit, dan push Tahap 12.1 Product Tile dan Category Rail; lalu lanjutkan Modifier Picker sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -671,7 +671,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] **11.4a Authorized Catalog API:** shared contract dan route HTTP untuk master serta outlet catalog dengan session, permission, scope, entitlement, validasi Zod, dan OpenAPI internal.
 - [x] **11.4b Backoffice Catalog flow:** auth-aware web shell/client, bootstrap tenant/outlet dari sesi, dan flow pengelolaan master, composition, serta outlet catalog.
 - [x] **11.4c Browser acceptance:** login/session restore, switch tenant/outlet, mutation master/composition/outlet, light/dark, mobile/reflow, dan error state diperiksa pada runtime browser dengan database lokal.
-- [ ] Jangan membangun POS sebelum catalog minimal stabil.
+- [x] Jangan membangun POS sebelum catalog minimal stabil.
 
 **Checkpoint 11.1:** `feat(catalog): add category and product core`
 
@@ -703,13 +703,19 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 ### Tahap 12 - POS component dan flow
 
-- [ ] Product Tile dan Category Rail.
+- [x] **12.1 Product Tile dan Category Rail:** variant/size/state Product Tile serta rail kategori horizontal/vertical yang keyboard-accessible, responsive, token-driven, dan tervalidasi di Storybook.
 - [ ] Modifier Picker.
 - [ ] Cart Item dan Cart Summary.
 - [ ] Money Display.
 - [ ] Payment Method Tile dan Cash Keypad.
 - [ ] Shift component.
 - [ ] POS order/payment manual flow.
+
+**Checkpoint 12.1:** `feat(ui): add POS product tile and category rail`
+
+**POS catalog component gate:** Product Tile menyediakan variant `compact/default/touch/customer`, size `sm/md/lg/customer`, state selected, low stock, sold out, scheduled/unavailable, image loading, dan image fallback tanpa menyembunyikan harga/status. Category Rail menyediakan mode vertical untuk POS desktop dan horizontal-scroll untuk customer/mobile dengan active indicator yang eksplisit. Component tests mencakup interaksi, disabled state, semantics, dan axe smoke; Storybook production build serta review Chrome pada 1440/390 px, light/dark, focus ring, minimum size, long status, dan overflow sudah lulus.
+
+**STOP:** Report, review, commit, dan push Tahap 12.1 sebelum melanjutkan Modifier Picker.
 
 ### Tahap 13 - Table Layout dan QR Self-Order
 

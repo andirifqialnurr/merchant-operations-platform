@@ -8,6 +8,29 @@
   max-width: 60rem;
 }
 
+.story-pos-product-grid {
+  align-items: start;
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+  max-width: 64rem;
+}
+
+.story-pos-category-comparison {
+  display: grid;
+  gap: var(--space-8);
+  max-width: 52rem;
+}
+
+.story-pos-category-comparison section {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.story-pos-category-comparison section:first-child {
+  max-width: 200px;
+}
+
 .story-contract-section {
   gap: var(--space-4);
 }

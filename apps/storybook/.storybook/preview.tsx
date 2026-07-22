@@ -15,6 +15,7 @@ import "@merchant/ui/styles/feedback.css";
 import "@merchant/ui/styles/overlay.css";
 import "@merchant/ui/styles/navigation.css";
 import "@merchant/ui/styles/data-display.css";
+import "@merchant/ui/styles/pos-catalog.css";
 
 import "./preview.css";
 
