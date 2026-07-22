@@ -10,6 +10,7 @@ import {
   tenantRequestHeadersSchema,
   updateMembershipSchema,
   updateRoleSchema,
+  workspaceContextsSchema,
   type AuthorizationContext,
   type CreateMembership,
   type CreateRole,
@@ -17,7 +18,17 @@ import {
   type UpdateMembership,
   type UpdateRole,
 } from "@merchant/contracts";
-import { Body, Controller, Get, Inject, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Inject,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -31,7 +42,8 @@ import {
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
-import { SESSION_COOKIE_NAME } from "../auth/session-cookie.js";
+import { AuthService } from "../auth/auth.service.js";
+import { readSessionToken, SESSION_COOKIE_NAME } from "../auth/session-cookie.js";
 import { RequestHeaders, ZodValidationPipe } from "../zod-validation.pipe.js";
 import { AccessService } from "./access.service.js";
 import {
@@ -181,6 +193,29 @@ export class AccessController {
         input,
         this.mutationContext(access, headers),
       ),
+    );
+  }
+}
+
+@ApiTags("identity-access")
+@ApiCookieAuth(SESSION_COOKIE_NAME)
+@ApiUnauthorizedResponse({ schema: { $ref: "#/components/schemas/ApiError" } })
+@Controller("access")
+export class AccessWorkspaceController {
+  constructor(
+    @Inject(AuthService) private readonly authService: AuthService,
+    @Inject(AccessService) private readonly accessService: AccessService,
+  ) {}
+
+  @ApiOperation({ summary: "List active tenant and outlet contexts for the current session" })
+  @ApiOkResponse({
+    schema: { items: { $ref: "#/components/schemas/WorkspaceContext" }, type: "array" },
+  })
+  @Get("workspaces")
+  async workspaces(@Headers("cookie") cookieHeader: string | undefined) {
+    const session = await this.authService.getSession(readSessionToken(cookieHeader));
+    return workspaceContextsSchema.parse(
+      await this.accessService.listWorkspaceContexts(session.user.id),
     );
   }
 }

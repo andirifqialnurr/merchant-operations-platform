@@ -34,6 +34,7 @@ import {
   updateCatalogOutletProductSchema,
   updateCatalogProductSchema,
   updateTenantSchema,
+  workspaceContextsSchema,
 } from "./index.js";
 
 test("normalizes cursor pagination input", () => {
@@ -151,6 +152,24 @@ test("exports access-control schemas to OpenAPI", () => {
   assert.equal(commonOpenApiSchemas.Membership.type, "object");
   assert.equal(commonOpenApiSchemas.Role.type, "object");
   assert.equal(commonOpenApiSchemas.TenantRequestHeaders.type, "object");
+  assert.equal(commonOpenApiSchemas.WorkspaceContext.type, "object");
+});
+
+test("validates session workspace contexts without exposing unassigned outlets", () => {
+  const tenantId = "019f738d-e61f-7d46-92de-17b35f970b91";
+  const outletId = "019f738d-e61f-7d46-92de-17b35f970b92";
+  assert.equal(
+    workspaceContextsSchema.safeParse([
+      {
+        allOutlets: false,
+        membershipId: "019f738d-e61f-7d46-92de-17b35f970b93",
+        outlets: [{ code: "JKT-01", id: outletId, name: "Jakarta", status: "ACTIVE" }],
+        permissionKeys: [PERMISSIONS.catalogRead],
+        tenant: { id: tenantId, name: "Kopi Kita", slug: "kopi-kita" },
+      },
+    ]).success,
+    true,
+  );
 });
 
 test("validates subscription and entitlement core contracts", () => {

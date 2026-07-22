@@ -388,7 +388,7 @@ kitchen_stations, kitchen_tickets, kitchen_ticket_items
 - Outlet assignment tidak dihapus permanen. Composite foreign key mencegah outlet/product lintas tenant dan unique constraint mencegah assignment ganda.
 - Mutasi category, product, variant, modifier, assignment, dan image menulis audit log serta outbox event.
 - Mutasi outlet product menulis audit log serta outbox event dengan `outlet_id` agar jejak operasional tetap outlet-scoped.
-- Route HTTP Catalog master memakai session merchant, permission `catalog.read|manage`, scope tenant-wide `allOutlets`, entitlement Catalog Core, shared validation, dan OpenAPI internal. Route outlet mengikat `x-outlet-id` ke parameter route dan tetap melalui pemeriksaan assignment outlet actor. Backoffice web flow dilanjutkan terpisah setelah fondasi auth-aware web shell tersedia.
+- Route HTTP Catalog master memakai session merchant, permission `catalog.read|manage`, scope tenant-wide `allOutlets`, entitlement Catalog Core, shared validation, dan OpenAPI internal. Route outlet mengikat `x-outlet-id` ke parameter route dan tetap melalui pemeriksaan assignment outlet actor. Backoffice memakai endpoint bootstrap sesi `GET /api/v1/access/workspaces` untuk memperoleh hanya tenant/outlet aktif milik user, lalu mengirim context tersebut melalui same-origin API rewrite; request dan response tetap diparse dengan shared Zod, dan presentation gate web tidak menggantikan authorization API.
 
 ### Table layout data rules
 

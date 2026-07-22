@@ -7,6 +7,7 @@ import {
   roleSchema,
   updateMembershipSchema,
   updateRoleSchema,
+  workspaceContextsSchema,
   type AuthorizationContext,
   type CreateMembership,
   type CreateRole,
@@ -191,6 +192,10 @@ export class AccessService {
     return this.repository
       .listMemberships(tenantId)
       .then((memberships) => memberships.map(toMembership));
+  }
+
+  async listWorkspaceContexts(userId: string) {
+    return workspaceContextsSchema.parse(await this.repository.listWorkspaceContexts(userId));
   }
 
   async createMembership(

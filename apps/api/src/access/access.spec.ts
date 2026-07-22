@@ -94,6 +94,40 @@ class InMemoryAccessRepository implements AccessRepository {
     return this.memberships.filter((membership) => membership.tenantId === tenantId);
   }
 
+  async listWorkspaceContexts(userId: string) {
+    const memberships = this.memberships.filter(
+      (membership) => membership.userId === userId && membership.status === "ACTIVE",
+    );
+    return Promise.all(
+      memberships.map(async (membership) => {
+        const authorization = await this.findAuthorization(userId, membership.tenantId);
+        assert.ok(authorization);
+        return {
+          allOutlets: membership.allOutlets,
+          membershipId: membership.id,
+          outlets: this.outlets
+            .filter(
+              (outlet) =>
+                outlet.tenantId === membership.tenantId &&
+                (membership.allOutlets || membership.outletIds.includes(outlet.id)),
+            )
+            .map((outlet) => ({
+              code: outlet.id === IDS.outletA ? "A-01" : "B-01",
+              id: outlet.id,
+              name: outlet.id === IDS.outletA ? "Outlet A" : "Outlet B",
+              status: outlet.status,
+            })),
+          permissionKeys: authorization.permissionKeys,
+          tenant: {
+            id: membership.tenantId,
+            name: membership.tenantId === IDS.tenantA ? "Tenant A" : "Tenant B",
+            slug: membership.tenantId === IDS.tenantA ? "tenant-a" : "tenant-b",
+          },
+        };
+      }),
+    );
+  }
+
   async findMembershipById(tenantId: string, membershipId: string) {
     return (
       this.memberships.find(
@@ -253,6 +287,32 @@ test("enforces both permission and explicit outlet assignment", async () => {
     () => service.authorize(IDS.userStaff, IDS.tenantA, PERMISSIONS.organizationRead, IDS.outletB),
     ForbiddenException,
   );
+});
+
+test("lists only workspace and outlet contexts assigned to the active user", async () => {
+  const repository = new InMemoryAccessRepository();
+  const service = new AccessService(repository);
+  const role = await service.createRole(IDS.tenantA, {
+    code: "CATALOG_VIEWER",
+    name: "Catalog Viewer",
+    permissionKeys: [PERMISSIONS.catalogRead],
+  });
+  await service.createMembership(IDS.tenantA, {
+    allOutlets: false,
+    outletIds: [IDS.outletA],
+    roleIds: [role.id],
+    userId: IDS.userStaff,
+  });
+
+  const contexts = await service.listWorkspaceContexts(IDS.userStaff);
+
+  assert.equal(contexts.length, 1);
+  assert.equal(contexts[0]?.tenant.id, IDS.tenantA);
+  assert.deepEqual(
+    contexts[0]?.outlets.map((outlet) => outlet.id),
+    [IDS.outletA],
+  );
+  assert.deepEqual(contexts[0]?.permissionKeys, [PERMISSIONS.catalogRead]);
 });
 
 test("rejects role and outlet assignments from another tenant", async () => {

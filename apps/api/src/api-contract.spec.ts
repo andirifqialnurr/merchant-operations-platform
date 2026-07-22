@@ -148,6 +148,7 @@ test("generates versioned OpenAPI paths and shared schemas", async () => {
     assert.ok(document.paths["/api/v1/auth/session"]);
     assert.ok(document.paths["/api/v1/health"]);
     assert.ok(document.paths["/api/v1/access/context"]);
+    assert.ok(document.paths["/api/v1/access/workspaces"]);
     assert.ok(document.paths["/api/v1/access/memberships"]);
     assert.ok(document.paths["/api/v1/access/roles"]);
     assert.ok(document.paths["/api/v1/organization"]);
@@ -186,6 +187,7 @@ test("generates versioned OpenAPI paths and shared schemas", async () => {
     assert.ok(document.components?.schemas?.PlatformTenantMaster);
     assert.ok(document.components?.schemas?.PlatformUser);
     assert.ok(document.components?.schemas?.AuthorizationContext);
+    assert.ok(document.components?.schemas?.WorkspaceContext);
     assert.ok(document.components?.schemas?.Membership);
     assert.ok(document.components?.schemas?.Role);
     assert.ok(document.components?.schemas?.CatalogSnapshot);

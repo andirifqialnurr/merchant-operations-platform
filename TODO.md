@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tahap 11.4a Authorized Catalog API; lalu lanjut Tahap 11.4b - backoffice Catalog flow.**
+> **NEXT: Review, commit, dan push Tahap 11.4b Backoffice Catalog Flow; lalu selesaikan browser visual/runtime review sebelum memulai POS Tahap 12.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -669,7 +669,8 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] **11.2 Product composition:** variant, modifier group/option, product-modifier assignment, dan product image.
 - [x] **11.3 Outlet catalog override:** product/outlet assignment, outlet price override, dan outlet availability/sold-out.
 - [x] **11.4a Authorized Catalog API:** shared contract dan route HTTP untuk master serta outlet catalog dengan session, permission, scope, entitlement, validasi Zod, dan OpenAPI internal.
-- [ ] **11.4b Backoffice Catalog flow:** auth-aware web shell/client dan flow pengelolaan master serta outlet catalog.
+- [x] **11.4b Backoffice Catalog flow:** auth-aware web shell/client, bootstrap tenant/outlet dari sesi, dan flow pengelolaan master, composition, serta outlet catalog.
+- [ ] **11.4c Browser acceptance:** login/session restore, switch tenant/outlet, mutation master/composition/outlet, light/dark, mobile/reflow, dan error state diperiksa pada runtime browser dengan database lokal.
 - [ ] Jangan membangun POS sebelum catalog minimal stabil.
 
 **Checkpoint 11.1:** `feat(catalog): add category and product core`
@@ -680,6 +681,8 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Checkpoint 11.4a:** `feat(catalog): expose authorized catalog api`
 
+**Checkpoint 11.4b:** `feat(web): add authorized catalog backoffice flow`
+
 **Catalog gate:** Harga disimpan sebagai integer minor-unit non-negatif dan dikirim sebagai decimal string agar tidak kehilangan presisi. `ACTIVE/INACTIVE` mengatur lifecycle master, sedangkan `AVAILABLE/SOLD_OUT` mengatur ketersediaan jual manual. Product wajib menunjuk category pada tenant yang sama melalui composite foreign key. Tidak ada hard delete pada master catalog.
 
 **Composition gate:** Variant dan modifier option menyimpan surcharge minor-unit non-negatif. Modifier group menjaga `minSelections <= maxSelections` dan group `SINGLE` maksimal satu pilihan. Product-modifier assignment, variant, option, dan image memakai composite foreign key tenant. Product image menyimpan object key/metadata, menolak path traversal/content type non-raster, serta hanya mengizinkan satu primary image aktif per product. Seluruh master composition memakai lifecycle status dan mutasinya menulis audit/outbox.
@@ -688,7 +691,9 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Exposure gate:** Route master Catalog tenant-wide memerlukan session, permission `catalog.read|manage`, scope `allOutlets`, dan entitlement Core Catalog. Route outlet memerlukan `x-outlet-id` yang sama dengan parameter route serta akses actor ke outlet tersebut. Seluruh header, params, body, dan response memakai shared Zod; route ini tidak memiliki query input. Kontrak route tersedia pada OpenAPI internal yang tetap mengikuti production documentation gate.
 
-**STOP:** Report, review, commit, dan push Tahap 11.4a sebelum melanjutkan Backoffice Catalog Flow Tahap 11.4b.
+**Backoffice gate:** Web memperoleh tenant, outlet, permission, dan scope dari `GET /api/v1/access/workspaces` setelah merchant session tervalidasi; UUID context tidak ditebak atau dipercaya dari local state. Semua request/response Catalog diparse dengan shared Zod melalui same-origin API rewrite. UI permission-aware hanya menjadi presentation gate; API tetap authorization boundary final. Master/composition memerlukan `allOutlets`, sedangkan actor outlet-scoped hanya menerima outlet yang ditugaskan. Browser acceptance 11.4c masih terbuka karena in-app browser dan database runtime tidak tersedia pada checkpoint implementasi.
+
+**STOP:** Report, review, commit, dan push Tahap 11.4b, lalu tutup browser acceptance Tahap 11.4c sebelum melanjutkan POS Tahap 12.
 
 ---
 

@@ -42,6 +42,19 @@ export type AuthorizationRecord = MembershipRecord & {
   userStatus: "ACTIVE" | "DISABLED";
 };
 
+export type WorkspaceContextRecord = {
+  allOutlets: boolean;
+  membershipId: string;
+  outlets: Array<{
+    code: string;
+    id: string;
+    name: string;
+    status: OrganizationUnitStatus;
+  }>;
+  permissionKeys: PermissionKey[];
+  tenant: { id: string; name: string; slug: string };
+};
+
 export type SystemRoleDefinition = {
   code: string;
   name: string;
@@ -73,6 +86,7 @@ export interface AccessRepository {
   findUser(userId: string): Promise<{ id: string; status: "ACTIVE" | "DISABLED" } | null>;
   listRoles(tenantId: string): Promise<RoleRecord[]>;
   listMemberships(tenantId: string): Promise<MembershipRecord[]>;
+  listWorkspaceContexts(userId: string): Promise<WorkspaceContextRecord[]>;
   provisionTenantOwner(
     tenantId: string,
     userId: string,
@@ -260,6 +274,69 @@ export class PrismaAccessRepository implements AccessRepository {
       where: { tenantId },
     });
     return memberships.map(mapMembership);
+  }
+
+  async listWorkspaceContexts(userId: string) {
+    const memberships = await getPrismaClient().tenantMembership.findMany({
+      orderBy: { createdAt: "asc" },
+      select: {
+        allOutlets: true,
+        assignments: {
+          orderBy: { outletId: "asc" },
+          select: {
+            outlet: { select: { code: true, id: true, name: true, status: true } },
+          },
+        },
+        id: true,
+        roles: {
+          select: {
+            role: {
+              select: {
+                permissions: { select: { permissionKey: true } },
+                status: true,
+              },
+            },
+          },
+        },
+        tenant: {
+          select: {
+            id: true,
+            name: true,
+            outlets: {
+              orderBy: { createdAt: "asc" },
+              select: { code: true, id: true, name: true, status: true },
+              where: { status: "ACTIVE" },
+            },
+            slug: true,
+          },
+        },
+      },
+      where: { status: "ACTIVE", tenant: { status: "ACTIVE" }, userId },
+    });
+
+    return memberships.map((membership) => ({
+      allOutlets: membership.allOutlets,
+      membershipId: membership.id,
+      outlets: membership.allOutlets
+        ? membership.tenant.outlets
+        : membership.assignments
+            .map((assignment) => assignment.outlet)
+            .filter((outlet) => outlet.status === "ACTIVE"),
+      permissionKeys: [
+        ...new Set(
+          membership.roles.flatMap((link) =>
+            link.role.status === "ACTIVE"
+              ? link.role.permissions.map((permission) => permission.permissionKey as PermissionKey)
+              : [],
+          ),
+        ),
+      ].sort(),
+      tenant: {
+        id: membership.tenant.id,
+        name: membership.tenant.name,
+        slug: membership.tenant.slug,
+      },
+    }));
   }
 
   async findMembershipById(tenantId: string, membershipId: string) {

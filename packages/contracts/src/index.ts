@@ -816,6 +816,27 @@ export const authorizationContextSchema = z.object({
   userId: z.uuid(),
 });
 
+export const workspaceOutletSchema = z.object({
+  code: outletCodeSchema,
+  id: z.uuid(),
+  name: organizationNameSchema,
+  status: organizationUnitStatusSchema,
+});
+
+export const workspaceContextSchema = z.object({
+  allOutlets: z.boolean(),
+  membershipId: z.uuid(),
+  outlets: z.array(workspaceOutletSchema),
+  permissionKeys: z.array(permissionKeySchema),
+  tenant: z.object({
+    id: z.uuid(),
+    name: organizationNameSchema,
+    slug: organizationSlugSchema,
+  }),
+});
+
+export const workspaceContextsSchema = z.array(workspaceContextSchema);
+
 export const entityIdParamsSchema = z.object({ id: z.uuid() });
 
 export type ApiError = z.infer<typeof apiErrorSchema>;
@@ -839,6 +860,7 @@ export type CatalogProductVariant = z.infer<typeof catalogProductVariantSchema>;
 export type CatalogRecordStatus = z.infer<typeof catalogRecordStatusSchema>;
 export type CatalogSnapshot = z.infer<typeof catalogSnapshotSchema>;
 export type AuthorizationContext = z.infer<typeof authorizationContextSchema>;
+export type WorkspaceContext = z.infer<typeof workspaceContextSchema>;
 export type ContractSchema = z.ZodType;
 export type CreateBrand = z.infer<typeof createBrandSchema>;
 export type CreateCatalogCategory = z.infer<typeof createCatalogCategorySchema>;
@@ -961,6 +983,8 @@ export const commonOpenApiSchemas = {
   ReplaceSubscription: toOpenApiSchema(replaceSubscriptionSchema),
   Role: toOpenApiSchema(roleSchema),
   TenantRequestHeaders: toOpenApiSchema(tenantRequestHeadersSchema),
+  WorkspaceContext: toOpenApiSchema(workspaceContextSchema),
+  WorkspaceOutlet: toOpenApiSchema(workspaceOutletSchema),
   Tenant: toOpenApiSchema(tenantSchema),
   SetTenantEntitlement: toOpenApiSchema(setTenantEntitlementSchema),
   Subscription: toOpenApiSchema(subscriptionSchema),
