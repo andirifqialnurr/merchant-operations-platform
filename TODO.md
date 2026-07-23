@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Shift component; lalu lanjutkan POS order/payment manual flow sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push POS order/payment manual flow; lalu lanjutkan dependency Table Layout sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -713,7 +713,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] **12.4 Money Display:** variant inline/summary/total/accounting, size sm/md/lg/xl, exact integer minor-unit, format IDR, negative minus/parentheses, zero, unavailable, dan tabular alignment.
 - [x] **12.5 Payment Method Tile dan Cash Keypad:** metode cash/QRIS/transfer/EDC/mixed, availability/selected state, size md/lg, serta keypad tunai dengan preset, amount received, change, clear, dan backspace.
 - [x] **12.6 Shift component:** form buka shift hanya menginput kas awal; ringkasan read-only memisahkan data tunai/non-tunai; form tutup shift hanya menginput kas fisik dan alasan saat ada selisih; variance mengikuti permission.
-- [ ] POS order/payment manual flow.
+- [x] **12.7 POS order/payment manual flow:** alur takeaway menyusun katalog, keranjang, pemilihan cash/manual QRIS, verifikasi read-only, dan status PAID tanpa menumpuk informasi antar-tahap.
 
 **Checkpoint 12.1:** `feat(ui): add POS product tile and category rail`
 
@@ -727,6 +727,8 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Checkpoint 12.6:** `feat(ui): add guarded POS shift components`
 
+**Checkpoint 12.7:** `feat(ui): add guarded POS manual payment flow`
+
 **POS catalog component gate:** Product Tile menyediakan variant `compact/default/touch/customer`, size `sm/md/lg/customer`, state selected, low stock, sold out, scheduled/unavailable, image loading, dan image fallback tanpa menyembunyikan harga/status. Category Rail menyediakan mode vertical untuk POS desktop dan horizontal-scroll untuk customer/mobile dengan active indicator yang eksplisit. Component tests mencakup interaksi, disabled state, semantics, dan axe smoke; Storybook production build serta review Chrome pada 1440/390 px, light/dark, focus ring, minimum size, long status, dan overflow sudah lulus.
 
 **Modifier picker gate:** Single selection memakai radio dan multiple selection memakai checkbox; batas minimum/maksimum serta required incomplete state selalu terlihat. Pilihan yang unavailable tetap memiliki label, surcharge berada di sisi kanan, dan action cart tidak aktif sebelum group wajib lengkap. Struktur menyertakan product summary, note, quantity, total, serta add/update action; desktop memakai dialog `lg` dan viewport mobile memakai bottom sheet responsive. Component interaction dan axe smoke test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
@@ -739,7 +741,9 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Shift component gate:** Open Shift hanya menyediakan input kas awal. Shift Summary menampilkan actor/time sekali, rekonsiliasi tunai, breakdown non-tunai yang tersedia, serta counted cash hanya ketika shift sudah ditutup; variance default tersembunyi dan hanya tampil saat caller memberi permission `canViewVariance`. Close Shift menampilkan expected cash sebagai read-only, hanya meminta counted cash, dan baru meminta alasan saat variance nonzero. Nilai turunan tidak menjadi payload input, baris yang tidak berlaku dihilangkan, serta tidak ada field outlet/kasir/waktu sebagai input. Component/axe test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
 
-**STOP:** Report, review, commit, dan push Tahap 12.6 sebelum melanjutkan POS order/payment manual flow.
+**POS manual flow gate:** Tahap order hanya menampilkan source takeaway, katalog, keranjang, dan ringkasan yang berlaku; order number baru muncul setelah masuk pembayaran. Tahap pembayaran mengganti katalog/keranjang dengan total dan metode cash/manual QRIS. Cash meminta nominal diterima, sedangkan QRIS menuju panel verifikasi tanpa membuat reference sebagai input. Payment Confirmation menampilkan metode, nominal, waktu order, optional reference, dan instruction secara read-only; status `Lunas` hanya berasal dari state `PAID` dan action konfirmasi hanya tersedia pada `VERIFYING`. Data customer, table, receipt, refund, approval, serta metode di luar acceptance cash/QRIS tidak dicampurkan ke checkpoint ini. Component/axe test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
+
+**STOP:** Report, review, commit, dan push Tahap 12.7 sebelum menginstal dependency Table Layout/Tahap 13.
 
 ### Tahap 13 - Table Layout dan QR Self-Order
 

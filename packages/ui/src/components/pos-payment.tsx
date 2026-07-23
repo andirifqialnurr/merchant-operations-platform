@@ -14,6 +14,7 @@ import {
 
 import { AppIcon } from "./app-icon";
 import { Button, IconButton } from "./button";
+import { Badge } from "./feedback";
 import { MoneyDisplay, type MoneyMinorValue } from "./money-display";
 
 export type PaymentMethodKind = "cash" | "qris" | "transfer" | "edc" | "mixed";
@@ -47,6 +48,24 @@ export type CashKeypadProps = {
   totalMinor: MoneyMinorValue;
 };
 
+export type ManualPaymentStatus = "unpaid" | "verifying" | "paid";
+
+export type PaymentConfirmationPanelProps = {
+  amountMinor: MoneyMinorValue;
+  ariaLabel?: string;
+  className?: string;
+  confirmDisabled?: boolean;
+  currency?: string;
+  loading?: boolean;
+  locale?: string;
+  methodLabel: string;
+  onConfirm?: () => void;
+  orderTimeLabel: string;
+  reference?: string;
+  status: ManualPaymentStatus;
+  verifierInstruction?: string;
+};
+
 const iconByPaymentMethod: Record<PaymentMethodKind, LucideIcon> = {
   cash: Banknote,
   edc: CreditCard,
@@ -59,6 +78,15 @@ const availabilityLabel: Record<PaymentMethodAvailability, string> = {
   available: "Tersedia",
   maintenance: "Sedang gangguan",
   unavailable: "Tidak tersedia",
+};
+
+const manualPaymentStatusMeta: Record<
+  ManualPaymentStatus,
+  { label: string; tone: "success" | "warning" }
+> = {
+  paid: { label: "Lunas", tone: "success" },
+  unpaid: { label: "Belum dibayar", tone: "warning" },
+  verifying: { label: "Menunggu verifikasi", tone: "warning" },
 };
 
 function classes(...values: Array<string | false | null | undefined>) {
@@ -284,6 +312,83 @@ export function CashKeypad({
           variant="outline"
         />
       </div>
+    </section>
+  );
+}
+
+export function PaymentConfirmationPanel({
+  amountMinor,
+  ariaLabel = "Konfirmasi pembayaran manual",
+  className,
+  confirmDisabled = false,
+  currency = "IDR",
+  loading = false,
+  locale = "id-ID",
+  methodLabel,
+  onConfirm,
+  orderTimeLabel,
+  reference,
+  status,
+  verifierInstruction,
+}: PaymentConfirmationPanelProps) {
+  const statusMeta = manualPaymentStatusMeta[status];
+  const canConfirm = status === "verifying" && Boolean(onConfirm);
+
+  return (
+    <section aria-label={ariaLabel} className={classes("ui-payment-confirmation", className)}>
+      <header className="ui-payment-confirmation__header">
+        <div>
+          <h2>Konfirmasi pembayaran</h2>
+          <p>Periksa data pembayaran sebelum mengubah status transaksi.</p>
+        </div>
+        <Badge tone={statusMeta.tone}>{statusMeta.label}</Badge>
+      </header>
+
+      <dl className="ui-payment-confirmation__details">
+        <div>
+          <dt>Metode</dt>
+          <dd>{methodLabel}</dd>
+        </div>
+        <div>
+          <dt>Nominal</dt>
+          <dd>
+            <MoneyDisplay
+              amountMinor={amountMinor}
+              currency={currency}
+              locale={locale}
+              variant="summary"
+            />
+          </dd>
+        </div>
+        <div>
+          <dt>Waktu order</dt>
+          <dd>{orderTimeLabel}</dd>
+        </div>
+        {reference ? (
+          <div>
+            <dt>Reference</dt>
+            <dd>{reference}</dd>
+          </div>
+        ) : null}
+      </dl>
+
+      {status === "verifying" && verifierInstruction ? (
+        <p className="ui-payment-confirmation__instruction">{verifierInstruction}</p>
+      ) : null}
+
+      {canConfirm ? (
+        <Button
+          disabled={confirmDisabled}
+          fullWidth
+          loading={loading}
+          loadingLabel="Mengonfirmasi pembayaran"
+          onClick={onConfirm}
+          size="lg"
+          type="button"
+        >
+          Konfirmasi pembayaran
+        </Button>
+      ) : null}
     </section>
   );
 }

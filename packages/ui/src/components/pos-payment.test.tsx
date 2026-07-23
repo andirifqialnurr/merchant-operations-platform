@@ -4,7 +4,12 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
-import { buildCashPresets, CashKeypad, PaymentMethodTile } from "./pos-payment";
+import {
+  buildCashPresets,
+  CashKeypad,
+  PaymentConfirmationPanel,
+  PaymentMethodTile,
+} from "./pos-payment";
 
 function CashKeypadHarness() {
   const [amount, setAmount] = useState("0");
@@ -95,6 +100,75 @@ describe("CashKeypad", () => {
           totalMinor="75900"
         />
       </main>,
+    );
+
+    expect((await axe(container)).violations).toEqual([]);
+  });
+});
+
+describe("PaymentConfirmationPanel", () => {
+  it("keeps payment facts read-only and omits an unavailable reference", () => {
+    render(
+      <PaymentConfirmationPanel
+        amountMinor="75000"
+        methodLabel="QRIS merchant"
+        orderTimeLabel="23 Jul 2026, 13.20"
+        status="unpaid"
+      />,
+    );
+
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.queryByText("Reference")).not.toBeInTheDocument();
+    expect(screen.getAllByText("Rp75.000")).toHaveLength(1);
+    expect(screen.queryByRole("button", { name: "Konfirmasi pembayaran" })).not.toBeInTheDocument();
+  });
+
+  it("only exposes confirmation while the payment is verifying", async () => {
+    const onConfirm = vi.fn();
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <PaymentConfirmationPanel
+        amountMinor="75000"
+        methodLabel="QRIS merchant"
+        onConfirm={onConfirm}
+        orderTimeLabel="23 Jul 2026, 13.20"
+        reference="QR-0142"
+        status="verifying"
+        verifierInstruction="Cocokkan nominal dengan notifikasi merchant."
+      />,
+    );
+
+    expect(screen.getByText("Menunggu verifikasi")).toBeVisible();
+    expect(screen.getByText("QR-0142")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Konfirmasi pembayaran" }));
+    expect(onConfirm).toHaveBeenCalledOnce();
+
+    rerender(
+      <PaymentConfirmationPanel
+        amountMinor="75000"
+        methodLabel="QRIS merchant"
+        orderTimeLabel="23 Jul 2026, 13.20"
+        reference="QR-0142"
+        status="paid"
+      />,
+    );
+
+    expect(screen.getByText("Lunas")).toBeVisible();
+    expect(screen.queryByRole("button", { name: "Konfirmasi pembayaran" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Cocokkan nominal/)).not.toBeInTheDocument();
+  });
+
+  it("passes an axe smoke test", async () => {
+    const { container } = render(
+      <PaymentConfirmationPanel
+        amountMinor="75000"
+        methodLabel="QRIS merchant"
+        onConfirm={() => undefined}
+        orderTimeLabel="23 Jul 2026, 13.20"
+        reference="QR-0142"
+        status="verifying"
+        verifierInstruction="Cocokkan nominal dengan notifikasi merchant."
+      />,
     );
 
     expect((await axe(container)).violations).toEqual([]);

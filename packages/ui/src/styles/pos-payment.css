@@ -193,6 +193,80 @@
   aspect-ratio: auto;
 }
 
+.ui-payment-confirmation {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-lg);
+  color: var(--color-text-primary);
+  display: grid;
+  font-family: var(--font-family-sans);
+  gap: var(--space-5);
+  max-width: 36rem;
+  min-width: 0;
+  padding: var(--space-5);
+  width: 100%;
+}
+
+.ui-payment-confirmation__header {
+  align-items: start;
+  display: flex;
+  gap: var(--space-4);
+  justify-content: space-between;
+}
+
+.ui-payment-confirmation__header h2 {
+  font-size: var(--text-heading-md);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.ui-payment-confirmation__header p {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  margin: var(--space-1) 0 0;
+}
+
+.ui-payment-confirmation__details {
+  border-bottom: 1px solid var(--color-border-subtle);
+  border-top: 1px solid var(--color-border-subtle);
+  display: grid;
+  margin: 0;
+}
+
+.ui-payment-confirmation__details > div {
+  align-items: baseline;
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+  padding: var(--space-3) 0;
+}
+
+.ui-payment-confirmation__details > div + div {
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.ui-payment-confirmation__details dt {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+}
+
+.ui-payment-confirmation__details dd {
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  margin: 0;
+  overflow-wrap: anywhere;
+  text-align: end;
+}
+
+.ui-payment-confirmation__instruction {
+  background: var(--color-status-warning-bg);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-status-warning-text);
+  font-size: var(--text-body-sm);
+  margin: 0;
+  padding: var(--space-3);
+}
+
 @media (max-width: 40rem) {
   .ui-cash-keypad {
     padding: var(--space-3);
@@ -200,6 +274,21 @@
 
   .ui-cash-keypad__amounts {
     padding: var(--space-3);
+  }
+
+  .ui-payment-confirmation {
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+
+  .ui-payment-confirmation__details > div {
+    align-items: start;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+  }
+
+  .ui-payment-confirmation__details dd {
+    text-align: start;
   }
 }
 
