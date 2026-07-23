@@ -31,6 +31,34 @@
   max-width: 200px;
 }
 
+.story-pos-cart-variants,
+.story-pos-cart-summary-grid {
+  align-items: start;
+  display: grid;
+  gap: var(--space-5);
+}
+
+.story-pos-cart-variants {
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+  max-width: 72rem;
+}
+
+.story-pos-cart-summary-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+  max-width: 52rem;
+}
+
+.story-pos-cart-variants section,
+.story-pos-cart-summary-grid section,
+.story-pos-cart-mobile {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.story-pos-cart-mobile {
+  max-width: 24rem;
+}
+
 .story-contract-section {
   gap: var(--space-4);
 }
@@ -133,6 +161,11 @@
 }
 
 @media (max-width: 40rem) {
+  .story-pos-cart-variants,
+  .story-pos-cart-summary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .story-contract-notes,
   .story-contract-theme-comparison {
     grid-template-columns: minmax(0, 1fr);

@@ -31,6 +31,7 @@
     "./data-display": "./src/components/data-display.tsx",
     "./pos-catalog": "./src/components/pos-catalog.tsx",
     "./pos-modifier": "./src/components/pos-modifier.tsx",
+    "./pos-cart": "./src/components/pos-cart.tsx",
     "./styles/foundation.css": "./src/styles/foundation.css",
     "./styles/merchant-presets.css": "./src/styles/merchant-presets.css",
     "./styles/primitives.css": "./src/styles/primitives.css",
@@ -47,6 +48,7 @@
     "./styles/data-display.css": "./src/styles/data-display.css",
     "./styles/pos-catalog.css": "./src/styles/pos-catalog.css",
     "./styles/pos-modifier.css": "./src/styles/pos-modifier.css",
+    "./styles/pos-cart.css": "./src/styles/pos-cart.css",
     "./styles/typography.css": "./src/styles/typography.css"
   },
   "scripts": {

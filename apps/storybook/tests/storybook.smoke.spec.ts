@@ -52,3 +52,21 @@ test("validates the POS modifier picker interaction and mobile reflow", async ({
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
 });
+
+test("validates the POS cart detail, quantity, and mobile reflow", async ({ page }) => {
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/iframe.html?id=domain-pos-cart--mobile-reflow&viewMode=story");
+
+  const item = page.getByRole("article");
+  await expect(item).toBeVisible();
+  await expect(page.getByText(/Oat milk dengan nama modifier panjang/)).toHaveCount(0);
+  await page.getByRole("button", { name: "Lihat detail (+2)" }).click();
+  await expect(page.getByText(/Oat milk dengan nama modifier panjang/)).toBeVisible();
+
+  await page.getByRole("button", { name: /Tambah Es kopi susu gula aren signature/ }).click();
+  await expect(item.getByText("Rp105.000")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Ringkasan keranjang" })).toContainText("Rp75.900");
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});
