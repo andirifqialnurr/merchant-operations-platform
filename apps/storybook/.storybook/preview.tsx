@@ -21,6 +21,7 @@ import "@merchant/ui/styles/pos-modifier.css";
 import "@merchant/ui/styles/pos-cart.css";
 import "@merchant/ui/styles/money-display.css";
 import "@merchant/ui/styles/pos-payment.css";
+import "@merchant/ui/styles/pos-shift.css";
 
 import "./preview.css";
 

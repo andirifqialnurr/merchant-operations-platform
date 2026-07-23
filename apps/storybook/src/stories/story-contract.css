@@ -136,6 +136,25 @@
   max-width: 52rem;
 }
 
+.story-shift-theme-comparison {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 90rem;
+}
+
+.story-shift-theme-comparison > section {
+  background: var(--color-bg-canvas);
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+}
+
+.story-shift-theme-comparison > section > h2 {
+  margin: 0;
+}
+
 .story-contract-section {
   gap: var(--space-4);
 }
@@ -258,6 +277,10 @@
   }
 
   .story-pos-payment-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .story-shift-theme-comparison {
     grid-template-columns: minmax(0, 1fr);
   }
 
