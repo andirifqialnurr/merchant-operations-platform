@@ -8,6 +8,7 @@ import { AppIcon } from "./app-icon";
 
 export type SelectSize = "sm" | "md" | "lg";
 export type SelectOption = {
+  ariaLabel?: string;
   description?: string;
   disabled?: boolean;
   disabledReason?: string;
@@ -79,6 +80,7 @@ function Options({
   if (!options.length) return <p className="ui-select__status">{emptyLabel}</p>;
   return options.map((option) => (
     <button
+      aria-label={option.ariaLabel}
       aria-selected={option.value === selectedValue}
       className="ui-select__option"
       disabled={option.disabled}

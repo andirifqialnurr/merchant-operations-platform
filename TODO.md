@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push dependency Table Layout; lalu lanjutkan Floor Selector sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Floor Selector; lalu lanjutkan Table Tile view/edit sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -749,7 +749,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 ### Tahap 13 - Table Layout dan QR Self-Order
 
 - [x] **13.0 Dependency Table Layout:** install `@dnd-kit/react@0.5.0` dan `@dnd-kit/dom@0.5.0` dengan peer React 19 yang tervalidasi.
-- [ ] Floor Selector.
+- [x] **13.1 Floor Selector:** variant tabs/select/compact, size sm/md/lg, label staf, optional table count, disabled/empty state, serta keyboard navigation tanpa mengekspos ID internal atau metadata layout.
 - [ ] Table Tile view/edit.
 - [ ] Table Layout Canvas snap-to-grid.
 - [ ] Table Layout Toolbar dan Property Panel.
@@ -764,6 +764,12 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 **Table Layout dependency gate:** Proyek baru memakai API stabil terbaru `DragDropProvider` dari `@dnd-kit/react` serta pointer/keyboard sensor dari `@dnd-kit/dom`. Kedua package dipin pada `0.5.0`, mendukung React 19, dan ditempatkan langsung pada `packages/ui` sebagai pemilik komponen canvas. Legacy `@dnd-kit/core`, prerelease `beta`, dan `@dnd-kit/sortable` tidak dipasang; sortable tidak sesuai karena layout menyimpan koordinat grid, bukan urutan list. Lockfile harus frozen-installable dan import runtime/type harus lolos sebelum komponen dibuat.
 
 **STOP:** Report, review, commit, dan push Tahap 13.0 sebelum membuat Floor Selector.
+
+**Checkpoint 13.1:** `feat(ui): add guarded Floor Selector`
+
+**Floor Selector gate:** Komponen hanya mengubah lantai aktif. Variant `tabs` dipakai untuk 2-5 lantai pada desktop/tablet, `select` untuk daftar panjang atau ruang sempit, dan `compact` untuk toolbar POS. UI hanya menampilkan label staf serta optional jumlah meja; ID internal menjadi value yang tidak terlihat, sedangkan grid size, area, posisi, QR, audit, dan metadata layout tidak dirender. Jumlah `0 meja` tetap valid bila tersedia, tetapi count yang tidak tersedia dihilangkan. Tabs mendukung Arrow Left/Right, Home, End, disabled state, dan roving focus. Component/axe test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
+
+**STOP:** Report, review, commit, dan push Tahap 13.1 sebelum membuat Table Tile view/edit.
 
 ### Tahap 14 - KDS
 
