@@ -1,0 +1,210 @@
+.ui-payment-method-tile {
+  display: inline-grid;
+  flex: 0 0 auto;
+  font-family: var(--font-family-sans);
+  min-width: 0;
+  position: relative;
+}
+
+.ui-payment-method-tile--md {
+  min-height: 88px;
+  width: 120px;
+}
+
+.ui-payment-method-tile--lg {
+  min-height: 104px;
+  width: 144px;
+}
+
+.ui-payment-method-tile > input {
+  height: 1px;
+  opacity: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.ui-payment-method-tile__surface {
+  align-content: start;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  display: grid;
+  gap: var(--space-1);
+  min-height: 100%;
+  padding: var(--space-3);
+  position: relative;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.ui-payment-method-tile--lg .ui-payment-method-tile__surface {
+  padding: var(--space-4);
+}
+
+.ui-payment-method-tile > input:focus-visible + .ui-payment-method-tile__surface {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.ui-payment-method-tile:not(.ui-payment-method-tile--disabled):hover
+  .ui-payment-method-tile__surface {
+  border-color: var(--color-border-strong);
+}
+
+.ui-payment-method-tile--selected .ui-payment-method-tile__surface {
+  background: var(--color-action-primary-subtle);
+  border-color: var(--color-action-primary);
+  box-shadow: inset 0 0 0 1px var(--color-action-primary);
+}
+
+.ui-payment-method-tile--disabled .ui-payment-method-tile__surface {
+  background: var(--color-bg-surface-subtle);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+.ui-payment-method-tile__visual {
+  color: var(--color-action-primary);
+  display: inline-flex;
+}
+
+.ui-payment-method-tile--disabled .ui-payment-method-tile__visual {
+  color: var(--color-text-disabled);
+}
+
+.ui-payment-method-tile__check {
+  align-items: center;
+  background: var(--color-action-primary);
+  border-radius: 999px;
+  color: var(--color-action-on-primary);
+  display: inline-flex;
+  height: 24px;
+  justify-content: center;
+  position: absolute;
+  right: var(--space-2);
+  top: var(--space-2);
+  width: 24px;
+}
+
+.ui-payment-method-tile__surface strong {
+  font-size: var(--text-label);
+  line-height: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.ui-payment-method-tile__availability,
+.ui-payment-method-tile__instruction {
+  font-size: var(--text-caption-xs);
+  line-height: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.ui-payment-method-tile__availability {
+  color: var(--color-status-success-text);
+  font-weight: 600;
+}
+
+.ui-payment-method-tile--maintenance .ui-payment-method-tile__availability {
+  color: var(--color-status-warning-text);
+}
+
+.ui-payment-method-tile--unavailable .ui-payment-method-tile__availability {
+  color: var(--color-text-disabled);
+}
+
+.ui-payment-method-tile__instruction {
+  color: var(--color-text-secondary);
+}
+
+.ui-payment-method-tile--disabled .ui-payment-method-tile__instruction {
+  color: var(--color-text-disabled);
+}
+
+.ui-cash-keypad {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-lg);
+  color: var(--color-text-primary);
+  display: grid;
+  font-family: var(--font-family-sans);
+  gap: var(--space-4);
+  max-width: 28rem;
+  min-width: 0;
+  padding: var(--space-4);
+}
+
+.ui-cash-keypad__instruction {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  margin: 0;
+}
+
+.ui-cash-keypad__amounts {
+  background: var(--color-bg-surface-subtle);
+  border-radius: var(--foundation-radius-md);
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.ui-cash-keypad__amounts > div {
+  align-items: baseline;
+  display: flex;
+  gap: var(--space-4);
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.ui-cash-keypad__amounts > div > span:first-child {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+}
+
+.ui-cash-keypad__presets {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr));
+}
+
+.ui-cash-keypad__preset {
+  min-height: 48px;
+  white-space: normal;
+}
+
+.ui-cash-keypad__keys {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ui-cash-keypad__key {
+  font-size: var(--text-body-lg);
+  min-height: 56px;
+  min-width: 0;
+  width: 100%;
+}
+
+.ui-cash-keypad__key.ui-icon-button {
+  aspect-ratio: auto;
+}
+
+@media (max-width: 40rem) {
+  .ui-cash-keypad {
+    padding: var(--space-3);
+  }
+
+  .ui-cash-keypad__amounts {
+    padding: var(--space-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-payment-method-tile__surface {
+    transition: none;
+  }
+}

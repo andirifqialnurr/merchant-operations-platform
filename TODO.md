@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Money Display; lalu lanjutkan Payment Method Tile dan Cash Keypad sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Payment Method Tile serta Cash Keypad; lalu lanjutkan Shift component sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -710,7 +710,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] **12.2 Modifier Picker:** product summary, single/multiple modifier group, batas minimum/maksimum, incomplete state, unavailable option, note, quantity, total, serta add/update cart action yang responsive.
 - [x] **12.3 Cart Item dan Cart Summary:** variant compact/default/receipt, modifier detail collapse, note, quantity, unit/line total, remove action, serta breakdown subtotal sampai sisa tagihan yang menghilangkan baris tidak berlaku.
 - [x] **12.4 Money Display:** variant inline/summary/total/accounting, size sm/md/lg/xl, exact integer minor-unit, format IDR, negative minus/parentheses, zero, unavailable, dan tabular alignment.
-- [ ] Payment Method Tile dan Cash Keypad.
+- [x] **12.5 Payment Method Tile dan Cash Keypad:** metode cash/QRIS/transfer/EDC/mixed, availability/selected state, size md/lg, serta keypad tunai dengan preset, amount received, change, clear, dan backspace.
 - [ ] Shift component.
 - [ ] POS order/payment manual flow.
 
@@ -722,6 +722,8 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Checkpoint 12.4:** `feat(ui): add Money Display`
 
+**Checkpoint 12.5:** `feat(ui): add POS payment method and cash keypad`
+
 **POS catalog component gate:** Product Tile menyediakan variant `compact/default/touch/customer`, size `sm/md/lg/customer`, state selected, low stock, sold out, scheduled/unavailable, image loading, dan image fallback tanpa menyembunyikan harga/status. Category Rail menyediakan mode vertical untuk POS desktop dan horizontal-scroll untuk customer/mobile dengan active indicator yang eksplisit. Component tests mencakup interaksi, disabled state, semantics, dan axe smoke; Storybook production build serta review Chrome pada 1440/390 px, light/dark, focus ring, minimum size, long status, dan overflow sudah lulus.
 
 **Modifier picker gate:** Single selection memakai radio dan multiple selection memakai checkbox; batas minimum/maksimum serta required incomplete state selalu terlihat. Pilihan yang unavailable tetap memiliki label, surcharge berada di sisi kanan, dan action cart tidak aktif sebelum group wajib lengkap. Struktur menyertakan product summary, note, quantity, total, serta add/update action; desktop memakai dialog `lg` dan viewport mobile memakai bottom sheet responsive. Component interaction dan axe smoke test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
@@ -730,7 +732,9 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Money Display gate:** Nilai menerima integer minor-unit presisi aman melalui bigint, safe integer, atau string integer; default currency IDR ditampilkan tanpa mengubah source of truth. Variant inline/summary/total/accounting dan size sm/md/lg/xl memakai angka tabular. Nilai nol tampil `Rp0`, data unavailable tampil `-` dengan label aksesibel, sedangkan negatif mendukung minus atau parentheses secara konsisten tanpa bergantung pada warna. Component/axe test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
 
-**STOP:** Report, review, commit, dan push Tahap 12.4 sebelum melanjutkan Payment Method Tile dan Cash Keypad.
+**POS payment component gate:** Payment Method Tile memakai native radio semantics untuk cash, merchant QRIS, transfer, EDC, dan mixed; ukuran md/lg, selected check, availability, serta instruction tetap terlihat dan metode unavailable tidak dapat dipilih. Cash Keypad hanya muncul untuk tunai, tombol angka minimal 56px, preset mengikuti total, serta amount received, change, clear, dan backspace memakai integer minor-unit. Component interaction/axe test, Storybook production build, serta review browser light/dark, keyboard, dan 1440/390 px wajib lulus.
+
+**STOP:** Report, review, commit, dan push Tahap 12.5 sebelum melanjutkan Shift component.
 
 ### Tahap 13 - Table Layout dan QR Self-Order
 

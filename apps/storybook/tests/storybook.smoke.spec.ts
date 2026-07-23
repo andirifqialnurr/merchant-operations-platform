@@ -82,3 +82,32 @@ test("validates Money Display states, exact values, and mobile reflow", async ({
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
 });
+
+test("validates payment selection, cash presets, keypad targets, and mobile reflow", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/iframe.html?id=domain-pos-payment--mobile-reflow&viewMode=story");
+
+  await expect(page.getByRole("radio", { name: /Tunai/ })).toBeChecked();
+  await expect(page.getByRole("radio", { name: /Kartu EDC/ })).toBeDisabled();
+  const numericKeys = page.getByRole("group", { name: "Angka nominal tunai" }).getByRole("button");
+  await expect
+    .poll(async () =>
+      Math.min(
+        ...(await numericKeys.evaluateAll((keys) =>
+          keys.map((key) => key.getBoundingClientRect().height),
+        )),
+      ),
+    )
+    .toBeGreaterThanOrEqual(56);
+
+  await page.getByRole("button", { name: "Rp80.000" }).click();
+  await expect(page.getByText("Rp4.100")).toBeVisible();
+  await page.getByRole("radio", { name: /QRIS merchant/ }).check();
+  await expect(page.getByRole("region", { name: "Keypad pembayaran tunai" })).toHaveCount(0);
+  await expect(page.getByText("Keypad tunai tidak digunakan untuk metode QRIS.")).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});
