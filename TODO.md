@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push POS order/payment manual flow; lalu lanjutkan dependency Table Layout sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push dependency Table Layout; lalu lanjutkan Floor Selector sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -69,6 +69,7 @@ Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasik
 | Component test  | Vitest + Testing Library + axe                                |
 | E2E             | Playwright                                                    |
 | Chart           | ApexCharts + `react-apexcharts` melalui wrapper `packages/ui` |
+| Drag-and-drop   | `@dnd-kit/react` + `@dnd-kit/dom`                             |
 
 Versi package tidak ditulis longgar sebagai asumsi di TODO. Saat tahap instalasi dimulai, cek kompatibilitas resmi, pilih versi stabil, lalu kunci melalui `pnpm-lock.yaml`.
 
@@ -747,7 +748,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 ### Tahap 13 - Table Layout dan QR Self-Order
 
-- [ ] Install `@dnd-kit` atau package drag-and-drop terpilih baru pada tahap ini.
+- [x] **13.0 Dependency Table Layout:** install `@dnd-kit/react@0.5.0` dan `@dnd-kit/dom@0.5.0` dengan peer React 19 yang tervalidasi.
 - [ ] Floor Selector.
 - [ ] Table Tile view/edit.
 - [ ] Table Layout Canvas snap-to-grid.
@@ -757,6 +758,12 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [ ] Table QR generate/print/revoke/rotate.
 - [ ] Customer QR resolution dan table context.
 - [ ] Customer tidak menerima internal table layout.
+
+**Checkpoint 13.0:** `build(ui): add Table Layout drag-and-drop foundation`
+
+**Table Layout dependency gate:** Proyek baru memakai API stabil terbaru `DragDropProvider` dari `@dnd-kit/react` serta pointer/keyboard sensor dari `@dnd-kit/dom`. Kedua package dipin pada `0.5.0`, mendukung React 19, dan ditempatkan langsung pada `packages/ui` sebagai pemilik komponen canvas. Legacy `@dnd-kit/core`, prerelease `beta`, dan `@dnd-kit/sortable` tidak dipasang; sortable tidak sesuai karena layout menyimpan koordinat grid, bukan urutan list. Lockfile harus frozen-installable dan import runtime/type harus lolos sebelum komponen dibuat.
+
+**STOP:** Report, review, commit, dan push Tahap 13.0 sebelum membuat Floor Selector.
 
 ### Tahap 14 - KDS
 

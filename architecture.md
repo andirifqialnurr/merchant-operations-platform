@@ -76,6 +76,7 @@ Core memakai nama generik agar dapat berkembang ke retail dan toko bangunan. Kon
 | Queue | Redis + BullMQ |
 | File storage | S3-compatible object storage |
 | UI | Tailwind CSS + reusable component library |
+| Drag-and-drop | `@dnd-kit/react` + `@dnd-kit/dom` |
 | Server state | TanStack Query |
 | Local UI state | Zustand secukupnya |
 | Form/validation | React Hook Form + Zod |
@@ -400,6 +401,7 @@ kitchen_stations, kitchen_tickets, kitchen_ticket_items
 - URL QR membawa opaque random token; database menyimpan hash token dan resolver hanya menerima token, outlet, serta meja yang aktif.
 - Layout coordinate memakai integer grid, bukan pixel absolut atau satu JSON blob.
 - Server memvalidasi posisi berada dalam batas canvas dan tidak overlap. Client menggunakan drag-and-drop snap-to-grid.
+- Table Layout memakai API baru `DragDropProvider` dari `@dnd-kit/react` dan sensor DOM dari `@dnd-kit/dom`; legacy `@dnd-kit/core` serta preset sortable tidak digunakan karena canvas memindahkan item pada grid, bukan mengurutkan list.
 - Memindahkan tile pada layout hanya mengubah posisi visual. Memindahkan order/table session memakai command `order.move_table` yang terpisah.
 - Mengubah layout atau lantai tidak mengganti QR token. Regenerate QR tidak menghapus histori order/table session.
 
