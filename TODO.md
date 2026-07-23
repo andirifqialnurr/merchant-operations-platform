@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Floor Selector; lalu lanjutkan Table Tile view/edit sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Table Tile view/edit; lalu lanjutkan Table Layout Canvas snap-to-grid sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -750,7 +750,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 - [x] **13.0 Dependency Table Layout:** install `@dnd-kit/react@0.5.0` dan `@dnd-kit/dom@0.5.0` dengan peer React 19 yang tervalidasi.
 - [x] **13.1 Floor Selector:** variant tabs/select/compact, size sm/md/lg, label staf, optional table count, disabled/empty state, serta keyboard navigation tanpa mengekspos ID internal atau metadata layout.
-- [ ] Table Tile view/edit.
+- [x] **13.2 Table Tile view/edit:** size sm/md/lg, state operasional eksplisit, mode view/edit terseleksi, metrik guest/order/durasi hanya saat berlaku, serta tidak mengekspos ID internal, koordinat, QR, audit, customer, atau metadata session.
 - [ ] Table Layout Canvas snap-to-grid.
 - [ ] Table Layout Toolbar dan Property Panel.
 - [ ] Unplaced Table Tray.
@@ -770,6 +770,12 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 **Floor Selector gate:** Komponen hanya mengubah lantai aktif. Variant `tabs` dipakai untuk 2-5 lantai pada desktop/tablet, `select` untuk daftar panjang atau ruang sempit, dan `compact` untuk toolbar POS. UI hanya menampilkan label staf serta optional jumlah meja; ID internal menjadi value yang tidak terlihat, sedangkan grid size, area, posisi, QR, audit, dan metadata layout tidak dirender. Jumlah `0 meja` tetap valid bila tersedia, tetapi count yang tidak tersedia dihilangkan. Tabs mendukung Arrow Left/Right, Home, End, disabled state, dan roving focus. Component/axe test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
 
 **STOP:** Report, review, commit, dan push Tahap 13.1 sebelum membuat Table Tile view/edit.
+
+**Checkpoint 13.2:** `feat(ui): add guarded Table Tile`
+
+**Table Tile gate:** Komponen hanya memilih meja pada `view` atau memilih tile pada `edit`. Label meja dan status operasional tampil satu kali sebagai konteks utama; guest count, order count, dan durasi hanya tampil pada state layanan aktif saat nilainya tersedia. Nilai `0` eksplisit tetap valid, tetapi data yang tidak tersedia atau tidak berlaku dihilangkan. Mode `edit` tidak menampilkan metrik operasional dan tidak menyediakan field posisi, ukuran grid, floor/area, shape, QR, customer, payment, audit, actor, timestamp, atau metadata session. State disabled/non-service tidak selectable pada `view`, tetapi tetap dapat dipilih pada `edit` oleh manager berizin. Component/axe test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
+
+**STOP:** Report, review, commit, dan push Tahap 13.2 sebelum membuat Table Layout Canvas snap-to-grid.
 
 ### Tahap 14 - KDS
 

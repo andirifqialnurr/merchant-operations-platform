@@ -16,6 +16,28 @@
   max-width: 64rem;
 }
 
+.story-table-tile-grid,
+.story-table-tile-mobile {
+  align-items: start;
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.story-table-tile-grid {
+  grid-template-columns: repeat(auto-fit, minmax(9rem, max-content));
+  max-width: 54rem;
+}
+
+.story-table-tile-mobile {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: min(100%, 22rem);
+}
+
+.story-table-tile-mobile .ui-table-tile {
+  width: 100%;
+}
+
 .story-pos-category-comparison {
   display: grid;
   gap: var(--space-8);
