@@ -1,4 +1,5 @@
 import type { Decorator, Preview } from "@storybook/react-vite";
+import { type ReactNode, useLayoutEffect } from "react";
 
 import "@merchant/ui/styles/primitives.css";
 import "@merchant/ui/styles/tokens.css";
@@ -16,8 +17,27 @@ import "@merchant/ui/styles/overlay.css";
 import "@merchant/ui/styles/navigation.css";
 import "@merchant/ui/styles/data-display.css";
 import "@merchant/ui/styles/pos-catalog.css";
+import "@merchant/ui/styles/pos-modifier.css";
 
 import "./preview.css";
+
+function PreviewThemeBoundary({
+  children,
+  resolvedTheme,
+}: {
+  children: ReactNode;
+  resolvedTheme: string;
+}) {
+  useLayoutEffect(() => {
+    document.documentElement.dataset.themePreview = resolvedTheme;
+  }, [resolvedTheme]);
+
+  return (
+    <div className="storybook-preview-root" data-theme-preview={resolvedTheme}>
+      {children}
+    </div>
+  );
+}
 
 const withDesignSystemTheme: Decorator = (Story, context) => {
   const selectedTheme = String(context.globals.theme ?? "system");
@@ -29,9 +49,9 @@ const withDesignSystemTheme: Decorator = (Story, context) => {
       : selectedTheme;
 
   return (
-    <div className="storybook-preview-root" data-theme-preview={resolvedTheme}>
+    <PreviewThemeBoundary resolvedTheme={resolvedTheme}>
       <Story />
-    </div>
+    </PreviewThemeBoundary>
   );
 };
 

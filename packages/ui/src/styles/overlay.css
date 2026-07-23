@@ -15,6 +15,7 @@
   box-shadow: var(--foundation-shadow-lg);
   color: var(--color-text-primary);
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   max-block-size: calc(100dvh - var(--space-8));
 }
 .ui-dialog {
@@ -68,6 +69,7 @@
 }
 .ui-dialog__body,
 .ui-sheet__body {
+  min-block-size: 0;
   overflow: auto;
   padding: var(--space-4);
 }
@@ -79,7 +81,7 @@
   justify-content: flex-end;
   padding: var(--space-4);
 }
-.ui-dialog footer button,
+.ui-dialog footer button:not(.ui-button),
 .ui-overlay__destructive {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-control);

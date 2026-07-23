@@ -62,6 +62,10 @@ function Overlay({
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const previous = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
   useEffect(() => {
     if (!open) return;
     previous.current = document.activeElement as HTMLElement;
@@ -69,7 +73,7 @@ function Overlay({
     document.body.style.overflow = "hidden";
     const timer = window.setTimeout(() => focusable(panelRef.current!)[0]?.focus(), 0);
     function escape(event: KeyboardEvent | globalThis.KeyboardEvent) {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") onCloseRef.current();
     }
     document.addEventListener("keydown", escape);
     return () => {
@@ -78,7 +82,7 @@ function Overlay({
       document.removeEventListener("keydown", escape);
       previous.current?.focus();
     };
-  }, [onClose, open]);
+  }, [open]);
   if (!open || typeof document === "undefined") return null;
   function trap(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key !== "Tab") return;

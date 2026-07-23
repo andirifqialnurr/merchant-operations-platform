@@ -7,6 +7,7 @@
 @import "@merchant/ui/styles/foundation.css";
 @import "@merchant/ui/styles/button.css";
 @import "@merchant/ui/styles/text-field.css";
+@import "@merchant/ui/styles/selection-control.css";
 @import "@merchant/ui/styles/select.css";
 @import "@merchant/ui/styles/numeric-date.css";
 @import "@merchant/ui/styles/feedback.css";
@@ -14,6 +15,7 @@
 @import "@merchant/ui/styles/navigation.css";
 @import "@merchant/ui/styles/data-display.css";
 @import "@merchant/ui/styles/pos-catalog.css";
+@import "@merchant/ui/styles/pos-modifier.css";
 
 :root {
   color-scheme: light;

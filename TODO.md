@@ -40,7 +40,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push perbaikan Backoffice Shell/Catalog UI; lalu lanjutkan Modifier Picker sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Modifier Picker; lalu lanjutkan Cart Item dan Cart Summary sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -707,7 +707,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 ### Tahap 12 - POS component dan flow
 
 - [x] **12.1 Product Tile dan Category Rail:** variant/size/state Product Tile serta rail kategori horizontal/vertical yang keyboard-accessible, responsive, token-driven, dan tervalidasi di Storybook.
-- [ ] Modifier Picker.
+- [x] **12.2 Modifier Picker:** product summary, single/multiple modifier group, batas minimum/maksimum, incomplete state, unavailable option, note, quantity, total, serta add/update cart action yang responsive.
 - [ ] Cart Item dan Cart Summary.
 - [ ] Money Display.
 - [ ] Payment Method Tile dan Cash Keypad.
@@ -716,9 +716,13 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Checkpoint 12.1:** `feat(ui): add POS product tile and category rail`
 
+**Checkpoint 12.2:** `feat(ui): add POS modifier picker`
+
 **POS catalog component gate:** Product Tile menyediakan variant `compact/default/touch/customer`, size `sm/md/lg/customer`, state selected, low stock, sold out, scheduled/unavailable, image loading, dan image fallback tanpa menyembunyikan harga/status. Category Rail menyediakan mode vertical untuk POS desktop dan horizontal-scroll untuk customer/mobile dengan active indicator yang eksplisit. Component tests mencakup interaksi, disabled state, semantics, dan axe smoke; Storybook production build serta review Chrome pada 1440/390 px, light/dark, focus ring, minimum size, long status, dan overflow sudah lulus.
 
-**STOP:** Report, review, commit, dan push Tahap 12.1 sebelum melanjutkan Modifier Picker.
+**Modifier picker gate:** Single selection memakai radio dan multiple selection memakai checkbox; batas minimum/maksimum serta required incomplete state selalu terlihat. Pilihan yang unavailable tetap memiliki label, surcharge berada di sisi kanan, dan action cart tidak aktif sebelum group wajib lengkap. Struktur menyertakan product summary, note, quantity, total, serta add/update action; desktop memakai dialog `lg` dan viewport mobile memakai bottom sheet responsive. Component interaction dan axe smoke test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
+
+**STOP:** Report, review, commit, dan push Tahap 12.2 sebelum melanjutkan Cart Item dan Cart Summary.
 
 ### Tahap 13 - Table Layout dan QR Self-Order
 
