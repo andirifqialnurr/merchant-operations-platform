@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Table Tile view/edit; lalu lanjutkan Table Layout Canvas snap-to-grid sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Table Layout Canvas snap-to-grid; lalu lanjutkan Table Layout Toolbar dan Property Panel sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -751,7 +751,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] **13.0 Dependency Table Layout:** install `@dnd-kit/react@0.5.0` dan `@dnd-kit/dom@0.5.0` dengan peer React 19 yang tervalidasi.
 - [x] **13.1 Floor Selector:** variant tabs/select/compact, size sm/md/lg, label staf, optional table count, disabled/empty state, serta keyboard navigation tanpa mengekspos ID internal atau metadata layout.
 - [x] **13.2 Table Tile view/edit:** size sm/md/lg, state operasional eksplisit, mode view/edit terseleksi, metrik guest/order/durasi hanya saat berlaku, serta tidak mengekspos ID internal, koordinat, QR, audit, customer, atau metadata session.
-- [ ] Table Layout Canvas snap-to-grid.
+- [x] **13.3 Table Layout Canvas snap-to-grid:** canvas logical grid untuk staff, mode view/edit/preview, item memakai koordinat integer, drag memakai `@dnd-kit/react` dan snap/clamp ke grid tanpa mengekspos metadata internal.
 - [ ] Table Layout Toolbar dan Property Panel.
 - [ ] Unplaced Table Tray.
 - [ ] Bounds/overlap validation dan keyboard alternative.
@@ -776,6 +776,12 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 **Table Tile gate:** Komponen hanya memilih meja pada `view` atau memilih tile pada `edit`. Label meja dan status operasional tampil satu kali sebagai konteks utama; guest count, order count, dan durasi hanya tampil pada state layanan aktif saat nilainya tersedia. Nilai `0` eksplisit tetap valid, tetapi data yang tidak tersedia atau tidak berlaku dihilangkan. Mode `edit` tidak menampilkan metrik operasional dan tidak menyediakan field posisi, ukuran grid, floor/area, shape, QR, customer, payment, audit, actor, timestamp, atau metadata session. State disabled/non-service tidak selectable pada `view`, tetapi tetap dapat dipilih pada `edit` oleh manager berizin. Component/axe test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
 
 **STOP:** Report, review, commit, dan push Tahap 13.2 sebelum membuat Table Layout Canvas snap-to-grid.
+
+**Checkpoint 13.3:** `feat(ui): add Table Layout Canvas snap-to-grid`
+
+**Table Layout Canvas gate:** Canvas hanya tersedia sebagai komponen staff untuk memetakan posisi meja pada logical grid. Source of truth item adalah `gridX`, `gridY`, `gridW`, dan `gridH` integer; drag pada mode `edit` memakai `DragDropProvider` dari `@dnd-kit/react`, sensor pointer/keyboard dari `@dnd-kit/dom`, serta snap/clamp ke grid sebelum callback perubahan posisi. Mode `view` dan `preview` read-only terhadap posisi. UI hanya merender boundary canvas, grid, dan `TableTile`; tidak menyediakan objek bangunan, toolbar, property panel, unplaced tray, save/undo, overlap messaging, QR, capacity, shape editor, customer/payment/session/audit/actor/timestamp metadata, atau layout customer. Component/axe test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
+
+**STOP:** Report, review, commit, dan push Tahap 13.3 sebelum membuat Table Layout Toolbar dan Property Panel.
 
 ### Tahap 14 - KDS
 

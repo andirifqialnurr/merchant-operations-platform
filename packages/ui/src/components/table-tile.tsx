@@ -1,6 +1,6 @@
 "use client";
 
-import { type ButtonHTMLAttributes } from "react";
+import { forwardRef, type ButtonHTMLAttributes } from "react";
 import { Clock3, ReceiptText, Users } from "lucide-react";
 
 import { AppIcon } from "./app-icon";
@@ -90,19 +90,22 @@ function formatDuration(minutes: number) {
   };
 }
 
-export function TableTile({
-  className,
-  disabled,
-  durationMinutes,
-  guestCount,
-  label,
-  mode = "view",
-  orderCount,
-  selected = false,
-  size = "md",
-  state = "available",
-  ...props
-}: TableTileProps) {
+export const TableTile = forwardRef<HTMLButtonElement, TableTileProps>(function TableTile(
+  {
+    className,
+    disabled,
+    durationMinutes,
+    guestCount,
+    label,
+    mode = "view",
+    orderCount,
+    selected = false,
+    size = "md",
+    state = "available",
+    ...props
+  },
+  ref,
+) {
   assertTableTileContract({ durationMinutes, guestCount, label, orderCount });
 
   const visibleLabel = label.trim();
@@ -132,6 +135,7 @@ export function TableTile({
         className,
       )}
       disabled={isDisabled}
+      ref={ref}
       type={props.type ?? "button"}
     >
       <span className="ui-table-tile__header">
@@ -163,4 +167,4 @@ export function TableTile({
       ) : null}
     </button>
   );
-}
+});

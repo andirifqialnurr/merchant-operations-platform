@@ -36,6 +36,7 @@
     "./money-display": "./src/components/money-display.tsx",
     "./pos-payment": "./src/components/pos-payment.tsx",
     "./pos-shift": "./src/components/pos-shift.tsx",
+    "./table-layout-canvas": "./src/components/table-layout-canvas.tsx",
     "./table-tile": "./src/components/table-tile.tsx",
     "./styles/foundation.css": "./src/styles/foundation.css",
     "./styles/merchant-presets.css": "./src/styles/merchant-presets.css",
@@ -58,6 +59,7 @@
     "./styles/money-display.css": "./src/styles/money-display.css",
     "./styles/pos-payment.css": "./src/styles/pos-payment.css",
     "./styles/pos-shift.css": "./src/styles/pos-shift.css",
+    "./styles/table-layout-canvas.css": "./src/styles/table-layout-canvas.css",
     "./styles/table-tile.css": "./src/styles/table-tile.css",
     "./styles/typography.css": "./src/styles/typography.css"
   },

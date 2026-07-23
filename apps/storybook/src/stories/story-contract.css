@@ -38,6 +38,15 @@
   width: 100%;
 }
 
+.story-table-layout-canvas-theme {
+  align-items: start;
+  max-width: 88rem;
+}
+
+.story-table-layout-canvas-theme .ui-table-layout-canvas {
+  max-height: 36rem;
+}
+
 .story-pos-category-comparison {
   display: grid;
   gap: var(--space-8);
