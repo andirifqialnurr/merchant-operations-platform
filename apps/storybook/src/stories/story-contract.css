@@ -59,6 +59,54 @@
   max-width: 24rem;
 }
 
+.story-money-display-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(13rem, 100%), 1fr));
+  max-width: 64rem;
+}
+
+.story-money-display-grid section,
+.story-money-display-mobile {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-sm);
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-4);
+}
+
+.story-money-display-ledger {
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-sm);
+  display: grid;
+  max-width: 38rem;
+  overflow: hidden;
+}
+
+.story-money-display-ledger [role="row"] {
+  align-items: baseline;
+  background: var(--color-bg-surface);
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr) minmax(10rem, auto);
+  padding: var(--space-3) var(--space-4);
+}
+
+.story-money-display-ledger [role="row"] + [role="row"] {
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.story-money-display-ledger [role="rowheader"] {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+}
+
+.story-money-display-mobile {
+  max-width: 22rem;
+}
+
 .story-contract-section {
   gap: var(--space-4);
 }
@@ -169,5 +217,14 @@
   .story-contract-notes,
   .story-contract-theme-comparison {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .story-money-display-ledger [role="row"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .story-money-display-ledger .ui-money-display--accounting {
+    justify-content: flex-start;
+    text-align: start;
   }
 }

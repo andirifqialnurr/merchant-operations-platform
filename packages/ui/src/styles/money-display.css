@@ -1,0 +1,61 @@
+.ui-money-display {
+  color: var(--color-text-primary);
+  display: inline-flex;
+  font-family: var(--font-family-sans);
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.ui-money-display--sm {
+  font-size: var(--text-body-sm);
+  line-height: 1.125rem;
+}
+
+.ui-money-display--md {
+  font-size: var(--text-body);
+  line-height: 1.25rem;
+}
+
+.ui-money-display--lg {
+  font-size: var(--text-heading);
+  font-weight: 600;
+  line-height: 1.625rem;
+}
+
+.ui-money-display--xl {
+  font-size: var(--text-display-sm);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 2.25rem;
+}
+
+.ui-money-display--summary {
+  font-weight: 600;
+}
+
+.ui-money-display--total {
+  font-weight: 650;
+}
+
+.ui-money-display--accounting {
+  justify-content: flex-end;
+  min-width: 8ch;
+  text-align: end;
+}
+
+.ui-money-display--unavailable {
+  color: var(--color-text-muted);
+}
+
+.ui-money-display__unavailable-label {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}

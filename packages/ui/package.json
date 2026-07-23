@@ -32,6 +32,7 @@
     "./pos-catalog": "./src/components/pos-catalog.tsx",
     "./pos-modifier": "./src/components/pos-modifier.tsx",
     "./pos-cart": "./src/components/pos-cart.tsx",
+    "./money-display": "./src/components/money-display.tsx",
     "./styles/foundation.css": "./src/styles/foundation.css",
     "./styles/merchant-presets.css": "./src/styles/merchant-presets.css",
     "./styles/primitives.css": "./src/styles/primitives.css",
@@ -49,6 +50,7 @@
     "./styles/pos-catalog.css": "./src/styles/pos-catalog.css",
     "./styles/pos-modifier.css": "./src/styles/pos-modifier.css",
     "./styles/pos-cart.css": "./src/styles/pos-cart.css",
+    "./styles/money-display.css": "./src/styles/money-display.css",
     "./styles/typography.css": "./src/styles/typography.css"
   },
   "scripts": {

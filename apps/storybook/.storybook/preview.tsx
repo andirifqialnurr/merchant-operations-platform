@@ -19,6 +19,7 @@ import "@merchant/ui/styles/data-display.css";
 import "@merchant/ui/styles/pos-catalog.css";
 import "@merchant/ui/styles/pos-modifier.css";
 import "@merchant/ui/styles/pos-cart.css";
+import "@merchant/ui/styles/money-display.css";
 
 import "./preview.css";
 

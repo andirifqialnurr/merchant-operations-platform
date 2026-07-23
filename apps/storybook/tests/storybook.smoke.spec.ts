@@ -70,3 +70,15 @@ test("validates the POS cart detail, quantity, and mobile reflow", async ({ page
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
 });
+
+test("validates Money Display states, exact values, and mobile reflow", async ({ page }) => {
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/iframe.html?id=domain-shared-money-display--mobile-reflow&viewMode=story");
+
+  await expect(page.getByText("Rp900.719.925.474.099.312.345")).toBeVisible();
+  await expect(page.getByText("Total belum tersedia")).toBeAttached();
+  await expect(page.locator(".ui-money-display--unavailable")).toHaveText("-Total belum tersedia");
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});
