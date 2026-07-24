@@ -55,6 +55,12 @@ const initialTables: readonly TableLayoutCanvasItem[] = [
   },
 ];
 
+const overlappingTables: readonly TableLayoutCanvasItem[] = [
+  { gridH: 2, gridW: 2, gridX: 0, gridY: 0, id: "table-a", label: "Meja A" },
+  { gridH: 2, gridW: 2, gridX: 1, gridY: 1, id: "table-b", label: "Meja B" },
+  { gridH: 2, gridW: 3, gridX: 5, gridY: 2, id: "table-c", label: "Meja C" },
+];
+
 function StatefulCanvas({ mode = "view" }: { mode?: "view" | "edit" | "preview" }) {
   const [tables, setTables] = useState(initialTables);
   const [selectedId, setSelectedId] = useState("table-02");
@@ -76,6 +82,31 @@ function StatefulCanvas({ mode = "view" }: { mode?: "view" | "edit" | "preview" 
       rows={10}
       selectedId={selectedId}
       variant={mode === "preview" ? "compact" : "default"}
+    />
+  );
+}
+
+function ValidationCanvas() {
+  const [tables, setTables] = useState(overlappingTables);
+  const [selectedId, setSelectedId] = useState("table-b");
+
+  function moveTable(itemId: string, position: TableLayoutGridPosition) {
+    setTables((current) =>
+      current.map((table) => (table.id === itemId ? { ...table, ...position } : table)),
+    );
+  }
+
+  return (
+    <TableLayoutCanvas
+      cellSize={48}
+      columns={10}
+      items={tables}
+      mode="edit"
+      onItemMove={moveTable}
+      onSelectItem={setSelectedId}
+      rows={8}
+      selectedId={selectedId}
+      variant="compact"
     />
   );
 }
@@ -104,6 +135,10 @@ export const ViewMode: Story = {
 
 export const EditSnapToGrid: Story = {
   render: () => <StatefulCanvas mode="edit" />,
+};
+
+export const BoundsOverlapAndKeyboard: Story = {
+  render: () => <ValidationCanvas />,
 };
 
 export const PreviewCompact: Story = {

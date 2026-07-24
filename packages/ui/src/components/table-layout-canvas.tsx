@@ -1,6 +1,6 @@
 "use client";
 
-import { type CSSProperties } from "react";
+import { type CSSProperties, type KeyboardEvent } from "react";
 import {
   DragDropProvider,
   KeyboardSensor,
@@ -10,7 +10,9 @@ import {
   useDroppable,
 } from "@dnd-kit/react";
 import { Accessibility } from "@dnd-kit/dom";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp } from "lucide-react";
 
+import { AppIcon } from "./app-icon";
 import { TableTile, type TableTileProps, type TableTileState } from "./table-tile";
 
 export type TableLayoutCanvasMode = "view" | "edit" | "preview";
@@ -31,6 +33,13 @@ export type TableLayoutCanvasItem = TableLayoutGridPosition & {
   label: string;
   orderCount?: number;
   state?: TableTileState;
+};
+
+export type TableLayoutOverlapIssue = {
+  firstId: string;
+  firstLabel: string;
+  secondId: string;
+  secondLabel: string;
 };
 
 export type TableLayoutCanvasProps = {
@@ -96,6 +105,44 @@ function assertCanvasContract({
   }
 }
 
+export function doTableLayoutItemsOverlap(
+  first: TableLayoutGridPosition,
+  second: TableLayoutGridPosition,
+) {
+  return (
+    first.gridX < second.gridX + second.gridW &&
+    first.gridX + first.gridW > second.gridX &&
+    first.gridY < second.gridY + second.gridH &&
+    first.gridY + first.gridH > second.gridY
+  );
+}
+
+export function getTableLayoutOverlapIssues(
+  items: readonly TableLayoutCanvasItem[],
+): TableLayoutOverlapIssue[] {
+  const issues: TableLayoutOverlapIssue[] = [];
+
+  for (let firstIndex = 0; firstIndex < items.length; firstIndex += 1) {
+    const first = items[firstIndex];
+    if (!first) continue;
+
+    for (let secondIndex = firstIndex + 1; secondIndex < items.length; secondIndex += 1) {
+      const second = items[secondIndex];
+      if (!second) continue;
+      if (!doTableLayoutItemsOverlap(first, second)) continue;
+
+      issues.push({
+        firstId: first.id,
+        firstLabel: first.label.trim(),
+        secondId: second.id,
+        secondLabel: second.label.trim(),
+      });
+    }
+  }
+
+  return issues;
+}
+
 export function clampTableLayoutPosition(
   position: TableLayoutGridPosition,
   bounds: Pick<TableLayoutCanvasProps, "columns" | "rows">,
@@ -134,19 +181,25 @@ type TableLayoutCanvasSurfaceProps = {
   ariaLabel: string;
   cellSize: number;
   columns: number;
+  conflictedItemIds: ReadonlySet<string>;
   items: readonly TableLayoutCanvasItem[];
   mode: TableLayoutCanvasMode;
+  onKeyboardMove: ((itemId: string, direction: KeyboardMoveDirection) => void) | undefined;
   onSelectItem: ((itemId: string) => void) | undefined;
   rows: number;
   selectedId: string | undefined;
 };
 
+type KeyboardMoveDirection = "down" | "left" | "right" | "up";
+
 function TableLayoutCanvasSurface({
   ariaLabel,
   cellSize,
   columns,
+  conflictedItemIds,
   items,
   mode,
+  onKeyboardMove,
   onSelectItem,
   rows,
   selectedId,
@@ -171,9 +224,11 @@ function TableLayoutCanvasSurface({
     >
       {items.map((item) => (
         <TableLayoutCanvasItem
+          conflicted={conflictedItemIds.has(item.id)}
           item={item}
           key={item.id}
           mode={mode}
+          onKeyboardMove={onKeyboardMove}
           onSelectItem={onSelectItem}
           selected={item.id === selectedId}
         />
@@ -183,13 +238,17 @@ function TableLayoutCanvasSurface({
 }
 
 function TableLayoutCanvasItem({
+  conflicted,
   item,
   mode,
+  onKeyboardMove,
   onSelectItem,
   selected,
 }: {
+  conflicted: boolean;
   item: TableLayoutCanvasItem;
   mode: TableLayoutCanvasMode;
+  onKeyboardMove: ((itemId: string, direction: KeyboardMoveDirection) => void) | undefined;
   onSelectItem: ((itemId: string) => void) | undefined;
   selected: boolean;
 }) {
@@ -205,9 +264,25 @@ function TableLayoutCanvasItem({
   };
   const humanPosition = `kolom ${item.gridX + 1}, baris ${item.gridY + 1}`;
   const tileProps: TableTileProps = {
-    "aria-label": `${item.label.trim()}, posisi ${humanPosition}`,
+    "aria-invalid": conflicted || undefined,
+    "aria-label": conflicted
+      ? `${item.label.trim()}, posisi ${humanPosition}, bertumpuk`
+      : `${item.label.trim()}, posisi ${humanPosition}`,
     label: item.label,
     mode: mode === "edit" ? "edit" : "view",
+    onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => {
+      if (mode !== "edit" || !selected || item.disabled) return;
+      const directionByKey: Partial<Record<string, KeyboardMoveDirection>> = {
+        ArrowDown: "down",
+        ArrowLeft: "left",
+        ArrowRight: "right",
+        ArrowUp: "up",
+      };
+      const direction = directionByKey[event.key];
+      if (!direction) return;
+      event.preventDefault();
+      onKeyboardMove?.(item.id, direction);
+    },
     onClick: () => onSelectItem?.(item.id),
     selected,
   };
@@ -220,11 +295,64 @@ function TableLayoutCanvasItem({
 
   return (
     <div
-      className={classes("ui-table-layout-canvas__item", isDragging && "is-dragging")}
+      className={classes(
+        "ui-table-layout-canvas__item",
+        conflicted && "has-conflict",
+        isDragging && "is-dragging",
+      )}
       ref={ref}
       style={itemStyle}
     >
       <TableTile {...tileProps} ref={handleRef} />
+    </div>
+  );
+}
+
+function TableLayoutKeyboardControls({
+  disabled,
+  onMove,
+}: {
+  disabled: boolean;
+  onMove: (direction: KeyboardMoveDirection) => void;
+}) {
+  return (
+    <div
+      aria-label="Pindahkan meja terpilih"
+      className="ui-table-layout-canvas__keyboard-controls"
+      role="group"
+    >
+      <button
+        aria-label="Pindahkan meja ke atas"
+        disabled={disabled}
+        onClick={() => onMove("up")}
+        type="button"
+      >
+        <AppIcon icon={ArrowUp} size="sm" />
+      </button>
+      <button
+        aria-label="Pindahkan meja ke kiri"
+        disabled={disabled}
+        onClick={() => onMove("left")}
+        type="button"
+      >
+        <AppIcon icon={ArrowLeft} size="sm" />
+      </button>
+      <button
+        aria-label="Pindahkan meja ke kanan"
+        disabled={disabled}
+        onClick={() => onMove("right")}
+        type="button"
+      >
+        <AppIcon icon={ArrowRight} size="sm" />
+      </button>
+      <button
+        aria-label="Pindahkan meja ke bawah"
+        disabled={disabled}
+        onClick={() => onMove("down")}
+        type="button"
+      >
+        <AppIcon icon={ArrowDown} size="sm" />
+      </button>
     </div>
   );
 }
@@ -243,6 +371,12 @@ export function TableLayoutCanvas({
   variant = "default",
 }: TableLayoutCanvasProps) {
   assertCanvasContract({ cellSize, columns, items, rows });
+  const overlapIssues = getTableLayoutOverlapIssues(items);
+  const conflictedItemIds = new Set(
+    overlapIssues.flatMap((issue) => [issue.firstId, issue.secondId]),
+  );
+  const selectedItem = selectedId ? items.find((item) => item.id === selectedId) : undefined;
+  const canMoveSelected = mode === "edit" && selectedItem !== undefined && !selectedItem.disabled;
 
   function handleDragEnd(event: DragEndEvent) {
     if (event.canceled || mode !== "edit") return;
@@ -261,6 +395,32 @@ export function TableLayoutCanvas({
     onItemMove?.(sourceItem.id, nextPosition);
   }
 
+  function moveItemByKeyboard(itemId: string, direction: KeyboardMoveDirection) {
+    const sourceItem = items.find((item) => item.id === itemId);
+    if (mode !== "edit" || !sourceItem || sourceItem.disabled) return;
+
+    const nextPosition = clampTableLayoutPosition(
+      {
+        gridH: sourceItem.gridH,
+        gridW: sourceItem.gridW,
+        gridX: sourceItem.gridX + (direction === "left" ? -1 : direction === "right" ? 1 : 0),
+        gridY: sourceItem.gridY + (direction === "up" ? -1 : direction === "down" ? 1 : 0),
+      },
+      { columns, rows },
+    );
+
+    if (nextPosition.gridX === sourceItem.gridX && nextPosition.gridY === sourceItem.gridY) {
+      return;
+    }
+
+    onItemMove?.(sourceItem.id, nextPosition);
+  }
+
+  function moveSelectedItem(direction: KeyboardMoveDirection) {
+    if (!selectedItem) return;
+    moveItemByKeyboard(selectedItem.id, direction);
+  }
+
   return (
     <div
       className={classes(
@@ -270,6 +430,28 @@ export function TableLayoutCanvas({
         className,
       )}
     >
+      {mode === "edit" ? (
+        <TableLayoutKeyboardControls disabled={!canMoveSelected} onMove={moveSelectedItem} />
+      ) : null}
+
+      {overlapIssues.length > 0 ? (
+        <div
+          aria-label="Validasi layout meja"
+          aria-live="polite"
+          className="ui-table-layout-canvas__validation"
+          role="status"
+        >
+          <strong>Layout perlu diperiksa</strong>
+          <ul>
+            {overlapIssues.map((issue) => (
+              <li key={`${issue.firstId}-${issue.secondId}`}>
+                {issue.firstLabel} bertumpuk dengan {issue.secondLabel}.
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       <DragDropProvider
         onDragEnd={handleDragEnd}
         plugins={(defaults) => defaults.filter((plugin) => plugin !== Accessibility)}
@@ -282,8 +464,10 @@ export function TableLayoutCanvas({
           ariaLabel={ariaLabel}
           cellSize={cellSize}
           columns={columns}
+          conflictedItemIds={conflictedItemIds}
           items={items}
           mode={mode}
+          onKeyboardMove={moveItemByKeyboard}
           onSelectItem={onSelectItem}
           rows={rows}
           selectedId={selectedId}

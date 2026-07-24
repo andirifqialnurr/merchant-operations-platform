@@ -1,10 +1,12 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
 import {
   clampTableLayoutPosition,
+  doTableLayoutItemsOverlap,
+  getTableLayoutOverlapIssues,
   snapTableLayoutPosition,
   TableLayoutCanvas,
   type TableLayoutCanvasItem,
@@ -116,6 +118,67 @@ describe("TableLayoutCanvas", () => {
         { columns: 8, rows: 6 },
       ),
     ).toEqual({ gridH: 2, gridW: 2, gridX: 0, gridY: 0 });
+  });
+
+  it("detects overlap issues without exposing internal ids", () => {
+    expect(
+      doTableLayoutItemsOverlap(
+        { gridH: 2, gridW: 2, gridX: 0, gridY: 0 },
+        { gridH: 2, gridW: 2, gridX: 1, gridY: 1 },
+      ),
+    ).toBe(true);
+    expect(getTableLayoutOverlapIssues(items)).toEqual([]);
+
+    render(
+      <TableLayoutCanvas
+        columns={12}
+        items={[
+          { gridH: 2, gridW: 2, gridX: 0, gridY: 0, id: "table-a", label: "Meja A" },
+          { gridH: 2, gridW: 2, gridX: 1, gridY: 1, id: "table-b", label: "Meja B" },
+        ]}
+        mode="edit"
+        rows={8}
+      />,
+    );
+
+    expect(screen.getByRole("status", { name: "Validasi layout meja" })).toHaveTextContent(
+      "Meja A bertumpuk dengan Meja B.",
+    );
+    expect(screen.queryByText(/table-a|table-b/)).not.toBeInTheDocument();
+  });
+
+  it("moves the selected table with keyboard alternative controls and arrow keys", async () => {
+    const onItemMove = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <TableLayoutCanvas
+        columns={12}
+        items={items}
+        mode="edit"
+        onItemMove={onItemMove}
+        rows={8}
+        selectedId="table-internal-2"
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Pindahkan meja ke kanan" }));
+    expect(onItemMove).toHaveBeenLastCalledWith("table-internal-2", {
+      gridH: 2,
+      gridW: 3,
+      gridX: 5,
+      gridY: 2,
+    });
+
+    fireEvent.keyDown(screen.getByRole("button", { name: "Meja 02, posisi kolom 5, baris 3" }), {
+      key: "ArrowUp",
+    });
+    expect(onItemMove).toHaveBeenLastCalledWith("table-internal-2", {
+      gridH: 2,
+      gridW: 3,
+      gridX: 4,
+      gridY: 1,
+    });
   });
 
   it("rejects malformed or out-of-bounds layout data", () => {

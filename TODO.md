@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Unplaced Table Tray; lalu lanjutkan Bounds/overlap validation dan keyboard alternative sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Bounds/overlap validation dan keyboard alternative; lalu lanjutkan Table QR generate/print/revoke/rotate sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -754,7 +754,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] **13.3 Table Layout Canvas snap-to-grid:** canvas logical grid untuk staff, mode view/edit/preview, item memakai koordinat integer, drag memakai `@dnd-kit/react` dan snap/clamp ke grid tanpa mengekspos metadata internal.
 - [x] **13.4 Table Layout Toolbar dan Property Panel:** mode selector, tool select, snap toggle, empty selection, dan property panel posisi/ukuran grid tanpa mengekspos metadata internal atau field di luar kontrak.
 - [x] **13.5 Unplaced Table Tray:** daftar meja belum ditempatkan dengan action tempatkan/select, empty state, disabled reason, dan derived count tanpa mengekspos ID internal, koordinat, QR, atau metadata operasional.
-- [ ] Bounds/overlap validation dan keyboard alternative.
+- [x] **13.6 Bounds/overlap validation dan keyboard alternative:** deteksi overlap berbasis label, penanda konflik, kontrol arah untuk meja terpilih, dan arrow-key movement yang tetap clamp ke batas canvas.
 - [ ] Table QR generate/print/revoke/rotate.
 - [ ] Customer QR resolution dan table context.
 - [ ] Customer tidak menerima internal table layout.
@@ -783,6 +783,8 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Checkpoint 13.5:** `feat(ui): add Unplaced Table Tray`
 
+**Checkpoint 13.6:** `feat(ui): add table layout validation and keyboard movement`
+
 **Table Layout Canvas gate:** Canvas hanya tersedia sebagai komponen staff untuk memetakan posisi meja pada logical grid. Source of truth item adalah `gridX`, `gridY`, `gridW`, dan `gridH` integer; drag pada mode `edit` memakai `DragDropProvider` dari `@dnd-kit/react`, sensor pointer/keyboard dari `@dnd-kit/dom`, serta snap/clamp ke grid sebelum callback perubahan posisi. Mode `view` dan `preview` read-only terhadap posisi. UI hanya merender boundary canvas, grid, dan `TableTile`; tidak menyediakan objek bangunan, toolbar, property panel, unplaced tray, save/undo, overlap messaging, QR, capacity, shape editor, customer/payment/session/audit/actor/timestamp metadata, atau layout customer. Component/axe test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
 
 **STOP:** Report, review, commit, dan push Tahap 13.3 sebelum membuat Table Layout Toolbar dan Property Panel.
@@ -794,6 +796,10 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 **Unplaced Table Tray gate:** Tray hanya tersedia untuk staff saat mengatur layout dan hanya menampilkan label meja yang belum ditempatkan, optional disabled reason, action menempatkan/select meja, empty state, serta derived count. ID internal hanya menjadi callback value dan tidak terlihat. Tray tidak merender atau menerima koordinat, ukuran grid, floor/area, QR, capacity, shape, customer, payment, session, audit, actor, timestamp, save/undo, overlap messaging, atau layout customer. Component/axe test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
 
 **STOP:** Report, review, commit, dan push Tahap 13.5 sebelum membuat Bounds/overlap validation dan keyboard alternative.
+
+**Bounds/keyboard gate:** Canvas memvalidasi overlap antar meja dari `gridX`, `gridY`, `gridW`, dan `gridH`, menampilkan pesan berbasis label yang terlihat, serta menandai tile konflik tanpa mengekspos ID internal. Pergerakan keyboard hanya tersedia pada mode `edit` untuk meja terpilih dan memakai arrow key atau tombol arah, tetap clamp ke batas canvas, serta tidak membuat save/undo, property baru, unplaced tray logic, QR, capacity, shape, floor/area, customer, payment, session, audit, actor, timestamp, atau layout customer. Component/axe test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
+
+**STOP:** Report, review, commit, dan push Tahap 13.6 sebelum membuat Table QR generate/print/revoke/rotate.
 
 ### Tahap 14 - KDS
 

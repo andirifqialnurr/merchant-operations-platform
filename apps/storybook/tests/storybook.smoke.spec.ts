@@ -169,3 +169,28 @@ test("validates unplaced table tray interaction and mobile reflow", async ({ pag
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
 });
+
+test("validates table layout bounds, overlap, and keyboard movement", async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto(
+    "/iframe.html?id=domain-table-layout-table-layout-canvas--bounds-overlap-and-keyboard&viewMode=story",
+  );
+
+  await expect(page.getByRole("status", { name: "Validasi layout meja" })).toContainText(
+    "Meja A bertumpuk dengan Meja B.",
+  );
+  await expect(page.getByText("table-a")).toHaveCount(0);
+  await page.getByRole("button", { name: "Pindahkan meja ke kanan" }).click();
+  await expect(page.getByRole("button", { name: /Meja B, posisi kolom 3, baris 2/ })).toBeVisible();
+  await page.getByRole("button", { name: /Meja B, posisi kolom 3, baris 2/ }).press("ArrowDown");
+  await expect(page.getByRole("button", { name: /Meja B, posisi kolom 3, baris 3/ })).toBeVisible();
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto(
+    "/iframe.html?id=domain-table-layout-table-layout-canvas--bounds-overlap-and-keyboard&viewMode=story",
+  );
+  await expect(page.getByRole("group", { name: "Canvas layout meja" })).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});
