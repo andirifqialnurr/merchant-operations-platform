@@ -47,6 +47,15 @@
   max-height: 36rem;
 }
 
+.story-table-layout-tools {
+  align-items: start;
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 20rem);
+  max-width: 64rem;
+  min-width: 0;
+}
+
 .story-pos-category-comparison {
   display: grid;
   gap: var(--space-8);
@@ -443,6 +452,10 @@
   }
 
   .story-shift-theme-comparison {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .story-table-layout-tools {
     grid-template-columns: minmax(0, 1fr);
   }
 

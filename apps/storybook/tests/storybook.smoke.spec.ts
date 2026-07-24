@@ -104,9 +104,42 @@ test("validates payment selection, cash presets, keypad targets, and mobile refl
 
   await page.getByRole("button", { name: "Rp80.000" }).click();
   await expect(page.getByText("Rp4.100")).toBeVisible();
-  await page.getByRole("radio", { name: /QRIS merchant/ }).check();
+  await page.getByRole("radio", { name: /QRIS merchant/ }).press("Space");
   await expect(page.getByRole("region", { name: "Keypad pembayaran tunai" })).toHaveCount(0);
   await expect(page.getByText("Keypad tunai tidak digunakan untuk metode QRIS.")).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});
+
+test("validates table layout tools interaction and mobile reflow", async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto(
+    "/iframe.html?id=domain-table-layout-table-layout-tools--toolbar-and-property-panel&viewMode=story",
+  );
+
+  await expect(page.getByRole("complementary", { name: "Properti meja terpilih" })).toBeVisible();
+  await expect(page.getByText("Meja 02")).toBeVisible();
+  await expect(page.getByText("table-02")).toHaveCount(0);
+
+  await page.getByRole("radio", { name: /Preview/ }).click();
+  await expect(page.getByRole("radio", { name: /Preview/ })).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  await page.getByRole("button", { name: "Geser meja" }).click();
+  await expect(page.getByRole("button", { name: "Geser meja" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await page.getByRole("checkbox", { name: /Snap grid/ }).press("Space");
+  await expect(page.getByRole("checkbox", { name: /Snap grid/ })).not.toBeChecked();
+  await page.getByLabel("Kolom").fill("6");
+  await expect(page.getByLabel("Kolom")).toHaveValue("6");
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/iframe.html?id=domain-table-layout-table-layout-tools--mobile&viewMode=story");
+  await expect(page.getByRole("toolbar")).toBeVisible();
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
