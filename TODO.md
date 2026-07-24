@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Table QR generate/print/revoke/rotate; lalu lanjutkan Customer QR resolution dan table context sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Customer QR resolution dan table context; lalu lanjutkan Customer tidak menerima internal table layout sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -756,7 +756,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] **13.5 Unplaced Table Tray:** daftar meja belum ditempatkan dengan action tempatkan/select, empty state, disabled reason, dan derived count tanpa mengekspos ID internal, koordinat, QR, atau metadata operasional.
 - [x] **13.6 Bounds/overlap validation dan keyboard alternative:** deteksi overlap berbasis label, penanda konflik, kontrol arah untuk meja terpilih, dan arrow-key movement yang tetap clamp ke batas canvas.
 - [x] **13.7 Table QR generate/print/revoke/rotate:** staff QR manager untuk generate, print, rotate, revoke, status QR, preview QR dari sistem, dan action callback tanpa mengekspos token mentah, internal ID, atau customer context.
-- [ ] Customer QR resolution dan table context.
+- [x] **13.8 Customer QR resolution dan table context:** customer storefront context untuk status resolving/ready/closed/invalid, merchant/outlet, label meja hasil resolve, dan action mulai pesan/retry tanpa membawa token, internal table ID, layout grid, session, payment, atau audit metadata.
 - [ ] Customer tidak menerima internal table layout.
 
 **Checkpoint 13.0:** `build(ui): add Table Layout drag-and-drop foundation`
@@ -787,6 +787,8 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Checkpoint 13.7:** `feat(ui): add Table QR management controls`
 
+**Checkpoint 13.8:** `feat(ui): add Customer QR context surface`
+
 **Table Layout Canvas gate:** Canvas hanya tersedia sebagai komponen staff untuk memetakan posisi meja pada logical grid. Source of truth item adalah `gridX`, `gridY`, `gridW`, dan `gridH` integer; drag pada mode `edit` memakai `DragDropProvider` dari `@dnd-kit/react`, sensor pointer/keyboard dari `@dnd-kit/dom`, serta snap/clamp ke grid sebelum callback perubahan posisi. Mode `view` dan `preview` read-only terhadap posisi. UI hanya merender boundary canvas, grid, dan `TableTile`; tidak menyediakan objek bangunan, toolbar, property panel, unplaced tray, save/undo, overlap messaging, QR, capacity, shape editor, customer/payment/session/audit/actor/timestamp metadata, atau layout customer. Component/axe test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
 
 **STOP:** Report, review, commit, dan push Tahap 13.3 sebelum membuat Table Layout Toolbar dan Property Panel.
@@ -806,6 +808,10 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 **Table QR gate:** Table QR Manager hanya tersedia untuk staff sebagai kontrol generate, print, rotate, dan revoke QR per meja. UI menampilkan label meja, status QR, preview QR yang sudah disediakan sistem, dan pesan status operasional. Internal table ID hanya menjadi nilai callback tersembunyi; raw token, URL QR, customer/session context, audit actor, timestamp detail, payment data, dan resolusi customer tidak dirender atau dijadikan input. QR aktif dapat dicetak/dirotasi/dicabut, sedangkan QR hilang atau dicabut hanya dapat dibuat ulang. Component interaction/axe test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
 
 **STOP:** Report, review, commit, dan push Tahap 13.7 sebelum membuat Customer QR resolution dan table context.
+
+**Customer QR context gate:** Customer QR Context hanya merender hasil resolusi QR yang aman untuk customer: identitas merchant, outlet bila tersedia, status resolving/ready/closed/invalid, label meja yang sudah di-resolve, pesan sistem, serta action mulai pesanan atau coba lagi. Komponen tidak menerima atau menampilkan raw token, URL QR, internal table ID, koordinat/grid/floor layout, customer/session ID, order/payment data, audit actor, timestamp detail, atau kontrol staff. Status resolving/closed menonaktifkan mulai pesanan, invalid hanya menyediakan retry, dan ready mengizinkan mulai pesanan tanpa argumen ID internal. Component interaction/axe test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
+
+**STOP:** Report, review, commit, dan push Tahap 13.8 sebelum membuat Customer tidak menerima internal table layout.
 
 ### Tahap 14 - KDS
 

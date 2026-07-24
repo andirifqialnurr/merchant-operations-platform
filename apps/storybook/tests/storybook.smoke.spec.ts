@@ -224,3 +224,38 @@ test("validates table QR actions and mobile reflow", async ({ page }) => {
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
 });
+
+test("validates customer QR resolution context and mobile reflow", async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto("/iframe.html?id=domain-qr-self-order-customer-qr-context--ready&viewMode=story");
+
+  await expect(page.getByRole("region", { name: "Konteks pesanan QR" })).toBeVisible();
+  await expect(page.getByText("Kopi Senja")).toBeVisible();
+  await expect(page.getByText("Cabang Meruya")).toBeVisible();
+  await expect(page.getByText("Meja 05")).toBeVisible();
+  await expect(page.getByText("Siap pesan")).toBeVisible();
+  await expect(page.getByText(/table-|grid|token|session/i)).toHaveCount(0);
+  await page.getByRole("button", { name: "Mulai pesanan" }).click();
+  await expect(page.getByText("Menu siap dibuka untuk meja ini.")).toBeVisible();
+
+  await page.goto(
+    "/iframe.html?id=domain-qr-self-order-customer-qr-context--invalid&viewMode=story",
+  );
+  await expect(page.getByRole("button", { name: "Coba lagi" })).toBeEnabled();
+  await expect(page.locator(".ui-customer-qr__context")).toHaveCount(0);
+
+  await page.goto(
+    "/iframe.html?id=domain-qr-self-order-customer-qr-context--theme-comparison&viewMode=story",
+  );
+  await expect(page.locator('section[data-theme-preview="light"] .ui-customer-qr')).toBeVisible();
+  await expect(page.locator('section[data-theme-preview="dark"] .ui-customer-qr')).toBeVisible();
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto(
+    "/iframe.html?id=domain-qr-self-order-customer-qr-context--mobile&viewMode=story",
+  );
+  await expect(page.getByRole("region", { name: "Konteks pesanan QR" })).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});
