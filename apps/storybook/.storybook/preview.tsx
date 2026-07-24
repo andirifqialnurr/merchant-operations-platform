@@ -24,6 +24,7 @@ import "@merchant/ui/styles/money-display.css";
 import "@merchant/ui/styles/pos-payment.css";
 import "@merchant/ui/styles/pos-shift.css";
 import "@merchant/ui/styles/table-layout-canvas.css";
+import "@merchant/ui/styles/table-layout-tray.css";
 import "@merchant/ui/styles/table-layout-tools.css";
 import "@merchant/ui/styles/table-tile.css";
 

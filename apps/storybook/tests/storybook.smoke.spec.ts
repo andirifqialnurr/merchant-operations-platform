@@ -144,3 +144,28 @@ test("validates table layout tools interaction and mobile reflow", async ({ page
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
 });
+
+test("validates unplaced table tray interaction and mobile reflow", async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto(
+    "/iframe.html?id=domain-table-layout-unplaced-table-tray--default&viewMode=story",
+  );
+
+  await expect(page.getByRole("region", { name: "Meja belum ditempatkan" })).toBeVisible();
+  await expect(page.getByText("4 meja")).toBeVisible();
+  await expect(page.getByText("3 siap ditempatkan")).toBeVisible();
+  await expect(page.getByText("table-12")).toHaveCount(0);
+  await page.getByRole("button", { name: "Tempatkan Meja 11" }).click();
+  await expect(page.getByRole("button", { name: "Tempatkan Meja 11" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.getByRole("button", { name: "Meja Servis, Belum aktif" })).toBeDisabled();
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/iframe.html?id=domain-table-layout-unplaced-table-tray--mobile&viewMode=story");
+  await expect(page.getByRole("region", { name: "Meja belum ditempatkan" })).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});
