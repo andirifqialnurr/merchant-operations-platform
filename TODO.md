@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Customer tidak menerima internal table layout; lalu lanjutkan Tahap 14 KDS sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push KDS realtime dependency foundation; lalu lanjutkan Kitchen Ticket sm/md/lg sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -821,12 +821,18 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 ### Tahap 14 - KDS
 
-- [ ] Install realtime client/server package saat tahap ini dimulai.
+- [x] **14.0 KDS realtime dependency foundation:** install package realtime resmi untuk API NestJS WebSocket/Socket.IO adapter dan client web Socket.IO tanpa membuat KDS ticket, gateway, route, atau flow realtime terlebih dahulu.
 - [ ] Kitchen Ticket sm/md/lg.
 - [ ] Timer dan SLA state.
 - [ ] Audio/visual new-ticket alert.
 - [ ] Reconnect/refetch flow.
 - [ ] KDS tidak menerima payment/HPP/customer sensitive data.
+
+**Checkpoint 14.0:** `build(kds): add realtime dependencies`
+
+**KDS realtime dependency gate:** API memakai direct dependency resmi NestJS `@nestjs/websockets` dan `@nestjs/platform-socket.io` dengan versi yang sejajar dengan `@nestjs/core/common`. Web memakai `socket.io-client` untuk calon device KDS. Checkpoint ini hanya memasang dependency dan lockfile; belum membuat gateway, namespace, event contract, ticket UI, audio alert, reconnect/refetch logic, atau KDS read model. Typecheck/lint paket terkait dan frozen lockfile install harus tetap lulus.
+
+**STOP:** Report, review, commit, dan push Tahap 14.0 sebelum membuat Kitchen Ticket sm/md/lg.
 
 ### Tahap 15 - Inventory Basic
 
