@@ -194,3 +194,33 @@ test("validates table layout bounds, overlap, and keyboard movement", async ({ p
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
 });
+
+test("validates table QR actions and mobile reflow", async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto("/iframe.html?id=domain-table-layout-table-qr--active&viewMode=story");
+
+  await expect(page.getByRole("region", { name: "QR meja Meja 01" })).toBeVisible();
+  await expect(page.getByText("Aktif")).toBeVisible();
+  await expect(page.getByText("table-01")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Cetak QR" }).click();
+  await expect(page.getByText("QR dikirim ke antrian cetak.")).toBeVisible();
+  await page.getByRole("button", { name: "Rotasi QR" }).click();
+  await expect(page.getByText("QR dirotasi dan preview diperbarui.")).toBeVisible();
+  await page.getByRole("button", { name: "Cabut QR" }).click();
+  await expect(page.locator(".ui-table-qr__status")).toHaveText("Dicabut");
+  await expect(page.getByRole("button", { name: "Buat QR" })).toBeEnabled();
+  await page.getByRole("button", { name: "Buat QR" }).click();
+  await expect(page.getByText("QR baru dibuat dan siap dicetak.")).toBeVisible();
+
+  await page.goto("/iframe.html?id=domain-table-layout-table-qr--theme-comparison&viewMode=story");
+  await expect(page.locator('section[data-theme-preview="light"] .ui-table-qr')).toBeVisible();
+  await expect(page.locator('section[data-theme-preview="dark"] .ui-table-qr')).toBeVisible();
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/iframe.html?id=domain-table-layout-table-qr--mobile&viewMode=story");
+  await expect(page.getByRole("region", { name: "QR meja Meja 01" })).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});

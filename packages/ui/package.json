@@ -39,6 +39,7 @@
     "./table-layout-canvas": "./src/components/table-layout-canvas.tsx",
     "./table-layout-tray": "./src/components/table-layout-tray.tsx",
     "./table-layout-tools": "./src/components/table-layout-tools.tsx",
+    "./table-qr": "./src/components/table-qr.tsx",
     "./table-tile": "./src/components/table-tile.tsx",
     "./styles/foundation.css": "./src/styles/foundation.css",
     "./styles/merchant-presets.css": "./src/styles/merchant-presets.css",
@@ -64,6 +65,7 @@
     "./styles/table-layout-canvas.css": "./src/styles/table-layout-canvas.css",
     "./styles/table-layout-tray.css": "./src/styles/table-layout-tray.css",
     "./styles/table-layout-tools.css": "./src/styles/table-layout-tools.css",
+    "./styles/table-qr.css": "./src/styles/table-qr.css",
     "./styles/table-tile.css": "./src/styles/table-tile.css",
     "./styles/typography.css": "./src/styles/typography.css"
   },

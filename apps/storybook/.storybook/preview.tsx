@@ -26,6 +26,7 @@ import "@merchant/ui/styles/pos-shift.css";
 import "@merchant/ui/styles/table-layout-canvas.css";
 import "@merchant/ui/styles/table-layout-tray.css";
 import "@merchant/ui/styles/table-layout-tools.css";
+import "@merchant/ui/styles/table-qr.css";
 import "@merchant/ui/styles/table-tile.css";
 
 import "./preview.css";
