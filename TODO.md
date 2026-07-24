@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push KDS realtime dependency foundation; lalu lanjutkan Kitchen Ticket sm/md/lg sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Kitchen Ticket sm/md/lg; lalu lanjutkan Timer dan SLA state sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -822,7 +822,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 ### Tahap 14 - KDS
 
 - [x] **14.0 KDS realtime dependency foundation:** install package realtime resmi untuk API NestJS WebSocket/Socket.IO adapter dan client web Socket.IO tanpa membuat KDS ticket, gateway, route, atau flow realtime terlebih dahulu.
-- [ ] Kitchen Ticket sm/md/lg.
+- [x] **14.1 Kitchen Ticket sm/md/lg:** ticket KDS untuk status, order/table/source, elapsed label, item quantity/name, modifier, note, allergy/special note, size sm/md/lg, variant compact/default/touch/history, dan primary action tanpa menampilkan harga, HPP, payment, nomor telepon, atau ID internal.
 - [ ] Timer dan SLA state.
 - [ ] Audio/visual new-ticket alert.
 - [ ] Reconnect/refetch flow.
@@ -830,9 +830,15 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Checkpoint 14.0:** `build(kds): add realtime dependencies`
 
+**Checkpoint 14.1:** `feat(ui): add KDS kitchen ticket`
+
 **KDS realtime dependency gate:** API memakai direct dependency resmi NestJS `@nestjs/websockets` dan `@nestjs/platform-socket.io` dengan versi yang sejajar dengan `@nestjs/core/common`. Web memakai `socket.io-client` untuk calon device KDS. Checkpoint ini hanya memasang dependency dan lockfile; belum membuat gateway, namespace, event contract, ticket UI, audio alert, reconnect/refetch logic, atau KDS read model. Typecheck/lint paket terkait dan frozen lockfile install harus tetap lulus.
 
 **STOP:** Report, review, commit, dan push Tahap 14.0 sebelum membuat Kitchen Ticket sm/md/lg.
+
+**Kitchen Ticket gate:** Kitchen Ticket menampilkan read model dapur saja: nomor order, label meja bila tersedia, source, elapsed label statis dari server, status KDS, item quantity/name, modifier, note, allergy/special note bila ada, dan primary state action. Size `sm/md/lg` mengikuti kontrak lebar/header/action; variant `compact/default/touch/history` tersedia, dengan `history` read-only. Ticket tidak merender harga, HPP, nomor telepon, informasi pembayaran, customer identity, internal ticket/order/table ID sebagai teks, audio alert, reconnect/refetch, atau SLA threshold dynamic coloring. Component interaction/axe test, Storybook production build, serta smoke browser 1440/390 px dan light/dark wajib lulus.
+
+**STOP:** Report, review, commit, dan push Tahap 14.1 sebelum membuat Timer dan SLA state.
 
 ### Tahap 15 - Inventory Basic
 

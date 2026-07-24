@@ -42,3 +42,10 @@ body {
   font-family: var(--font-family-sans);
   padding: var(--space-8);
 }
+
+.story-kds-ticket-row {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}

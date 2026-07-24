@@ -259,3 +259,36 @@ test("validates customer QR resolution context and mobile reflow", async ({ page
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
 });
+
+test("validates KDS ticket states, actions, and mobile reflow", async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto("/iframe.html?id=domain-kds-kitchen-ticket--default&viewMode=story");
+
+  await expect(page.getByRole("article", { name: "Kitchen ticket Order A-014" })).toBeVisible();
+  await expect(page.getByText("Order A-014")).toBeVisible();
+  await expect(page.getByText("Meja 05")).toBeVisible();
+  await expect(page.getByText("Pesanan baru")).toBeVisible();
+  await expect(page.getByText("Nasi goreng kampung")).toBeVisible();
+  await expect(page.getByText("Alergi kacang")).toBeVisible();
+  await expect(page.getByText(/ticket-internal|Rp|harga|hpp|payment|telepon/i)).toHaveCount(0);
+  await page.getByRole("button", { name: "Terima" }).click();
+  await expect(page.getByText("Diterima")).toBeVisible();
+  await page.getByRole("button", { name: "Siap disajikan" }).click();
+  await expect(page.getByText("Siap disajikan")).toBeVisible();
+
+  await page.goto("/iframe.html?id=domain-kds-kitchen-ticket--sizes&viewMode=story");
+  await expect(page.locator(".ui-kds-ticket--sm")).toBeVisible();
+  await expect(page.locator(".ui-kds-ticket--md")).toBeVisible();
+  await expect(page.locator(".ui-kds-ticket--lg")).toBeVisible();
+
+  await page.goto("/iframe.html?id=domain-kds-kitchen-ticket--theme-comparison&viewMode=story");
+  await expect(page.locator('section[data-theme-preview="light"] .ui-kds-ticket')).toBeVisible();
+  await expect(page.locator('section[data-theme-preview="dark"] .ui-kds-ticket')).toBeVisible();
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/iframe.html?id=domain-kds-kitchen-ticket--mobile&viewMode=story");
+  await expect(page.getByRole("article", { name: "Kitchen ticket Order A-014" })).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});

@@ -1,0 +1,262 @@
+.ui-kds-ticket {
+  --kds-ticket-accent: var(--color-status-info-text);
+  --kds-ticket-action-bg: var(--color-action-primary);
+  --kds-ticket-action-fg: var(--color-action-on-primary);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-left: 6px solid var(--kds-ticket-accent);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-text-primary);
+  display: grid;
+  font-family: var(--font-family-sans);
+  gap: var(--space-3);
+  min-width: 0;
+  overflow: hidden;
+  padding: var(--space-3);
+  width: 20rem;
+}
+
+.ui-kds-ticket--sm {
+  width: clamp(15rem, 18vw, 17.5rem);
+}
+
+.ui-kds-ticket--md {
+  width: clamp(17.5rem, 22vw, 20rem);
+}
+
+.ui-kds-ticket--lg {
+  width: clamp(20rem, 26vw, 22.5rem);
+}
+
+.ui-kds-ticket--new,
+.ui-kds-ticket--accepted {
+  --kds-ticket-accent: var(--color-status-info-text);
+}
+
+.ui-kds-ticket--preparing {
+  --kds-ticket-accent: var(--color-status-warning-text);
+}
+
+.ui-kds-ticket--ready {
+  --kds-ticket-accent: var(--color-status-success-text);
+}
+
+.ui-kds-ticket--cancelled {
+  --kds-ticket-accent: var(--color-status-danger-text);
+}
+
+.ui-kds-ticket--served,
+.ui-kds-ticket--completed {
+  --kds-ticket-accent: var(--color-text-muted);
+}
+
+.ui-kds-ticket--history {
+  background: var(--color-bg-surface-subtle);
+}
+
+.ui-kds-ticket__header {
+  align-items: start;
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-block-size: 3rem;
+}
+
+.ui-kds-ticket--sm .ui-kds-ticket__header {
+  min-block-size: 2.5rem;
+}
+
+.ui-kds-ticket--lg .ui-kds-ticket__header {
+  min-block-size: 3.5rem;
+}
+
+.ui-kds-ticket__order {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.ui-kds-ticket__order > span {
+  font-size: var(--text-label);
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+
+.ui-kds-ticket--lg .ui-kds-ticket__order > span {
+  font-size: var(--text-heading-sm);
+  line-height: var(--text-heading-sm--line-height);
+}
+
+.ui-kds-ticket__order strong {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.ui-kds-ticket__status {
+  background: color-mix(in srgb, var(--kds-ticket-accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kds-ticket-accent) 42%, transparent);
+  border-radius: var(--foundation-radius-full);
+  color: var(--kds-ticket-accent);
+  font-size: var(--text-caption);
+  font-weight: 750;
+  max-width: 9rem;
+  overflow-wrap: anywhere;
+  padding: var(--space-1) var(--space-2);
+  text-align: center;
+}
+
+.ui-kds-ticket__meta {
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+  gap: var(--space-2);
+}
+
+.ui-kds-ticket__meta span {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.ui-kds-ticket__items,
+.ui-kds-ticket__modifiers {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ui-kds-ticket__items > li {
+  border-top: 1px solid var(--color-border-subtle);
+  display: grid;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+.ui-kds-ticket__item-main {
+  align-items: baseline;
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.ui-kds-ticket__item-main strong {
+  background: var(--color-bg-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-sm);
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  min-inline-size: 2rem;
+  padding: var(--space-1);
+  text-align: center;
+}
+
+.ui-kds-ticket__item-main span {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.ui-kds-ticket--sm .ui-kds-ticket__item-main span {
+  font-size: 14px;
+}
+
+.ui-kds-ticket--lg .ui-kds-ticket__item-main span,
+.ui-kds-ticket--touch .ui-kds-ticket__item-main span {
+  font-size: 18px;
+}
+
+.ui-kds-ticket__modifiers {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  gap: var(--space-1);
+  padding-inline-start: calc(2rem + var(--space-2));
+}
+
+.ui-kds-ticket__modifiers li {
+  overflow-wrap: anywhere;
+  position: relative;
+}
+
+.ui-kds-ticket__modifiers li::before {
+  content: "+";
+  inset-inline-start: calc(var(--space-3) * -1);
+  position: absolute;
+}
+
+.ui-kds-ticket__note,
+.ui-kds-ticket__allergy {
+  border-radius: var(--foundation-radius-sm);
+  font-size: var(--text-body-sm);
+  line-height: 1.45;
+  margin: 0;
+  overflow-wrap: anywhere;
+  padding: var(--space-2);
+}
+
+.ui-kds-ticket__note {
+  background: var(--color-bg-surface-subtle);
+  color: var(--color-text-secondary);
+}
+
+.ui-kds-ticket__allergy {
+  background: var(--color-status-warning-bg);
+  color: var(--color-status-warning-text);
+  font-weight: 650;
+}
+
+.ui-kds-ticket__action {
+  align-items: center;
+  background: var(--kds-ticket-action-bg);
+  border: 1px solid var(--kds-ticket-action-bg);
+  border-radius: var(--foundation-radius-sm);
+  color: var(--kds-ticket-action-fg);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: var(--text-label);
+  font-weight: 750;
+  gap: var(--space-2);
+  justify-content: center;
+  min-block-size: 3rem;
+  padding: 0 var(--space-3);
+}
+
+.ui-kds-ticket--sm .ui-kds-ticket__action {
+  min-block-size: 2.5rem;
+}
+
+.ui-kds-ticket--lg .ui-kds-ticket__action,
+.ui-kds-ticket--touch .ui-kds-ticket__action {
+  min-block-size: 3.5rem;
+}
+
+.ui-kds-ticket__action:hover:not(:disabled) {
+  background: var(--color-action-primary-hover);
+  border-color: var(--color-action-primary-hover);
+}
+
+.ui-kds-ticket__action:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  outline: 0;
+}
+
+.ui-kds-ticket__action:disabled {
+  background: var(--color-bg-surface-subtle);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+@media (max-width: 40rem) {
+  .ui-kds-ticket {
+    width: min(100%, 22rem);
+  }
+}
