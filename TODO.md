@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Customer QR resolution dan table context; lalu lanjutkan Customer tidak menerima internal table layout sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Customer tidak menerima internal table layout; lalu lanjutkan Tahap 14 KDS sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -757,7 +757,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] **13.6 Bounds/overlap validation dan keyboard alternative:** deteksi overlap berbasis label, penanda konflik, kontrol arah untuk meja terpilih, dan arrow-key movement yang tetap clamp ke batas canvas.
 - [x] **13.7 Table QR generate/print/revoke/rotate:** staff QR manager untuk generate, print, rotate, revoke, status QR, preview QR dari sistem, dan action callback tanpa mengekspos token mentah, internal ID, atau customer context.
 - [x] **13.8 Customer QR resolution dan table context:** customer storefront context untuk status resolving/ready/closed/invalid, merchant/outlet, label meja hasil resolve, dan action mulai pesan/retry tanpa membawa token, internal table ID, layout grid, session, payment, atau audit metadata.
-- [ ] Customer tidak menerima internal table layout.
+- [x] **13.9 Customer tidak menerima internal table layout:** mapper customer-safe untuk resolusi QR hanya meneruskan status, label meja publik, dan pesan sistem; internal table ID, floor/grid/coordinate layout, raw token, session, payment, dan audit metadata dibuang sebelum masuk surface customer.
 
 **Checkpoint 13.0:** `build(ui): add Table Layout drag-and-drop foundation`
 
@@ -789,6 +789,8 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 **Checkpoint 13.8:** `feat(ui): add Customer QR context surface`
 
+**Checkpoint 13.9:** `feat(ui): guard customer QR table context`
+
 **Table Layout Canvas gate:** Canvas hanya tersedia sebagai komponen staff untuk memetakan posisi meja pada logical grid. Source of truth item adalah `gridX`, `gridY`, `gridW`, dan `gridH` integer; drag pada mode `edit` memakai `DragDropProvider` dari `@dnd-kit/react`, sensor pointer/keyboard dari `@dnd-kit/dom`, serta snap/clamp ke grid sebelum callback perubahan posisi. Mode `view` dan `preview` read-only terhadap posisi. UI hanya merender boundary canvas, grid, dan `TableTile`; tidak menyediakan objek bangunan, toolbar, property panel, unplaced tray, save/undo, overlap messaging, QR, capacity, shape editor, customer/payment/session/audit/actor/timestamp metadata, atau layout customer. Component/axe test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
 
 **STOP:** Report, review, commit, dan push Tahap 13.3 sebelum membuat Table Layout Toolbar dan Property Panel.
@@ -812,6 +814,10 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 **Customer QR context gate:** Customer QR Context hanya merender hasil resolusi QR yang aman untuk customer: identitas merchant, outlet bila tersedia, status resolving/ready/closed/invalid, label meja yang sudah di-resolve, pesan sistem, serta action mulai pesanan atau coba lagi. Komponen tidak menerima atau menampilkan raw token, URL QR, internal table ID, koordinat/grid/floor layout, customer/session ID, order/payment data, audit actor, timestamp detail, atau kontrol staff. Status resolving/closed menonaktifkan mulai pesanan, invalid hanya menyediakan retry, dan ready mengizinkan mulai pesanan tanpa argumen ID internal. Component interaction/axe test, Storybook production build, serta review browser light/dark dan 1440/390 px wajib lulus.
 
 **STOP:** Report, review, commit, dan push Tahap 13.8 sebelum membuat Customer tidak menerima internal table layout.
+
+**Customer table layout privacy gate:** Customer-facing QR resolution wajib dibangun dari model publik yang hanya mengenal label meja, status resolusi, dan pesan sistem. Bila caller memiliki record internal layout staff, mapper harus menghasilkan payload baru yang hanya berisi `status`, `tableLabel`, dan optional `message`; ID internal meja, floor/area, koordinat/grid, ukuran canvas, raw token/URL QR, session/customer ID, order/payment data, audit actor, timestamp, dan metadata staff tidak boleh diteruskan sebagai props atau dirender di Storybook customer. Component/unit test harus membuktikan object hasil mapper tidak memuat field internal, Storybook smoke harus memastikan surface customer tidak mengekspos label internal, serta build/lint/typecheck tetap lulus.
+
+**STOP:** Report, review, commit, dan push Tahap 13.9 sebelum memulai Tahap 14 KDS.
 
 ### Tahap 14 - KDS
 

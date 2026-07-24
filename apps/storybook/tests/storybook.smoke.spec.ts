@@ -234,7 +234,7 @@ test("validates customer QR resolution context and mobile reflow", async ({ page
   await expect(page.getByText("Cabang Meruya")).toBeVisible();
   await expect(page.getByText("Meja 05")).toBeVisible();
   await expect(page.getByText("Siap pesan")).toBeVisible();
-  await expect(page.getByText(/table-|grid|token|session/i)).toHaveCount(0);
+  await expect(page.getByText(/table-|grid|token|session|floor|internal/i)).toHaveCount(0);
   await page.getByRole("button", { name: "Mulai pesanan" }).click();
   await expect(page.getByText("Menu siap dibuka untuk meja ini.")).toBeVisible();
 

@@ -3,7 +3,11 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
-import { CustomerQrContext, type CustomerQrContextMerchant } from "./customer-qr-context";
+import {
+  createCustomerQrResolution,
+  CustomerQrContext,
+  type CustomerQrContextMerchant,
+} from "./customer-qr-context";
 
 const merchant: CustomerQrContextMerchant = {
   banner: "Pesan langsung dari meja tanpa antre di kasir.",
@@ -12,6 +16,37 @@ const merchant: CustomerQrContextMerchant = {
 };
 
 describe("CustomerQrContext", () => {
+  it("creates a customer-safe resolution without internal table layout fields", () => {
+    const internalTable = {
+      auditActor: "manager-01",
+      floorId: "floor-internal-01",
+      gridH: 2,
+      gridW: 3,
+      gridX: 4,
+      gridY: 1,
+      id: "table-internal-05",
+      label: "Meja 05",
+      paymentSessionId: "payment-session-01",
+      qrToken: "raw-token",
+      sessionId: "session-01",
+    };
+
+    const resolution = createCustomerQrResolution({
+      message: " Pesanan akan terhubung ke meja ini. ",
+      status: "ready",
+      table: internalTable,
+    });
+
+    expect(resolution).toEqual({
+      message: "Pesanan akan terhubung ke meja ini.",
+      status: "ready",
+      tableLabel: "Meja 05",
+    });
+    expect(JSON.stringify(resolution)).not.toMatch(
+      /internal|grid|floor|token|session|payment|audit/i,
+    );
+  });
+
   it("renders merchant and table context without internal layout data", () => {
     render(
       <CustomerQrContext
@@ -98,6 +133,9 @@ describe("CustomerQrContext", () => {
     expect(() =>
       render(<CustomerQrContext merchant={merchant} resolution={{ status: "ready" }} />),
     ).toThrow(/label meja/);
+    expect(() => createCustomerQrResolution({ status: "ready", table: { label: "" } })).toThrow(
+      /Label meja/,
+    );
     expect(() =>
       render(
         <CustomerQrContext

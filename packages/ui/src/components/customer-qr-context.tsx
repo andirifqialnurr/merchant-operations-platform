@@ -20,6 +20,16 @@ export type CustomerQrResolution = {
   tableLabel?: string;
 };
 
+export type CustomerQrPublicTableContext = {
+  label: string;
+};
+
+export type CustomerQrResolutionInput = {
+  message?: string;
+  status: CustomerQrResolutionStatus;
+  table?: CustomerQrPublicTableContext;
+};
+
 export type CustomerQrContextProps = {
   className?: string;
   disabled?: boolean;
@@ -47,6 +57,45 @@ function classes(...values: Array<string | false | null | undefined>) {
   return values.filter(Boolean).join(" ");
 }
 
+export function createCustomerQrResolution(input: CustomerQrResolutionInput): CustomerQrResolution {
+  if (input.message !== undefined && !input.message.trim()) {
+    throw new TypeError("Pesan Customer QR harus berisi teks bila dikirim.");
+  }
+  if (input.table !== undefined && !input.table.label.trim()) {
+    throw new TypeError("Label meja Customer QR harus berisi teks bila dikirim.");
+  }
+
+  const resolution: CustomerQrResolution = {
+    status: input.status,
+  };
+
+  if (input.message !== undefined) {
+    resolution.message = input.message.trim();
+  }
+  if (input.table !== undefined) {
+    resolution.tableLabel = input.table.label.trim();
+  }
+
+  assertCustomerQrResolution(resolution);
+
+  return resolution;
+}
+
+function assertCustomerQrResolution(resolution: CustomerQrResolution) {
+  if (
+    (resolution.status === "ready" || resolution.status === "closed") &&
+    !resolution.tableLabel?.trim()
+  ) {
+    throw new TypeError("Customer QR siap/tutup memerlukan label meja.");
+  }
+  if (resolution.tableLabel !== undefined && !resolution.tableLabel.trim()) {
+    throw new TypeError("Label meja Customer QR harus berisi teks bila dikirim.");
+  }
+  if (resolution.message !== undefined && !resolution.message.trim()) {
+    throw new TypeError("Pesan Customer QR harus berisi teks bila dikirim.");
+  }
+}
+
 function assertCustomerQrContract(
   merchant: CustomerQrContextMerchant,
   resolution: CustomerQrResolution,
@@ -67,18 +116,7 @@ function assertCustomerQrContract(
   if (merchant.logoAlt !== undefined && !merchant.logoAlt.trim()) {
     throw new TypeError("Alt logo Customer QR harus berisi teks bila dikirim.");
   }
-  if (
-    (resolution.status === "ready" || resolution.status === "closed") &&
-    !resolution.tableLabel?.trim()
-  ) {
-    throw new TypeError("Customer QR siap/tutup memerlukan label meja.");
-  }
-  if (resolution.tableLabel !== undefined && !resolution.tableLabel.trim()) {
-    throw new TypeError("Label meja Customer QR harus berisi teks bila dikirim.");
-  }
-  if (resolution.message !== undefined && !resolution.message.trim()) {
-    throw new TypeError("Pesan Customer QR harus berisi teks bila dikirim.");
-  }
+  assertCustomerQrResolution(resolution);
 }
 
 export function CustomerQrContext({

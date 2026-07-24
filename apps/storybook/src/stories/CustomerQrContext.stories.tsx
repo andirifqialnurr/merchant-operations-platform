@@ -1,7 +1,11 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { CustomerQrContext, type CustomerQrResolution } from "@merchant/ui/customer-qr-context";
+import {
+  createCustomerQrResolution,
+  CustomerQrContext,
+  type CustomerQrResolution,
+} from "@merchant/ui/customer-qr-context";
 
 import { storyContractParameters } from "./story-contract";
 
@@ -11,11 +15,23 @@ const merchant = {
   outletName: "Cabang Meruya",
 };
 
-const readyResolution: CustomerQrResolution = {
+const internalLayoutRecord = {
+  floorId: "floor-internal-01",
+  gridH: 2,
+  gridW: 3,
+  gridX: 4,
+  gridY: 1,
+  id: "table-internal-05",
+  label: "Meja 05",
+  qrToken: "raw-token",
+  sessionId: "session-01",
+};
+
+const readyResolution: CustomerQrResolution = createCustomerQrResolution({
   message: "Pesanan akan terhubung ke meja ini.",
   status: "ready",
-  tableLabel: "Meja 05",
-};
+  table: internalLayoutRecord,
+});
 
 function StatefulCustomerQrContext() {
   const [resolution, setResolution] = useState<CustomerQrResolution>(readyResolution);
