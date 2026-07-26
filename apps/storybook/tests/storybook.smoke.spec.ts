@@ -270,7 +270,11 @@ test("validates KDS ticket states, actions, and mobile reflow", async ({ page })
   await expect(page.getByText("Pesanan baru")).toBeVisible();
   await expect(page.getByText("Nasi goreng kampung")).toBeVisible();
   await expect(page.getByText("Alergi kacang")).toBeVisible();
-  await expect(page.getByText(/ticket-internal|Rp|harga|hpp|payment|telepon/i)).toHaveCount(0);
+  await expect(
+    page.getByText(
+      /ticket-internal|Rp|harga|hpp|payment|telepon|customer|phone|price|cogs|cost|profit|invoice|receipt|token/i,
+    ),
+  ).toHaveCount(0);
   await page.getByRole("button", { name: "Terima" }).click();
   await expect(page.getByText("Diterima")).toBeVisible();
   await page.getByRole("button", { name: "Siap disajikan" }).click();
@@ -288,7 +292,11 @@ test("validates KDS ticket states, actions, and mobile reflow", async ({ page })
   await expect(page.getByText("Sesuai SLA")).toHaveCount(2);
   await expect(page.getByText("Mendekati SLA")).toBeVisible();
   await expect(page.getByText("Lewat target pickup")).toBeVisible();
-  await expect(page.getByText(/ticket-sla|threshold|deadline|hpp|payment|telepon/i)).toHaveCount(0);
+  await expect(
+    page.getByText(
+      /ticket-sla|threshold|deadline|hpp|payment|telepon|customer|phone|price|cogs|cost|profit|invoice|receipt|token/i,
+    ),
+  ).toHaveCount(0);
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
@@ -298,7 +306,9 @@ test("validates KDS ticket states, actions, and mobile reflow", async ({ page })
   await expect(page.getByText("3 ticket baru")).toBeVisible();
   await expect(page.getByText("Audio perlu izin perangkat")).toBeVisible();
   await expect(
-    page.getByText(/alert-internal|audio-url|sound|ticket-|hpp|payment|telepon/i),
+    page.getByText(
+      /alert-internal|audio-url|sound|ticket-|hpp|payment|telepon|customer|phone|price|cogs|cost|profit|invoice|receipt|token/i,
+    ),
   ).toHaveCount(0);
   await page.getByRole("button", { name: "Aktifkan audio" }).click();
   await expect(page.getByText("Audio siap").first()).toBeVisible();
@@ -314,7 +324,9 @@ test("validates KDS ticket states, actions, and mobile reflow", async ({ page })
   await expect(connectionStatus.getByText("Terputus")).toBeVisible();
   await expect(page.getByText("2 ticket menunggu sinkron")).toBeVisible();
   await expect(
-    page.getByText(/connection-internal|namespace|socket|event|token|hpp|payment|telepon/i),
+    page.getByText(
+      /connection-internal|namespace|socket|event|token|hpp|payment|telepon|customer|phone|price|cogs|cost|profit|invoice|receipt/i,
+    ),
   ).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Reconnect" }).first()).toBeEnabled();
   await page.getByRole("button", { name: "Reconnect" }).first().click();

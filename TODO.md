@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Reconnect/refetch flow; lalu lanjutkan KDS tidak menerima payment/HPP/customer sensitive data sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push guard data sensitif KDS; lalu lanjutkan Inventory item/unit sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -826,7 +826,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] **14.2 Timer dan SLA state:** timer label/state dan SLA state read-only pada Kitchen Ticket tanpa menghitung realtime lokal, threshold mentah, event contract, audio alert, reconnect/refetch, payment/HPP, customer identity, atau ID internal.
 - [x] **14.3 Audio/visual new-ticket alert:** alert ticket baru untuk KDS dengan visual state, audio readiness/blocked/muted state, action enable audio dan acknowledge, tanpa memutar audio otomatis, raw sound URL, event contract, reconnect/refetch, payment/HPP, customer identity, nomor telepon, atau ID internal sebagai teks.
 - [x] **14.4 Reconnect/refetch flow:** status koneksi KDS dengan state connected/connecting/disconnected/stale, last sync, pending count, action reconnect dan refresh, tanpa membuat gateway/event contract, retry token, queue subscription, payment/HPP, customer identity, nomor telepon, atau ID internal sebagai teks.
-- [ ] KDS tidak menerima payment/HPP/customer sensitive data.
+- [x] **14.5 KDS tidak menerima payment/HPP/customer sensitive data:** seluruh surface KDS menolak key payment/HPP/cost/profit/customer/contact/token/payload sebelum render dan tetap hanya menerima read model dapur yang aman.
 
 **Checkpoint 14.0:** `build(kds): add realtime dependencies`
 
@@ -837,6 +837,8 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 **Checkpoint 14.3:** `feat(ui): add KDS new ticket alert`
 
 **Checkpoint 14.4:** `feat(ui): add KDS reconnect and refetch status`
+
+**Checkpoint 14.5:** `feat(ui): guard KDS sensitive read model data`
 
 **KDS realtime dependency gate:** API memakai direct dependency resmi NestJS `@nestjs/websockets` dan `@nestjs/platform-socket.io` dengan versi yang sejajar dengan `@nestjs/core/common`. Web memakai `socket.io-client` untuk calon device KDS. Checkpoint ini hanya memasang dependency dan lockfile; belum membuat gateway, namespace, event contract, ticket UI, audio alert, reconnect/refetch logic, atau KDS read model. Typecheck/lint paket terkait dan frozen lockfile install harus tetap lulus.
 
@@ -857,6 +859,10 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 **Reconnect/refetch gate:** Reconnect/refetch hanya menyediakan control surface staff KDS untuk melihat status koneksi dan meminta sinkronisasi ulang. UI menampilkan state connected/connecting/disconnected/stale, last sync label bila tersedia, pending count bila tersedia, pesan aman, serta action `Reconnect` dan `Refresh`. Internal status ID hanya menjadi callback value tersembunyi. Checkpoint ini tidak membuat gateway Socket.IO, namespace, event payload, retry token, queue subscription, polling interval, backoff scheduler, ticket read model baru, payment, HPP, customer identity, nomor telepon, internal ticket/order/table ID sebagai teks, atau audit metadata. Component interaction/axe test, Storybook production build, serta smoke browser 1440/390 px dan light/dark wajib lulus.
 
 **STOP:** Report, review, commit, dan push Tahap 14.4 sebelum membuat guard KDS tidak menerima payment/HPP/customer sensitive data.
+
+**KDS sensitive data guard gate:** Surface KDS tidak boleh menerima payment, HPP/COGS/cost/profit/margin, customer identity/contact, invoice/receipt/billing, raw token, namespace/socket/event payload, atau metadata sensitif lain sebagai props atau nested item data. Guard harus menolak key sensitif sebelum render, termasuk payload yang masuk lewat object spread. Data yang tetap valid hanya read model dapur: nomor order, label meja/source, status KDS, elapsed/timer/SLA label aman, item quantity/name/modifier/note/allergy, alert count/audio state, connection state/last sync/pending count, dan callback action dengan internal ID tersembunyi. Component/unit test harus membuktikan key sensitif ditolak, Storybook smoke harus memastikan surface KDS tidak mengekspos istilah/label sensitif, serta build/lint/typecheck tetap lulus.
+
+**STOP:** Report, review, commit, dan push Tahap 14.5 sebelum memulai Tahap 15 Inventory Basic.
 
 ### Tahap 15 - Inventory Basic
 

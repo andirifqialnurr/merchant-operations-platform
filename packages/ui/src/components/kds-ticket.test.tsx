@@ -112,6 +112,63 @@ describe("KdsTicket", () => {
     expect(screen.queryByText("connection-internal-02")).not.toBeInTheDocument();
   });
 
+  it("rejects payment, HPP, customer, and token data before KDS render", () => {
+    const baseTicketProps = {
+      elapsedLabel: "08:12",
+      id: "ticket-internal-safe",
+      items,
+      orderLabel: "Order A-014",
+      sourceLabel: "QR meja",
+      status: "new",
+    } as const;
+
+    expect(() =>
+      render(
+        <KdsTicket
+          {...({
+            ...baseTicketProps,
+            paymentTotalLabel: "Rp120.000",
+          } as Parameters<typeof KdsTicket>[0] & { paymentTotalLabel: string })}
+        />,
+      ),
+    ).toThrow(/paymentTotalLabel/);
+    expect(() =>
+      render(
+        <KdsTicket
+          {...({
+            ...baseTicketProps,
+            items: [{ hppAmount: 12_000, name: "Nasi goreng", quantity: 1 }],
+          } as Parameters<typeof KdsTicket>[0] & {
+            items: Array<KdsTicketItem & { hppAmount: number }>;
+          })}
+        />,
+      ),
+    ).toThrow(/hppAmount/);
+    expect(() =>
+      render(
+        <KdsNewTicketAlert
+          {...({
+            alertId: "alert-sensitive",
+            audioState: "ready",
+            count: 1,
+            customerPhone: "081234567890",
+          } as Parameters<typeof KdsNewTicketAlert>[0] & { customerPhone: string })}
+        />,
+      ),
+    ).toThrow(/customerPhone/);
+    expect(() =>
+      render(
+        <KdsConnectionStatus
+          {...({
+            retryToken: "retry-secret",
+            state: "connected",
+            statusId: "connection-sensitive",
+          } as Parameters<typeof KdsConnectionStatus>[0] & { retryToken: string })}
+        />,
+      ),
+    ).toThrow(/retryToken/);
+  });
+
   it("renders kitchen read model without payment, price, or internal identifiers", () => {
     render(
       <KdsTicket

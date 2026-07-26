@@ -148,6 +148,9 @@ const connectionStateContent: Record<
   },
 };
 
+const kdsSensitiveDataKeyPattern =
+  /(?:payment|hpp|cogs|cost|price|profit|margin|customer|phone|telepon|email|billing|invoice|receipt|token|namespace|socket|payload)/i;
+
 function classes(...values: Array<string | false | null | undefined>) {
   return values.filter(Boolean).join(" ");
 }
@@ -155,6 +158,24 @@ function classes(...values: Array<string | false | null | undefined>) {
 function assertText(value: string | undefined, fieldName: string) {
   if (value !== undefined && !value.trim()) {
     throw new TypeError(`${fieldName} harus berisi teks bila dikirim.`);
+  }
+}
+
+function assertNoKdsSensitiveData(value: unknown, path = "KDS payload") {
+  if (value === null || value === undefined || typeof value !== "object") return;
+
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => assertNoKdsSensitiveData(item, `${path}[${index}]`));
+    return;
+  }
+
+  for (const [key, nestedValue] of Object.entries(value as Record<string, unknown>)) {
+    if (kdsSensitiveDataKeyPattern.test(key)) {
+      throw new TypeError(`${path} tidak boleh menerima data sensitif: ${key}.`);
+    }
+    if (nestedValue && typeof nestedValue === "object") {
+      assertNoKdsSensitiveData(nestedValue, `${path}.${key}`);
+    }
   }
 }
 
@@ -248,16 +269,20 @@ function assertKdsConnectionStatusContract({
   }
 }
 
-export function KdsNewTicketAlert({
-  alertId,
-  audioState,
-  className,
-  count,
-  message,
-  onAcknowledge,
-  onEnableAudio,
-  tone = "standard",
-}: KdsNewTicketAlertProps) {
+export function KdsNewTicketAlert(props: KdsNewTicketAlertProps) {
+  assertNoKdsSensitiveData(props);
+
+  const {
+    alertId,
+    audioState,
+    className,
+    count,
+    message,
+    onAcknowledge,
+    onEnableAudio,
+    tone = "standard",
+  } = props;
+
   assertKdsNewTicketAlertContract({ alertId, count, message });
 
   const audioContent = audioStateContent[audioState];
@@ -308,18 +333,22 @@ export function KdsNewTicketAlert({
   );
 }
 
-export function KdsConnectionStatus({
-  canReconnect,
-  canRefetch,
-  className,
-  lastSyncedLabel,
-  message,
-  onReconnect,
-  onRefetch,
-  pendingCount,
-  state,
-  statusId,
-}: KdsConnectionStatusProps) {
+export function KdsConnectionStatus(props: KdsConnectionStatusProps) {
+  assertNoKdsSensitiveData(props);
+
+  const {
+    canReconnect,
+    canRefetch,
+    className,
+    lastSyncedLabel,
+    message,
+    onReconnect,
+    onRefetch,
+    pendingCount,
+    state,
+    statusId,
+  } = props;
+
   assertKdsConnectionStatusContract({ lastSyncedLabel, message, pendingCount, statusId });
 
   const content = connectionStateContent[state];
@@ -375,23 +404,27 @@ export function KdsConnectionStatus({
   );
 }
 
-export function KdsTicket({
-  className,
-  disabled = false,
-  elapsedLabel,
-  id,
-  items,
-  onPrimaryAction,
-  orderLabel,
-  size = "md",
-  slaLabel,
-  slaState,
-  sourceLabel,
-  status,
-  tableLabel,
-  timerState = "running",
-  variant = "default",
-}: KdsTicketProps) {
+export function KdsTicket(props: KdsTicketProps) {
+  assertNoKdsSensitiveData(props);
+
+  const {
+    className,
+    disabled = false,
+    elapsedLabel,
+    id,
+    items,
+    onPrimaryAction,
+    orderLabel,
+    size = "md",
+    slaLabel,
+    slaState,
+    sourceLabel,
+    status,
+    tableLabel,
+    timerState = "running",
+    variant = "default",
+  } = props;
+
   assertKdsTicketContract({ elapsedLabel, id, items, orderLabel, sourceLabel, tableLabel });
   assertKdsTicketTimerContract({ slaLabel, slaState, timerState });
 
