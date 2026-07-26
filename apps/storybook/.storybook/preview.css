@@ -49,3 +49,9 @@ body {
   flex-wrap: wrap;
   gap: var(--space-4);
 }
+
+.story-kds-ticket-stack {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 100%;
+}

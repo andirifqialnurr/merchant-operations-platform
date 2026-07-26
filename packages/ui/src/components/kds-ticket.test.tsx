@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
-import { KdsTicket, type KdsTicketItem } from "./kds-ticket";
+import { KdsNewTicketAlert, KdsTicket, type KdsTicketItem } from "./kds-ticket";
 
 const items: KdsTicketItem[] = [
   {
@@ -20,6 +20,49 @@ const items: KdsTicketItem[] = [
 ];
 
 describe("KdsTicket", () => {
+  it("renders new-ticket visual and audio state without exposing internal alert data", () => {
+    render(
+      <KdsNewTicketAlert
+        alertId="alert-internal-01"
+        audioState="ready"
+        count={3}
+        message="Pesanan baru masuk ke antrean dapur."
+        tone="urgent"
+      />,
+    );
+
+    expect(screen.getByRole("status", { name: "Alert ticket baru KDS" })).toBeVisible();
+    expect(screen.getByText("3 ticket baru")).toBeVisible();
+    expect(screen.getByText("Pesanan baru masuk ke antrean dapur.")).toBeVisible();
+    expect(screen.getByText("Audio siap")).toBeVisible();
+    expect(screen.getByRole("status")).toHaveClass("ui-kds-new-ticket-alert--urgent");
+    expect(
+      screen.queryByText(/alert-internal|sound|audio-url|ticket-|payment|hpp|telepon/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it("calls alert actions with hidden alert id", async () => {
+    const onAcknowledge = vi.fn();
+    const onEnableAudio = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <KdsNewTicketAlert
+        alertId="alert-internal-02"
+        audioState="blocked"
+        count={1}
+        onAcknowledge={onAcknowledge}
+        onEnableAudio={onEnableAudio}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Aktifkan audio" }));
+    await user.click(screen.getByRole("button", { name: "Tandai dilihat" }));
+    expect(onEnableAudio).toHaveBeenCalledWith("alert-internal-02");
+    expect(onAcknowledge).toHaveBeenCalledWith("alert-internal-02");
+    expect(screen.queryByText("alert-internal-02")).not.toBeInTheDocument();
+  });
+
   it("renders kitchen read model without payment, price, or internal identifiers", () => {
     render(
       <KdsTicket
@@ -194,19 +237,31 @@ describe("KdsTicket", () => {
         />,
       ),
     ).toThrow(/state SLA/);
+    expect(() => render(<KdsNewTicketAlert alertId="" audioState="ready" count={1} />)).toThrow(
+      /id internal alert/,
+    );
+    expect(() =>
+      render(<KdsNewTicketAlert alertId="alert-a" audioState="ready" count={0} />),
+    ).toThrow(/Jumlah ticket baru/);
+    expect(() =>
+      render(<KdsNewTicketAlert alertId="alert-a" audioState="ready" count={1} message="" />),
+    ).toThrow(/Pesan new-ticket alert/);
   });
 
   it("passes an axe smoke test", async () => {
     const { container } = render(
-      <KdsTicket
-        elapsedLabel="08:12"
-        id="ticket-internal-01"
-        items={items}
-        orderLabel="Order A-014"
-        sourceLabel="QR meja"
-        status="new"
-        tableLabel="Meja 05"
-      />,
+      <div>
+        <KdsNewTicketAlert alertId="alert-internal-01" audioState="ready" count={1} />
+        <KdsTicket
+          elapsedLabel="08:12"
+          id="ticket-internal-01"
+          items={items}
+          orderLabel="Order A-014"
+          sourceLabel="QR meja"
+          status="new"
+          tableLabel="Meja 05"
+        />
+      </div>,
     );
     expect((await axe(container)).violations).toEqual([]);
   });

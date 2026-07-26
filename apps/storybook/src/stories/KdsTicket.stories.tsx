@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { KdsTicket, type KdsTicketStatus } from "@merchant/ui/kds-ticket";
+import { KdsNewTicketAlert, KdsTicket, type KdsTicketStatus } from "@merchant/ui/kds-ticket";
 
 import { storyContractParameters } from "./story-contract";
 
@@ -38,6 +38,34 @@ function StatefulKdsTicket() {
       sourceLabel="QR meja"
       status={status}
       tableLabel="Meja 05"
+    />
+  );
+}
+
+function NewTicketAlertDemo() {
+  const [acknowledged, setAcknowledged] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(false);
+
+  if (acknowledged) {
+    return (
+      <KdsNewTicketAlert
+        alertId="alert-internal-ack"
+        audioState={audioEnabled ? "ready" : "muted"}
+        count={1}
+        message="Alert sudah dilihat oleh operator dapur."
+      />
+    );
+  }
+
+  return (
+    <KdsNewTicketAlert
+      alertId="alert-internal-01"
+      audioState={audioEnabled ? "ready" : "blocked"}
+      count={3}
+      message="Pesanan baru masuk ke antrean dapur."
+      onAcknowledge={() => setAcknowledged(true)}
+      onEnableAudio={() => setAudioEnabled(true)}
+      tone="urgent"
     />
   );
 }
@@ -159,6 +187,28 @@ export const TimerAndSla: Story = {
   ),
 };
 
+export const NewTicketAlert: Story = {
+  render: () => (
+    <div className="story-kds-ticket-stack">
+      <NewTicketAlertDemo />
+      <div className="story-kds-ticket-row">
+        <KdsNewTicketAlert
+          alertId="alert-ready-01"
+          audioState="ready"
+          count={1}
+          message="Audio siap untuk ticket berikutnya."
+        />
+        <KdsNewTicketAlert
+          alertId="alert-muted-01"
+          audioState="muted"
+          count={2}
+          message="Operator memilih mode visual saja."
+        />
+      </div>
+    </div>
+  ),
+};
+
 export const History: Story = {
   render: () => (
     <div className="story-kds-ticket-row">
@@ -190,11 +240,17 @@ export const ThemeComparison: Story = {
     <div className="story-contract-theme-comparison">
       <section data-theme-preview="light">
         <h2 className="text-heading-sm">Light</h2>
-        <StatefulKdsTicket />
+        <div className="story-kds-ticket-stack">
+          <NewTicketAlertDemo />
+          <StatefulKdsTicket />
+        </div>
       </section>
       <section data-theme-preview="dark">
         <h2 className="text-heading-sm">Dark</h2>
-        <StatefulKdsTicket />
+        <div className="story-kds-ticket-stack">
+          <NewTicketAlertDemo />
+          <StatefulKdsTicket />
+        </div>
       </section>
     </div>
   ),
@@ -202,5 +258,10 @@ export const ThemeComparison: Story = {
 
 export const Mobile: Story = {
   parameters: { viewport: { defaultViewport: "mobile" } },
-  render: () => <StatefulKdsTicket />,
+  render: () => (
+    <div className="story-kds-ticket-stack">
+      <NewTicketAlertDemo />
+      <StatefulKdsTicket />
+    </div>
+  ),
 };

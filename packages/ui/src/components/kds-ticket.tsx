@@ -1,6 +1,16 @@
 "use client";
 
-import { CheckCircle2, ChefHat, Clock3, Flame, PackageCheck, PauseCircle } from "lucide-react";
+import {
+  BellRing,
+  CheckCircle2,
+  ChefHat,
+  Clock3,
+  Flame,
+  PackageCheck,
+  PauseCircle,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 
 import { AppIcon } from "./app-icon";
 
@@ -11,6 +21,8 @@ export type KdsTicketSize = "sm" | "md" | "lg";
 export type KdsTicketVariant = "compact" | "default" | "touch" | "history";
 export type KdsTicketTimerState = "running" | "paused" | "completed";
 export type KdsTicketSlaState = "on-track" | "warning" | "breached";
+export type KdsNewTicketAlertAudioState = "ready" | "muted" | "blocked";
+export type KdsNewTicketAlertTone = "standard" | "urgent";
 
 export type KdsTicketItem = {
   allergyNote?: string;
@@ -21,6 +33,17 @@ export type KdsTicketItem = {
 };
 
 export type KdsTicketAction = "accept" | "mark-ready" | "mark-served" | "complete";
+
+export type KdsNewTicketAlertProps = {
+  alertId: string;
+  audioState: KdsNewTicketAlertAudioState;
+  className?: string;
+  count: number;
+  message?: string;
+  onAcknowledge?: (alertId: string) => void;
+  onEnableAudio?: (alertId: string) => void;
+  tone?: KdsNewTicketAlertTone;
+};
 
 export type KdsTicketProps = {
   className?: string;
@@ -71,6 +94,15 @@ const slaStateLabel: Record<KdsTicketSlaState, string> = {
   breached: "Lewat SLA",
   "on-track": "Sesuai SLA",
   warning: "Mendekati SLA",
+};
+
+const audioStateContent: Record<
+  KdsNewTicketAlertAudioState,
+  { icon: typeof CheckCircle2; label: string }
+> = {
+  blocked: { icon: VolumeX, label: "Audio perlu izin perangkat" },
+  muted: { icon: VolumeX, label: "Audio dimatikan" },
+  ready: { icon: Volume2, label: "Audio siap" },
 };
 
 function classes(...values: Array<string | false | null | undefined>) {
@@ -136,6 +168,82 @@ function assertKdsTicketTimerContract({
   if (timerState === "completed" && slaState === "warning") {
     throw new TypeError("Timer selesai tidak boleh memakai state SLA mendekati.");
   }
+}
+
+function assertKdsNewTicketAlertContract({
+  alertId,
+  count,
+  message,
+}: {
+  alertId: string;
+  count: number;
+  message: string | undefined;
+}) {
+  if (!alertId.trim()) throw new TypeError("KDS new-ticket alert memerlukan id internal alert.");
+  if (!Number.isSafeInteger(count) || count <= 0) {
+    throw new TypeError("Jumlah ticket baru KDS harus berupa safe integer positif.");
+  }
+  assertText(message, "Pesan new-ticket alert KDS");
+}
+
+export function KdsNewTicketAlert({
+  alertId,
+  audioState,
+  className,
+  count,
+  message,
+  onAcknowledge,
+  onEnableAudio,
+  tone = "standard",
+}: KdsNewTicketAlertProps) {
+  assertKdsNewTicketAlertContract({ alertId, count, message });
+
+  const audioContent = audioStateContent[audioState];
+  const ticketLabel = count === 1 ? "1 ticket baru" : `${count} ticket baru`;
+
+  return (
+    <section
+      aria-label="Alert ticket baru KDS"
+      aria-live="polite"
+      className={classes(
+        "ui-kds-new-ticket-alert",
+        `ui-kds-new-ticket-alert--${audioState}`,
+        `ui-kds-new-ticket-alert--${tone}`,
+        className,
+      )}
+      role="status"
+    >
+      <span className="ui-kds-new-ticket-alert__icon" aria-hidden="true">
+        <AppIcon icon={BellRing} size="md" />
+      </span>
+      <span className="ui-kds-new-ticket-alert__content">
+        <strong>{ticketLabel}</strong>
+        <span>{message?.trim() ?? "Pesanan masuk dan perlu diproses dapur."}</span>
+      </span>
+      <span className="ui-kds-new-ticket-alert__audio">
+        <AppIcon icon={audioContent.icon} size="xs" />
+        {audioContent.label}
+      </span>
+      {audioState === "blocked" ? (
+        <button
+          className="ui-kds-new-ticket-alert__button"
+          disabled={!onEnableAudio}
+          onClick={() => onEnableAudio?.(alertId)}
+          type="button"
+        >
+          Aktifkan audio
+        </button>
+      ) : null}
+      <button
+        className="ui-kds-new-ticket-alert__button ui-kds-new-ticket-alert__button--secondary"
+        disabled={!onAcknowledge}
+        onClick={() => onAcknowledge?.(alertId)}
+        type="button"
+      >
+        Tandai dilihat
+      </button>
+    </section>
+  );
 }
 
 export function KdsTicket({

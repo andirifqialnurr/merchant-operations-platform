@@ -293,13 +293,35 @@ test("validates KDS ticket states, actions, and mobile reflow", async ({ page })
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
 
+  await page.goto("/iframe.html?id=domain-kds-kitchen-ticket--new-ticket-alert&viewMode=story");
+  await expect(page.getByRole("status", { name: "Alert ticket baru KDS" }).first()).toBeVisible();
+  await expect(page.getByText("3 ticket baru")).toBeVisible();
+  await expect(page.getByText("Audio perlu izin perangkat")).toBeVisible();
+  await expect(
+    page.getByText(/alert-internal|audio-url|sound|ticket-|hpp|payment|telepon/i),
+  ).toHaveCount(0);
+  await page.getByRole("button", { name: "Aktifkan audio" }).click();
+  await expect(page.getByText("Audio siap").first()).toBeVisible();
+  await page.getByRole("button", { name: "Tandai dilihat" }).first().click();
+  await expect(page.getByText("Alert sudah dilihat oleh operator dapur.")).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+
   await page.goto("/iframe.html?id=domain-kds-kitchen-ticket--theme-comparison&viewMode=story");
   await expect(page.locator('section[data-theme-preview="light"] .ui-kds-ticket')).toBeVisible();
   await expect(page.locator('section[data-theme-preview="dark"] .ui-kds-ticket')).toBeVisible();
+  await expect(
+    page.locator('section[data-theme-preview="light"] .ui-kds-new-ticket-alert'),
+  ).toBeVisible();
+  await expect(
+    page.locator('section[data-theme-preview="dark"] .ui-kds-new-ticket-alert'),
+  ).toBeVisible();
 
   await page.setViewportSize({ height: 844, width: 390 });
   await page.goto("/iframe.html?id=domain-kds-kitchen-ticket--mobile&viewMode=story");
   await expect(page.getByRole("article", { name: "Kitchen ticket Order A-014" })).toBeVisible();
+  await expect(page.getByRole("status", { name: "Alert ticket baru KDS" })).toBeVisible();
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);

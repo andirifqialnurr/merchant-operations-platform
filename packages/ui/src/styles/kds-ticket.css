@@ -16,6 +16,131 @@
   width: 20rem;
 }
 
+.ui-kds-new-ticket-alert {
+  --kds-alert-accent: var(--color-status-info-text);
+  align-items: center;
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--kds-alert-accent) 14%, transparent),
+      transparent 42%
+    ),
+    var(--color-bg-surface);
+  border: 1px solid color-mix(in srgb, var(--kds-alert-accent) 42%, var(--color-border-default));
+  border-left: 6px solid var(--kds-alert-accent);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-text-primary);
+  display: grid;
+  font-family: var(--font-family-sans);
+  gap: var(--space-3);
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  max-width: 52rem;
+  min-width: 0;
+  overflow: hidden;
+  padding: var(--space-3);
+}
+
+.ui-kds-new-ticket-alert--urgent {
+  --kds-alert-accent: var(--color-status-warning-text);
+}
+
+.ui-kds-new-ticket-alert--blocked {
+  --kds-alert-accent: var(--color-status-danger-text);
+}
+
+.ui-kds-new-ticket-alert__icon {
+  align-items: center;
+  background: color-mix(in srgb, var(--kds-alert-accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kds-alert-accent) 36%, transparent);
+  border-radius: var(--foundation-radius-full);
+  color: var(--kds-alert-accent);
+  display: inline-flex;
+  inline-size: 2.75rem;
+  justify-content: center;
+  min-block-size: 2.75rem;
+}
+
+.ui-kds-new-ticket-alert__content {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.ui-kds-new-ticket-alert__content strong {
+  font-size: var(--text-label);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.ui-kds-new-ticket-alert__content span {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  overflow-wrap: anywhere;
+}
+
+.ui-kds-new-ticket-alert__audio {
+  align-items: center;
+  background: var(--color-bg-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-full);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  gap: var(--space-1);
+  justify-content: center;
+  min-block-size: 2rem;
+  padding: 0 var(--space-2);
+  white-space: nowrap;
+}
+
+.ui-kds-new-ticket-alert__button {
+  align-items: center;
+  background: var(--color-action-primary);
+  border: 1px solid var(--color-action-primary);
+  border-radius: var(--foundation-radius-sm);
+  color: var(--color-action-on-primary);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: var(--text-label);
+  font-weight: 750;
+  justify-content: center;
+  min-block-size: 2.5rem;
+  padding: 0 var(--space-3);
+  white-space: nowrap;
+}
+
+.ui-kds-new-ticket-alert__button--secondary {
+  background: var(--color-bg-surface);
+  border-color: var(--color-border-control);
+  color: var(--color-text-primary);
+}
+
+.ui-kds-new-ticket-alert__button:hover:not(:disabled) {
+  background: var(--color-action-primary-hover);
+  border-color: var(--color-action-primary-hover);
+  color: var(--color-action-on-primary);
+}
+
+.ui-kds-new-ticket-alert__button--secondary:hover:not(:disabled) {
+  background: var(--color-bg-surface-subtle);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
+}
+
+.ui-kds-new-ticket-alert__button:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  outline: 0;
+}
+
+.ui-kds-new-ticket-alert__button:disabled {
+  background: var(--color-bg-surface-subtle);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
 .ui-kds-ticket--sm {
   width: clamp(15rem, 18vw, 17.5rem);
 }
@@ -283,7 +408,41 @@
 }
 
 @media (max-width: 40rem) {
+  .ui-kds-new-ticket-alert {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .ui-kds-new-ticket-alert__audio,
+  .ui-kds-new-ticket-alert__button {
+    grid-column: 1 / -1;
+  }
+
+  .ui-kds-new-ticket-alert__button {
+    width: 100%;
+  }
+
   .ui-kds-ticket {
     width: min(100%, 22rem);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ui-kds-new-ticket-alert--urgent .ui-kds-new-ticket-alert__icon {
+    animation: ui-kds-alert-ring var(--motion-duration-slow) var(--motion-easing-standard) 2;
+  }
+}
+
+@keyframes ui-kds-alert-ring {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(-8deg);
+  }
+
+  75% {
+    transform: rotate(8deg);
   }
 }

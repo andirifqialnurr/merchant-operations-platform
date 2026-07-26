@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Timer/SLA state; lalu lanjutkan Audio/visual new-ticket alert sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Audio/visual new-ticket alert; lalu lanjutkan Reconnect/refetch flow sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -824,7 +824,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] **14.0 KDS realtime dependency foundation:** install package realtime resmi untuk API NestJS WebSocket/Socket.IO adapter dan client web Socket.IO tanpa membuat KDS ticket, gateway, route, atau flow realtime terlebih dahulu.
 - [x] **14.1 Kitchen Ticket sm/md/lg:** ticket KDS untuk status, order/table/source, elapsed label, item quantity/name, modifier, note, allergy/special note, size sm/md/lg, variant compact/default/touch/history, dan primary action tanpa menampilkan harga, HPP, payment, nomor telepon, atau ID internal.
 - [x] **14.2 Timer dan SLA state:** timer label/state dan SLA state read-only pada Kitchen Ticket tanpa menghitung realtime lokal, threshold mentah, event contract, audio alert, reconnect/refetch, payment/HPP, customer identity, atau ID internal.
-- [ ] Audio/visual new-ticket alert.
+- [x] **14.3 Audio/visual new-ticket alert:** alert ticket baru untuk KDS dengan visual state, audio readiness/blocked/muted state, action enable audio dan acknowledge, tanpa memutar audio otomatis, raw sound URL, event contract, reconnect/refetch, payment/HPP, customer identity, nomor telepon, atau ID internal sebagai teks.
 - [ ] Reconnect/refetch flow.
 - [ ] KDS tidak menerima payment/HPP/customer sensitive data.
 
@@ -833,6 +833,8 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 **Checkpoint 14.1:** `feat(ui): add KDS kitchen ticket`
 
 **Checkpoint 14.2:** `feat(ui): add KDS timer and SLA states`
+
+**Checkpoint 14.3:** `feat(ui): add KDS new ticket alert`
 
 **KDS realtime dependency gate:** API memakai direct dependency resmi NestJS `@nestjs/websockets` dan `@nestjs/platform-socket.io` dengan versi yang sejajar dengan `@nestjs/core/common`. Web memakai `socket.io-client` untuk calon device KDS. Checkpoint ini hanya memasang dependency dan lockfile; belum membuat gateway, namespace, event contract, ticket UI, audio alert, reconnect/refetch logic, atau KDS read model. Typecheck/lint paket terkait dan frozen lockfile install harus tetap lulus.
 
@@ -845,6 +847,10 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 **Timer/SLA gate:** Timer dan SLA hanya memperkaya Kitchen Ticket sebagai display dapur read-only. `elapsedLabel`, `timerState`, dan `slaState` berasal dari read model/server atau caller yang sudah aman; komponen tidak menghitung deadline realtime lokal, tidak menerima threshold mentah sebagai field UI, dan tidak membuat event realtime. SLA state tampil sebagai on-track, warning, atau breached dengan label aman; timer state tampil sebagai running, paused, atau completed. Internal ticket/order/table ID tetap hanya untuk callback action dan tidak tampil sebagai teks. Checkpoint ini tidak membuat audio/visual alert, reconnect/refetch flow, gateway Socket.IO, namespace, harga, HPP, payment, customer identity, nomor telepon, atau data sensitif. Component interaction/axe test, Storybook production build, serta smoke browser 1440/390 px dan light/dark wajib lulus.
 
 **STOP:** Report, review, commit, dan push Tahap 14.2 sebelum membuat Audio/visual new-ticket alert.
+
+**Audio/visual alert gate:** New-ticket alert hanya memberi sinyal staff KDS bahwa ada ticket baru yang perlu dilihat. Visual alert menampilkan jumlah ticket baru dan pesan aman dari caller; audio state hanya `ready`, `muted`, atau `blocked` sebagai display/aksi user, tanpa memutar audio otomatis dan tanpa menerima raw sound URL sebagai field UI. Enable audio dan acknowledge adalah user action eksplisit dan internal alert ID hanya dipakai sebagai callback value tersembunyi. Checkpoint ini tidak membuat gateway/event contract, reconnect/refetch flow, queue subscription, payment, HPP, customer identity, nomor telepon, internal ticket/order/table ID sebagai teks, audit metadata, atau konfigurasi perangkat permanen. Component interaction/axe test, Storybook production build, serta smoke browser 1440/390 px dan light/dark wajib lulus.
+
+**STOP:** Report, review, commit, dan push Tahap 14.3 sebelum membuat Reconnect/refetch flow.
 
 ### Tahap 15 - Inventory Basic
 
