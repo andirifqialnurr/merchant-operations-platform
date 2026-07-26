@@ -3,7 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
-import { KdsNewTicketAlert, KdsTicket, type KdsTicketItem } from "./kds-ticket";
+import {
+  KdsConnectionStatus,
+  KdsNewTicketAlert,
+  KdsTicket,
+  type KdsTicketItem,
+} from "./kds-ticket";
 
 const items: KdsTicketItem[] = [
   {
@@ -61,6 +66,50 @@ describe("KdsTicket", () => {
     expect(onEnableAudio).toHaveBeenCalledWith("alert-internal-02");
     expect(onAcknowledge).toHaveBeenCalledWith("alert-internal-02");
     expect(screen.queryByText("alert-internal-02")).not.toBeInTheDocument();
+  });
+
+  it("renders reconnect and refetch state without exposing connection internals", () => {
+    render(
+      <KdsConnectionStatus
+        lastSyncedLabel="Sinkron 20:15"
+        pendingCount={2}
+        state="stale"
+        statusId="connection-internal-01"
+      />,
+    );
+
+    expect(screen.getByRole("region", { name: "Status koneksi KDS" })).toBeVisible();
+    expect(screen.getByText("Perlu refresh")).toBeVisible();
+    expect(screen.getByText("Sinkron 20:15")).toBeVisible();
+    expect(screen.getByText("2 ticket menunggu sinkron")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Reconnect" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeDisabled();
+    expect(
+      screen.queryByText(/connection-internal|namespace|socket|event|token|payment|hpp/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it("calls reconnect and refetch actions with hidden status id", async () => {
+    const onReconnect = vi.fn();
+    const onRefetch = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <KdsConnectionStatus
+        canReconnect
+        canRefetch
+        onReconnect={onReconnect}
+        onRefetch={onRefetch}
+        state="disconnected"
+        statusId="connection-internal-02"
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Reconnect" }));
+    await user.click(screen.getByRole("button", { name: "Refresh" }));
+    expect(onReconnect).toHaveBeenCalledWith("connection-internal-02");
+    expect(onRefetch).toHaveBeenCalledWith("connection-internal-02");
+    expect(screen.queryByText("connection-internal-02")).not.toBeInTheDocument();
   });
 
   it("renders kitchen read model without payment, price, or internal identifiers", () => {
@@ -246,12 +295,22 @@ describe("KdsTicket", () => {
     expect(() =>
       render(<KdsNewTicketAlert alertId="alert-a" audioState="ready" count={1} message="" />),
     ).toThrow(/Pesan new-ticket alert/);
+    expect(() => render(<KdsConnectionStatus state="connected" statusId="" />)).toThrow(
+      /id internal status/,
+    );
+    expect(() =>
+      render(<KdsConnectionStatus pendingCount={-1} state="connected" statusId="connection-a" />),
+    ).toThrow(/pending ticket/);
+    expect(() =>
+      render(<KdsConnectionStatus lastSyncedLabel="" state="connected" statusId="connection-a" />),
+    ).toThrow(/Label sinkronisasi/);
   });
 
   it("passes an axe smoke test", async () => {
     const { container } = render(
       <div>
         <KdsNewTicketAlert alertId="alert-internal-01" audioState="ready" count={1} />
+        <KdsConnectionStatus state="connected" statusId="connection-internal-01" />
         <KdsTicket
           elapsedLabel="08:12"
           id="ticket-internal-01"

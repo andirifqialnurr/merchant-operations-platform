@@ -141,6 +141,134 @@
   cursor: not-allowed;
 }
 
+.ui-kds-connection-status {
+  --kds-connection-accent: var(--color-status-info-text);
+  align-items: center;
+  background: var(--color-bg-surface);
+  border: 1px solid
+    color-mix(in srgb, var(--kds-connection-accent) 34%, var(--color-border-default));
+  border-left: 6px solid var(--kds-connection-accent);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-text-primary);
+  display: grid;
+  font-family: var(--font-family-sans);
+  gap: var(--space-3);
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  max-width: 56rem;
+  min-width: 0;
+  padding: var(--space-3);
+}
+
+.ui-kds-connection-status--connected {
+  --kds-connection-accent: var(--color-status-success-text);
+}
+
+.ui-kds-connection-status--connecting,
+.ui-kds-connection-status--stale {
+  --kds-connection-accent: var(--color-status-warning-text);
+}
+
+.ui-kds-connection-status--disconnected {
+  --kds-connection-accent: var(--color-status-danger-text);
+}
+
+.ui-kds-connection-status__icon {
+  align-items: center;
+  background: color-mix(in srgb, var(--kds-connection-accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kds-connection-accent) 36%, transparent);
+  border-radius: var(--foundation-radius-full);
+  color: var(--kds-connection-accent);
+  display: inline-flex;
+  inline-size: 2.5rem;
+  justify-content: center;
+  min-block-size: 2.5rem;
+}
+
+.ui-kds-connection-status__content {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.ui-kds-connection-status__content strong {
+  font-size: var(--text-label);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.ui-kds-connection-status__content span {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  overflow-wrap: anywhere;
+}
+
+.ui-kds-connection-status__meta {
+  color: var(--color-text-secondary);
+  display: grid;
+  font-size: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.ui-kds-connection-status__meta span {
+  overflow-wrap: anywhere;
+}
+
+.ui-kds-connection-status__actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+.ui-kds-connection-status__button {
+  align-items: center;
+  background: var(--color-action-primary);
+  border: 1px solid var(--color-action-primary);
+  border-radius: var(--foundation-radius-sm);
+  color: var(--color-action-on-primary);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: var(--text-label);
+  font-weight: 750;
+  justify-content: center;
+  min-block-size: 2.5rem;
+  padding: 0 var(--space-3);
+  white-space: nowrap;
+}
+
+.ui-kds-connection-status__button--secondary {
+  background: var(--color-bg-surface);
+  border-color: var(--color-border-control);
+  color: var(--color-text-primary);
+}
+
+.ui-kds-connection-status__button:hover:not(:disabled) {
+  background: var(--color-action-primary-hover);
+  border-color: var(--color-action-primary-hover);
+  color: var(--color-action-on-primary);
+}
+
+.ui-kds-connection-status__button--secondary:hover:not(:disabled) {
+  background: var(--color-bg-surface-subtle);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
+}
+
+.ui-kds-connection-status__button:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  outline: 0;
+}
+
+.ui-kds-connection-status__button:disabled {
+  background: var(--color-bg-surface-subtle);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
 .ui-kds-ticket--sm {
   width: clamp(15rem, 18vw, 17.5rem);
 }
@@ -412,13 +540,24 @@
     grid-template-columns: auto minmax(0, 1fr);
   }
 
+  .ui-kds-connection-status {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
   .ui-kds-new-ticket-alert__audio,
-  .ui-kds-new-ticket-alert__button {
+  .ui-kds-new-ticket-alert__button,
+  .ui-kds-connection-status__meta,
+  .ui-kds-connection-status__actions {
     grid-column: 1 / -1;
   }
 
-  .ui-kds-new-ticket-alert__button {
+  .ui-kds-new-ticket-alert__button,
+  .ui-kds-connection-status__button {
     width: 100%;
+  }
+
+  .ui-kds-connection-status__actions {
+    display: grid;
   }
 
   .ui-kds-ticket {

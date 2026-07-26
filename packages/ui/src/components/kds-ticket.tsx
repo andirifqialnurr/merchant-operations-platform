@@ -8,8 +8,11 @@ import {
   Flame,
   PackageCheck,
   PauseCircle,
+  RefreshCcw,
   Volume2,
   VolumeX,
+  Wifi,
+  WifiOff,
 } from "lucide-react";
 
 import { AppIcon } from "./app-icon";
@@ -23,6 +26,7 @@ export type KdsTicketTimerState = "running" | "paused" | "completed";
 export type KdsTicketSlaState = "on-track" | "warning" | "breached";
 export type KdsNewTicketAlertAudioState = "ready" | "muted" | "blocked";
 export type KdsNewTicketAlertTone = "standard" | "urgent";
+export type KdsConnectionState = "connected" | "connecting" | "disconnected" | "stale";
 
 export type KdsTicketItem = {
   allergyNote?: string;
@@ -43,6 +47,19 @@ export type KdsNewTicketAlertProps = {
   onAcknowledge?: (alertId: string) => void;
   onEnableAudio?: (alertId: string) => void;
   tone?: KdsNewTicketAlertTone;
+};
+
+export type KdsConnectionStatusProps = {
+  canReconnect?: boolean;
+  canRefetch?: boolean;
+  className?: string;
+  lastSyncedLabel?: string;
+  message?: string;
+  onReconnect?: (statusId: string) => void;
+  onRefetch?: (statusId: string) => void;
+  pendingCount?: number;
+  state: KdsConnectionState;
+  statusId: string;
 };
 
 export type KdsTicketProps = {
@@ -103,6 +120,32 @@ const audioStateContent: Record<
   blocked: { icon: VolumeX, label: "Audio perlu izin perangkat" },
   muted: { icon: VolumeX, label: "Audio dimatikan" },
   ready: { icon: Volume2, label: "Audio siap" },
+};
+
+const connectionStateContent: Record<
+  KdsConnectionState,
+  { icon: typeof CheckCircle2; label: string; message: string }
+> = {
+  connected: {
+    icon: Wifi,
+    label: "Terhubung",
+    message: "Ticket dapur tersinkron otomatis.",
+  },
+  connecting: {
+    icon: RefreshCcw,
+    label: "Menghubungkan",
+    message: "Sedang menyambungkan ulang tampilan dapur.",
+  },
+  disconnected: {
+    icon: WifiOff,
+    label: "Terputus",
+    message: "Koneksi dapur terputus. Coba sambungkan ulang.",
+  },
+  stale: {
+    icon: RefreshCcw,
+    label: "Perlu refresh",
+    message: "Data ticket mungkin tertinggal. Refresh untuk mengambil snapshot terbaru.",
+  },
 };
 
 function classes(...values: Array<string | false | null | undefined>) {
@@ -186,6 +229,25 @@ function assertKdsNewTicketAlertContract({
   assertText(message, "Pesan new-ticket alert KDS");
 }
 
+function assertKdsConnectionStatusContract({
+  lastSyncedLabel,
+  message,
+  pendingCount,
+  statusId,
+}: {
+  lastSyncedLabel: string | undefined;
+  message: string | undefined;
+  pendingCount: number | undefined;
+  statusId: string;
+}) {
+  if (!statusId.trim()) throw new TypeError("KDS connection status memerlukan id internal status.");
+  assertText(lastSyncedLabel, "Label sinkronisasi KDS");
+  assertText(message, "Pesan koneksi KDS");
+  if (pendingCount !== undefined && (!Number.isSafeInteger(pendingCount) || pendingCount < 0)) {
+    throw new TypeError("Jumlah pending ticket KDS harus berupa safe integer non-negatif.");
+  }
+}
+
 export function KdsNewTicketAlert({
   alertId,
   audioState,
@@ -242,6 +304,73 @@ export function KdsNewTicketAlert({
       >
         Tandai dilihat
       </button>
+    </section>
+  );
+}
+
+export function KdsConnectionStatus({
+  canReconnect,
+  canRefetch,
+  className,
+  lastSyncedLabel,
+  message,
+  onReconnect,
+  onRefetch,
+  pendingCount,
+  state,
+  statusId,
+}: KdsConnectionStatusProps) {
+  assertKdsConnectionStatusContract({ lastSyncedLabel, message, pendingCount, statusId });
+
+  const content = connectionStateContent[state];
+  const reconnectEnabled = canReconnect ?? state === "disconnected";
+  const refetchEnabled = canRefetch ?? (state === "stale" || state === "connected");
+  const pendingText =
+    pendingCount === undefined
+      ? undefined
+      : pendingCount === 0
+        ? "Tidak ada pending ticket"
+        : `${pendingCount} ticket menunggu sinkron`;
+
+  return (
+    <section
+      aria-label="Status koneksi KDS"
+      aria-live="polite"
+      className={classes(
+        "ui-kds-connection-status",
+        `ui-kds-connection-status--${state}`,
+        className,
+      )}
+    >
+      <span className="ui-kds-connection-status__icon" aria-hidden="true">
+        <AppIcon icon={content.icon} size="md" />
+      </span>
+      <span className="ui-kds-connection-status__content">
+        <strong>{content.label}</strong>
+        <span>{message?.trim() ?? content.message}</span>
+      </span>
+      <span className="ui-kds-connection-status__meta">
+        {lastSyncedLabel ? <span>{lastSyncedLabel.trim()}</span> : null}
+        {pendingText ? <span>{pendingText}</span> : null}
+      </span>
+      <span className="ui-kds-connection-status__actions">
+        <button
+          className="ui-kds-connection-status__button"
+          disabled={!reconnectEnabled || !onReconnect}
+          onClick={() => onReconnect?.(statusId)}
+          type="button"
+        >
+          Reconnect
+        </button>
+        <button
+          className="ui-kds-connection-status__button ui-kds-connection-status__button--secondary"
+          disabled={!refetchEnabled || !onRefetch}
+          onClick={() => onRefetch?.(statusId)}
+          type="button"
+        >
+          Refresh
+        </button>
+      </span>
     </section>
   );
 }

@@ -55,3 +55,16 @@ body {
   gap: var(--space-4);
   max-width: 100%;
 }
+
+.story-kds-ticket-control {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--foundation-radius-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-label);
+  font-weight: 700;
+  min-block-size: 2.5rem;
+  padding: 0 var(--space-3);
+}

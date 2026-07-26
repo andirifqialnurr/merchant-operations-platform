@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Audio/visual new-ticket alert; lalu lanjutkan Reconnect/refetch flow sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Reconnect/refetch flow; lalu lanjutkan KDS tidak menerima payment/HPP/customer sensitive data sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -825,7 +825,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] **14.1 Kitchen Ticket sm/md/lg:** ticket KDS untuk status, order/table/source, elapsed label, item quantity/name, modifier, note, allergy/special note, size sm/md/lg, variant compact/default/touch/history, dan primary action tanpa menampilkan harga, HPP, payment, nomor telepon, atau ID internal.
 - [x] **14.2 Timer dan SLA state:** timer label/state dan SLA state read-only pada Kitchen Ticket tanpa menghitung realtime lokal, threshold mentah, event contract, audio alert, reconnect/refetch, payment/HPP, customer identity, atau ID internal.
 - [x] **14.3 Audio/visual new-ticket alert:** alert ticket baru untuk KDS dengan visual state, audio readiness/blocked/muted state, action enable audio dan acknowledge, tanpa memutar audio otomatis, raw sound URL, event contract, reconnect/refetch, payment/HPP, customer identity, nomor telepon, atau ID internal sebagai teks.
-- [ ] Reconnect/refetch flow.
+- [x] **14.4 Reconnect/refetch flow:** status koneksi KDS dengan state connected/connecting/disconnected/stale, last sync, pending count, action reconnect dan refresh, tanpa membuat gateway/event contract, retry token, queue subscription, payment/HPP, customer identity, nomor telepon, atau ID internal sebagai teks.
 - [ ] KDS tidak menerima payment/HPP/customer sensitive data.
 
 **Checkpoint 14.0:** `build(kds): add realtime dependencies`
@@ -835,6 +835,8 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 **Checkpoint 14.2:** `feat(ui): add KDS timer and SLA states`
 
 **Checkpoint 14.3:** `feat(ui): add KDS new ticket alert`
+
+**Checkpoint 14.4:** `feat(ui): add KDS reconnect and refetch status`
 
 **KDS realtime dependency gate:** API memakai direct dependency resmi NestJS `@nestjs/websockets` dan `@nestjs/platform-socket.io` dengan versi yang sejajar dengan `@nestjs/core/common`. Web memakai `socket.io-client` untuk calon device KDS. Checkpoint ini hanya memasang dependency dan lockfile; belum membuat gateway, namespace, event contract, ticket UI, audio alert, reconnect/refetch logic, atau KDS read model. Typecheck/lint paket terkait dan frozen lockfile install harus tetap lulus.
 
@@ -851,6 +853,10 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 **Audio/visual alert gate:** New-ticket alert hanya memberi sinyal staff KDS bahwa ada ticket baru yang perlu dilihat. Visual alert menampilkan jumlah ticket baru dan pesan aman dari caller; audio state hanya `ready`, `muted`, atau `blocked` sebagai display/aksi user, tanpa memutar audio otomatis dan tanpa menerima raw sound URL sebagai field UI. Enable audio dan acknowledge adalah user action eksplisit dan internal alert ID hanya dipakai sebagai callback value tersembunyi. Checkpoint ini tidak membuat gateway/event contract, reconnect/refetch flow, queue subscription, payment, HPP, customer identity, nomor telepon, internal ticket/order/table ID sebagai teks, audit metadata, atau konfigurasi perangkat permanen. Component interaction/axe test, Storybook production build, serta smoke browser 1440/390 px dan light/dark wajib lulus.
 
 **STOP:** Report, review, commit, dan push Tahap 14.3 sebelum membuat Reconnect/refetch flow.
+
+**Reconnect/refetch gate:** Reconnect/refetch hanya menyediakan control surface staff KDS untuk melihat status koneksi dan meminta sinkronisasi ulang. UI menampilkan state connected/connecting/disconnected/stale, last sync label bila tersedia, pending count bila tersedia, pesan aman, serta action `Reconnect` dan `Refresh`. Internal status ID hanya menjadi callback value tersembunyi. Checkpoint ini tidak membuat gateway Socket.IO, namespace, event payload, retry token, queue subscription, polling interval, backoff scheduler, ticket read model baru, payment, HPP, customer identity, nomor telepon, internal ticket/order/table ID sebagai teks, atau audit metadata. Component interaction/axe test, Storybook production build, serta smoke browser 1440/390 px dan light/dark wajib lulus.
+
+**STOP:** Report, review, commit, dan push Tahap 14.4 sebelum membuat guard KDS tidak menerima payment/HPP/customer sensitive data.
 
 ### Tahap 15 - Inventory Basic
 

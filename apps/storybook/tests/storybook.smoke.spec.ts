@@ -308,6 +308,27 @@ test("validates KDS ticket states, actions, and mobile reflow", async ({ page })
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
 
+  await page.goto("/iframe.html?id=domain-kds-kitchen-ticket--reconnect-refetch&viewMode=story");
+  const connectionStatus = page.getByRole("region", { name: "Status koneksi KDS" }).first();
+  await expect(connectionStatus).toBeVisible();
+  await expect(connectionStatus.getByText("Terputus")).toBeVisible();
+  await expect(page.getByText("2 ticket menunggu sinkron")).toBeVisible();
+  await expect(
+    page.getByText(/connection-internal|namespace|socket|event|token|hpp|payment|telepon/i),
+  ).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Reconnect" }).first()).toBeEnabled();
+  await page.getByRole("button", { name: "Reconnect" }).first().click();
+  await expect(page.getByText("Koneksi berhasil dipulihkan.")).toBeVisible();
+  await expect(page.getByText("Tidak ada pending ticket").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Refresh" }).first()).toBeEnabled();
+  await page.getByRole("button", { name: "Simulasikan stale" }).click();
+  await expect(page.getByText("Perlu refresh").first()).toBeVisible();
+  await page.getByRole("button", { name: "Refresh" }).first().click();
+  await expect(page.getByText("Snapshot ticket terbaru sudah diambil.")).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+
   await page.goto("/iframe.html?id=domain-kds-kitchen-ticket--theme-comparison&viewMode=story");
   await expect(page.locator('section[data-theme-preview="light"] .ui-kds-ticket')).toBeVisible();
   await expect(page.locator('section[data-theme-preview="dark"] .ui-kds-ticket')).toBeVisible();
@@ -317,11 +338,18 @@ test("validates KDS ticket states, actions, and mobile reflow", async ({ page })
   await expect(
     page.locator('section[data-theme-preview="dark"] .ui-kds-new-ticket-alert'),
   ).toBeVisible();
+  await expect(
+    page.locator('section[data-theme-preview="light"] .ui-kds-connection-status'),
+  ).toBeVisible();
+  await expect(
+    page.locator('section[data-theme-preview="dark"] .ui-kds-connection-status'),
+  ).toBeVisible();
 
   await page.setViewportSize({ height: 844, width: 390 });
   await page.goto("/iframe.html?id=domain-kds-kitchen-ticket--mobile&viewMode=story");
   await expect(page.getByRole("article", { name: "Kitchen ticket Order A-014" })).toBeVisible();
   await expect(page.getByRole("status", { name: "Alert ticket baru KDS" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Status koneksi KDS" })).toBeVisible();
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
