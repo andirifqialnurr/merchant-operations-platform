@@ -50,6 +50,19 @@
   --kds-ticket-accent: var(--color-text-muted);
 }
 
+.ui-kds-ticket--sla-warning {
+  --kds-ticket-accent: var(--color-status-warning-text);
+}
+
+.ui-kds-ticket--sla-breached {
+  --kds-ticket-accent: var(--color-status-danger-text);
+}
+
+.ui-kds-ticket--timer-paused {
+  --kds-ticket-action-bg: var(--color-bg-surface-subtle);
+  --kds-ticket-action-fg: var(--color-text-primary);
+}
+
 .ui-kds-ticket--history {
   background: var(--color-bg-surface-subtle);
 }
@@ -121,6 +134,20 @@
   display: inline-flex;
   gap: var(--space-1);
   min-width: 0;
+}
+
+.ui-kds-ticket__sla {
+  background: color-mix(in srgb, var(--kds-ticket-accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kds-ticket-accent) 36%, transparent);
+  border-radius: var(--foundation-radius-full);
+  color: var(--kds-ticket-accent);
+  display: inline-flex;
+  font-size: var(--text-caption);
+  font-weight: 750;
+  line-height: 1.2;
+  max-width: 10rem;
+  overflow-wrap: anywhere;
+  padding: var(--space-1) var(--space-2);
 }
 
 .ui-kds-ticket__items,

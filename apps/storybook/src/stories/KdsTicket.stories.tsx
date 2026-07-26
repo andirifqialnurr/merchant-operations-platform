@@ -77,6 +77,7 @@ export const Sizes: Story = {
         items={items}
         orderLabel="Order A-021"
         size="sm"
+        slaState="on-track"
         sourceLabel="POS kasir"
         status="accepted"
       />
@@ -86,6 +87,7 @@ export const Sizes: Story = {
         items={items}
         orderLabel="Order A-014"
         size="md"
+        slaState="warning"
         sourceLabel="QR meja"
         status="preparing"
         tableLabel="Meja 05"
@@ -96,10 +98,62 @@ export const Sizes: Story = {
         items={items}
         orderLabel="Order A-022"
         size="lg"
+        slaState="breached"
         sourceLabel="Waiter"
         status="ready"
         tableLabel="Meja Patio"
         variant="touch"
+      />
+    </div>
+  ),
+};
+
+export const TimerAndSla: Story = {
+  render: () => (
+    <div className="story-kds-ticket-row">
+      <KdsTicket
+        elapsedLabel="03:10"
+        id="ticket-sla-01"
+        items={items}
+        orderLabel="Order A-031"
+        slaState="on-track"
+        sourceLabel="POS kasir"
+        status="accepted"
+        tableLabel="Meja 01"
+        timerState="running"
+      />
+      <KdsTicket
+        elapsedLabel="09:40"
+        id="ticket-sla-02"
+        items={items}
+        orderLabel="Order A-032"
+        slaState="warning"
+        sourceLabel="QR meja"
+        status="preparing"
+        tableLabel="Meja 07"
+        timerState="running"
+      />
+      <KdsTicket
+        elapsedLabel="16:05"
+        id="ticket-sla-03"
+        items={items}
+        orderLabel="Order A-033"
+        slaLabel="Lewat target pickup"
+        slaState="breached"
+        sourceLabel="Takeaway"
+        status="ready"
+        timerState="paused"
+      />
+      <KdsTicket
+        elapsedLabel="22:18"
+        id="ticket-sla-04"
+        items={items}
+        orderLabel="Order A-034"
+        slaState="on-track"
+        sourceLabel="POS kasir"
+        status="completed"
+        timerState="completed"
+        variant="history"
       />
     </div>
   ),

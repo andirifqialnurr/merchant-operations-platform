@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, ChefHat, Clock3, Flame, PackageCheck } from "lucide-react";
+import { CheckCircle2, ChefHat, Clock3, Flame, PackageCheck, PauseCircle } from "lucide-react";
 
 import { AppIcon } from "./app-icon";
 
@@ -9,6 +9,8 @@ export type KdsTicketStatus =
 
 export type KdsTicketSize = "sm" | "md" | "lg";
 export type KdsTicketVariant = "compact" | "default" | "touch" | "history";
+export type KdsTicketTimerState = "running" | "paused" | "completed";
+export type KdsTicketSlaState = "on-track" | "warning" | "breached";
 
 export type KdsTicketItem = {
   allergyNote?: string;
@@ -29,9 +31,12 @@ export type KdsTicketProps = {
   onPrimaryAction?: (ticketId: string, action: KdsTicketAction) => void;
   orderLabel: string;
   size?: KdsTicketSize;
+  slaLabel?: string;
+  slaState?: KdsTicketSlaState;
   sourceLabel: string;
   status: KdsTicketStatus;
   tableLabel?: string;
+  timerState?: KdsTicketTimerState;
   variant?: KdsTicketVariant;
 };
 
@@ -53,6 +58,19 @@ const primaryActionByStatus: Partial<
   preparing: { action: "mark-ready", icon: Flame, label: "Siap disajikan" },
   ready: { action: "mark-served", icon: PackageCheck, label: "Tandai disajikan" },
   served: { action: "complete", icon: CheckCircle2, label: "Selesaikan" },
+};
+
+const timerStateContent: Record<KdsTicketTimerState, { icon: typeof CheckCircle2; label: string }> =
+  {
+    completed: { icon: CheckCircle2, label: "Timer selesai" },
+    paused: { icon: PauseCircle, label: "Timer ditahan" },
+    running: { icon: Clock3, label: "Timer berjalan" },
+  };
+
+const slaStateLabel: Record<KdsTicketSlaState, string> = {
+  breached: "Lewat SLA",
+  "on-track": "Sesuai SLA",
+  warning: "Mendekati SLA",
 };
 
 function classes(...values: Array<string | false | null | undefined>) {
@@ -102,6 +120,24 @@ function assertKdsTicketContract({
   }
 }
 
+function assertKdsTicketTimerContract({
+  slaLabel,
+  slaState,
+  timerState,
+}: {
+  slaLabel: string | undefined;
+  slaState: KdsTicketSlaState | undefined;
+  timerState: KdsTicketTimerState | undefined;
+}) {
+  assertText(slaLabel, "Label SLA Kitchen Ticket");
+  if (slaLabel !== undefined && slaState === undefined) {
+    throw new TypeError("Label SLA Kitchen Ticket hanya boleh dikirim bersama state SLA.");
+  }
+  if (timerState === "completed" && slaState === "warning") {
+    throw new TypeError("Timer selesai tidak boleh memakai state SLA mendekati.");
+  }
+}
+
 export function KdsTicket({
   className,
   disabled = false,
@@ -111,17 +147,23 @@ export function KdsTicket({
   onPrimaryAction,
   orderLabel,
   size = "md",
+  slaLabel,
+  slaState,
   sourceLabel,
   status,
   tableLabel,
+  timerState = "running",
   variant = "default",
 }: KdsTicketProps) {
   assertKdsTicketContract({ elapsedLabel, id, items, orderLabel, sourceLabel, tableLabel });
+  assertKdsTicketTimerContract({ slaLabel, slaState, timerState });
 
   const readOnly = variant === "history" || status === "completed" || status === "cancelled";
   const primaryAction = readOnly ? undefined : primaryActionByStatus[status];
   const order = orderLabel.trim();
   const table = tableLabel?.trim();
+  const timerContent = timerStateContent[timerState];
+  const slaText = slaLabel?.trim() ?? (slaState ? slaStateLabel[slaState] : undefined);
 
   return (
     <article
@@ -131,6 +173,8 @@ export function KdsTicket({
         `ui-kds-ticket--${status}`,
         `ui-kds-ticket--${size}`,
         `ui-kds-ticket--${variant}`,
+        `ui-kds-ticket--timer-${timerState}`,
+        slaState && `ui-kds-ticket--sla-${slaState}`,
         className,
       )}
     >
@@ -151,6 +195,11 @@ export function KdsTicket({
           <AppIcon icon={Clock3} size="xs" />
           {elapsedLabel.trim()}
         </span>
+        <span>
+          <AppIcon icon={timerContent.icon} size="xs" />
+          {timerContent.label}
+        </span>
+        {slaText ? <strong className="ui-kds-ticket__sla">{slaText}</strong> : null}
       </div>
 
       <ul className="ui-kds-ticket__items">

@@ -69,6 +69,31 @@ describe("KdsTicket", () => {
     expect(screen.queryByText("ticket-internal-02")).not.toBeInTheDocument();
   });
 
+  it("renders timer and SLA state as read-only kitchen context", () => {
+    render(
+      <KdsTicket
+        elapsedLabel="14:20"
+        id="ticket-internal-sla"
+        items={items}
+        orderLabel="Order A-020"
+        slaState="warning"
+        sourceLabel="QR meja"
+        status="preparing"
+        tableLabel="Meja 07"
+        timerState="running"
+      />,
+    );
+
+    expect(screen.getByText("14:20")).toBeVisible();
+    expect(screen.getByText("Timer berjalan")).toBeVisible();
+    expect(screen.getByText("Mendekati SLA")).toBeVisible();
+    expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--timer-running");
+    expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--sla-warning");
+    expect(
+      screen.queryByText(/ticket-internal|threshold|target|deadline|payment|hpp/i),
+    ).not.toBeInTheDocument();
+  });
+
   it("supports sm, md, and lg sizes plus history read-only variant", () => {
     const { rerender } = render(
       <KdsTicket
@@ -156,6 +181,19 @@ describe("KdsTicket", () => {
         />,
       ),
     ).toThrow(/Quantity item/);
+    expect(() =>
+      render(
+        <KdsTicket
+          elapsedLabel="01:00"
+          id="ticket-a"
+          items={items}
+          orderLabel="Order A-019"
+          slaLabel="Lewat SLA"
+          sourceLabel="POS"
+          status="new"
+        />,
+      ),
+    ).toThrow(/state SLA/);
   });
 
   it("passes an axe smoke test", async () => {

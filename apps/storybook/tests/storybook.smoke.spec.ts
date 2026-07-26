@@ -281,6 +281,18 @@ test("validates KDS ticket states, actions, and mobile reflow", async ({ page })
   await expect(page.locator(".ui-kds-ticket--md")).toBeVisible();
   await expect(page.locator(".ui-kds-ticket--lg")).toBeVisible();
 
+  await page.goto("/iframe.html?id=domain-kds-kitchen-ticket--timer-and-sla&viewMode=story");
+  await expect(page.getByText("Timer berjalan")).toHaveCount(2);
+  await expect(page.getByText("Timer ditahan")).toBeVisible();
+  await expect(page.getByText("Timer selesai")).toBeVisible();
+  await expect(page.getByText("Sesuai SLA")).toHaveCount(2);
+  await expect(page.getByText("Mendekati SLA")).toBeVisible();
+  await expect(page.getByText("Lewat target pickup")).toBeVisible();
+  await expect(page.getByText(/ticket-sla|threshold|deadline|hpp|payment|telepon/i)).toHaveCount(0);
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+
   await page.goto("/iframe.html?id=domain-kds-kitchen-ticket--theme-comparison&viewMode=story");
   await expect(page.locator('section[data-theme-preview="light"] .ui-kds-ticket')).toBeVisible();
   await expect(page.locator('section[data-theme-preview="dark"] .ui-kds-ticket')).toBeVisible();
