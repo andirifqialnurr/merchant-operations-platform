@@ -130,6 +130,21 @@
   max-width: 100%;
 }
 
+.story-inventory-order-flow-workspace {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 74rem;
+  min-width: 0;
+}
+
+.story-inventory-order-flow-theme {
+  max-width: 112rem;
+}
+
+.story-inventory-order-flow-theme .story-inventory-order-flow-workspace {
+  max-width: 100%;
+}
+
 .story-pos-category-comparison {
   display: grid;
   gap: var(--space-8);

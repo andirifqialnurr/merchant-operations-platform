@@ -1,0 +1,332 @@
+.ui-order-inventory-impact,
+.ui-order-waste-form {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-text-primary);
+  display: grid;
+  font-family: var(--font-family-sans);
+  gap: var(--space-5);
+  inline-size: min(100%, 64rem);
+  min-width: 0;
+  padding: var(--space-5);
+}
+
+.ui-order-inventory-impact__header,
+.ui-order-waste-form__header {
+  align-items: center;
+  border-bottom: 1px solid var(--color-border-subtle);
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding-bottom: var(--space-4);
+}
+
+.ui-order-inventory-impact__header-icon,
+.ui-order-waste-form__header-icon {
+  align-items: center;
+  background: var(--color-action-primary-subtle);
+  border-radius: var(--foundation-radius-sm);
+  color: var(--color-action-primary);
+  display: grid;
+  inline-size: 3rem;
+  justify-items: center;
+  min-block-size: 3rem;
+}
+
+.ui-order-inventory-impact__header > span:nth-child(2),
+.ui-order-waste-form__header > span:nth-child(2) {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.ui-order-inventory-impact__header > span:nth-child(2) span,
+.ui-order-waste-form__header > span:nth-child(2) span {
+  color: var(--color-text-secondary);
+  font-size: var(--text-label);
+  font-weight: 700;
+}
+
+.ui-order-inventory-impact__header strong,
+.ui-order-waste-form__header strong {
+  font-size: var(--text-heading-sm);
+  line-height: var(--text-heading-sm--line-height);
+  overflow-wrap: anywhere;
+}
+
+.ui-order-inventory-impact__status {
+  background: var(--color-bg-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-full);
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+  font-weight: 750;
+  padding: var(--space-1) var(--space-3);
+  white-space: nowrap;
+}
+
+.ui-order-inventory-impact__context {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+}
+
+.ui-order-inventory-impact__context div {
+  border-bottom: 1px solid var(--color-border-subtle);
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  padding-bottom: var(--space-2);
+}
+
+.ui-order-inventory-impact__context dt,
+.ui-order-waste-form label span {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+  font-weight: 750;
+}
+
+.ui-order-inventory-impact__context dd {
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-order-inventory-impact__rows,
+.ui-order-waste-form__items {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.ui-order-inventory-impact__row {
+  align-items: center;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-md);
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: minmax(12rem, 1fr) auto minmax(5rem, auto) minmax(8rem, auto) auto;
+  min-width: 0;
+  padding: var(--space-3);
+}
+
+.ui-order-inventory-impact__row.is-disabled {
+  opacity: 0.62;
+}
+
+.ui-order-inventory-impact__item,
+.ui-order-inventory-impact__meta {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.ui-order-inventory-impact__item strong {
+  font-size: var(--text-label);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.ui-order-inventory-impact__item span,
+.ui-order-inventory-impact__meta span,
+.ui-order-inventory-impact__footer p,
+.ui-order-waste-form__item p,
+.ui-order-waste-form__messages p {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  line-height: var(--text-body-sm--line-height);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-order-inventory-impact__delta {
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+  text-align: end;
+  white-space: nowrap;
+}
+
+.ui-order-inventory-impact__row--reversal .ui-order-inventory-impact__delta {
+  color: var(--color-status-success-text);
+}
+
+.ui-order-inventory-impact__row--consumption .ui-order-inventory-impact__delta,
+.ui-order-inventory-impact__row--waste .ui-order-inventory-impact__delta {
+  color: var(--color-status-danger-text);
+}
+
+.ui-order-inventory-impact__row button,
+.ui-order-inventory-impact__footer button,
+.ui-order-waste-form__footer button {
+  align-items: center;
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--foundation-radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: var(--text-label);
+  font-weight: 750;
+  gap: var(--space-2);
+  justify-content: center;
+  min-block-size: var(--control-height-md);
+  min-width: 9rem;
+  padding: 0 var(--space-4);
+}
+
+.ui-order-inventory-impact__row button,
+.ui-order-inventory-impact__footer button,
+.ui-order-waste-form__footer button:first-child {
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+}
+
+.ui-order-waste-form__footer button:last-child {
+  background: var(--color-action-primary);
+  border-color: var(--color-action-primary);
+  color: var(--color-action-on-primary);
+}
+
+.ui-order-inventory-impact__empty {
+  background: var(--color-bg-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  padding: var(--space-4);
+}
+
+.ui-order-inventory-impact__footer,
+.ui-order-waste-form__footer {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+}
+
+.ui-order-waste-form__item {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-sm);
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: minmax(0, 1fr) minmax(7rem, 10rem) minmax(7rem, 10rem);
+  margin: 0;
+  min-width: 0;
+  padding: var(--space-3);
+}
+
+.ui-order-waste-form__item legend {
+  font-size: var(--text-label);
+  font-weight: 750;
+  overflow-wrap: anywhere;
+  padding: 0 var(--space-1);
+}
+
+.ui-order-waste-form__item p {
+  align-self: center;
+}
+
+.ui-order-waste-form label {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.ui-order-waste-form input,
+.ui-order-waste-form select,
+.ui-order-waste-form textarea {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--foundation-radius-sm);
+  color: var(--color-text-primary);
+  font: inherit;
+  min-block-size: var(--control-height-md);
+  min-width: 0;
+  padding: 0 var(--space-3);
+}
+
+.ui-order-waste-form textarea {
+  line-height: var(--text-body--line-height);
+  min-block-size: 5rem;
+  padding-block: var(--space-3);
+  resize: vertical;
+}
+
+.ui-order-waste-form__messages {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.ui-order-waste-form__messages p {
+  background: var(--color-bg-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-sm);
+  padding: var(--space-3);
+}
+
+.ui-order-waste-form__messages .ui-order-waste-form__warning {
+  background: var(--color-status-danger-bg);
+  border-color: var(--color-status-danger-border);
+  color: var(--color-status-danger-text);
+}
+
+.ui-order-inventory-impact button:focus-visible,
+.ui-order-waste-form button:focus-visible,
+.ui-order-waste-form input:focus-visible,
+.ui-order-waste-form select:focus-visible,
+.ui-order-waste-form textarea:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.ui-order-inventory-impact button:disabled,
+.ui-order-waste-form button:disabled,
+.ui-order-waste-form input:disabled,
+.ui-order-waste-form select:disabled,
+.ui-order-waste-form textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+@media (max-width: 52rem) {
+  .ui-order-inventory-impact,
+  .ui-order-waste-form {
+    padding: var(--space-4);
+  }
+
+  .ui-order-inventory-impact__header,
+  .ui-order-waste-form__header {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .ui-order-inventory-impact__status {
+    justify-self: start;
+  }
+
+  .ui-order-inventory-impact__context {
+    grid-template-columns: 1fr;
+  }
+
+  .ui-order-inventory-impact__row,
+  .ui-order-waste-form__item {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .ui-order-inventory-impact__delta {
+    text-align: start;
+  }
+
+  .ui-order-inventory-impact__row button,
+  .ui-order-inventory-impact__footer,
+  .ui-order-inventory-impact__footer button,
+  .ui-order-waste-form__footer,
+  .ui-order-waste-form__footer button {
+    inline-size: 100%;
+  }
+}
