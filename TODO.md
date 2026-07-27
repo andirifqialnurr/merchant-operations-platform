@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Order consumption, cancellation reversal, dan waste; lalu lanjutkan Finance Metric sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Finance Metric; lalu lanjutkan Sales, expense, other income, dan cashbook sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -874,7 +874,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 ### Tahap 16 - Finance Basic
 
-- [ ] Finance Metric.
+- [x] Finance Metric.
 - [ ] Sales, expense, other income, dan cashbook.
 - [ ] Reconciliation dan Shift Summary.
 - [ ] HPP/gross profit/operating profit estimasi.

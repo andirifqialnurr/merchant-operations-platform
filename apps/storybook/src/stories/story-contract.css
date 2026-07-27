@@ -145,6 +145,23 @@
   max-width: 100%;
 }
 
+.story-finance-metric-grid {
+  align-items: start;
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+  max-width: 72rem;
+  min-width: 0;
+}
+
+.story-finance-metric-theme {
+  max-width: 112rem;
+}
+
+.story-finance-metric-theme .story-finance-metric-grid {
+  max-width: 100%;
+}
+
 .story-pos-category-comparison {
   display: grid;
   gap: var(--space-8);
