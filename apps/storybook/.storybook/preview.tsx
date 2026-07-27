@@ -16,6 +16,7 @@ import "@merchant/ui/styles/feedback.css";
 import "@merchant/ui/styles/kds-ticket.css";
 import "@merchant/ui/styles/inventory-item-unit.css";
 import "@merchant/ui/styles/inventory-stock.css";
+import "@merchant/ui/styles/inventory-operations.css";
 import "@merchant/ui/styles/floor-selector.css";
 import "@merchant/ui/styles/overlay.css";
 import "@merchant/ui/styles/navigation.css";

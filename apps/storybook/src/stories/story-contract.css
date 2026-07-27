@@ -96,6 +96,25 @@
   max-width: 96rem;
 }
 
+.story-inventory-operations-workspace,
+.story-inventory-stocktake-rows {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.story-inventory-operations-workspace {
+  max-width: 74rem;
+}
+
+.story-inventory-operations-theme {
+  max-width: 104rem;
+}
+
+.story-inventory-operations-theme .story-inventory-operations-workspace {
+  max-width: 100%;
+}
+
 .story-pos-category-comparison {
   display: grid;
   gap: var(--space-8);

@@ -1,0 +1,324 @@
+.ui-stock-operation-form,
+.ui-stocktake-count-row {
+  color: var(--color-text-primary);
+  font-family: var(--font-family-sans);
+  min-width: 0;
+}
+
+.ui-stock-operation-form {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+  display: grid;
+  gap: var(--space-5);
+  inline-size: min(100%, 46rem);
+  padding: var(--space-5);
+}
+
+.ui-stock-operation-form__header {
+  align-items: center;
+  border-bottom: 1px solid var(--color-border-subtle);
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: auto minmax(0, 1fr);
+  padding-bottom: var(--space-4);
+}
+
+.ui-stock-operation-form__header-icon {
+  align-items: center;
+  background: var(--color-action-primary-subtle);
+  border-radius: var(--foundation-radius-sm);
+  color: var(--color-action-primary);
+  display: grid;
+  inline-size: 3rem;
+  justify-items: center;
+  min-block-size: 3rem;
+}
+
+.ui-stock-operation-form__header > span:last-child {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.ui-stock-operation-form__header > span:last-child span {
+  color: var(--color-text-secondary);
+  font-size: var(--text-label);
+  font-weight: 650;
+}
+
+.ui-stock-operation-form__header strong {
+  font-size: var(--text-heading-sm);
+  line-height: var(--text-heading-sm--line-height);
+  overflow-wrap: anywhere;
+}
+
+.ui-stock-operation-form__context {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+}
+
+.ui-stock-operation-form__context div {
+  border-bottom: 1px solid var(--color-border-subtle);
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  padding-bottom: var(--space-2);
+}
+
+.ui-stock-operation-form__context dt,
+.ui-stock-operation-form__field span,
+.ui-stocktake-count-row span span {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+  font-weight: 700;
+}
+
+.ui-stock-operation-form__context dd {
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-stock-operation-form__types {
+  border: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.ui-stock-operation-form__types legend {
+  color: var(--color-text-secondary);
+  flex: 0 0 100%;
+  font-size: var(--text-label);
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+}
+
+.ui-stock-operation-form__type {
+  align-items: center;
+  background: var(--color-bg-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-full);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: var(--text-body-sm);
+  font-weight: 700;
+  gap: var(--space-1);
+  min-block-size: var(--control-height-sm);
+  padding: 0 var(--space-3);
+}
+
+.ui-stock-operation-form__type:hover:not(:disabled) {
+  border-color: var(--color-action-primary);
+  color: var(--color-text-primary);
+}
+
+.ui-stock-operation-form__type:focus-visible,
+.ui-stock-operation-form__field input:focus-visible,
+.ui-stock-operation-form__field select:focus-visible,
+.ui-stock-operation-form__field textarea:focus-visible,
+.ui-stock-operation-form__actions button:focus-visible,
+.ui-stocktake-count-row__counted input:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.ui-stock-operation-form__type.is-active {
+  background: var(--color-action-primary-subtle);
+  border-color: var(--color-action-primary);
+  color: var(--color-action-primary);
+}
+
+.ui-stock-operation-form__grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: 0;
+}
+
+.ui-stock-operation-form__field {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.ui-stock-operation-form__field--wide {
+  grid-column: 1 / -1;
+}
+
+.ui-stock-operation-form__field input,
+.ui-stock-operation-form__field select,
+.ui-stock-operation-form__field textarea,
+.ui-stocktake-count-row__counted input {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--foundation-radius-sm);
+  color: var(--color-text-primary);
+  font: inherit;
+  min-block-size: var(--control-height-md);
+  min-width: 0;
+  padding: 0 var(--space-3);
+}
+
+.ui-stock-operation-form__field textarea {
+  line-height: var(--text-body--line-height);
+  min-block-size: 5rem;
+  padding-block: var(--space-3);
+  resize: vertical;
+}
+
+.ui-stock-operation-form__field input::placeholder,
+.ui-stock-operation-form__field textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.ui-stock-operation-form__messages {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.ui-stock-operation-form__messages p {
+  background: var(--color-bg-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  margin: 0;
+  padding: var(--space-3);
+}
+
+.ui-stock-operation-form__messages .ui-stock-operation-form__warning {
+  background: var(--color-status-danger-bg);
+  border-color: var(--color-status-danger-border);
+  color: var(--color-status-danger-text);
+}
+
+.ui-stock-operation-form__actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+.ui-stock-operation-form__actions button {
+  align-items: center;
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--foundation-radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: var(--text-label);
+  font-weight: 750;
+  justify-content: center;
+  min-block-size: var(--control-height-md);
+  min-width: 9rem;
+  padding: 0 var(--space-4);
+}
+
+.ui-stock-operation-form__actions button[type="submit"] {
+  background: var(--color-action-primary);
+  border-color: var(--color-action-primary);
+  color: var(--color-action-on-primary);
+}
+
+.ui-stock-operation-form__actions button[type="button"] {
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+}
+
+.ui-stock-operation-form__actions button:disabled,
+.ui-stock-operation-form__type:disabled,
+.ui-stock-operation-form__field input:disabled,
+.ui-stock-operation-form__field select:disabled,
+.ui-stock-operation-form__field textarea:disabled,
+.ui-stocktake-count-row__counted input:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.ui-stocktake-count-row {
+  align-items: center;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns:
+    minmax(10rem, 1fr) minmax(6rem, auto) minmax(7rem, auto) minmax(5rem, auto)
+    auto;
+  inline-size: min(100%, 62rem);
+  padding: var(--space-3);
+}
+
+.ui-stocktake-count-row__item,
+.ui-stocktake-count-row__system,
+.ui-stocktake-count-row__counted,
+.ui-stocktake-count-row__difference {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.ui-stocktake-count-row__item strong,
+.ui-stocktake-count-row__system strong,
+.ui-stocktake-count-row__difference strong {
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.ui-stocktake-count-row__item > span {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  overflow-wrap: anywhere;
+}
+
+.ui-stocktake-count-row__counted input {
+  inline-size: 8rem;
+}
+
+.ui-stocktake-count-row__status {
+  background: var(--color-status-info-bg);
+  border-radius: var(--foundation-radius-full);
+  color: var(--color-status-info-text);
+  font-size: var(--text-caption);
+  font-weight: 750;
+  padding: var(--space-1) var(--space-2);
+  text-align: center;
+}
+
+@media (max-width: 46rem) {
+  .ui-stock-operation-form {
+    border-left: 0;
+    border-radius: 0;
+    border-right: 0;
+    padding: var(--space-4);
+  }
+
+  .ui-stock-operation-form__context,
+  .ui-stock-operation-form__grid,
+  .ui-stocktake-count-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ui-stock-operation-form__actions {
+    justify-content: stretch;
+  }
+
+  .ui-stock-operation-form__actions button,
+  .ui-stocktake-count-row__counted input {
+    inline-size: 100%;
+  }
+}
