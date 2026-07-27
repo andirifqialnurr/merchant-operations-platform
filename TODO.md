@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Inventory item/unit; lalu lanjutkan Stock Indicator dan Movement Row sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Stock Indicator dan Movement Row; lalu lanjutkan stock in/out, adjustment, opname, waste, dan transfer sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -867,7 +867,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 ### Tahap 15 - Inventory Basic
 
 - [x] Inventory item/unit.
-- [ ] Stock Indicator dan Movement Row.
+- [x] Stock Indicator dan Movement Row.
 - [ ] Stock in/out, adjustment, opname, waste, dan transfer.
 - [ ] Recipe/BOM Editor.
 - [ ] Order consumption, cancellation reversal, dan waste.

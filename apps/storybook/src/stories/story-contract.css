@@ -73,6 +73,29 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
+.story-inventory-stock-workspace,
+.story-inventory-stock-movements {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.story-inventory-stock-workspace {
+  max-width: 72rem;
+}
+
+.story-inventory-stock-indicators {
+  align-items: start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.story-inventory-stock-theme {
+  max-width: 96rem;
+}
+
 .story-pos-category-comparison {
   display: grid;
   gap: var(--space-8);
