@@ -115,6 +115,21 @@
   max-width: 100%;
 }
 
+.story-recipe-bom-workspace {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 74rem;
+  min-width: 0;
+}
+
+.story-recipe-bom-theme {
+  max-width: 108rem;
+}
+
+.story-recipe-bom-theme .story-recipe-bom-workspace {
+  max-width: 100%;
+}
+
 .story-pos-category-comparison {
   display: grid;
   gap: var(--space-8);

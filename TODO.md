@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push stock in/out, adjustment, opname, waste, dan transfer; lalu lanjutkan Recipe/BOM Editor sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Recipe/BOM Editor; lalu lanjutkan Order consumption, cancellation reversal, dan waste sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -869,7 +869,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] Inventory item/unit.
 - [x] Stock Indicator dan Movement Row.
 - [x] Stock in/out, adjustment, opname, waste, dan transfer.
-- [ ] Recipe/BOM Editor.
+- [x] Recipe/BOM Editor.
 - [ ] Order consumption, cancellation reversal, dan waste.
 
 ### Tahap 16 - Finance Basic
