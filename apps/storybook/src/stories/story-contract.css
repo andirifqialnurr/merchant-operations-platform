@@ -56,6 +56,23 @@
   min-width: 0;
 }
 
+.story-inventory-item-unit-workspace {
+  align-items: start;
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: minmax(0, 42rem) minmax(16rem, 24rem);
+  max-width: 72rem;
+  min-width: 0;
+}
+
+.story-inventory-item-unit-theme {
+  max-width: 96rem;
+}
+
+.story-inventory-item-unit-theme .story-inventory-item-unit-workspace {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .story-pos-category-comparison {
   display: grid;
   gap: var(--space-8);
@@ -456,6 +473,10 @@
   }
 
   .story-table-layout-tools {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .story-inventory-item-unit-workspace {
     grid-template-columns: minmax(0, 1fr);
   }
 
