@@ -202,6 +202,14 @@
   max-width: 100%;
 }
 
+.story-customer-order-theme {
+  max-width: 112rem;
+}
+
+.story-customer-order-theme .ui-customer-order {
+  max-width: 100%;
+}
+
 .story-pos-category-comparison {
   display: grid;
   gap: var(--space-8);

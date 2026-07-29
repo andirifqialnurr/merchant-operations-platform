@@ -446,6 +446,62 @@ test("validates Customer Basic profile selection and privacy guard", async ({ pa
     .toBe(true);
 });
 
+test("validates customer product cart and order status surface", async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto("/iframe.html?id=domain-customer-order-surface--default&viewMode=story");
+
+  const customerOrder = page.locator(".ui-customer-order").first();
+  await expect(
+    page.getByRole("region", { name: "Customer product cart dan order status" }),
+  ).toBeVisible();
+  await expect(page.getByRole("region", { name: "Produk customer" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Cart customer" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Status order customer" })).toBeVisible();
+  await expect(page.getByText("Kopi Senja - Cabang Meruya - Meja 05")).toBeVisible();
+  await expect(page.getByText("Rp65.160")).toBeVisible();
+  await expect(page.getByText("Belum dikirim")).toBeVisible();
+  await expect
+    .poll(() =>
+      customerOrder.evaluate((element) =>
+        /product-safe|cart-safe|phone|telepon|email|address|alamat|payment|token|audit|internal|session|cart-/i.test(
+          element.textContent ?? "",
+        ),
+      ),
+    )
+    .toBe(false);
+
+  await page.getByRole("button", { name: "Kirim pesanan" }).click();
+  await expect(page.getByText("Order A-014")).toBeVisible();
+  await expect(
+    page
+      .getByRole("region", { name: "Status order customer" })
+      .getByText("Disiapkan", { exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: /Makanan\s*1 produk/ }).click();
+  await expect(page.getByRole("button", { name: /Croissant/ })).toBeVisible();
+  await page.getByRole("button", { name: "Hapus Kopi susu signature" }).click();
+  await expect(page.getByText("Cart masih kosong.")).toBeVisible();
+
+  await page.goto("/iframe.html?id=domain-customer-order-surface--empty-draft&viewMode=story");
+  await expect(page.getByText("Produk kategori ini belum tersedia.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Kirim pesanan" })).toBeDisabled();
+
+  await page.goto("/iframe.html?id=domain-customer-order-surface--theme-comparison&viewMode=story");
+  await expect(
+    page.locator('section[data-theme-preview="light"] .ui-customer-order'),
+  ).toBeVisible();
+  await expect(page.locator('section[data-theme-preview="dark"] .ui-customer-order')).toBeVisible();
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/iframe.html?id=domain-customer-order-surface--mobile&viewMode=story");
+  await expect(
+    page.getByRole("region", { name: "Customer product cart dan order status" }),
+  ).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});
+
 test("validates customer QR resolution context and mobile reflow", async ({ page }) => {
   await page.setViewportSize({ height: 900, width: 1440 });
   await page.goto("/iframe.html?id=domain-qr-self-order-customer-qr-context--ready&viewMode=story");

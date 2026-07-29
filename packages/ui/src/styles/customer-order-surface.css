@@ -1,0 +1,203 @@
+.ui-customer-order {
+  color: var(--color-text-primary);
+  display: grid;
+  font-family: var(--font-family-sans);
+  gap: var(--space-5);
+  max-width: 80rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.ui-customer-order__header {
+  align-items: center;
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: auto minmax(0, 1fr);
+  min-width: 0;
+}
+
+.ui-customer-order__brand-icon,
+.ui-customer-order-cart header > span,
+.ui-customer-order-status header > span {
+  align-items: center;
+  background: var(--color-action-primary-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-action-primary);
+  display: grid;
+  justify-items: center;
+}
+
+.ui-customer-order__brand-icon {
+  inline-size: 3rem;
+  min-block-size: 3rem;
+}
+
+.ui-customer-order__header h2,
+.ui-customer-order-cart h3,
+.ui-customer-order-status h3 {
+  margin: 0;
+}
+
+.ui-customer-order__header h2 {
+  font-size: var(--text-heading-md);
+  line-height: 1.35;
+}
+
+.ui-customer-order__header p,
+.ui-customer-order__header small {
+  color: var(--color-text-secondary);
+  display: block;
+  font-size: var(--text-body-sm);
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-customer-order__layout {
+  align-items: start;
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
+  min-width: 0;
+}
+
+.ui-customer-order-products,
+.ui-customer-order-cart,
+.ui-customer-order-status {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+}
+
+.ui-customer-order-products__grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  min-width: 0;
+}
+
+.ui-customer-order__side {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+  position: sticky;
+  top: var(--space-4);
+}
+
+.ui-customer-order-cart header,
+.ui-customer-order-status header {
+  align-items: center;
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-width: 0;
+}
+
+.ui-customer-order-cart header > span,
+.ui-customer-order-status header > span {
+  inline-size: 2.5rem;
+  min-block-size: 2.5rem;
+}
+
+.ui-customer-order-cart h3,
+.ui-customer-order-status h3 {
+  font-size: var(--text-heading-sm);
+  line-height: 1.35;
+}
+
+.ui-customer-order-cart__items {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.ui-customer-order-status header p,
+.ui-customer-order-status > p {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-customer-order-status dl {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.ui-customer-order-status dl div {
+  align-items: baseline;
+  border-top: 1px solid var(--color-border-subtle);
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-width: 0;
+  padding-top: var(--space-2);
+}
+
+.ui-customer-order-status dt {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+  font-weight: 700;
+}
+
+.ui-customer-order-status dd {
+  color: var(--color-text-primary);
+  font-size: var(--text-body-sm);
+  margin: 0;
+  overflow-wrap: anywhere;
+  text-align: end;
+}
+
+.ui-customer-order__empty {
+  background: var(--color-bg-surface-subtle);
+  border: 1px dashed var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  margin: 0;
+  padding: var(--space-4);
+}
+
+@media (max-width: 54rem) {
+  .ui-customer-order__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ui-customer-order__side {
+    position: static;
+  }
+}
+
+@media (max-width: 42rem) {
+  .ui-customer-order {
+    gap: var(--space-4);
+  }
+
+  .ui-customer-order__header,
+  .ui-customer-order-cart header,
+  .ui-customer-order-status header {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ui-customer-order-products,
+  .ui-customer-order-cart,
+  .ui-customer-order-status {
+    border-left: 0;
+    border-radius: 0;
+    border-right: 0;
+    padding: var(--space-4);
+  }
+
+  .ui-customer-order-status dl div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ui-customer-order-status dd {
+    text-align: start;
+  }
+}
