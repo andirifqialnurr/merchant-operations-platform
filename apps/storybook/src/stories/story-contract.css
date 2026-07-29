@@ -186,6 +186,14 @@
   max-width: 100%;
 }
 
+.story-finance-report-theme {
+  max-width: 112rem;
+}
+
+.story-finance-report-theme .ui-finance-report {
+  max-width: 100%;
+}
+
 .story-pos-category-comparison {
   display: grid;
   gap: var(--space-8);

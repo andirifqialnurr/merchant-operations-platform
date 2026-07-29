@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push HPP/gross profit/operating profit estimasi; lalu lanjutkan Report table dan chart sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Report table dan chart Finance tervalidasi; lalu lanjutkan Tahap 17 Customer dan Platform Admin sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -878,7 +878,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] Sales, expense, other income, dan cashbook.
 - [x] Reconciliation dan Shift Summary.
 - [x] HPP/gross profit/operating profit estimasi.
-- [ ] Report table dan chart hanya untuk metrik yang tervalidasi.
+- [x] Report table dan chart hanya untuk metrik yang tervalidasi.
 
 ### Tahap 17 - Customer dan Platform Admin
 

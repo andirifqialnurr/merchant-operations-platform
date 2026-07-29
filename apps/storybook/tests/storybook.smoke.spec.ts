@@ -208,6 +208,59 @@ test("validates Finance profit estimate light dark and unavailable HPP data guar
     .toBe(true);
 });
 
+test("validates Finance report table and chart only render validated metrics", async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto("/iframe.html?id=domain-finance-validated-report--default&viewMode=story");
+
+  await expect(page.getByRole("region", { name: "Report Finance tervalidasi" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Trend metrik tervalidasi" })).toBeVisible();
+  const validatedReportTable = page.getByRole("region", { name: "Tabel metrik tervalidasi" });
+  await expect(validatedReportTable).toBeVisible();
+  await expect(page.locator(".apexcharts-svg").first()).toBeVisible();
+  await expect(page.getByRole("rowheader", { name: "Sales Dari transaksi valid" })).toBeVisible();
+  await expect(page.getByRole("rowheader", { name: "Expense Expense operasional" })).toBeVisible();
+  await expect(
+    page.getByRole("rowheader", { name: "Gross profit Sales revenue dikurangi HPP estimate" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("rowheader", { name: "Operating profit Gross profit dikurangi expense" }),
+  ).toBeVisible();
+  await expect(page.getByText("Rp4.850.000")).toBeVisible();
+  await expect(page.getByText("Rp925.000")).toBeVisible();
+  await expect(page.getByText("Rp3.300.000")).toBeVisible();
+  await expect(page.getByText("Rp2.675.000")).toBeVisible();
+  await expect(validatedReportTable.getByText("Tervalidasi", { exact: true })).toHaveCount(4);
+  await expect(page.getByText(/Draft|Belum valid|Pending/)).toHaveCount(0);
+  await expect(page.getByRole("textbox")).toHaveCount(0);
+  await expect(
+    page.getByText(
+      /payment|customer|phone|telepon|ledger|journal|invoice|receipt|token|vendor|supplier|ingredient|raw|reconciliation|webhook|attachment/i,
+    ),
+  ).toHaveCount(0);
+
+  await page.goto(
+    "/iframe.html?id=domain-finance-validated-report--trend-unavailable&viewMode=story",
+  );
+  await expect(page.getByText("Data chart belum tersedia")).toBeVisible();
+  await expect(page.getByText("Belum ada titik trend tervalidasi untuk chart.")).toBeVisible();
+  await expect(page.getByText("Rp0")).toHaveCount(0);
+
+  await page.goto(
+    "/iframe.html?id=domain-finance-validated-report--theme-comparison&viewMode=story",
+  );
+  await expect(
+    page.locator('section[data-theme-preview="light"] .ui-finance-report'),
+  ).toBeVisible();
+  await expect(page.locator('section[data-theme-preview="dark"] .ui-finance-report')).toBeVisible();
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/iframe.html?id=domain-finance-validated-report--mobile&viewMode=story");
+  await expect(page.getByRole("region", { name: "Report Finance tervalidasi" })).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});
+
 test("validates payment selection, cash presets, keypad targets, and mobile reflow", async ({
   page,
 }) => {
