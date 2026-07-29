@@ -159,6 +159,55 @@ test("validates Finance reconciliation summary and shift snapshot data guard", a
     .toBe(true);
 });
 
+test("validates Finance profit estimate light dark and unavailable HPP data guard", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto("/iframe.html?id=domain-finance-profit-estimate--default&viewMode=story");
+
+  await expect(
+    page.getByRole("region", { name: "Ringkasan estimasi profit Finance" }),
+  ).toBeVisible();
+  await expect(page.getByText("HPP estimate", { exact: true })).toBeVisible();
+  await expect(page.getByText("Gross profit", { exact: true })).toBeVisible();
+  await expect(page.getByText("Operating profit", { exact: true })).toBeVisible();
+  await expect(page.getByText("Rp1.550.000")).toBeVisible();
+  await expect(page.getByText("Rp3.300.000")).toBeVisible();
+  await expect(page.getByText("Rp2.675.000")).toBeVisible();
+  await expect(page.getByText("Estimasi operasional")).toHaveCount(3);
+  await expect(page.getByRole("textbox")).toHaveCount(0);
+  await expect(
+    page.getByText(
+      /payment|customer|phone|telepon|ledger|journal|invoice|receipt|token|vendor|supplier|ingredient|raw|chart|reconciliation/i,
+    ),
+  ).toHaveCount(0);
+
+  await page.goto(
+    "/iframe.html?id=domain-finance-profit-estimate--inventory-unavailable&viewMode=story",
+  );
+  await expect(page.getByText("HPP belum tersedia")).toBeVisible();
+  await expect(page.getByText("Gross profit belum tersedia")).toBeVisible();
+  await expect(page.getByText("Operating profit belum tersedia")).toBeVisible();
+  await expect(page.getByText("Rp0")).toHaveCount(0);
+
+  await page.goto(
+    "/iframe.html?id=domain-finance-profit-estimate--theme-comparison&viewMode=story",
+  );
+  await expect(
+    page.locator('section[data-theme-preview="light"] .ui-finance-profit'),
+  ).toBeVisible();
+  await expect(page.locator('section[data-theme-preview="dark"] .ui-finance-profit')).toBeVisible();
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/iframe.html?id=domain-finance-profit-estimate--mobile&viewMode=story");
+  await expect(
+    page.getByRole("region", { name: "Ringkasan estimasi profit Finance" }),
+  ).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});
+
 test("validates payment selection, cash presets, keypad targets, and mobile reflow", async ({
   page,
 }) => {

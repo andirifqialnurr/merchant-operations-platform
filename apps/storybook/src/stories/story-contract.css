@@ -178,6 +178,14 @@
   max-width: 100%;
 }
 
+.story-finance-profit-theme {
+  max-width: 112rem;
+}
+
+.story-finance-profit-theme .ui-finance-profit {
+  max-width: 100%;
+}
+
 .story-pos-category-comparison {
   display: grid;
   gap: var(--space-8);
