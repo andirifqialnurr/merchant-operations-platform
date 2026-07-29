@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Sales/expense/other income/cashbook; lalu lanjutkan Reconciliation dan Shift Summary sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Reconciliation/Shift Summary; lalu lanjutkan HPP/gross profit/operating profit estimasi sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -876,7 +876,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 - [x] Finance Metric.
 - [x] Sales, expense, other income, dan cashbook.
-- [ ] Reconciliation dan Shift Summary.
+- [x] Reconciliation dan Shift Summary.
 - [ ] HPP/gross profit/operating profit estimasi.
 - [ ] Report table dan chart hanya untuk metrik yang tervalidasi.
 

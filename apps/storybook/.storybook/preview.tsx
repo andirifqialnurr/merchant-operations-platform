@@ -20,6 +20,7 @@ import "@merchant/ui/styles/inventory-operations.css";
 import "@merchant/ui/styles/recipe-bom.css";
 import "@merchant/ui/styles/inventory-order-flow.css";
 import "@merchant/ui/styles/finance-basic-summary.css";
+import "@merchant/ui/styles/finance-reconciliation-summary.css";
 import "@merchant/ui/styles/finance-metric.css";
 import "@merchant/ui/styles/floor-selector.css";
 import "@merchant/ui/styles/overlay.css";

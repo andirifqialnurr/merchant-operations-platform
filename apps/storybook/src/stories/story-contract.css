@@ -170,6 +170,14 @@
   max-width: 100%;
 }
 
+.story-finance-reconciliation-theme {
+  max-width: 120rem;
+}
+
+.story-finance-reconciliation-theme .ui-finance-reconciliation {
+  max-width: 100%;
+}
+
 .story-pos-category-comparison {
   display: grid;
   gap: var(--space-8);

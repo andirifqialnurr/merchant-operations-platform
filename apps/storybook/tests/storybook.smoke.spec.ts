@@ -122,6 +122,43 @@ test("validates Finance Basic summary light dark and mobile read-only data guard
     .toBe(true);
 });
 
+test("validates Finance reconciliation summary and shift snapshot data guard", async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto("/iframe.html?id=domain-finance-reconciliation-summary--default&viewMode=story");
+
+  await expect(page.getByRole("region", { name: "Ringkasan rekonsiliasi Finance" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Tunai" })).toBeVisible();
+  await expect(page.getByText("QRIS merchant").first()).toBeVisible();
+  await expect(page.getByText("Transfer bank").first()).toBeVisible();
+  await expect(page.getByText("-Rp15.000")).toBeVisible();
+  await expect(page.getByText("Shift Summary")).toBeVisible();
+  await expect(page.getByText("Kas fisik dihitung")).toBeVisible();
+  await expect(page.getByText("Selisih kas")).toBeVisible();
+  await expect(page.getByRole("textbox")).toHaveCount(0);
+  await expect(
+    page.getByText(
+      /payment|customer|phone|telepon|ledger|journal|invoice|receipt|token|hpp|cogs|profit|margin|refund|webhook|attachment/i,
+    ),
+  ).toHaveCount(0);
+
+  await page.goto(
+    "/iframe.html?id=domain-finance-reconciliation-summary--theme-comparison&viewMode=story",
+  );
+  await expect(
+    page.locator('section[data-theme-preview="light"] .ui-finance-reconciliation'),
+  ).toBeVisible();
+  await expect(
+    page.locator('section[data-theme-preview="dark"] .ui-finance-reconciliation'),
+  ).toBeVisible();
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/iframe.html?id=domain-finance-reconciliation-summary--mobile&viewMode=story");
+  await expect(page.getByRole("region", { name: "Ringkasan rekonsiliasi Finance" })).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});
+
 test("validates payment selection, cash presets, keypad targets, and mobile reflow", async ({
   page,
 }) => {
