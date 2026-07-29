@@ -403,6 +403,49 @@ test("validates table QR actions and mobile reflow", async ({ page }) => {
     .toBe(true);
 });
 
+test("validates Customer Basic profile selection and privacy guard", async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto("/iframe.html?id=domain-customer-basic-profile--default&viewMode=story");
+
+  const customerBasic = page.locator(".ui-customer-basic").first();
+  await expect(page.getByRole("region", { name: "Customer Basic" })).toBeVisible();
+  await expect(page.getByRole("listitem", { name: "Customer Ayu Prameswari" })).toBeVisible();
+  await expect(page.getByText("WA **** 1890")).toBeVisible();
+  await expect(page.getByText("Kontak boleh dipakai untuk struk")).toBeVisible();
+  await expect(page.getByText("Regular")).toBeVisible();
+  await expect(page.getByText("120 poin")).toBeVisible();
+  await expect
+    .poll(() =>
+      customerBasic.evaluate((element) =>
+        /cust-safe|phone|telepon|email asli|address|alamat|order-|payment|token|audit|internal|session|cart-/i.test(
+          element.textContent ?? "",
+        ),
+      ),
+    )
+    .toBe(false);
+  await page.getByRole("button", { name: "Bersihkan" }).click();
+  await expect(page.getByText("Belum ada customer dipilih")).toBeVisible();
+  await page.getByRole("button", { name: "Pilih" }).first().click();
+  await expect(page.getByText("1 customer dipilih")).toBeVisible();
+
+  await page.goto("/iframe.html?id=domain-customer-basic-profile--empty&viewMode=story");
+  await expect(page.getByText("Customer belum tersedia.")).toBeVisible();
+  await expect(page.getByRole("textbox")).toHaveCount(0);
+
+  await page.goto("/iframe.html?id=domain-customer-basic-profile--theme-comparison&viewMode=story");
+  await expect(
+    page.locator('section[data-theme-preview="light"] .ui-customer-basic'),
+  ).toBeVisible();
+  await expect(page.locator('section[data-theme-preview="dark"] .ui-customer-basic')).toBeVisible();
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/iframe.html?id=domain-customer-basic-profile--mobile&viewMode=story");
+  await expect(page.getByRole("region", { name: "Customer Basic" })).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});
+
 test("validates customer QR resolution context and mobile reflow", async ({ page }) => {
   await page.setViewportSize({ height: 900, width: 1440 });
   await page.goto("/iframe.html?id=domain-qr-self-order-customer-qr-context--ready&viewMode=story");

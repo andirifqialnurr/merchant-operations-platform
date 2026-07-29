@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Report table dan chart Finance tervalidasi; lalu lanjutkan Tahap 17 Customer dan Platform Admin sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Customer Basic; lalu lanjutkan Customer product/cart/order-status page sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -882,7 +882,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 ### Tahap 17 - Customer dan Platform Admin
 
-- [ ] Customer Basic.
+- [x] Customer Basic.
 - [ ] Customer product/cart/order-status page.
 - [ ] Platform tenant/subscription master.
 - [ ] Entitlement Matrix.

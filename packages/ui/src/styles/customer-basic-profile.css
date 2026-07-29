@@ -1,0 +1,267 @@
+.ui-customer-basic {
+  color: var(--color-text-primary);
+  display: grid;
+  font-family: var(--font-family-sans);
+  gap: var(--space-5);
+  max-width: 64rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.ui-customer-basic__header {
+  align-items: start;
+  display: flex;
+  gap: var(--space-4);
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.ui-customer-basic__header h2 {
+  font-size: var(--text-heading-md);
+  line-height: 1.35;
+  margin: 0;
+}
+
+.ui-customer-basic__header p {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-customer-basic__header > span {
+  background: var(--color-bg-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-full);
+  color: var(--color-text-secondary);
+  flex: 0 0 auto;
+  font-size: var(--text-caption);
+  font-weight: 750;
+  max-width: 100%;
+  min-block-size: 1.75rem;
+  overflow-wrap: anywhere;
+  padding: var(--space-1) var(--space-3);
+}
+
+.ui-customer-basic__summary {
+  align-items: center;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-width: 0;
+  padding: var(--space-4);
+}
+
+.ui-customer-basic__summary span {
+  color: var(--color-action-primary);
+  font-size: var(--text-heading-lg);
+  font-weight: 780;
+  line-height: 1.1;
+}
+
+.ui-customer-basic__summary p {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-customer-basic__list {
+  display: grid;
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.ui-customer-basic-card {
+  min-width: 0;
+}
+
+.ui-customer-basic-card article {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+}
+
+.ui-customer-basic-card.is-selected article {
+  background: var(--color-action-primary-subtle);
+  border-color: var(--color-action-primary);
+}
+
+.ui-customer-basic-card.is-disabled article {
+  background: var(--color-bg-surface-subtle);
+}
+
+.ui-customer-basic-card header {
+  align-items: center;
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: auto minmax(0, 1fr);
+  min-width: 0;
+}
+
+.ui-customer-basic-card__avatar {
+  align-items: center;
+  background: var(--color-bg-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-action-primary);
+  display: grid;
+  font-size: var(--text-label);
+  font-weight: 800;
+  inline-size: 3rem;
+  justify-items: center;
+  min-block-size: 3rem;
+}
+
+.ui-customer-basic-card--success .ui-customer-basic-card__avatar {
+  background: var(--color-status-success-bg);
+  color: var(--color-status-success-text);
+}
+
+.ui-customer-basic-card--info .ui-customer-basic-card__avatar {
+  background: var(--color-status-info-bg);
+  color: var(--color-status-info-text);
+}
+
+.ui-customer-basic-card--warning .ui-customer-basic-card__avatar {
+  background: var(--color-status-warning-bg);
+  color: var(--color-status-warning-text);
+}
+
+.ui-customer-basic-card--danger .ui-customer-basic-card__avatar {
+  background: var(--color-status-danger-bg);
+  color: var(--color-status-danger-text);
+}
+
+.ui-customer-basic-card header > div {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.ui-customer-basic-card h3 {
+  font-size: var(--text-heading-sm);
+  line-height: 1.35;
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-customer-basic-card__facts {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.ui-customer-basic-card__facts div {
+  border-top: 1px solid var(--color-border-subtle);
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  padding-top: var(--space-3);
+}
+
+.ui-customer-basic-card__facts dt {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+  font-weight: 700;
+}
+
+.ui-customer-basic-card__facts dd {
+  color: var(--color-text-primary);
+  font-size: var(--text-body-sm);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-customer-basic-card__insights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.ui-customer-basic-card__insights li {
+  background: var(--color-bg-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-full);
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+  font-weight: 650;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: var(--space-1) var(--space-2);
+}
+
+.ui-customer-basic-card__note {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-customer-basic-card__actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.ui-customer-basic-card__actions small {
+  color: var(--color-text-muted);
+  font-size: var(--text-caption);
+  overflow-wrap: anywhere;
+}
+
+.ui-customer-basic__empty {
+  background: var(--color-bg-surface-subtle);
+  border: 1px dashed var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  margin: 0;
+  padding: var(--space-4);
+}
+
+@media (max-width: 42rem) {
+  .ui-customer-basic {
+    gap: var(--space-4);
+  }
+
+  .ui-customer-basic__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ui-customer-basic__summary {
+    align-items: stretch;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ui-customer-basic-card__facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ui-customer-basic-card__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
