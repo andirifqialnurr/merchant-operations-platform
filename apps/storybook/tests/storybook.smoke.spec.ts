@@ -83,6 +83,45 @@ test("validates Money Display states, exact values, and mobile reflow", async ({
     .toBe(true);
 });
 
+test("validates Finance Basic summary light dark and mobile read-only data guard", async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto("/iframe.html?id=domain-finance-basic-summary--default&viewMode=story");
+
+  await expect(page.getByRole("region", { name: "Ringkasan Finance Basic" })).toBeVisible();
+  await expect(page.getByText("Sales")).toBeVisible();
+  await expect(page.getByText("Expense")).toBeVisible();
+  await expect(page.getByText("Other income")).toBeVisible();
+  await expect(page.getByText("Cashbook")).toBeVisible();
+  await expect(page.getByText("Mutasi kas")).toBeVisible();
+  await expect(page.getByText("Rp4.850.000")).toBeVisible();
+  await expect(page.getByText("Rp925.000")).toBeVisible();
+  await expect(page.getByText("Rp300.000")).toBeVisible();
+  await expect(page.getByText("Rp4.250.000")).toBeVisible();
+  await expect(page.getByRole("textbox")).toHaveCount(0);
+  await expect(
+    page.getByText(
+      /payment|customer|phone|telepon|ledger|journal|invoice|receipt|token|hpp|cogs|profit|margin|reconciliation/i,
+    ),
+  ).toHaveCount(0);
+
+  await page.goto("/iframe.html?id=domain-finance-basic-summary--theme-comparison&viewMode=story");
+  await expect(
+    page.locator('section[data-theme-preview="light"] .ui-finance-basic-summary'),
+  ).toBeVisible();
+  await expect(
+    page.locator('section[data-theme-preview="dark"] .ui-finance-basic-summary'),
+  ).toBeVisible();
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/iframe.html?id=domain-finance-basic-summary--mobile&viewMode=story");
+  await expect(page.getByRole("region", { name: "Ringkasan Finance Basic" })).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});
+
 test("validates payment selection, cash presets, keypad targets, and mobile reflow", async ({
   page,
 }) => {

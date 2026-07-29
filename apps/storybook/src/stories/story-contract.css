@@ -162,6 +162,14 @@
   max-width: 100%;
 }
 
+.story-finance-basic-theme {
+  max-width: 116rem;
+}
+
+.story-finance-basic-theme .ui-finance-basic-summary {
+  max-width: 100%;
+}
+
 .story-pos-category-comparison {
   display: grid;
   gap: var(--space-8);
