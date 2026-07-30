@@ -572,6 +572,61 @@ test("validates platform tenant subscription master actions and data guard", asy
     .toBe(true);
 });
 
+test("validates platform entitlement matrix actions and data guard", async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto("/iframe.html?id=domain-platform-entitlement-matrix--default&viewMode=story");
+
+  const matrix = page.locator(".ui-platform-entitlement-matrix").first();
+  await expect(page.getByRole("region", { name: "Platform Entitlement Matrix" })).toBeVisible();
+  await expect(page.getByRole("complementary", { name: "Plan Entitlement Matrix" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Matrix module entitlement" })).toBeVisible();
+  await expect(page.getByText("Cafe Operations")).toBeVisible();
+  await expect(page.getByText("Kitchen Display")).toBeVisible();
+  await expect(page.getByText("3").first()).toBeVisible();
+  await expect
+    .poll(() =>
+      matrix.evaluate((element) =>
+        /CAFE_OPS|POS_BASIC|CORE_|KITCHEN_DISPLAY|payment|billing|invoice|token|audit|actor|timestamp|customer|order|outlet/i.test(
+          element.textContent ?? "",
+        ),
+      ),
+    )
+    .toBe(false);
+
+  await page.getByRole("switch", { name: "Nonaktif" }).press("Space");
+  await expect(page.getByText("4").first()).toBeVisible();
+  await page.getByRole("button", { name: /POS Basic/ }).click();
+  await expect(page.getByRole("button", { name: /POS Basic/ })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await page.getByRole("button", { name: "Refresh Entitlement Matrix" }).click();
+  await expect(page.getByText("Matrix baru")).toBeVisible();
+
+  await page.goto(
+    "/iframe.html?id=domain-platform-entitlement-matrix--empty-modules&viewMode=story",
+  );
+  await expect(page.getByText("Module entitlement belum tersedia.")).toBeVisible();
+  await expect(page.getByRole("textbox")).toHaveCount(0);
+
+  await page.goto(
+    "/iframe.html?id=domain-platform-entitlement-matrix--theme-comparison&viewMode=story",
+  );
+  await expect(
+    page.locator('section[data-theme-preview="light"] .ui-platform-entitlement-matrix'),
+  ).toBeVisible();
+  await expect(
+    page.locator('section[data-theme-preview="dark"] .ui-platform-entitlement-matrix'),
+  ).toBeVisible();
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/iframe.html?id=domain-platform-entitlement-matrix--mobile&viewMode=story");
+  await expect(page.getByRole("region", { name: "Platform Entitlement Matrix" })).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});
+
 test("validates customer QR resolution context and mobile reflow", async ({ page }) => {
   await page.setViewportSize({ height: 900, width: 1440 });
   await page.goto("/iframe.html?id=domain-qr-self-order-customer-qr-context--ready&viewMode=story");

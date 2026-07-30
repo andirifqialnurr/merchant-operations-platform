@@ -1,0 +1,291 @@
+.ui-platform-entitlement-matrix {
+  color: var(--color-text-primary);
+  display: grid;
+  font-family: var(--font-family-sans);
+  gap: var(--space-5);
+  max-width: 78rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.ui-platform-entitlement-matrix__header {
+  align-items: center;
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-width: 0;
+}
+
+.ui-platform-entitlement-matrix__icon,
+.ui-platform-entitlement-matrix-table header > span {
+  align-items: center;
+  background: var(--color-action-primary-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-action-primary);
+  display: grid;
+  justify-items: center;
+}
+
+.ui-platform-entitlement-matrix__icon {
+  inline-size: 3rem;
+  min-block-size: 3rem;
+}
+
+.ui-platform-entitlement-matrix__header h2,
+.ui-platform-entitlement-matrix-plans h3,
+.ui-platform-entitlement-matrix-table h3,
+.ui-platform-entitlement-matrix-row h4 {
+  margin: 0;
+}
+
+.ui-platform-entitlement-matrix__header h2 {
+  font-size: var(--text-heading-md);
+  line-height: 1.35;
+}
+
+.ui-platform-entitlement-matrix__header p,
+.ui-platform-entitlement-matrix-table header p,
+.ui-platform-entitlement-matrix-row p,
+.ui-platform-entitlement-matrix-row small,
+.ui-platform-entitlement-matrix__empty {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-platform-entitlement-matrix__header-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: end;
+  min-width: 0;
+}
+
+.ui-platform-entitlement-matrix__header-actions button {
+  align-items: center;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  display: inline-grid;
+  inline-size: var(--control-height-sm);
+  justify-items: center;
+  min-block-size: var(--control-height-sm);
+}
+
+.ui-platform-entitlement-matrix__header-actions button:hover {
+  background: var(--color-bg-surface-subtle);
+}
+
+.ui-platform-entitlement-matrix__header-actions button:focus-visible,
+.ui-platform-entitlement-matrix-plan:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.ui-platform-entitlement-matrix__summary {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-width: 0;
+}
+
+.ui-platform-entitlement-matrix__summary div,
+.ui-platform-entitlement-matrix-plans,
+.ui-platform-entitlement-matrix-table {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+  min-width: 0;
+}
+
+.ui-platform-entitlement-matrix__summary div {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4);
+}
+
+.ui-platform-entitlement-matrix__summary strong {
+  color: var(--color-action-primary);
+  font-size: var(--text-heading-lg);
+  line-height: 1.1;
+}
+
+.ui-platform-entitlement-matrix__summary span {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  overflow-wrap: anywhere;
+}
+
+.ui-platform-entitlement-matrix__layout {
+  align-items: start;
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: minmax(17rem, 22rem) minmax(0, 1fr);
+  min-width: 0;
+}
+
+.ui-platform-entitlement-matrix-plans,
+.ui-platform-entitlement-matrix-table {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.ui-platform-entitlement-matrix-plans {
+  position: sticky;
+  top: var(--space-4);
+}
+
+.ui-platform-entitlement-matrix-plans header {
+  align-items: baseline;
+  display: flex;
+  gap: var(--space-3);
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.ui-platform-entitlement-matrix-plans h3,
+.ui-platform-entitlement-matrix-table h3 {
+  font-size: var(--text-heading-sm);
+  line-height: 1.35;
+}
+
+.ui-platform-entitlement-matrix-plans header span {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.ui-platform-entitlement-matrix-plans__list,
+.ui-platform-entitlement-matrix-table__rows {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.ui-platform-entitlement-matrix-plan {
+  background: var(--color-bg-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  display: grid;
+  gap: var(--space-1);
+  justify-items: start;
+  min-width: 0;
+  padding: var(--space-3);
+  text-align: start;
+}
+
+.ui-platform-entitlement-matrix-plan.is-selected {
+  background: var(--color-action-primary-subtle);
+  border-color: var(--color-action-primary);
+}
+
+.ui-platform-entitlement-matrix-plan.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.ui-platform-entitlement-matrix-plan strong,
+.ui-platform-entitlement-matrix-row h4 {
+  font-size: var(--text-body);
+  font-weight: 760;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.ui-platform-entitlement-matrix-plan span,
+.ui-platform-entitlement-matrix-plan small {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+  overflow-wrap: anywhere;
+}
+
+.ui-platform-entitlement-matrix-table header {
+  align-items: center;
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: auto minmax(0, 1fr);
+  min-width: 0;
+}
+
+.ui-platform-entitlement-matrix-table header > span {
+  inline-size: 2.5rem;
+  min-block-size: 2.5rem;
+}
+
+.ui-platform-entitlement-matrix-row {
+  align-items: center;
+  background: var(--color-bg-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-md);
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  min-width: 0;
+  padding: var(--space-3);
+}
+
+.ui-platform-entitlement-matrix-row > p,
+.ui-platform-entitlement-matrix-row > small {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.ui-platform-entitlement-matrix-row > small {
+  color: var(--color-text-muted);
+  font-size: var(--text-caption);
+}
+
+.ui-platform-entitlement-matrix__empty {
+  background: var(--color-bg-surface-subtle);
+  border: 1px dashed var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+  margin: 0;
+  padding: var(--space-4);
+}
+
+@media (max-width: 64rem) {
+  .ui-platform-entitlement-matrix__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ui-platform-entitlement-matrix-plans {
+    position: static;
+  }
+
+  .ui-platform-entitlement-matrix-plans__list {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  }
+}
+
+@media (max-width: 42rem) {
+  .ui-platform-entitlement-matrix {
+    gap: var(--space-4);
+  }
+
+  .ui-platform-entitlement-matrix__header,
+  .ui-platform-entitlement-matrix__summary,
+  .ui-platform-entitlement-matrix-table header,
+  .ui-platform-entitlement-matrix-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ui-platform-entitlement-matrix__header-actions {
+    justify-content: start;
+  }
+
+  .ui-platform-entitlement-matrix-plans,
+  .ui-platform-entitlement-matrix-table {
+    border-left: 0;
+    border-radius: 0;
+    border-right: 0;
+  }
+}
