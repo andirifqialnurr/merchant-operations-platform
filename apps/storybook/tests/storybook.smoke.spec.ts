@@ -502,6 +502,76 @@ test("validates customer product cart and order status surface", async ({ page }
     .toBe(true);
 });
 
+test("validates platform tenant subscription master actions and data guard", async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto(
+    "/iframe.html?id=domain-platform-tenant-subscription-master--default&viewMode=story",
+  );
+
+  const platformMaster = page.locator(".ui-platform-master").first();
+  await expect(
+    page.getByRole("region", { name: "Platform tenant subscription master" }),
+  ).toBeVisible();
+  await expect(page.getByRole("complementary", { name: "Daftar tenant platform" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Subscription tenant platform" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Entitlement module platform" })).toBeVisible();
+  await expect(page.getByText("Kopi Senja")).toBeVisible();
+  await expect(page.getByText("Cafe Operations")).toBeVisible();
+  await expect(page.getByText("3 aktif dari 4 modul")).toBeVisible();
+  await expect
+    .poll(() =>
+      platformMaster.evaluate((element) =>
+        /tenant-safe|CORE_|KDS|POS_BASIC|payment|billing|invoice|token|audit|actor|timestamp|outlet|customer|order/i.test(
+          element.textContent ?? "",
+        ),
+      ),
+    )
+    .toBe(false);
+
+  await page.getByRole("button", { name: /Roti Pagi/ }).click();
+  await expect(page.getByRole("button", { name: /Roti Pagi/ })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await page.getByRole("radio", { name: "Ditahan" }).click();
+  await expect(page.getByRole("radio", { name: "Ditahan" })).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  await page.getByRole("switch", { name: "Nonaktif" }).press("Space");
+  await expect(page.getByText("4 aktif dari 4 modul")).toBeVisible();
+  await page.getByRole("button", { name: "Refresh master platform" }).click();
+  await expect(page.getByText("Snapshot baru")).toBeVisible();
+
+  await page.goto(
+    "/iframe.html?id=domain-platform-tenant-subscription-master--empty-subscription&viewMode=story",
+  );
+  await expect(page.getByText("Subscription tenant belum tersedia.")).toBeVisible();
+  await expect(page.getByText("Entitlement module belum tersedia.")).toBeVisible();
+  await expect(page.getByRole("textbox")).toHaveCount(0);
+
+  await page.goto(
+    "/iframe.html?id=domain-platform-tenant-subscription-master--theme-comparison&viewMode=story",
+  );
+  await expect(
+    page.locator('section[data-theme-preview="light"] .ui-platform-master'),
+  ).toBeVisible();
+  await expect(
+    page.locator('section[data-theme-preview="dark"] .ui-platform-master'),
+  ).toBeVisible();
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto(
+    "/iframe.html?id=domain-platform-tenant-subscription-master--mobile&viewMode=story",
+  );
+  await expect(
+    page.getByRole("region", { name: "Platform tenant subscription master" }),
+  ).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});
+
 test("validates customer QR resolution context and mobile reflow", async ({ page }) => {
   await page.setViewportSize({ height: 900, width: 1440 });
   await page.goto("/iframe.html?id=domain-qr-self-order-customer-qr-context--ready&viewMode=story");

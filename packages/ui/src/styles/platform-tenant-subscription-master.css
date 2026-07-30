@@ -1,0 +1,323 @@
+.ui-platform-master {
+  color: var(--color-text-primary);
+  display: grid;
+  font-family: var(--font-family-sans);
+  gap: var(--space-5);
+  max-width: 78rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.ui-platform-master__header {
+  align-items: center;
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-width: 0;
+}
+
+.ui-platform-master__icon,
+.ui-platform-entitlements header > span,
+.ui-platform-master-tenant > span {
+  align-items: center;
+  background: var(--color-action-primary-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-action-primary);
+  display: grid;
+  justify-items: center;
+}
+
+.ui-platform-master__icon {
+  inline-size: 3rem;
+  min-block-size: 3rem;
+}
+
+.ui-platform-master__header h2,
+.ui-platform-master-tenants h3,
+.ui-platform-subscription h3,
+.ui-platform-entitlements h3,
+.ui-platform-entitlement h4 {
+  margin: 0;
+}
+
+.ui-platform-master__header h2 {
+  font-size: var(--text-heading-md);
+  line-height: 1.35;
+}
+
+.ui-platform-master__header p,
+.ui-platform-subscription header p,
+.ui-platform-entitlements header p,
+.ui-platform-entitlement p,
+.ui-platform-master__empty,
+.ui-platform-master-tenant small {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-sm);
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-platform-master__header-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: end;
+  min-width: 0;
+}
+
+.ui-platform-master__header-actions button {
+  align-items: center;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  display: inline-grid;
+  inline-size: var(--control-height-sm);
+  justify-items: center;
+  min-block-size: var(--control-height-sm);
+}
+
+.ui-platform-master__header-actions button:hover {
+  background: var(--color-bg-surface-subtle);
+}
+
+.ui-platform-master__header-actions button:focus-visible,
+.ui-platform-master-tenant:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.ui-platform-master__layout {
+  align-items: start;
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: minmax(17rem, 22rem) minmax(0, 1fr);
+  min-width: 0;
+}
+
+.ui-platform-master-tenants,
+.ui-platform-subscription,
+.ui-platform-entitlements {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+}
+
+.ui-platform-master-tenants {
+  position: sticky;
+  top: var(--space-4);
+}
+
+.ui-platform-master-tenants header {
+  align-items: baseline;
+  display: flex;
+  gap: var(--space-3);
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.ui-platform-master-tenants h3,
+.ui-platform-subscription h3,
+.ui-platform-entitlements h3 {
+  font-size: var(--text-heading-sm);
+  line-height: 1.35;
+}
+
+.ui-platform-master-tenants header span {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+  font-weight: 700;
+}
+
+.ui-platform-master-tenants__list,
+.ui-platform-master__main {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.ui-platform-master-tenant {
+  background: var(--color-bg-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-md);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+  min-width: 0;
+  padding: var(--space-3);
+  text-align: start;
+}
+
+.ui-platform-master-tenant.is-selected {
+  background: var(--color-action-primary-subtle);
+  border-color: var(--color-action-primary);
+}
+
+.ui-platform-master-tenant.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.ui-platform-master-tenant > span {
+  inline-size: 2rem;
+  min-block-size: 2rem;
+}
+
+.ui-platform-master-tenant strong,
+.ui-platform-entitlement h4 {
+  font-size: var(--text-body);
+  font-weight: 760;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.ui-platform-subscription header,
+.ui-platform-entitlements header {
+  align-items: center;
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-width: 0;
+}
+
+.ui-platform-entitlements header {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.ui-platform-entitlements header > span {
+  inline-size: 2.5rem;
+  min-block-size: 2.5rem;
+}
+
+.ui-platform-subscription__facts {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+}
+
+.ui-platform-subscription__facts div {
+  border-top: 1px solid var(--color-border-subtle);
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  padding-top: var(--space-3);
+}
+
+.ui-platform-subscription__facts dt {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+  font-weight: 700;
+}
+
+.ui-platform-subscription__facts dd {
+  color: var(--color-text-primary);
+  font-size: var(--text-body-sm);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-platform-subscription .ui-segmented-control {
+  display: grid;
+  gap: var(--space-1);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 6rem), 1fr));
+  inline-size: 100%;
+}
+
+.ui-platform-subscription .ui-segmented-control__item {
+  min-block-size: calc(var(--control-height-sm) - var(--space-1));
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-platform-entitlements ul {
+  display: grid;
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.ui-platform-entitlement {
+  align-items: center;
+  background: var(--color-bg-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--foundation-radius-md);
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  min-width: 0;
+  padding: var(--space-3);
+}
+
+.ui-platform-entitlement small {
+  color: var(--color-text-muted);
+  font-size: var(--text-caption);
+  grid-column: 1 / -1;
+  overflow-wrap: anywhere;
+}
+
+.ui-platform-master__empty {
+  background: var(--color-bg-surface-subtle);
+  border: 1px dashed var(--color-border-default);
+  border-radius: var(--foundation-radius-md);
+  margin: 0;
+  padding: var(--space-4);
+}
+
+@media (max-width: 64rem) {
+  .ui-platform-master__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ui-platform-master-tenants {
+    position: static;
+  }
+
+  .ui-platform-master-tenants__list {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  }
+
+  .ui-platform-subscription__facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 42rem) {
+  .ui-platform-master {
+    gap: var(--space-4);
+  }
+
+  .ui-platform-master__header,
+  .ui-platform-subscription header,
+  .ui-platform-entitlements header,
+  .ui-platform-entitlement {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ui-platform-master__header-actions {
+    justify-content: start;
+  }
+
+  .ui-platform-master-tenants,
+  .ui-platform-subscription,
+  .ui-platform-entitlements {
+    border-left: 0;
+    border-radius: 0;
+    border-right: 0;
+  }
+
+  .ui-platform-subscription__facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
