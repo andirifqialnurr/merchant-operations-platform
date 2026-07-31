@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 
+import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 
 import "./globals.css";
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     >
       <body>
         <ThemeProvider>{children}</ThemeProvider>
+        <ServiceWorkerRegistration />
       </body>
     </html>
   );
