@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Merchant Operations Platform">
+  <rect width="512" height="512" rx="112" fill="#0F766E" />
+  <path d="M128 190h256l-20-58c-4-12-15-20-28-20H176c-13 0-24 8-28 20l-20 58Z" fill="#CCFBF1" />
+  <path d="M132 210h248v190c0 16-13 28-28 28H160c-15 0-28-12-28-28V210Z" fill="#F8FAFC" />
+  <path d="M160 226v174h192V226H160Zm40 40h112v38H200v-38Zm0 68h112v38H200v-38Z" fill="#0F172A" opacity=".92" />
+  <path d="M114 190h284v36H114v-36Z" fill="#14B8A6" />
+  <path d="M142 112h228c20 0 38 13 45 32l28 82H69l28-82c7-19 25-32 45-32Z" fill="none" stroke="#F8FAFC" stroke-width="22" stroke-linejoin="round" />
+  <path d="M116 226h280" stroke="#042F2E" stroke-width="18" stroke-linecap="round" opacity=".35" />
+</svg>

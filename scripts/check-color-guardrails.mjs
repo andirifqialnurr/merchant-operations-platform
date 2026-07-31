@@ -12,6 +12,7 @@ const allowedTokenFiles = new Set([
   "packages/ui/src/styles/tailwind-theme.css",
   "packages/ui/src/styles/tokens.css",
 ]);
+const ignoredLineMarker = "color-guardrails-ignore-line";
 
 const rules = [
   {
@@ -67,6 +68,11 @@ export function findColorViolations(source) {
 
     for (const match of source.matchAll(pattern)) {
       const line = source.slice(0, match.index).split(/\r?\n/).length;
+      const lineStart = source.lastIndexOf("\n", match.index) + 1;
+      const lineEnd = source.indexOf("\n", match.index);
+      const lineSource = source.slice(lineStart, lineEnd === -1 ? source.length : lineEnd);
+      if (lineSource.includes(ignoredLineMarker)) continue;
+
       violations.push({ line, match: match[0], rule: rule.name });
     }
   }

@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Entitlement Matrix; lalu lanjutkan Support context dan Audit Event sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Merchant app manifest; lalu lanjutkan Application-shell caching sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -894,7 +894,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 ### Tahap 18 - PWA dan device mode
 
-- [ ] Merchant app manifest dan installability.
+- [x] Merchant app manifest dan installability.
 - [ ] Application-shell caching.
 - [ ] POS/KDS/BACKOFFICE/INVENTORY device mode.
 - [ ] Last-known menu dan draft cart cache.
