@@ -627,6 +627,58 @@ test("validates platform entitlement matrix actions and data guard", async ({ pa
     .toBe(true);
 });
 
+test("validates platform support context and audit event data guard", async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto("/iframe.html?id=domain-platform-support-audit--default&viewMode=story");
+
+  const supportAudit = page.locator(".ui-platform-support-audit").first();
+  await expect(page.getByRole("region", { name: "Support context dan Audit Event" })).toBeVisible();
+  await expect(page.getByRole("complementary", { name: "Daftar Support context" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Daftar Audit Event" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Live issue/ })).toBeVisible();
+  await expect(page.getByText("Entitlement hold")).toBeVisible();
+  await expect(
+    page.getByText("Perubahan module ditahan sampai policy selesai diverifikasi."),
+  ).toBeVisible();
+  await expect
+    .poll(() =>
+      supportAudit.evaluate((element) =>
+        /SUPPORT_LIVE|POLICY_REVIEW|EVENT_|tenant-|user-|customer|order|payment|billing|invoice|token|actor|timestamp|raw|payload|permission/i.test(
+          element.textContent ?? "",
+        ),
+      ),
+    )
+    .toBe(false);
+
+  await page.getByRole("button", { name: /Policy follow-up/ }).click();
+  await expect(page.getByRole("button", { name: /Policy follow-up/ })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.getByText("Policy cleared")).toBeVisible();
+  await page.getByRole("button", { name: "Refresh Support Audit" }).click();
+  await expect(page.getByText("Support baru")).toBeVisible();
+
+  await page.goto("/iframe.html?id=domain-platform-support-audit--empty-events&viewMode=story");
+  await expect(page.getByText("Audit Event untuk context ini belum tersedia.")).toBeVisible();
+  await expect(page.getByRole("textbox")).toHaveCount(0);
+
+  await page.goto("/iframe.html?id=domain-platform-support-audit--theme-comparison&viewMode=story");
+  await expect(
+    page.locator('section[data-theme-preview="light"] .ui-platform-support-audit'),
+  ).toBeVisible();
+  await expect(
+    page.locator('section[data-theme-preview="dark"] .ui-platform-support-audit'),
+  ).toBeVisible();
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/iframe.html?id=domain-platform-support-audit--mobile&viewMode=story");
+  await expect(page.getByRole("region", { name: "Support context dan Audit Event" })).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+});
+
 test("validates customer QR resolution context and mobile reflow", async ({ page }) => {
   await page.setViewportSize({ height: 900, width: 1440 });
   await page.goto("/iframe.html?id=domain-qr-self-order-customer-qr-context--ready&viewMode=story");

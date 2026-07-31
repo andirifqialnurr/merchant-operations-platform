@@ -886,7 +886,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] Customer product/cart/order-status page.
 - [x] Platform tenant/subscription master.
 - [x] Entitlement Matrix.
-- [ ] Support context dan Audit Event.
+- [x] Support context dan Audit Event.
 
 ---
 

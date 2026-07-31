@@ -32,6 +32,7 @@ import "@merchant/ui/styles/customer-basic-profile.css";
 import "@merchant/ui/styles/customer-order-surface.css";
 import "@merchant/ui/styles/customer-qr-context.css";
 import "@merchant/ui/styles/platform-entitlement-matrix.css";
+import "@merchant/ui/styles/platform-support-audit.css";
 import "@merchant/ui/styles/platform-tenant-subscription-master.css";
 import "@merchant/ui/styles/pos-catalog.css";
 import "@merchant/ui/styles/pos-modifier.css";
