@@ -41,7 +41,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push POS/KDS/BACKOFFICE/INVENTORY device mode; lalu lanjutkan Last-known menu dan draft cart cache sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Last-known menu dan draft cart cache; lalu lanjutkan operasi finansial/stok tetap membutuhkan server acknowledgement sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -897,7 +897,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] Merchant app manifest dan installability.
 - [x] Application-shell caching.
 - [x] POS/KDS/BACKOFFICE/INVENTORY device mode.
-- [ ] Last-known menu dan draft cart cache.
+- [x] Last-known menu dan draft cart cache.
 - [ ] Operasi finansial/stok tetap membutuhkan server acknowledgement.
 
 ### Tahap 19 - Reliability dan security
