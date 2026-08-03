@@ -45,7 +45,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Kerjakan Rate limit login dan QR submit saat write access ke source folder pulih; sambil menunggu, gunakan `DESIGN_SYSTEM_APP_AUDIT.md` sebagai peta redesign route POS -> KDS -> Inventory -> Finance.**
+> **NEXT: Kerjakan Rate limit login dan QR submit saat write access ke source folder pulih; gunakan `RATE_LIMIT_QR_SUBMIT_HANDOFF.md` sebagai scope teknis dan `DESIGN_SYSTEM_APP_AUDIT.md` sebagai peta redesign route POS -> KDS -> Inventory -> Finance.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
