@@ -1,6 +1,13 @@
 import { authSessionSchema, type AuthLoginRequest, type AuthSession } from "@merchant/contracts";
-import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import { Inject, Injectable, Optional, UnauthorizedException } from "@nestjs/common";
 
+import {
+  buildLoginRateLimitKey,
+  InMemoryRateLimitService,
+  RATE_LIMIT_POLICIES,
+  RATE_LIMIT_SERVICE,
+  type RateLimitService,
+} from "../security/rate-limit.service.js";
 import {
   AUTH_REPOSITORY,
   type AuthRepository,
@@ -55,9 +62,22 @@ function toAuthSession(session: LoginSessionRecord): AuthSession {
 
 @Injectable()
 export class AuthService {
-  constructor(@Inject(AUTH_REPOSITORY) private readonly repository: AuthRepository) {}
+  constructor(
+    @Inject(AUTH_REPOSITORY) private readonly repository: AuthRepository,
+    @Optional()
+    @Inject(RATE_LIMIT_SERVICE)
+    private readonly rateLimit: RateLimitService = new InMemoryRateLimitService(),
+  ) {}
 
   async login(input: AuthLoginRequest, metadata: LoginMetadata = {}) {
+    this.rateLimit.consume(
+      buildLoginRateLimitKey({
+        email: input.email,
+        ...(metadata.ipAddress ? { ipAddress: metadata.ipAddress } : {}),
+      }),
+      RATE_LIMIT_POLICIES.merchantLogin,
+    );
+
     const user = await this.repository.findUserByEmail(input.email);
     const passwordMatches = await verifyPassword(
       input.password,

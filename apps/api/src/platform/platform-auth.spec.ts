@@ -2,10 +2,17 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { PLATFORM_PERMISSIONS, type PlatformPermissionKey } from "@merchant/contracts";
-import { ForbiddenException, UnauthorizedException, type ExecutionContext } from "@nestjs/common";
+import {
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  UnauthorizedException,
+  type ExecutionContext,
+} from "@nestjs/common";
 import type { Reflector } from "@nestjs/core";
 
 import { hashPassword } from "../auth/password.js";
+import { InMemoryRateLimitService, RATE_LIMIT_POLICIES } from "../security/rate-limit.service.js";
 import {
   type CreatePlatformLoginSessionInput,
   type CreatePlatformUserInput,
@@ -28,6 +35,8 @@ import { PlatformPermissionGuard } from "./platform-permission.guard.js";
 const USER_ID = "019f738d-e61f-7d46-92de-17b35f970c01";
 
 class InMemoryPlatformAuthRepository implements PlatformAuthRepository {
+  findUserByEmailCalls = 0;
+
   private readonly sessions = new Map<
     string,
     PlatformLoginSessionRecord & { revokedAt: Date | null; tokenHash: string }
@@ -36,6 +45,7 @@ class InMemoryPlatformAuthRepository implements PlatformAuthRepository {
   constructor(private user: PlatformUserRecord | null) {}
 
   async findUserByEmail(email: string) {
+    this.findUserByEmailCalls += 1;
     return this.user?.email === email ? this.user : null;
   }
 
@@ -102,6 +112,54 @@ test("keeps owner and support permission boundaries explicit", () => {
   );
   assert.ok(!PLATFORM_ROLE_PERMISSIONS.SUPPORT.includes(PLATFORM_PERMISSIONS.subscriptionManage));
   assert.ok(!PLATFORM_ROLE_PERMISSIONS.SUPPORT.includes(PLATFORM_PERMISSIONS.tenantManage));
+});
+
+test("rate limits repeated platform login attempts before credential lookup", async () => {
+  const originalPolicy = RATE_LIMIT_POLICIES.platformLogin;
+  const repository = new InMemoryPlatformAuthRepository({
+    displayName: "Platform Support",
+    email: "support@example.com",
+    id: USER_ID,
+    passwordHash: await hashPassword("rahasia-kuat"),
+    role: "SUPPORT",
+    status: "ACTIVE",
+  });
+  const rateLimit = new InMemoryRateLimitService(() => 1_000);
+  const service = new PlatformAuthService(repository, rateLimit);
+
+  RATE_LIMIT_POLICIES.platformLogin = { limit: 1, windowMs: 60_000 };
+  try {
+    await service.login(
+      { email: "support@example.com", password: "rahasia-kuat" },
+      { ipAddress: "203.0.113.20" },
+    );
+
+    await assert.rejects(
+      () =>
+        service.login(
+          { email: " SUPPORT@example.com ", password: "rahasia-kuat" },
+          { ipAddress: "203.0.113.20" },
+        ),
+      (error: unknown) => {
+        if (
+          !(error instanceof HttpException) ||
+          error.getStatus() !== HttpStatus.TOO_MANY_REQUESTS
+        ) {
+          return false;
+        }
+        const response = error.getResponse();
+        return (
+          typeof response === "object" &&
+          response !== null &&
+          "code" in response &&
+          response.code === "RATE_LIMIT_EXCEEDED"
+        );
+      },
+    );
+    assert.equal(repository.findUserByEmailCalls, 1);
+  } finally {
+    RATE_LIMIT_POLICIES.platformLogin = originalPolicy;
+  }
 });
 
 test("uses a distinct strict platform cookie and rejects the merchant cookie", () => {

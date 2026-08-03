@@ -8,7 +8,13 @@ import {
   type PlatformSession,
   type ProvisionPlatformUser,
 } from "@merchant/contracts";
-import { ConflictException, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  Optional,
+  UnauthorizedException,
+} from "@nestjs/common";
 
 import {
   createSessionToken,
@@ -16,6 +22,13 @@ import {
   hashSessionToken,
   verifyPassword,
 } from "../auth/password.js";
+import {
+  buildPlatformLoginRateLimitKey,
+  InMemoryRateLimitService,
+  RATE_LIMIT_POLICIES,
+  RATE_LIMIT_SERVICE,
+  type RateLimitService,
+} from "../security/rate-limit.service.js";
 import {
   PLATFORM_AUTH_REPOSITORY,
   type PlatformAuthRepository,
@@ -83,6 +96,9 @@ function toPlatformSession(session: PlatformLoginSessionRecord): PlatformSession
 export class PlatformAuthService {
   constructor(
     @Inject(PLATFORM_AUTH_REPOSITORY) private readonly repository: PlatformAuthRepository,
+    @Optional()
+    @Inject(RATE_LIMIT_SERVICE)
+    private readonly rateLimit: RateLimitService = new InMemoryRateLimitService(),
   ) {}
 
   async provisionUser(input: ProvisionPlatformUser) {
@@ -109,6 +125,14 @@ export class PlatformAuthService {
   }
 
   async login(input: AuthLoginRequest, metadata: PlatformLoginMetadata = {}) {
+    this.rateLimit.consume(
+      buildPlatformLoginRateLimitKey({
+        email: input.email,
+        ...(metadata.ipAddress ? { ipAddress: metadata.ipAddress } : {}),
+      }),
+      RATE_LIMIT_POLICIES.platformLogin,
+    );
+
     const user = await this.repository.findUserByEmail(input.email);
     const passwordMatches = await verifyPassword(
       input.password,

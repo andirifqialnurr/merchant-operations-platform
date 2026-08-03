@@ -2,7 +2,7 @@
 
 Tanggal: 2026-08-03
 
-Dokumen ini adalah handoff checkpoint Tahap 19 untuk `Rate limit login dan QR submit`. Source folder (`apps/api/src`, `apps/web/src`, `packages/ui/src`) sedang tidak bisa ditulis dari environment ini, jadi implementasi belum boleh dianggap selesai. Dokumen ini mengunci scope agar checkpoint berikutnya tidak melebar ke redesign atau payment gateway.
+Dokumen ini adalah handoff checkpoint Tahap 19 untuk `Rate limit login dan QR submit`. Implementasi source sudah masuk pada 2026-08-03 untuk API login dan primitive QR submit key/policy. Dokumen ini mengunci scope agar checkpoint berikutnya tidak melebar ke redesign atau payment gateway.
 
 ## Scope
 
@@ -25,26 +25,26 @@ QRIS di MVP adalah manual merchant QRIS:
 
 ### Login
 
-| Datum | Klasifikasi | Catatan |
-| --- | --- | --- |
-| Email | User input | Dinormalisasi lowercase/trim untuk rate-limit key. |
-| Password | User input | Tidak masuk key, log, error, atau response. |
-| IP address | Hidden/control | Dipakai server untuk limiter; tidak dirender. |
-| User agent | Hidden/control | Boleh tetap metadata session seperti sekarang, bukan key utama. |
-| Rate-limit counter/window | Hidden/control | Tidak dikirim ke UI sebagai editable/display detail. |
-| Error 429 | Read-only display via API response | Response generic `RATE_LIMIT_EXCEEDED`. |
+| Datum                     | Klasifikasi                        | Catatan                                                         |
+| ------------------------- | ---------------------------------- | --------------------------------------------------------------- |
+| Email                     | User input                         | Dinormalisasi lowercase/trim untuk rate-limit key.              |
+| Password                  | User input                         | Tidak masuk key, log, error, atau response.                     |
+| IP address                | Hidden/control                     | Dipakai server untuk limiter; tidak dirender.                   |
+| User agent                | Hidden/control                     | Boleh tetap metadata session seperti sekarang, bukan key utama. |
+| Rate-limit counter/window | Hidden/control                     | Tidak dikirim ke UI sebagai editable/display detail.            |
+| Error 429                 | Read-only display via API response | Response generic `RATE_LIMIT_EXCEEDED`.                         |
 
 ### QR Submit
 
-| Datum | Klasifikasi | Catatan |
-| --- | --- | --- |
-| QR token dari URL | Hidden/control | Jangan disimpan mentah di limiter key; hash dulu. |
-| IP address | Hidden/control | Dipakai server untuk limiter. |
-| Idempotency key | Hidden/control | Tidak dirender dan tidak menjadi user input. |
-| Cart/order draft | User input | Hanya payload pesanan customer yang valid. |
-| Table label publik | Read-only display | Boleh tampil ke customer. |
-| Internal table/session/order/payment ID | Hidden/out of scope | Tidak boleh tampil atau masuk response customer. |
-| Provider/payment payload | Hidden/out of scope | Tidak ada pada MVP manual QRIS. |
+| Datum                                   | Klasifikasi         | Catatan                                           |
+| --------------------------------------- | ------------------- | ------------------------------------------------- |
+| QR token dari URL                       | Hidden/control      | Jangan disimpan mentah di limiter key; hash dulu. |
+| IP address                              | Hidden/control      | Dipakai server untuk limiter.                     |
+| Idempotency key                         | Hidden/control      | Tidak dirender dan tidak menjadi user input.      |
+| Cart/order draft                        | User input          | Hanya payload pesanan customer yang valid.        |
+| Table label publik                      | Read-only display   | Boleh tampil ke customer.                         |
+| Internal table/session/order/payment ID | Hidden/out of scope | Tidak boleh tampil atau masuk response customer.  |
+| Provider/payment payload                | Hidden/out of scope | Tidak ada pada MVP manual QRIS.                   |
 
 ## Target File
 
@@ -63,7 +63,7 @@ Jika folder baru masih sulit dibuat, letakkan primitive limiter di `apps/api/src
 1. Merchant login rate-limit
    - Buat `InMemoryRateLimitService` dengan limit kecil, misalnya 1 request per 60 detik.
    - Login pertama berhasil.
-   - Login kedua dengan email sama setelah normalisasi dan IP sama melempar `TooManyRequestsException`.
+   - Login kedua dengan email sama setelah normalisasi dan IP sama melempar 429 `RATE_LIMIT_EXCEEDED`.
    - Repository credential lookup tidak dipanggil untuk request kedua.
 
 2. Platform login rate-limit
@@ -94,7 +94,7 @@ Primitive yang cukup untuk checkpoint ini:
 - `InMemoryRateLimitService`
   - key -> `{ count, resetAt }`
   - reset saat `now >= resetAt`
-  - throw `TooManyRequestsException` bila count sudah mencapai limit
+  - throw 429 `RATE_LIMIT_EXCEEDED` bila count sudah mencapai limit
 - `RATE_LIMIT_POLICIES`
   - `merchantLogin`
   - `platformLogin`
@@ -128,18 +128,18 @@ QR submit:
 
 ## Acceptance Gate
 
-- Focused auth test lulus.
-- Focused platform auth test lulus.
-- API package `test`, `typecheck`, dan `lint` lulus.
+- Focused auth test lulus pada 2026-08-03.
+- Focused platform auth test lulus pada 2026-08-03.
+- API package `test`, `typecheck`, dan `lint` lulus pada 2026-08-03.
 - Root `test`, `typecheck`, `lint`, dan `build` lulus bila tidak ada blocker environment.
-- `TODO.md` baru boleh menandai `[x] Rate limit login dan QR submit` setelah test/implementation benar-benar masuk source.
+- `TODO.md` boleh menandai `[x] Rate limit login dan QR submit` karena test/implementation sudah masuk source.
 
 ## Catatan Environment
 
-Percobaan patch ke source folder gagal pada 2026-08-03:
+Percobaan patch ke source folder sempat gagal pada 2026-08-03:
 
 - `apps/api/src/auth/auth.spec.ts` gagal ditulis.
 - `apps/web/src` gagal ditulis.
 - `packages/ui/src/components` gagal ditulis.
 
-ACL folder terlihat memiliki `Modify` untuk `CodexSandboxUsers`, sehingga gejalanya lebih cocok sebagai pembatasan environment/sandbox atau file virtualization, bukan aturan aplikasi.
+Pada run lanjutan 2026-08-03, write access ke `apps/api/src` berhasil dan checkpoint ini diimplementasikan. `apps/web/src` dan `packages/ui/src/components` tidak disentuh karena tidak masuk scope API rate-limit.

@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 
 import { EntitlementModule } from "../entitlement/entitlement.module.js";
 import { OrganizationModule } from "../organization/organization.module.js";
+import { InMemoryRateLimitService, RATE_LIMIT_SERVICE } from "../security/rate-limit.service.js";
 import { PlatformAuthController } from "./platform-auth.controller.js";
 import {
   PLATFORM_AUTH_REPOSITORY,
@@ -20,8 +21,10 @@ import { PlatformPermissionGuard } from "./platform-permission.guard.js";
     PlatformAuthService,
     PlatformMasterService,
     PlatformPermissionGuard,
+    InMemoryRateLimitService,
     PrismaPlatformAuthRepository,
     { provide: PLATFORM_AUTH_REPOSITORY, useExisting: PrismaPlatformAuthRepository },
+    { provide: RATE_LIMIT_SERVICE, useExisting: InMemoryRateLimitService },
   ],
 })
 export class PlatformModule {}

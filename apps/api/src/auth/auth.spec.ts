@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { UnauthorizedException } from "@nestjs/common";
+import { HttpException, HttpStatus, UnauthorizedException } from "@nestjs/common";
 
 import {
   type AuthRepository,
@@ -11,6 +11,7 @@ import {
 } from "./auth.repository.js";
 import { AuthService, readSessionTtlHours } from "./auth.service.js";
 import { hashPassword, hashSessionToken, verifyPassword } from "./password.js";
+import { InMemoryRateLimitService, RATE_LIMIT_POLICIES } from "../security/rate-limit.service.js";
 import {
   readSessionToken,
   serializeExpiredSessionCookie,
@@ -20,6 +21,8 @@ import {
 const USER_ID = "019f738d-e61f-7d46-92de-17b35f970b91";
 
 class InMemoryAuthRepository implements AuthRepository {
+  findUserByEmailCalls = 0;
+
   private readonly sessions = new Map<
     string,
     LoginSessionRecord & { revokedAt: Date | null; tokenHash: string }
@@ -28,6 +31,7 @@ class InMemoryAuthRepository implements AuthRepository {
   constructor(private readonly user: AuthUserRecord) {}
 
   async findUserByEmail(email: string) {
+    this.findUserByEmailCalls += 1;
     return email === this.user.email ? this.user : null;
   }
 
@@ -118,6 +122,53 @@ test("returns one generic error for invalid credentials", async () => {
       );
     },
   );
+});
+
+test("rate limits repeated merchant login attempts before credential lookup", async () => {
+  const originalPolicy = RATE_LIMIT_POLICIES.merchantLogin;
+  const repository = new InMemoryAuthRepository({
+    displayName: "Pemilik Merchant",
+    email: "owner@example.com",
+    id: USER_ID,
+    passwordHash: await hashPassword("rahasia-kuat"),
+    status: "ACTIVE",
+  });
+  const rateLimit = new InMemoryRateLimitService(() => 1_000);
+  const service = new AuthService(repository, rateLimit);
+
+  RATE_LIMIT_POLICIES.merchantLogin = { limit: 1, windowMs: 60_000 };
+  try {
+    await service.login(
+      { email: "owner@example.com", password: "rahasia-kuat" },
+      { ipAddress: "203.0.113.10" },
+    );
+
+    await assert.rejects(
+      () =>
+        service.login(
+          { email: " OWNER@example.com ", password: "rahasia-kuat" },
+          { ipAddress: "203.0.113.10" },
+        ),
+      (error: unknown) => {
+        if (
+          !(error instanceof HttpException) ||
+          error.getStatus() !== HttpStatus.TOO_MANY_REQUESTS
+        ) {
+          return false;
+        }
+        const response = error.getResponse();
+        return (
+          typeof response === "object" &&
+          response !== null &&
+          "code" in response &&
+          response.code === "RATE_LIMIT_EXCEEDED"
+        );
+      },
+    );
+    assert.equal(repository.findUserByEmailCalls, 1);
+  } finally {
+    RATE_LIMIT_POLICIES.merchantLogin = originalPolicy;
+  }
 });
 
 test("serializes secure session cookies and ignores malformed tokens", () => {
