@@ -44,7 +44,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push design-system visual reference + entry navigation hardening; lalu lanjutkan Tenant/outlet isolation full test sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push Tenant/outlet isolation full test; lalu lanjutkan Rate limit login dan QR submit sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -913,7 +913,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 
 ### Tahap 19 - Reliability dan security
 
-- [ ] Tenant/outlet isolation full test.
+- [x] Tenant/outlet isolation full test.
 - [ ] Rate limit login dan QR submit.
 - [ ] CSRF/session/security header.
 - [ ] Audit critical action.
