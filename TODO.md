@@ -44,17 +44,17 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push PWA navigation + server acknowledgement guard; lalu lanjutkan Tenant/outlet isolation full test sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push design-system visual reference + entry navigation hardening; lalu lanjutkan Tenant/outlet isolation full test sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
 ### Gate sebelum coding fitur visual berikutnya
 
-- [ ] Simpan tiga referensi visual Tasty Station sebagai file lokal di `docs/design-references/` atau dokumentasikan link permanen yang masih dapat diakses.
-- [ ] Hubungkan referensi visual tersebut dari `design-system.md` agar agent tidak hanya mengandalkan deskripsi teks.
-- [ ] Pastikan setiap modul di `design-system-modules.md` memiliki shell, layar utama, komponen, status bucket, dan data guard yang cukup sebelum JSX dibuat.
-- [ ] Tambahkan interaction acceptance untuk setiap checkpoint UI: semua menu yang tampil dapat diklik, route target valid, tombol utama membuka dialog/submit/callback yang sesuai, tab/filter mengubah state, dan aksi sensitif memiliki konfirmasi.
-- [ ] Tambahkan verification gate minimum untuk UI route baru: lint, typecheck, test terkait, HTTP smoke untuk route, dan browser/click smoke untuk navigasi serta primary button.
+- [x] Simpan tiga referensi visual Tasty Station sebagai file lokal di `docs/design-references/` atau dokumentasikan link permanen yang masih dapat diakses.
+- [x] Hubungkan referensi visual tersebut dari `design-system.md` agar agent tidak hanya mengandalkan deskripsi teks.
+- [x] Pastikan setiap modul di `design-system-modules.md` memiliki shell, layar utama, komponen, status bucket, dan data guard yang cukup sebelum JSX dibuat.
+- [x] Tambahkan interaction acceptance untuk setiap checkpoint UI: semua menu yang tampil dapat diklik, route target valid, tombol utama membuka dialog/submit/callback yang sesuai, tab/filter mengubah state, dan aksi sensitif memiliki konfirmasi.
+- [x] Tambahkan verification gate minimum untuk UI route baru: lint, typecheck, test terkait, HTTP smoke untuk route, dan browser/click smoke untuk navigasi serta primary button.
 
 ## 3. Keputusan stack yang dikunci
 

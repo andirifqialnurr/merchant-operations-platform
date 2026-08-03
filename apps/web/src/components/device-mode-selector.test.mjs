@@ -19,6 +19,17 @@ test("device mode selector supports the four Version 1 merchant device modes", a
   assert.match(source, /merchant-device-mode-change/);
 });
 
+test("device mode selector follows the Tasty Station entry shell contract", async () => {
+  const source = await readFile(selectorPath, "utf8");
+
+  assert.match(source, /device-mode-panel/);
+  assert.match(source, /device-mode-grid/);
+  assert.match(source, /device-mode-card/);
+  assert.match(source, /device-mode-context/);
+  assert.match(source, /Buka surface aktif/);
+  assert.match(source, /Review design system/);
+});
+
 test("device mode selector does not render registry or operational payload fields", async () => {
   const source = await readFile(selectorPath, "utf8");
 

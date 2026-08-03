@@ -1,7 +1,7 @@
 # Design System — Merchant Operations Platform
 
 **Status:** Sumber tunggal (single source of truth) untuk seluruh tampilan aplikasi
-**Diturunkan dari:** referensi visual "Tasty Station" (Order Line, Manage Dishes, Manage Tables) + `feature-inventory.md`
+**Diturunkan dari:** referensi visual "Tasty Station" (Order Line, Manage Dishes, Manage Tables) + `docs/FEATURE_INVENTORY.md`
 **Tujuan dokumen ini:** mengunci token, pola layout, dan komponen agar AI coding agent **tidak mengarang** warna, spacing, radius, atau struktur baru di setiap fitur. Semua fitur di `feature-inventory.md` harus dibangun dari token dan pola di bawah ini — bukan sebaliknya.
 
 > **Aturan dasar untuk agent:** kalau sebuah nilai (warna, radius, spacing, ukuran font, style badge) tidak ada di dokumen ini, JANGAN membuat nilai baru. Pilih token terdekat dari daftar di bawah, atau tanyakan. Ini yang mencegah desain "mengambang" — setiap layar harus bisa ditelusuri ke token yang sama.
@@ -12,9 +12,11 @@
 
 Tiga referensi berikut adalah kebenaran visual (ground truth) untuk gaya UI:
 
-1. **Order Line / POS** — shell 3 kolom: sidebar navigasi, konten utama (filter + grid menu), panel ringkasan order di kanan.
-2. **Manage Dishes** — shell 2 kolom: sidebar kategori, konten utama grid produk dengan checkbox seleksi.
-3. **Manage Tables** — shell 2 kolom: daftar reservasi/list di kiri, canvas layout meja di kanan dengan legend status.
+1. **Order Line / POS** — shell 3 kolom: sidebar navigasi, konten utama (filter + grid menu), panel ringkasan order di kanan. Referensi: <https://cdn.dribbble.com/userupload/12878203/file/original-851d24227b2ef442240d3c9220f4e1b4.jpg?resize=752x&vertical=center>
+2. **Manage Dishes** — shell 2 kolom: sidebar kategori, konten utama grid produk dengan checkbox seleksi. Referensi: <https://cdn.dribbble.com/userupload/46324097/file/244417cc212b87d59e51c5c36cbae7e0.png?resize=752x&vertical=center>
+3. **Manage Tables** — shell 2 kolom: daftar reservasi/list di kiri, canvas layout meja di kanan dengan legend status. Referensi: <https://cdn.dribbble.com/userupload/12890892/file/original-0182b71e783e237945b82423885a4219.jpg?resize=752x&vertical=center>
+
+Jika link CDN tidak tersedia pada sesi berikutnya, simpan salinan gambar ke `docs/design-references/` dan pertahankan nama file berdasarkan surface: `order-line`, `manage-dishes`, dan `manage-tables`.
 
 Karakter visual yang konsisten di ketiganya:
 

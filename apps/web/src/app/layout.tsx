@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/components/theme/theme-provider";
 import "./globals.css";
 import "./backoffice-shell.css";
 import "./catalog.css";
+import "./device-mode.css";
 
 export const metadata: Metadata = {
   applicationName: "Merchant Operations Platform",

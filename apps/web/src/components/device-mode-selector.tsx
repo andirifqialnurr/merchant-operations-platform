@@ -110,75 +110,101 @@ export function DeviceModeSelector() {
   }
 
   return (
-    <section aria-labelledby="device-mode-title" className="grid gap-6">
-      <div className="grid gap-3">
+    <>
+      <section aria-labelledby="device-mode-title" className="device-mode-panel">
         <p className="text-caption-xs uppercase text-primary">Merchant PWA</p>
-        <div className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-end">
-          <div>
-            <h1 className="text-title" id="device-mode-title">
-              Device Mode
-            </h1>
-            <p className="mt-2 max-w-3xl text-body text-foreground-secondary">
-              Mode perangkat menentukan surface awal PWA pada perangkat ini. Hak akses tetap
-              mengikuti sesi server saat pengguna masuk.
-            </p>
+        <div className="device-mode-panel__header">
+          <div className="device-mode-panel__title-row">
+            <div>
+              <h1 className="text-title" id="device-mode-title">
+                Device Mode
+              </h1>
+              <p className="mt-2 max-w-3xl text-body text-foreground-secondary">
+                Pilih surface awal untuk perangkat ini. Hak akses tetap mengikuti sesi server saat
+                pengguna masuk.
+              </p>
+            </div>
+            <StatusBar label="Mode aktif" tone="info">
+              {selectedDevice.label}
+            </StatusBar>
           </div>
-          <StatusBar label="Mode aktif" tone="info">
-            {selectedDevice.label}
-          </StatusBar>
         </div>
-      </div>
 
-      <div className="grid gap-4 lg:grid-cols-4">
-        {deviceModes.map((item) => {
-          const selected = item.mode === selectedMode;
-          return (
-            <article
-              aria-current={selected ? "true" : undefined}
-              className={[
-                "grid min-h-[220px] gap-4 rounded-lg border bg-surface p-5",
-                selected ? "border-primary shadow-sm" : "border-line-default",
-              ].join(" ")}
-              key={item.mode}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <span className="rounded-md border border-line-default bg-primary-subtle p-3 text-primary">
-                  <AppIcon icon={item.icon} label={item.label} size="lg" />
-                </span>
-                {selected ? <Badge tone="success">Aktif</Badge> : null}
-              </div>
-              <div>
-                <h2 className="text-heading-sm">{item.label}</h2>
-                <p className="mt-2 text-body-sm text-foreground-secondary">{item.description}</p>
-                <p className="mt-3 text-caption text-foreground-muted">{item.surface}</p>
-              </div>
-              <Button
-                fullWidth
-                onClick={() => selectMode(item)}
-                size="sm"
-                type="button"
-                variant={selected ? "primary" : "secondary"}
+        <div className="device-mode-grid">
+          {deviceModes.map((item) => {
+            const selected = item.mode === selectedMode;
+            return (
+              <article
+                aria-current={selected ? "true" : undefined}
+                className="device-mode-card"
+                key={item.mode}
               >
-                {selected ? `Buka ${item.label}` : `Pilih ${item.label}`}
-              </Button>
-            </article>
-          );
-        })}
-      </div>
+                <div className="device-mode-card__top">
+                  <span className="device-mode-card__icon">
+                    <AppIcon icon={item.icon} label={item.label} size="lg" />
+                  </span>
+                  {selected ? <Badge tone="success">Aktif</Badge> : null}
+                </div>
+                <div className="device-mode-card__copy">
+                  <p className="text-caption text-foreground-muted">{item.surface}</p>
+                  <h2 className="text-heading-sm">{item.label}</h2>
+                  <p className="text-body-sm text-foreground-secondary">{item.description}</p>
+                </div>
+                <Button
+                  className="device-mode-card__action"
+                  fullWidth
+                  onClick={() => selectMode(item)}
+                  size="md"
+                  type="button"
+                  variant={selected ? "primary" : "secondary"}
+                >
+                  {selected ? "Buka " + item.label : "Pilih " + item.label}
+                </Button>
+              </article>
+            );
+          })}
+        </div>
+      </section>
 
-      <section className="grid gap-4 rounded-lg border border-line-default bg-surface-subtle p-5 lg:grid-cols-[1fr_auto] lg:items-center">
+      <aside aria-label="Ringkasan device mode" className="device-mode-context">
         <div>
           <p className="text-caption text-foreground-muted">Landing surface</p>
           <h2 className="mt-1 text-heading-sm">{selectedDevice.surface}</h2>
           <p className="mt-2 text-body-sm text-foreground-secondary">
-            Preferensi ini tersimpan lokal di perangkat. Operasi order, pembayaran, stok, approval,
-            dan shift closing tetap membutuhkan konfirmasi server.
+            Preferensi tersimpan lokal pada perangkat. Mutasi operasional tetap menunggu server
+            acknowledgement.
           </p>
         </div>
-        <a className="ui-button ui-button--md ui-button--primary" href={selectedDevice.href}>
-          <span className="ui-button__label">Buka surface</span>
-        </a>
-      </section>
-    </section>
+        <div className="device-mode-context__rows">
+          <div className="device-mode-context__row">
+            <p className="text-caption text-foreground-muted">Aksi server</p>
+            <p className="text-body-sm text-foreground">
+              Submit order, payment confirmation, refund, stock adjustment, approval, dan shift
+              closing.
+            </p>
+          </div>
+          <div className="device-mode-context__row">
+            <p className="text-caption text-foreground-muted">Cache lokal</p>
+            <p className="text-body-sm text-foreground">
+              Application shell, last-known menu, draft cart, dan display state aman.
+            </p>
+          </div>
+        </div>
+        <div className="device-mode-reference">
+          <p className="text-caption text-foreground-muted">Design reference</p>
+          <p className="text-body-sm text-foreground">
+            Frame teal, sidebar pill, topbar search, dan panel kanan mengikuti Tasty Station.
+          </p>
+        </div>
+        <div className="device-mode-context__actions">
+          <a className="ui-button ui-button--md ui-button--primary" href={selectedDevice.href}>
+            <span className="ui-button__label">Buka surface aktif</span>
+          </a>
+          <a className="ui-button ui-button--md ui-button--outline" href="/design-system">
+            <span className="ui-button__label">Review design system</span>
+          </a>
+        </div>
+      </aside>
+    </>
   );
 }
