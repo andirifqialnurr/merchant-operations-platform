@@ -41,10 +41,11 @@ Aturan pengerjaan:
 - [x] Geist Sans dipilih sebagai UI font.
 - [x] Operational Teal dan Slate/Navy dipilih sebagai palet dasar.
 - [x] Table layout per lantai ditetapkan sebagai scope Version 1.
+- [x] Audit penerapan design-system ke route aplikasi tersedia di `DESIGN_SYSTEM_APP_AUDIT.md`.
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Tenant/outlet isolation full test; lalu lanjutkan Rate limit login dan QR submit sebagai checkpoint terpisah.**
+> **NEXT: Kerjakan Rate limit login dan QR submit saat write access ke source folder pulih; sambil menunggu, gunakan `DESIGN_SYSTEM_APP_AUDIT.md` sebagai peta redesign route POS -> KDS -> Inventory -> Finance.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
