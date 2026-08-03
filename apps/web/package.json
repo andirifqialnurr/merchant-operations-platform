@@ -8,7 +8,7 @@
     "start": "next start --port 3000",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "node --test src/components/device-mode-selector.test.mjs src/components/pwa/service-worker-registration.test.mjs && tsx --test src/components/pwa/menu-cart-cache.test.ts",
+    "test": "node --test src/components/device-mode-selector.test.mjs src/components/device-mode-selector-navigation.test.mjs src/components/pwa/service-worker-registration.test.mjs && tsx --test src/components/pwa/menu-cart-cache.test.ts src/components/pwa/server-acknowledgement.test.ts",
     "format:check": "prettier --check . --ignore-path ../../.gitignore"
   },
   "dependencies": {

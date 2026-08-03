@@ -25,6 +25,8 @@ Aturan pengerjaan:
 9. Tidak mengambil theme atau tampilan default shadcn/component library sebagai hasil final.
 10. Jika keputusan implementasi berbeda dari dokumen, perbarui dokumen terkait sebelum melanjutkan.
 11. Patuhi `UI slicing data guard` di `AGENTS.md`: setiap datum wajib memiliki sumber, tujuan, klasifikasi input/display/derived/hidden, serta satu lokasi utama tanpa duplikasi.
+12. Sebelum membuat layar/modul baru, tentukan referensi `design-system.md`, `design-system-modules.md`, dan shell yang dipakai; jangan membuat layout baru tanpa mencatat alasannya.
+13. Setiap navigasi, tombol, tab, dialog, form submit, filter, dan primary action yang terlihat harus memiliki perilaku yang jelas serta diverifikasi melalui unit/component test, browser smoke, atau HTTP route smoke sesuai risikonya.
 
 ## 2. Status saat ini
 
@@ -34,6 +36,7 @@ Aturan pengerjaan:
 - [x] Global Product Scope.
 - [x] PRD MVP Release 1.
 - [x] Paket dan pricelist awal.
+- [x] Feature Inventory untuk bahan revisi `design-system.md`.
 - [x] Design system light/dark/system.
 - [x] Geist Sans dipilih sebagai UI font.
 - [x] Operational Teal dan Slate/Navy dipilih sebagai palet dasar.
@@ -41,9 +44,17 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Review, commit, dan push Last-known menu dan draft cart cache; lalu lanjutkan operasi finansial/stok tetap membutuhkan server acknowledgement sebagai checkpoint terpisah.**
+> **NEXT: Review, commit, dan push PWA navigation + server acknowledgement guard; lalu lanjutkan Tenant/outlet isolation full test sebagai checkpoint terpisah.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
+
+### Gate sebelum coding fitur visual berikutnya
+
+- [ ] Simpan tiga referensi visual Tasty Station sebagai file lokal di `docs/design-references/` atau dokumentasikan link permanen yang masih dapat diakses.
+- [ ] Hubungkan referensi visual tersebut dari `design-system.md` agar agent tidak hanya mengandalkan deskripsi teks.
+- [ ] Pastikan setiap modul di `design-system-modules.md` memiliki shell, layar utama, komponen, status bucket, dan data guard yang cukup sebelum JSX dibuat.
+- [ ] Tambahkan interaction acceptance untuk setiap checkpoint UI: semua menu yang tampil dapat diklik, route target valid, tombol utama membuka dialog/submit/callback yang sesuai, tab/filter mengubah state, dan aksi sensitif memiliki konfirmasi.
+- [ ] Tambahkan verification gate minimum untuk UI route baru: lint, typecheck, test terkait, HTTP smoke untuk route, dan browser/click smoke untuk navigasi serta primary button.
 
 ## 3. Keputusan stack yang dikunci
 
@@ -898,7 +909,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] Application-shell caching.
 - [x] POS/KDS/BACKOFFICE/INVENTORY device mode.
 - [x] Last-known menu dan draft cart cache.
-- [ ] Operasi finansial/stok tetap membutuhkan server acknowledgement.
+- [x] Operasi finansial/stok tetap membutuhkan server acknowledgement.
 
 ### Tahap 19 - Reliability dan security
 

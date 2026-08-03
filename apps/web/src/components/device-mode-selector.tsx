@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useSyncExternalStore } from "react";
+import { useRouter } from "next/navigation";
 import { ChefHat, MonitorCog, PackageSearch, Store } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -12,10 +13,19 @@ export type MerchantDeviceMode = "POS" | "KDS" | "BACKOFFICE" | "INVENTORY";
 
 const DEVICE_MODE_STORAGE_KEY = "merchant-device-mode-v1";
 
+type DeviceModeOption = {
+  description: string;
+  href: string;
+  icon: LucideIcon;
+  label: string;
+  mode: MerchantDeviceMode;
+  surface: string;
+};
+
 const deviceModes = [
   {
     description: "Mode kasir untuk tablet atau desktop transaksi.",
-    href: "/",
+    href: "/pos",
     icon: MonitorCog,
     label: "POS",
     mode: "POS",
@@ -23,7 +33,7 @@ const deviceModes = [
   },
   {
     description: "Mode dapur untuk layar antrean pesanan.",
-    href: "/",
+    href: "/kds",
     icon: ChefHat,
     label: "KDS",
     mode: "KDS",
@@ -39,20 +49,13 @@ const deviceModes = [
   },
   {
     description: "Mode stok untuk pencatatan dan review inventory.",
-    href: "/",
+    href: "/inventory",
     icon: PackageSearch,
     label: "Inventory",
     mode: "INVENTORY",
     surface: "Inventory",
   },
-] as const satisfies readonly {
-  description: string;
-  href: string;
-  icon: LucideIcon;
-  label: string;
-  mode: MerchantDeviceMode;
-  surface: string;
-}[];
+] as const satisfies readonly DeviceModeOption[];
 
 function isMerchantDeviceMode(value: string | null): value is MerchantDeviceMode {
   return deviceModes.some((item) => item.mode === value);
@@ -82,6 +85,7 @@ function subscribeDeviceMode(onStoreChange: () => void) {
 }
 
 export function DeviceModeSelector() {
+  const router = useRouter();
   const selectedMode = useSyncExternalStore<MerchantDeviceMode>(
     subscribeDeviceMode,
     getDeviceModeSnapshot,
@@ -97,9 +101,12 @@ export function DeviceModeSelector() {
     [selectedMode],
   );
 
-  function selectMode(mode: MerchantDeviceMode) {
-    window.localStorage.setItem(DEVICE_MODE_STORAGE_KEY, mode);
-    window.dispatchEvent(new CustomEvent("merchant-device-mode-change", { detail: { mode } }));
+  function selectMode(item: DeviceModeOption) {
+    window.localStorage.setItem(DEVICE_MODE_STORAGE_KEY, item.mode);
+    window.dispatchEvent(
+      new CustomEvent("merchant-device-mode-change", { detail: { mode: item.mode } }),
+    );
+    router.push(item.href);
   }
 
   return (
@@ -147,12 +154,12 @@ export function DeviceModeSelector() {
               </div>
               <Button
                 fullWidth
-                onClick={() => selectMode(item.mode)}
+                onClick={() => selectMode(item)}
                 size="sm"
                 type="button"
                 variant={selected ? "primary" : "secondary"}
               >
-                {selected ? "Mode dipilih" : `Pilih ${item.label}`}
+                {selected ? `Buka ${item.label}` : `Pilih ${item.label}`}
               </Button>
             </article>
           );
