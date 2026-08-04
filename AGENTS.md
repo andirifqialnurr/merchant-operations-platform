@@ -5,7 +5,11 @@
 - Resume from `TODO.md` and recent Git history.
 - Work on one independently pushable checkpoint at a time.
 - Update `TODO.md` in the same checkpoint as the implementation.
-- Do not start the next checkpoint before the active acceptance gate is complete and the user has pushed it.
+- By default, do not start the next checkpoint before the active acceptance gate is complete and the user has pushed it.
+- If the user explicitly asks to continue through several tasks, work through multiple independently verifiable checkpoints in sequence within the same run.
+- When working through multiple checkpoints by explicit instruction, keep each checkpoint bounded, update `TODO.md` after each completed checkpoint, and do not merge unrelated route reslicing/redesign work into the batch.
+- If commit and push permission has been explicitly granted, commit and push each completed checkpoint to the current branch before continuing to the next checkpoint.
+- Stop before any route reslicing/redesign checkpoint unless the user has explicitly confirmed that reslicing scope.
 
 ## UI slicing data guard (mandatory)
 
