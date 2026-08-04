@@ -10,7 +10,7 @@
     "smoke": "node dist/index.js --smoke",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "node --test",
+    "test": "tsx --test src/*.spec.ts",
     "format:check": "prettier --check . --ignore-path ../../.gitignore"
   },
   "devDependencies": {
