@@ -45,7 +45,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Kerjakan Audit critical action sebagai checkpoint Tahap 19 berikutnya; gunakan `DESIGN_SYSTEM_APP_AUDIT.md` sebagai peta redesign route POS -> KDS -> Inventory -> Finance.**
+> **NEXT: Kerjakan Backup/restore drill sebagai checkpoint Tahap 19 berikutnya; gunakan `DESIGN_SYSTEM_APP_AUDIT.md` sebagai peta redesign route POS -> KDS -> Inventory -> Finance.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -917,7 +917,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] Tenant/outlet isolation full test.
 - [x] Rate limit login dan QR submit.
 - [x] CSRF/session/security header.
-- [ ] Audit critical action.
+- [x] Audit critical action.
 - [ ] Backup/restore drill.
 - [ ] Queue retry/dead-letter.
 - [ ] Monitoring, request ID, structured log, dan error tracking.

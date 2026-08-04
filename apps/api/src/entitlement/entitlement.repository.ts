@@ -8,6 +8,8 @@ import type {
 import { getPrismaClient, type DatabaseClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
+import { buildAuditMetadata, buildAuditPayload } from "../audit/critical-action-audit.js";
+
 export type EntitlementMutationContext = { actorId?: string; requestId?: string };
 
 export type ModuleRecord = {
@@ -216,18 +218,19 @@ async function writeChange(
     actorId?: string;
     entityId: string;
     entityType: "entitlement" | "subscription";
-    payload: object;
+    payload: Record<string, unknown>;
     requestId?: string;
     tenantId: string;
   },
 ) {
+  const payload = buildAuditPayload(options.payload);
   await transaction.auditLog.create({
     data: {
       action: options.action,
       ...(options.actorId ? { actorId: options.actorId } : {}),
       entityId: options.entityId,
       entityType: options.entityType,
-      metadata: options.payload,
+      metadata: buildAuditMetadata(options.action, payload),
       ...(options.requestId ? { requestId: options.requestId } : {}),
       tenantId: options.tenantId,
     },
@@ -236,7 +239,7 @@ async function writeChange(
     data: {
       aggregateId: options.entityId,
       aggregateType: options.entityType,
-      payload: options.payload,
+      payload,
       tenantId: options.tenantId,
       type: `subscription.${options.entityType}.${options.action.split(".").at(-1)}`,
     },

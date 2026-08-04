@@ -10,6 +10,8 @@ import type {
 import { getPrismaClient, type DatabaseClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
+import { buildAuditMetadata } from "../audit/critical-action-audit.js";
+
 export type MutationContext = {
   actorId?: string;
   requestId?: string;
@@ -156,7 +158,7 @@ async function writeChange(
       ...(options.context?.actorId ? { actorId: options.context.actorId } : {}),
       entityId: options.after.id,
       entityType: options.entityType,
-      metadata: payload,
+      metadata: buildAuditMetadata(options.action, payload),
       ...(options.outletId ? { outletId: options.outletId } : {}),
       ...(options.context?.requestId ? { requestId: options.context.requestId } : {}),
       tenantId: options.tenantId,
