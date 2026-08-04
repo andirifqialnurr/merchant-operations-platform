@@ -45,7 +45,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Kerjakan Monitoring, request ID, structured log, dan error tracking sebagai checkpoint Tahap 19 berikutnya; gunakan `DESIGN_SYSTEM_APP_AUDIT.md` sebagai peta redesign route POS -> KDS -> Inventory -> Finance.**
+> **NEXT: Tahap 19 reliability/security selesai; berhenti sebelum reslicing route POS -> KDS -> Inventory -> Finance dan minta konfirmasi user.**
 
 Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
 
@@ -920,7 +920,7 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [x] Audit critical action.
 - [x] Backup/restore drill.
 - [x] Queue retry/dead-letter.
-- [ ] Monitoring, request ID, structured log, dan error tracking.
+- [x] Monitoring, request ID, structured log, dan error tracking.
 
 ### Tahap 20 - Pilot gate
 

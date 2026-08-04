@@ -4,6 +4,7 @@ import { NestFactory } from "@nestjs/core";
 
 import { ApiExceptionFilter } from "./api-exception.filter.js";
 import { AppModule } from "./app.module.js";
+import { createRequestObservabilityMiddleware } from "./observability/request-observability.js";
 import { configureOpenApi } from "./openapi.js";
 import {
   createCsrfProtectionMiddleware,
@@ -14,6 +15,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = Number(process.env.API_PORT ?? 3001);
 
+  app.use(createRequestObservabilityMiddleware());
   app.use(createSecurityHeadersMiddleware());
   app.use(createCsrfProtectionMiddleware());
   app.setGlobalPrefix("api/v1");

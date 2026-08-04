@@ -7,6 +7,13 @@ import {
   HttpStatus,
 } from "@nestjs/common";
 
+import {
+  buildErrorTrackingEvent,
+  defaultStructuredLogger,
+  getRequestId,
+  type StructuredLogger,
+} from "./observability/request-observability.js";
+
 type HttpResponse = {
   json(body: ApiError): unknown;
   setHeader(name: string, value: string): void;
@@ -15,17 +22,13 @@ type HttpResponse = {
 
 type HttpRequest = {
   headers?: Record<string, string | string[] | undefined>;
+  method?: string;
+  originalUrl?: string;
+  url?: string;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-export function getRequestId(request: HttpRequest) {
-  const header = request.headers?.[API_HEADERS.requestId];
-  return typeof header === "string" && header.trim().length > 0
-    ? header.slice(0, 100)
-    : `req_${crypto.randomUUID()}`;
 }
 
 export function mapExceptionToApiError(exception: unknown, requestId: string) {
@@ -60,6 +63,8 @@ export function mapExceptionToApiError(exception: unknown, requestId: string) {
 
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
+  constructor(private readonly logger: StructuredLogger = defaultStructuredLogger) {}
+
   catch(exception: unknown, host: ArgumentsHost) {
     const context = host.switchToHttp();
     const request = context.getRequest<HttpRequest>();
@@ -68,6 +73,20 @@ export class ApiExceptionFilter implements ExceptionFilter {
     const error = mapExceptionToApiError(exception, requestId);
 
     response.setHeader(API_HEADERS.requestId, requestId);
+    if (error.statusCode >= 500) {
+      this.logger(
+        buildErrorTrackingEvent({
+          requestId,
+          statusCode: error.statusCode,
+          exception,
+          ...(request.method ? { method: request.method } : {}),
+          ...((request.originalUrl ?? request.url)
+            ? { path: request.originalUrl ?? request.url }
+            : {}),
+        }),
+      );
+    }
+
     response.status(error.statusCode).json(error.body);
   }
 }

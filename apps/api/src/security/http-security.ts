@@ -1,7 +1,7 @@
 import { API_HEADERS, apiErrorSchema } from "@merchant/contracts";
 
-import { getRequestId } from "../api-exception.filter.js";
 import { SESSION_COOKIE_NAME } from "../auth/session-cookie.js";
+import { getRequestId } from "../observability/request-observability.js";
 import { PLATFORM_SESSION_COOKIE_NAME } from "../platform/platform-session-cookie.js";
 
 type MiddlewareRequest = {
