@@ -19,8 +19,10 @@
     "db:status": "prisma migrate status",
     "db:studio": "prisma studio",
     "db:validate": "prisma validate",
+    "db:backup-drill": "tsx src/backup-restore-drill.ts",
     "format:check": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint . --max-warnings=0",
+    "test": "tsx --test src/*.spec.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
