@@ -38,6 +38,7 @@ import {
   requestContextHeadersSchema,
   PERMISSIONS,
   packageVersionSnapshotSchema,
+  supportAccessGrantSchema,
   tenantRequestHeadersSchema,
   setTenantEntitlementSchema,
   updateMembershipSchema,
@@ -676,6 +677,45 @@ test("validates command context metadata for multiple adapters", () => {
     true,
   );
   assert.equal(commonOpenApiSchemas.CommandContext.type, "object");
+});
+
+test("validates support access grant scope, reason, expiry, and revocation audit", () => {
+  const grantedAt = "2026-08-05T00:00:00.000Z";
+
+  assert.equal(
+    supportAccessGrantSchema.safeParse({
+      auditReference: "support-case-1001",
+      expiresAt: "2026-08-05T02:00:00.000Z",
+      grantedAt,
+      grantedByPlatformActorId: "019f738d-e61f-7d46-92de-17b35f970ba8",
+      id: "019f738d-e61f-7d46-92de-17b35f970ba9",
+      reason: "Investigasi konfigurasi entitlement merchant.",
+      revokedAt: null,
+      scope: "CONFIGURATION_SUPPORT",
+      status: "ACTIVE",
+      supportActorId: "019f738d-e61f-7d46-92de-17b35f970baa",
+      workspaceId: "019f738d-e61f-7d46-92de-17b35f970b91",
+    }).success,
+    true,
+  );
+  assert.equal(
+    supportAccessGrantSchema.safeParse({
+      auditReference: "support-case-1002",
+      expiresAt: "2026-08-05T02:00:00.000Z",
+      grantedAt,
+      grantedByPlatformActorId: "019f738d-e61f-7d46-92de-17b35f970ba8",
+      id: "019f738d-e61f-7d46-92de-17b35f970bab",
+      merchantSessionId: "should-not-be-here",
+      reason: "Investigasi konfigurasi entitlement merchant.",
+      revokedAt: null,
+      scope: "TECHNICAL_SUPPORT",
+      status: "REVOKED",
+      supportActorId: "019f738d-e61f-7d46-92de-17b35f970baa",
+      workspaceId: "019f738d-e61f-7d46-92de-17b35f970b91",
+    }).success,
+    false,
+  );
+  assert.equal(commonOpenApiSchemas.SupportAccessGrant.type, "object");
 });
 
 test("normalizes catalog defaults and preserves exact minor-unit prices", () => {
