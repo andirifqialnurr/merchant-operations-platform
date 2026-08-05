@@ -54,9 +54,9 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Backend Delta 2.1 - Workspace terminology contract.**
+> **NEXT: Backend Delta 2.2 - Module manifest contract.**
 
-Scope checkpoint berikutnya harus tetap bounded: tambahkan contract alias `Workspace`, `BusinessUnit`, `Location`, `WorkspaceType`, dan `BusinessTemplate` di `packages/contracts` tanpa mengubah tabel lama, lalu verifikasi contract tests. Jangan sekaligus membuat route UI baru, migration besar, atau me-reslice POS, KDS, Inventory, Finance, Floor/Table, HC, Customer, atau Platform Admin.
+Scope checkpoint berikutnya harus tetap bounded: tambahkan schema manifest versioned untuk capability, permission, route, navigation, setting, event, handler, install step, dan config schema version di `packages/contracts`. Jangan sekaligus membuat route UI baru, migration besar, atau me-reslice POS, KDS, Inventory, Finance, Floor/Table, HC, Customer, atau Platform Admin.
 
 ### Backend delta yang harus diaudit sebelum UI reslicing
 
@@ -75,7 +75,7 @@ Audit detail: `docs/foundation/BACKEND_MODULAR_DELTA_AUDIT.md`.
 
 ### Backend delta implementation checkpoints
 
-- [ ] **Backend Delta 2.1 - Workspace terminology contract:** contract alias `Workspace`, `BusinessUnit`, `Location`, `WorkspaceType`, dan `BusinessTemplate` tersedia di `packages/contracts` tanpa migration tabel lama.
+- [x] **Backend Delta 2.1 - Workspace terminology contract:** contract alias `Workspace`, `BusinessUnit`, `Location`, `WorkspaceType`, dan `BusinessTemplate` tersedia di `packages/contracts` tanpa migration tabel lama.
 - [ ] **Backend Delta 2.2 - Module manifest contract:** schema manifest versioned tersedia untuk capability, permission, route, navigation, setting, event, handler, install step, dan config schema version.
 - [ ] **Backend Delta 2.3 - Installation and integration lifecycle contract:** lifecycle module installation dan integration binding tersedia sebagai contract typed, tidak memakai boolean `moduleEnabled`.
 - [ ] **Backend Delta 3.1 - Package limit and usage metering contract:** package version snapshot, effective limit, usage event/counter/adjustment, hard/soft/throttled enforcement, dan error code minimum tersedia sebagai contract typed.
@@ -988,8 +988,8 @@ Urutan ini menggantikan daftar push fondasi lama. Setiap baris tetap harus menja
 ```text
 Current  Source-of-truth alignment: product + foundation + audit + TODO
 Done     Backend Delta 1: architecture + ORM/API/security contract audit
-Next     Backend Delta 2.1: workspace terminology contract
-Then     Backend Delta 2.2: module manifest contract
+Done     Backend Delta 2.1: workspace terminology contract
+Next     Backend Delta 2.2: module manifest contract
 Then     Backend Delta 2.3: installation and integration lifecycle contract
 Then     Backend Delta 3.1: package limit and usage metering contract
 Then     Backend Delta 4.1: event envelope and inbox contract

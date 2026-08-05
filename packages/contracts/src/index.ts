@@ -228,6 +228,50 @@ export const organizationSnapshotSchema = z.object({
   outlets: z.array(outletSchema),
 });
 
+export const workspaceTypeSchema = z.enum(["BUSINESS", "PERSONAL"]);
+export const businessTemplateSchema = z.enum([
+  "BAKERY_RETAIL",
+  "BUSINESS_FINANCE_ONLY",
+  "CAFE",
+  "CLOUD_KITCHEN",
+  "HC_ONLY",
+  "PERSONAL",
+  "RESTAURANT",
+]);
+
+export const workspaceSchema = organizationRecordTimestampsSchema.extend({
+  id: z.uuid(),
+  name: organizationNameSchema,
+  slug: organizationSlugSchema,
+  status: organizationUnitStatusSchema,
+  template: businessTemplateSchema,
+  type: workspaceTypeSchema,
+});
+
+export const businessUnitSchema = organizationRecordTimestampsSchema.extend({
+  id: z.uuid(),
+  name: organizationNameSchema,
+  slug: organizationSlugSchema,
+  status: organizationUnitStatusSchema,
+  workspaceId: z.uuid(),
+});
+
+export const locationSchema = organizationRecordTimestampsSchema.extend({
+  businessUnitId: z.uuid().nullable(),
+  code: outletCodeSchema,
+  id: z.uuid(),
+  name: organizationNameSchema,
+  status: organizationUnitStatusSchema,
+  timezone: timezoneSchema,
+  workspaceId: z.uuid(),
+});
+
+export const workspaceStructureSchema = z.object({
+  businessUnits: z.array(businessUnitSchema),
+  locations: z.array(locationSchema),
+  workspace: workspaceSchema,
+});
+
 export const catalogRecordStatusSchema = z.enum(["ACTIVE", "INACTIVE"]);
 export const productAvailabilitySchema = z.enum(["AVAILABLE", "SOLD_OUT"]);
 export const catalogNameSchema = z.string().trim().min(2).max(160);
@@ -861,6 +905,9 @@ export type CatalogRecordStatus = z.infer<typeof catalogRecordStatusSchema>;
 export type CatalogSnapshot = z.infer<typeof catalogSnapshotSchema>;
 export type AuthorizationContext = z.infer<typeof authorizationContextSchema>;
 export type WorkspaceContext = z.infer<typeof workspaceContextSchema>;
+export type Workspace = z.infer<typeof workspaceSchema>;
+export type WorkspaceStructure = z.infer<typeof workspaceStructureSchema>;
+export type WorkspaceType = z.infer<typeof workspaceTypeSchema>;
 export type ContractSchema = z.ZodType;
 export type CreateBrand = z.infer<typeof createBrandSchema>;
 export type CreateCatalogCategory = z.infer<typeof createCatalogCategorySchema>;
@@ -884,6 +931,9 @@ export type CursorPaginationQuery = z.infer<typeof cursorPaginationQuerySchema>;
 export type HealthResponse = z.infer<typeof healthResponseSchema>;
 export type OrganizationSnapshot = z.infer<typeof organizationSnapshotSchema>;
 export type OrganizationUnitStatus = z.infer<typeof organizationUnitStatusSchema>;
+export type BusinessTemplate = z.infer<typeof businessTemplateSchema>;
+export type BusinessUnit = z.infer<typeof businessUnitSchema>;
+export type Location = z.infer<typeof locationSchema>;
 export type Membership = z.infer<typeof membershipSchema>;
 export type MembershipStatus = z.infer<typeof membershipStatusSchema>;
 export type ModifierSelectionType = z.infer<typeof modifierSelectionTypeSchema>;
@@ -971,6 +1021,8 @@ export const commonOpenApiSchemas = {
   EntitlementSnapshot: toOpenApiSchema(entitlementSnapshotSchema),
   ModuleEntitlement: toOpenApiSchema(moduleEntitlementSchema),
   OrganizationSnapshot: toOpenApiSchema(organizationSnapshotSchema),
+  BusinessUnit: toOpenApiSchema(businessUnitSchema),
+  Location: toOpenApiSchema(locationSchema),
   Outlet: toOpenApiSchema(outletSchema),
   PlatformEntitlementParams: toOpenApiSchema(platformEntitlementParamsSchema),
   PlatformRequestHeaders: toOpenApiSchema(platformRequestHeadersSchema),
@@ -985,6 +1037,8 @@ export const commonOpenApiSchemas = {
   TenantRequestHeaders: toOpenApiSchema(tenantRequestHeadersSchema),
   WorkspaceContext: toOpenApiSchema(workspaceContextSchema),
   WorkspaceOutlet: toOpenApiSchema(workspaceOutletSchema),
+  Workspace: toOpenApiSchema(workspaceSchema),
+  WorkspaceStructure: toOpenApiSchema(workspaceStructureSchema),
   Tenant: toOpenApiSchema(tenantSchema),
   SetTenantEntitlement: toOpenApiSchema(setTenantEntitlementSchema),
   Subscription: toOpenApiSchema(subscriptionSchema),

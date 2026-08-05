@@ -35,6 +35,7 @@ import {
   updateCatalogProductSchema,
   updateTenantSchema,
   workspaceContextsSchema,
+  workspaceStructureSchema,
 } from "./index.js";
 
 test("normalizes cursor pagination input", () => {
@@ -111,6 +112,74 @@ test("exports organization schemas for future authorized routes", () => {
   assert.equal(commonOpenApiSchemas.Brand.type, "object");
   assert.equal(commonOpenApiSchemas.Outlet.type, "object");
   assert.equal(commonOpenApiSchemas.OrganizationSnapshot.type, "object");
+});
+
+test("validates canonical workspace structure without requiring F&B hierarchy", () => {
+  const createdAt = "2026-08-05T00:00:00.000Z";
+  const workspaceId = "019f738d-e61f-7d46-92de-17b35f970b91";
+
+  assert.equal(
+    workspaceStructureSchema.safeParse({
+      businessUnits: [],
+      locations: [],
+      workspace: {
+        createdAt,
+        id: workspaceId,
+        name: "Keuangan Pribadi",
+        slug: "keuangan-pribadi",
+        status: "ACTIVE",
+        template: "PERSONAL",
+        type: "PERSONAL",
+        updatedAt: createdAt,
+      },
+    }).success,
+    true,
+  );
+
+  assert.equal(
+    workspaceStructureSchema.safeParse({
+      businessUnits: [
+        {
+          createdAt,
+          id: "019f738d-e61f-7d46-92de-17b35f970b92",
+          name: "Kopi Kita",
+          slug: "kopi-kita",
+          status: "ACTIVE",
+          updatedAt: createdAt,
+          workspaceId,
+        },
+      ],
+      locations: [
+        {
+          businessUnitId: "019f738d-e61f-7d46-92de-17b35f970b92",
+          code: "JKT-01",
+          createdAt,
+          id: "019f738d-e61f-7d46-92de-17b35f970b93",
+          name: "Jakarta",
+          status: "ACTIVE",
+          timezone: "Asia/Jakarta",
+          updatedAt: createdAt,
+          workspaceId,
+        },
+      ],
+      workspace: {
+        createdAt,
+        id: workspaceId,
+        name: "Kopi Kita Group",
+        slug: "kopi-kita-group",
+        status: "ACTIVE",
+        template: "CAFE",
+        type: "BUSINESS",
+        updatedAt: createdAt,
+      },
+    }).success,
+    true,
+  );
+
+  assert.equal(commonOpenApiSchemas.Workspace.type, "object");
+  assert.equal(commonOpenApiSchemas.BusinessUnit.type, "object");
+  assert.equal(commonOpenApiSchemas.Location.type, "object");
+  assert.equal(commonOpenApiSchemas.WorkspaceStructure.type, "object");
 });
 
 test("validates tenant access contracts and rejects ambiguous outlet scope", () => {
