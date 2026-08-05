@@ -54,26 +54,36 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Backend Delta 1 - Architecture and ORM contract audit.**
+> **NEXT: Backend Delta 2.1 - Workspace terminology contract.**
 
-Scope checkpoint berikutnya harus tetap bounded: audit source backend, Prisma schema, contracts, API guards, worker/event foundation, dan security/reliability terhadap PRD Modular v2.3 serta architecture baseline 5 Agustus 2026. Output checkpoint ini adalah gap matrix + update TODO yang memecah backend delta menjadi checkpoint implementasi kecil. Jangan sekaligus membuat route UI baru atau me-reslice POS, KDS, Inventory, Finance, Floor/Table, HC, Customer, atau Platform Admin.
+Scope checkpoint berikutnya harus tetap bounded: tambahkan contract alias `Workspace`, `BusinessUnit`, `Location`, `WorkspaceType`, dan `BusinessTemplate` di `packages/contracts` tanpa mengubah tabel lama, lalu verifikasi contract tests. Jangan sekaligus membuat route UI baru, migration besar, atau me-reslice POS, KDS, Inventory, Finance, Floor/Table, HC, Customer, atau Platform Admin.
 
 ### Backend delta yang harus diaudit sebelum UI reslicing
 
-- [ ] `Workspace -> Business Unit -> Location` dibandingkan dengan implementasi `tenant/brand/outlet`; code baru tidak boleh memperluas terminology F&B sebagai invariant Core.
-- [ ] `workspaceType BUSINESS/PERSONAL`, business template, device/channel metadata, dan employee != user diperiksa terhadap schema/API saat ini.
-- [ ] Module manifest registry diperiksa: module key/version, capability, permission, route, navigation, setting, event produced, handler, install step, dan config schema version.
-- [ ] Module installation lifecycle diperiksa: `NOT_INSTALLED`, `PROVISIONING`, `SETUP_REQUIRED`, `ACTIVE`, `ERROR`, `SUSPENDED`; tidak boleh direduksi menjadi boolean `moduleEnabled`.
-- [ ] Integration binding lifecycle diperiksa: source module, event+version, target module, handler, mapping config, effective time, status, health, retry/dead-letter state, dan audit metadata.
-- [ ] Package/version/entitlement/limit/metering diperiksa: immutable package version, effective entitlement, hard count limit, soft metered event, throttled limit, usage event idempotent, rebuildable counter, adjustment audit, dan downgrade tanpa menghapus histori.
-- [ ] Event/outbox/inbox diperiksa terhadap flow R1: POS -> KDS, POS -> Finance, POS -> Inventory, KDS-only manual/API intake, Inventory-only, Finance-only, HC-only, dan duplicate consumer handling.
-- [ ] ORM schema gap diperiksa untuk Core tables baru, floor/session/QR, KDS ticket, inventory ledger, Finance Core, HC attendance append-only, customer/report projection, usage metering, dan safe DTO boundary.
-- [ ] Security delta diperiksa: integration API rate limit, endpoint sensitif, module boundary lint, PostgreSQL/RLS integration test disposable, QR token hash/rotation privacy, support access scope/reason/expiry, dan PII-safe event/log.
-- [ ] Setiap gap diklasifikasi sebagai `implemented`, `partial`, `missing`, `deferred`, atau `future`, dengan rekomendasi checkpoint implementasi yang dapat dipush sendiri.
+- [x] `Workspace -> Business Unit -> Location` dibandingkan dengan implementasi `tenant/brand/outlet`; code baru tidak boleh memperluas terminology F&B sebagai invariant Core.
+- [x] `workspaceType BUSINESS/PERSONAL`, business template, device/channel metadata, dan employee != user diperiksa terhadap schema/API saat ini.
+- [x] Module manifest registry diperiksa: module key/version, capability, permission, route, navigation, setting, event produced, handler, install step, dan config schema version.
+- [x] Module installation lifecycle diperiksa: `NOT_INSTALLED`, `PROVISIONING`, `SETUP_REQUIRED`, `ACTIVE`, `ERROR`, `SUSPENDED`; tidak boleh direduksi menjadi boolean `moduleEnabled`.
+- [x] Integration binding lifecycle diperiksa: source module, event+version, target module, handler, mapping config, effective time, status, health, retry/dead-letter state, dan audit metadata.
+- [x] Package/version/entitlement/limit/metering diperiksa: immutable package version, effective entitlement, hard count limit, soft metered event, throttled limit, usage event idempotent, rebuildable counter, adjustment audit, dan downgrade tanpa menghapus histori.
+- [x] Event/outbox/inbox diperiksa terhadap flow R1: POS -> KDS, POS -> Finance, POS -> Inventory, KDS-only manual/API intake, Inventory-only, Finance-only, HC-only, dan duplicate consumer handling.
+- [x] ORM schema gap diperiksa untuk Core tables baru, floor/session/QR, KDS ticket, inventory ledger, Finance Core, HC attendance append-only, customer/report projection, usage metering, dan safe DTO boundary.
+- [x] Security delta diperiksa: integration API rate limit, endpoint sensitif, module boundary lint, PostgreSQL/RLS integration test disposable, QR token hash/rotation privacy, support access scope/reason/expiry, dan PII-safe event/log.
+- [x] Setiap gap diklasifikasi sebagai `implemented`, `partial`, `missing`, `deferred`, atau `future`, dengan rekomendasi checkpoint implementasi yang dapat dipush sendiri.
+
+Audit detail: `docs/foundation/BACKEND_MODULAR_DELTA_AUDIT.md`.
+
+### Backend delta implementation checkpoints
+
+- [ ] **Backend Delta 2.1 - Workspace terminology contract:** contract alias `Workspace`, `BusinessUnit`, `Location`, `WorkspaceType`, dan `BusinessTemplate` tersedia di `packages/contracts` tanpa migration tabel lama.
+- [ ] **Backend Delta 2.2 - Module manifest contract:** schema manifest versioned tersedia untuk capability, permission, route, navigation, setting, event, handler, install step, dan config schema version.
+- [ ] **Backend Delta 2.3 - Installation and integration lifecycle contract:** lifecycle module installation dan integration binding tersedia sebagai contract typed, tidak memakai boolean `moduleEnabled`.
+- [ ] **Backend Delta 3.1 - Package limit and usage metering contract:** package version snapshot, effective limit, usage event/counter/adjustment, hard/soft/throttled enforcement, dan error code minimum tersedia sebagai contract typed.
+- [ ] **Backend Delta 4.1 - Event envelope and inbox contract:** event envelope versioned dan inbox/consumer idempotency contract tersedia sebelum ORM/event implementation.
 
 ### Gate sebelum coding backend berikutnya
 
-- [ ] Backend delta audit selesai dan dicatat pada TODO.
+- [x] Backend delta audit selesai dan dicatat pada TODO.
 - [ ] Untuk setiap checkpoint backend implementasi, tentukan owner module/data, mutation command, read model/DTO, permission, entitlement, installation, limit, idempotency, audit, dan error code sebelum coding.
 - [ ] Migration/Prisma change wajib disertai constraint/index/tenant-workspace isolation review dan rollback/rebuild consideration.
 - [ ] Endpoint/API baru wajib memakai shared Zod contract untuk header, params, query, body, dan response yang relevan.
@@ -977,10 +987,12 @@ Urutan ini menggantikan daftar push fondasi lama. Setiap baris tetap harus menja
 
 ```text
 Current  Source-of-truth alignment: product + foundation + audit + TODO
-Next     Backend Delta 1: architecture + ORM/API/security contract audit
-Then     Backend Delta 2: Core Platform terminology, workspace type, manifest, installation, and binding foundation
-Then     Backend Delta 3: package version, effective entitlement, hard/soft limit, usage metering, and downgrade semantics
-Then     Backend Delta 4: event/outbox/inbox integration proof for POS/KDS/Finance/Inventory and standalone modules
+Done     Backend Delta 1: architecture + ORM/API/security contract audit
+Next     Backend Delta 2.1: workspace terminology contract
+Then     Backend Delta 2.2: module manifest contract
+Then     Backend Delta 2.3: installation and integration lifecycle contract
+Then     Backend Delta 3.1: package limit and usage metering contract
+Then     Backend Delta 4.1: event envelope and inbox contract
 Then     UI Alignment 1: Warm token/theme/font foundation convergence
 Then     UI Alignment 2: S/M/L shell, workspace/location context, module access states
 Then     Catalog + POS Basic end-to-end
