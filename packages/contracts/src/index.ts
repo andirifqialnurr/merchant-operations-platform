@@ -1019,6 +1019,43 @@ export const limitErrorDetailsSchema = z.object({
   message: z.string().trim().min(1).max(500),
 });
 
+export const eventProducerSchema = moduleKeySchema;
+export const eventActorSchema = z.object({
+  id: z.uuid().nullable(),
+  type: z.enum(["DEVICE", "INTEGRATION", "SYSTEM", "USER"]),
+});
+export const eventPayloadSchema = z.record(z.string(), z.unknown());
+export const domainEventEnvelopeSchema = z.object({
+  actor: eventActorSchema.nullable(),
+  businessUnitId: z.uuid().nullable(),
+  causationId: z.uuid().nullable(),
+  correlationId: requestIdSchema,
+  eventId: z.uuid(),
+  eventType: moduleEventTypeSchema,
+  eventVersion: z.number().int().min(1),
+  locationId: z.uuid().nullable(),
+  occurredAt: z.iso.datetime(),
+  payload: eventPayloadSchema,
+  producer: eventProducerSchema,
+  recordedAt: z.iso.datetime(),
+  workspaceId: z.uuid(),
+});
+
+export function createDomainEventEnvelopeSchema<T extends z.ZodType>(payloadSchema: T) {
+  return domainEventEnvelopeSchema.extend({ payload: payloadSchema });
+}
+
+export const inboxConsumerStatusSchema = z.enum(["BLOCKED", "FAILED", "PROCESSED", "RETRYING"]);
+export const inboxConsumerReceiptSchema = z.object({
+  consumerName: z.string().trim().min(2).max(120),
+  eventId: z.uuid(),
+  firstSeenAt: z.iso.datetime(),
+  lastError: z.string().trim().min(1).max(500).nullable(),
+  lastSeenAt: z.iso.datetime(),
+  status: inboxConsumerStatusSchema,
+  workspaceId: z.uuid(),
+});
+
 export const roleSchema = organizationRecordTimestampsSchema.extend({
   id: z.uuid(),
   tenantId: z.uuid(),
@@ -1200,6 +1237,12 @@ export type IntegrationBindingHealth = z.infer<typeof integrationBindingHealthSc
 export type IntegrationBindingStatus = z.infer<typeof integrationBindingStatusSchema>;
 export type EffectiveLimit = z.infer<typeof effectiveLimitSchema>;
 export type EffectiveLimitSource = z.infer<typeof effectiveLimitSourceSchema>;
+export type DomainEventEnvelope = z.infer<typeof domainEventEnvelopeSchema>;
+export type EventActor = z.infer<typeof eventActorSchema>;
+export type EventPayload = z.infer<typeof eventPayloadSchema>;
+export type EventProducer = z.infer<typeof eventProducerSchema>;
+export type InboxConsumerReceipt = z.infer<typeof inboxConsumerReceiptSchema>;
+export type InboxConsumerStatus = z.infer<typeof inboxConsumerStatusSchema>;
 export type LimitDimensionKey = z.infer<typeof limitDimensionKeySchema>;
 export type LimitEnforcementType = z.infer<typeof limitEnforcementTypeSchema>;
 export type LimitErrorCode = z.infer<typeof limitErrorCodeSchema>;
@@ -1309,6 +1352,8 @@ export const commonOpenApiSchemas = {
   ModuleNavigationRegistration: toOpenApiSchema(moduleNavigationRegistrationSchema),
   ModuleRouteRegistration: toOpenApiSchema(moduleRouteRegistrationSchema),
   ModuleSettingRegistration: toOpenApiSchema(moduleSettingRegistrationSchema),
+  DomainEventEnvelope: toOpenApiSchema(domainEventEnvelopeSchema),
+  InboxConsumerReceipt: toOpenApiSchema(inboxConsumerReceiptSchema),
   EffectiveLimit: toOpenApiSchema(effectiveLimitSchema),
   LimitErrorDetails: toOpenApiSchema(limitErrorDetailsSchema),
   OrganizationSnapshot: toOpenApiSchema(organizationSnapshotSchema),

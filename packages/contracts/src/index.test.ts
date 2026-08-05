@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import * as z from "zod";
 
 import {
   API_HEADERS,
@@ -9,7 +10,9 @@ import {
   createOutletSchema,
   createTenantSchema,
   commonOpenApiSchemas,
+  catalogNameSchema,
   createCatalogCategorySchema,
+  createDomainEventEnvelopeSchema,
   createCatalogModifierGroupSchema,
   createCatalogModifierOptionSchema,
   createCatalogOutletProductSchema,
@@ -22,7 +25,9 @@ import {
   createRoleSchema,
   cursorPaginationQuerySchema,
   entitlementSnapshotSchema,
+  domainEventEnvelopeSchema,
   integrationBindingSchema,
+  inboxConsumerReceiptSchema,
   limitErrorDetailsSchema,
   moduleInstallationSchema,
   moduleManifestSchema,
@@ -551,6 +556,70 @@ test("validates package snapshot and usage metering contracts", () => {
   assert.equal(commonOpenApiSchemas.UsageEvent.type, "object");
   assert.equal(commonOpenApiSchemas.UsageCounter.type, "object");
   assert.equal(commonOpenApiSchemas.LimitErrorDetails.type, "object");
+});
+
+test("validates domain event envelopes and inbox idempotency receipts", () => {
+  const eventId = "019f738d-e61f-7d46-92de-17b35f970ba1";
+  const workspaceId = "019f738d-e61f-7d46-92de-17b35f970b91";
+  const recordedAt = "2026-08-05T00:00:00.000Z";
+
+  assert.equal(
+    domainEventEnvelopeSchema.safeParse({
+      actor: { id: null, type: "SYSTEM" },
+      businessUnitId: null,
+      causationId: null,
+      correlationId: "req_019f738d_e61f_7d46_92de",
+      eventId,
+      eventType: "sale.completed.v1",
+      eventVersion: 1,
+      locationId: "019f738d-e61f-7d46-92de-17b35f970b92",
+      occurredAt: recordedAt,
+      payload: { saleId: "sale-public-01", totalMinor: "25000" },
+      producer: MODULES.pos,
+      recordedAt,
+      workspaceId,
+    }).success,
+    true,
+  );
+
+  const saleCompletedEventSchema = createDomainEventEnvelopeSchema(
+    catalogNameSchema
+      .transform((label) => ({ saleLabel: label }))
+      .pipe(z.object({ saleLabel: catalogNameSchema })),
+  );
+  assert.equal(
+    saleCompletedEventSchema.safeParse({
+      actor: null,
+      businessUnitId: null,
+      causationId: null,
+      correlationId: "req_019f738d_e61f_7d46_92df",
+      eventId: "019f738d-e61f-7d46-92de-17b35f970ba2",
+      eventType: "sale.completed.v1",
+      eventVersion: 1,
+      locationId: null,
+      occurredAt: recordedAt,
+      payload: "Sale 1001",
+      producer: MODULES.pos,
+      recordedAt,
+      workspaceId,
+    }).success,
+    true,
+  );
+
+  assert.equal(
+    inboxConsumerReceiptSchema.safeParse({
+      consumerName: "kds-ticket-projector",
+      eventId,
+      firstSeenAt: recordedAt,
+      lastError: null,
+      lastSeenAt: recordedAt,
+      status: "PROCESSED",
+      workspaceId,
+    }).success,
+    true,
+  );
+  assert.equal(commonOpenApiSchemas.DomainEventEnvelope.type, "object");
+  assert.equal(commonOpenApiSchemas.InboxConsumerReceipt.type, "object");
 });
 
 test("normalizes catalog defaults and preserves exact minor-unit prices", () => {
