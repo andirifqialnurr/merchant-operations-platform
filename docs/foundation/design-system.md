@@ -1,16 +1,16 @@
-# Design System - Merchant Operations Platform
+# Design System — Cafe Companion Pro
 
-**Status:** Source of truth visual Version 1  
-**Tanggal:** 14 Juli 2026  
-**Tema:** Calm Commerce / Operational Teal  
+**Status:** Source of truth visual/interaksi selaras PRD v2.3  
+**Tanggal:** 5 Agustus 2026  
+**Tema:** Warm Operational / Cream–Espresso–Amber  
 **Mode:** Light, Dark, dan System  
-**Font utama:** Geist Sans  
-**Font teknis:** Geist Mono  
+**Font utama:** DM Sans  
+**Font display terbatas:** Fraunces  
 **Target aksesibilitas:** WCAG 2.2 Level AA
 
 ## 1. Tujuan dokumen
 
-Dokumen ini menjadi kontrak visual dan interaksi untuk seluruh aplikasi sebelum komponen dan halaman mulai dibuat. Semua implementasi UI pada POS, KDS, backoffice merchant, inventory, finance, customer self-order, dan platform super-admin harus mengikuti dokumen ini.
+Dokumen ini menjadi kontrak visual dan interaksi untuk seluruh Cafe Companion Pro. Semua implementasi UI pada Platform Admin, Merchant Backoffice, POS, KDS, Catalog, Floor/Table, Inventory, Business Finance, Human Capital, Customer/Self-Order, Analytics, dan future client yang memakai component system web harus mengikuti kontrak yang relevan di dokumen ini.
 
 Urutan sumber keputusan UI adalah:
 
@@ -30,13 +30,14 @@ Dokumen ini mengatur:
 - Light mode, dark mode, dan merchant branding.
 - Font, tipografi, angka, ikon, spacing, radius, dan elevation.
 - Ukuran, variant, state, serta perilaku komponen UI.
-- Komponen domain POS, KDS, inventory, finance, dan customer ordering.
-- Responsive layout, touch target, accessibility, motion, dan content style.
+- Komponen domain POS, Floor/Table, KDS, inventory, finance, HC, analytics, platform, dan customer ordering.
+- Responsive contract Small/Medium/Large, touch target, accessibility, motion, dan content style.
+- UX untuk entitlement, tier, module installation, limit/usage, dan integration state.
 - Struktur implementasi dan aturan agar UI tidak menyimpang.
 
 ## 2. Karakter desain
 
-Nama arah visual adalah **Calm Commerce** dengan palet **Operational Teal**.
+Nama arah visual adalah **Warm Operational**: pengalaman operasional yang bersih dan tenang dengan karakter Cafe Companion Pro melalui cream, espresso, dan amber yang digunakan terukur.
 
 Karakter yang ingin dicapai:
 
@@ -44,13 +45,15 @@ Karakter yang ingin dicapai:
 - Cepat: tindakan utama dan status mudah ditemukan tanpa membaca panjang.
 - Operasional: tabel, angka, pesanan, dan stok lebih penting daripada dekorasi.
 - Tepercaya: transaksi dan perubahan status selalu memberikan feedback jelas.
-- Fleksibel: tidak terlalu identik dengan kafe agar cocok untuk retail dan UMKM lain.
+- Hangat tetapi tidak dekoratif: identitas cafe terasa tanpa membuat HC/Finance terasa seperti menu restoran.
+- Fleksibel: foundation tetap cocok untuk HC-only, Finance-only, dan use case bisnis berdekatan.
 - Custom: komponen memiliki visual milik platform, bukan tampilan bawaan browser atau library.
 - Accessible: keyboard, screen reader, touch, dan contrast dipertimbangkan sejak komponen dasar.
 
 Yang harus dihindari:
 
-- Cokelat sebagai warna inti karena terlalu mengikat produk ke kafe.
+- Cokelat/espresso yang dipakai sebagai blok dekoratif besar di setiap surface.
+- Amber pada setiap card atau metric tanpa makna.
 - Gradient dekoratif pada aplikasi operasional.
 - Card di dalam card tanpa kebutuhan hierarki yang nyata.
 - Shadow besar pada semua surface.
@@ -70,6 +73,8 @@ Design system yang sama digunakan oleh semua surface, tetapi density dan pola in
 | Backoffice | Owner/manager | Medium-high | Mouse, keyboard, touch | Data, form, dan tabel |
 | Inventory | Inventory staff | Medium-high | Mouse, keyboard, scanner | Stok dan perubahan kuantitas |
 | Finance | Owner/finance | High | Mouse, keyboard | Angka, filter, dan rekonsiliasi |
+| Human Capital | HR/admin/employee web | Medium-high | Mouse, keyboard, touch | Employee, schedule, attendance, leave |
+| Reports/Analytics | Owner/manager | Medium-high | Mouse, keyboard, touch | KPI, filter, chart, export |
 | Customer ordering | Guest | Low | Touch | Mobile-first, satu CTA utama |
 | Platform admin | Super admin | High | Mouse, keyboard | Tenant, entitlement, audit |
 
@@ -88,7 +93,7 @@ Primitive token
 
 ### 4.1 Primitive token
 
-Primitive berisi nilai mentah seperti `teal-700` atau `slate-900`. Primitive tidak boleh digunakan langsung oleh halaman fitur.
+Primitive berisi nilai mentah/palette internal. Primitive tidak boleh digunakan langsung oleh halaman fitur; feature memakai semantic token seperti `background`, `foreground`, `primary`, `accent`, dan status semantic.
 Implementasi CSS memakai pola `--primitive-color-<token>` agar primitive tidak terekspos sebagai utility semantic Tailwind.
 
 ### 4.2 Semantic token
@@ -125,239 +130,174 @@ Override merchant hanya berlaku pada Cafe Profile dan customer self-order. POS, 
 
 ## 5. Primitive color palette
 
-### 5.1 Operational Teal
+Primitive mendukung karakter cream–espresso–amber. Nilai feature tidak boleh mengambil primitive secara langsung; gunakan semantic token di bagian 6.
 
-| Token | Hex |
-|---|---:|
-| `teal-50` | `#F0FDFA` |
-| `teal-100` | `#CCFBF1` |
-| `teal-200` | `#99F6E4` |
-| `teal-300` | `#5EEAD4` |
-| `teal-400` | `#2DD4BF` |
-| `teal-500` | `#14B8A6` |
-| `teal-600` | `#0D9488` |
-| `teal-700` | `#0F766E` |
-| `teal-800` | `#115E59` |
-| `teal-900` | `#134E4A` |
-| `teal-950` | `#042F2E` |
+### 5.1 Warm brand primitives
 
-### 5.2 Slate neutral
+| Primitive | Nilai baseline | Peran |
+|---|---|---|
+| `cream-canvas` | `oklch(0.976 0.011 84)` | Background terang |
+| `cream-surface` | `oklch(0.995 0.006 90)` | Surface/card terang |
+| `cream-muted` | `oklch(0.941 0.017 86)` | Surface subtle |
+| `cream-border` | `oklch(0.897 0.022 82)` | Border/divider |
+| `espresso-text` | `oklch(0.243 0.032 52)` | Teks utama terang |
+| `espresso-primary` | `oklch(0.402 0.079 48)` | Primary action terang |
+| `amber-accent` | `oklch(0.808 0.132 74)` | Accent restrained / primary gelap |
+| `dark-canvas` | `oklch(0.191 0.014 60)` | Background gelap |
+| `dark-surface` | `oklch(0.232 0.017 60)` | Surface gelap |
+| `dark-muted` | `oklch(0.283 0.019 60)` | Surface subtle gelap |
+| `dark-foreground` | `oklch(0.941 0.014 84)` | Teks utama gelap |
 
-| Token | Hex |
-|---|---:|
-| `white` | `#FFFFFF` |
-| `slate-50` | `#F8FAFC` |
-| `slate-100` | `#F1F5F9` |
-| `slate-200` | `#E2E8F0` |
-| `slate-300` | `#CBD5E1` |
-| `slate-400` | `#94A3B8` |
-| `slate-500` | `#64748B` |
-| `slate-600` | `#475569` |
-| `slate-700` | `#334155` |
-| `slate-800` | `#1E293B` |
-| `slate-900` | `#0F172A` |
-| `slate-950` | `#020617` |
+Accent amber bukan semantic warning. `accent` dipakai untuk highlight brand yang terukur; `warning` memakai token status tersendiri.
 
-### 5.3 Status primitive
+### 5.2 Status primitives
 
-Version 1 hanya menyediakan stop yang dipakai oleh status light/dark. Stop lain tidak ditambahkan sampai memiliki use case yang jelas.
+Status menjaga makna lintas theme dan tidak mengambil warna brand.
 
-| Fungsi | Token | Hex |
-|---|---|---:|
-| Information | `blue-50` | `#EFF6FF` |
-| Information | `blue-300` | `#93C5FD` |
-| Information | `blue-700` | `#1D4ED8` |
-| Information | `blue-950` | `#172554` |
-| Success | `green-50` | `#F0FDF4` |
-| Success | `green-300` | `#86EFAC` |
-| Success | `green-700` | `#15803D` |
-| Success | `green-950` | `#052E16` |
-| Warning | `amber-50` | `#FFFBEB` |
-| Warning | `amber-300` | `#FCD34D` |
-| Warning | `amber-700` | `#B45309` |
-| Warning | `amber-950` | `#451A03` |
-| Danger | `red-50` | `#FEF2F2` |
-| Danger | `red-300` | `#FCA5A5` |
-| Danger | `red-700` | `#B91C1C` |
-| Danger | `red-950` | `#450A0A` |
-| Special/refund | `violet-50` | `#F5F3FF` |
-| Special/refund | `violet-300` | `#C4B5FD` |
-| Special/refund | `violet-700` | `#6D28D9` |
-| Special/refund | `violet-950` | `#2E1065` |
+| Fungsi | Baseline |
+|---|---|
+| `success` | `oklch(0.585 0.113 152)` |
+| `warning` | `oklch(0.769 0.147 70)` |
+| `info` | `oklch(0.545 0.088 235)` |
+| `destructive` | `oklch(0.545 0.192 27)` |
 
-Palet status tidak digunakan sebagai warna dekoratif atau pembeda kategori produk.
+Implementasi boleh menyediakan stop light/dark tambahan selama mapping semantic dan contrast AA dipertahankan. Palet status tidak digunakan sebagai pembeda kategori produk.
 
 ## 6. Semantic theme
 
-### 6.1 Light mode
+### 6.1 Light mode baseline
 
-| Semantic token | Nilai | Penggunaan |
-|---|---:|---|
-| `bg.canvas` | `#F8FAFC` | Latar aplikasi |
-| `bg.surface` | `#FFFFFF` | Panel dan card |
-| `bg.surfaceSubtle` | `#F1F5F9` | Header tabel, filter, area sekunder |
-| `bg.surfaceRaised` | `#FFFFFF` | Dialog, popover, dropdown |
-| `bg.surfaceInverse` | `#0F172A` | Tooltip dan inverse surface |
-| `bg.overlay` | `rgba(15,23,42,.48)` | Overlay dialog/drawer |
-| `text.primary` | `#0F172A` | Judul dan isi utama |
-| `text.secondary` | `#475569` | Deskripsi dan metadata |
-| `text.muted` | `#64748B` | Helper text |
-| `text.disabled` | `#94A3B8` | Kontrol disabled |
-| `text.inverse` | `#FFFFFF` | Teks inverse |
-| `border.subtle` | `#E2E8F0` | Divider |
-| `border.default` | `#CBD5E1` | Input dan card |
-| `border.control` | `#64748B` | Batas kontrol interaktif |
-| `border.strong` | `#475569` | Hover/selected neutral |
-| `action.primary` | `#0F766E` | CTA utama |
-| `action.primaryHover` | `#115E59` | Hover CTA |
-| `action.primaryPressed` | `#134E4A` | Pressed CTA |
-| `action.onPrimary` | `#FFFFFF` | Teks pada CTA |
-| `action.primarySubtle` | `#CCFBF1` | Active menu/background |
-| `focus.ring` | `#0D9488` | Focus indicator |
+| Semantic token | Nilai baseline | Penggunaan |
+|---|---|---|
+| `background` / `bg.canvas` | `oklch(0.976 0.011 84)` | App background |
+| `foreground` / `text.primary` | `oklch(0.243 0.032 52)` | Teks utama |
+| `card` / `bg.surface` | `oklch(0.995 0.006 90)` | Surface/card |
+| `bg.surfaceSubtle` | `oklch(0.941 0.017 86)` | Header table/filter |
+| `primary` / `action.primary` | `oklch(0.402 0.079 48)` | Main CTA/active nav |
+| `accent` | `oklch(0.808 0.132 74)` | Restrained highlight |
+| `border.default` | `oklch(0.897 0.022 82)` | Control/card border |
+| `text.secondary` | Derived espresso-muted dengan contrast AA | Deskripsi/meta |
+| `text.disabled` | Derived muted yang tetap terbaca | Disabled |
+| `focus.ring` | Derived primary/accent dengan contrast >=3:1 | Focus |
+| `bg.overlay` | Espresso dengan alpha yang tervalidasi | Overlay |
 
-### 6.2 Dark mode
+### 6.2 Dark mode baseline
 
-Dark mode memakai navy-slate, bukan hitam murni. Surface dibedakan dengan luminance dan border, bukan shadow berat.
+Dark mode menggunakan espresso-charcoal hangat, bukan black murni dan bukan navy sebagai identitas utama.
 
-| Semantic token | Nilai | Penggunaan |
-|---|---:|---|
-| `bg.canvas` | `#0B1120` | Latar aplikasi |
-| `bg.surface` | `#111827` | Panel dan card |
-| `bg.surfaceSubtle` | `#182235` | Header tabel, filter, area sekunder |
-| `bg.surfaceRaised` | `#1E293B` | Dialog, popover, dropdown |
-| `bg.surfaceInverse` | `#F8FAFC` | Inverse surface |
-| `bg.overlay` | `rgba(2,6,23,.72)` | Overlay dialog/drawer |
-| `text.primary` | `#F8FAFC` | Judul dan isi utama |
-| `text.secondary` | `#CBD5E1` | Deskripsi dan metadata |
-| `text.muted` | `#94A3B8` | Helper text |
-| `text.disabled` | `#64748B` | Kontrol disabled |
-| `text.inverse` | `#0F172A` | Teks inverse |
-| `border.subtle` | `#253247` | Divider |
-| `border.default` | `#334155` | Input dan card |
-| `border.control` | `#64748B` | Batas kontrol interaktif |
-| `border.strong` | `#94A3B8` | Hover/selected neutral |
-| `action.primary` | `#2DD4BF` | CTA utama |
-| `action.primaryHover` | `#5EEAD4` | Hover CTA |
-| `action.primaryPressed` | `#14B8A6` | Pressed CTA |
-| `action.onPrimary` | `#042F2E` | Teks pada CTA |
-| `action.primarySubtle` | `#134E4A` | Active menu/background |
-| `focus.ring` | `#5EEAD4` | Focus indicator |
+| Semantic token | Nilai baseline | Penggunaan |
+|---|---|---|
+| `background` / `bg.canvas` | `oklch(0.191 0.014 60)` | App background |
+| `foreground` / `text.primary` | `oklch(0.941 0.014 84)` | Teks utama |
+| `card` / `bg.surface` | `oklch(0.232 0.017 60)` | Surface/card |
+| `bg.surfaceSubtle` | `oklch(0.283 0.019 60)` | Header/filter/subtle |
+| `primary` / `action.primary` | `oklch(0.808 0.132 74)` | Main CTA |
+| `border.default` | `oklch(0.994 0.01 84 / 12%)` | Divider/default border |
+| `text.secondary` | Derived cream-muted dengan contrast AA | Deskripsi/meta |
+| `focus.ring` | Derived amber/cream dengan contrast >=3:1 | Focus |
+| `bg.overlay` | Near-black warm alpha | Overlay |
+
+Surface dibedakan terutama melalui luminance, border, dan spacing; shadow berat dihindari.
 
 ### 6.3 Status light dan dark
 
-| Status | Light text/bg | Dark text/bg |
-|---|---|---|
-| Info | `#1D4ED8` / `#EFF6FF` | `#93C5FD` / `#172554` |
-| Success | `#15803D` / `#F0FDF4` | `#86EFAC` / `#052E16` |
-| Warning | `#B45309` / `#FFFBEB` | `#FCD34D` / `#451A03` |
-| Danger | `#B91C1C` / `#FEF2F2` | `#FCA5A5` / `#450A0A` |
-| Special | `#6D28D9` / `#F5F3FF` | `#C4B5FD` / `#2E1065` |
+Status semantic: `neutral`, `info`, `success`, `warning`, `danger/destructive`, dan `special` bila benar-benar dibutuhkan oleh domain. Setiap theme harus menyediakan pasangan text/background/border yang lolos contrast.
 
-Setiap status harus memiliki label teks. Icon dan warna hanya mempercepat pengenalan.
+Aturan:
+
+- label teks selalu ada untuk state domain;
+- icon dan warna hanya mempercepat pengenalan;
+- `accent` brand tidak mengganti `warning`;
+- revenue tidak otomatis hijau dan expense tidak otomatis merah;
+- domain component menerima enum, bukan raw color.
 
 ### 6.4 Theme behavior
 
 Pilihan tema:
 
-- `Light`.
-- `Dark`.
+- `Light`;
+- `Dark`;
 - `System` mengikuti `prefers-color-scheme`.
 
-Penyimpanan tema:
+Persistence:
 
-- POS dan KDS: per perangkat.
-- Backoffice dan platform admin: per user.
-- Customer ordering: mengikuti system, dengan toggle opsional jika diperlukan.
-- Theme tidak ditentukan tenant secara global.
+- POS dan KDS: per device;
+- Backoffice/HC Admin/Platform Admin: per user;
+- Customer ordering: system default dengan override opsional;
+- theme bukan setting global workspace.
 
-Perubahan tema tidak boleh me-refresh halaman atau menghilangkan draft cart/form.
+Perubahan theme tidak boleh refresh halaman, mereset cart/form/filter/context, atau mengubah entitlement state.
 
 ## 7. Merchant branding
 
-Version 1 mengizinkan pada public storefront:
+Brand override hanya berlaku pada public Cafe Profile/Customer Self-Order. Operational surfaces tetap memakai Cafe Companion Pro visual agar status dan controls konsisten.
 
-- Logo merchant.
-- Banner/cover.
-- Nama, deskripsi, alamat, dan jam buka.
-- Pilihan warna brand dari preset yang sudah lolos contrast.
+Public surface dapat menggunakan:
 
-Preset awal:
-
-| Preset | Light primary/on-primary | Dark primary/on-primary |
-|---|---|---|
-| Teal | `#0F766E` / `#FFFFFF` | `#2DD4BF` / `#0F172A` |
-| Blue | `#1D4ED8` / `#FFFFFF` | `#60A5FA` / `#0F172A` |
-| Indigo | `#4338CA` / `#FFFFFF` | `#818CF8` / `#0F172A` |
-| Violet | `#6D28D9` / `#FFFFFF` | `#A78BFA` / `#0F172A` |
-| Rose | `#BE123C` / `#FFFFFF` | `#FB7185` / `#0F172A` |
-| Orange | `#C2410C` / `#FFFFFF` | `#FB923C` / `#0F172A` |
-
-Seluruh pasangan preset di atas memiliki contrast teks di atas `4.5:1`. Nilai on-primary merupakan bagian token preset dan tidak dipilih bebas oleh halaman.
+- logo;
+- banner/cover;
+- nama, deskripsi, alamat, jam buka;
+- preset brand color yang sudah diuji contrast.
 
 Aturan:
 
-- Merchant primary tidak mengganti success, warning, atau danger.
-- Sistem menentukan warna teks aman di atas brand color.
-- Arbitrary hex ditunda sampai contrast validation tersedia.
-- Font custom merchant tidak termasuk Version 1.
-- Logo tidak boleh mengganti nama atau label tombol.
+- merchant primary tidak mengganti success/warning/danger;
+- on-primary dipasangkan sistem, bukan dipilih bebas;
+- arbitrary hex ditunda sampai contrast validation tersedia;
+- custom font merchant bukan baseline R1;
+- logo tidak mengganti label action;
+- branding tidak boleh mengubah layout contract S/M/L atau accessibility.
 
 ## 8. Typography
 
 ### 8.1 Font family
 
 ```text
-UI utama       : Geist Sans
-Fallback       : Inter, system sans-serif
-Teknis terbatas: Geist Mono
+UI utama        : DM Sans
+Fallback        : ui-sans-serif, system-ui, sans-serif
+Display terbatas: Fraunces
 ```
 
-Font diambil dari package resmi `geist` dan dibundel bersama aplikasi. Tidak memakai runtime font CDN.
+DM Sans dipakai pada seluruh operational UI, table, form, navigation, POS, KDS, finance, dan HC. Fraunces hanya untuk brand/storefront title atau selected marketing-like heading; tidak dipakai pada dense table, timer, nominal finance, label kecil, atau form controls.
 
-```css
-font-family: var(--font-geist-sans), Inter, ui-sans-serif, system-ui, sans-serif;
-```
-
-Geist Mono hanya untuk API key, device identifier, request ID, dan teks teknis. Nominal, nomor pesanan, nomor meja, serta timer tetap menggunakan Geist Sans dengan tabular numbers.
+Font harus dibundel/self-hosted melalui mekanisme build yang stabil; tidak bergantung pada runtime font CDN.
 
 ### 8.2 Font weight
 
 | Token | Weight | Penggunaan |
 |---|---:|---|
 | `regular` | 400 | Body |
-| `medium` | 500 | Label, button, table header |
-| `semibold` | 600 | Heading dan total penting |
-| `bold` | 700 | Display dan penekanan terbatas |
-
-Weight 300 tidak digunakan karena terlalu tipis pada dark mode. Weight 800-900 tidak digunakan pada aplikasi operasional.
+| `medium` | 500 | Label/button/table header |
+| `semibold` | 600 | Section/summary |
+| `bold` | 700 | Page title/KPI/display terbatas |
 
 ### 8.3 Type scale
 
-| Token | Size/line-height | Weight default | Penggunaan |
-|---|---:|---:|---|
-| `caption-xs` | `11/16px` | 500 | Label sangat terbatas, bukan body |
-| `caption` | `12/16px` | 400 | Metadata, helper, timestamp |
-| `body-sm` | `13/18px` | 400 | Dense table opsional |
-| `body` | `14/20px` | 400 | Default backoffice |
-| `body-lg` | `16/24px` | 400 | Customer, form touch, detail |
-| `label` | `14/20px` | 500 | Form label dan button |
-| `heading-sm` | `16/24px` | 600 | Card/section kecil |
-| `heading` | `18/26px` | 600 | Section utama |
-| `heading-lg` | `20/28px` | 600 | Halaman compact |
-| `title` | `24/32px` | 600 | Judul halaman |
-| `display-sm` | `28/36px` | 650 | Total POS, timer KDS |
-| `display` | `32/40px` | 700 | Hero/angka sangat penting |
+| Token | Large/Medium | Small | Weight | Penggunaan |
+|---|---:|---:|---:|---|
+| `display-lg` | `36/44px` | `30/38px` | 700 | Storefront hero terbatas |
+| `heading-1` | `28/36px` | `24/32px` | 700 | Major page title |
+| `heading-2` | `22/30px` | `20/28px` | 700 | Section utama |
+| `heading-3` | `18/26px` | `18/26px` | 600 | Card/section title |
+| `body-lg` | `16/24px` | `16/24px` | 400/500 | Important body/touch |
+| `body` | `14/22px` | `14/22px` | 400 | Default UI |
+| `body-sm` | `13/20px` | `13/20px` | 400/500 | Dense table/meta |
+| `caption` | `12/18px` | `12/18px` | 400/500 | Helper/secondary |
+| `micro` | `11/16px` | `11/16px` | 500/600 | Badge/compact metadata |
+| `numeric-lg` | `28/34px` | `24/30px` | 700 | KPI/important numeric |
 
-Teks `11px` hanya untuk metadata nonkritis. Teks interaktif dan body tidak boleh lebih kecil dari `13px`.
+Teks interaktif/body tidak boleh dibuat lebih kecil dari contract hanya untuk mengejar density.
 
 ### 8.4 Numeric typography
 
-Gunakan `font-variant-numeric: tabular-nums` untuk:
+Gunakan `font-variant-numeric: tabular-nums` untuk money, quantity, timer, nomor antrean, stock balance, dan report.
 
-- Harga dan total.
-- Quantity dan saldo stok.
-- Timer KDS.
-- Nomor antrean.
+Format Indonesia baseline:
+
+- backoffice/report: `Rp 125.000`;
+- percentage: `12,5%`;
+- date: `5 Agu 2026`;
+- clock: pilih satu format dan konsisten; rekomendasi `14.35`, sedangkan timer tetap `14:35`.
 - Cash variance.
 - Seluruh kolom laporan keuangan.
 
@@ -1034,7 +974,7 @@ Variant compact dan default. Digunakan untuk order event, payment event, subscri
 Version 1 mengutamakan bar, line, area, dan donut sederhana.
 
 - Maksimal 5-6 series pada satu chart.
-- Teal menjadi series utama; blue, violet, amber, dan slate menjadi pembanding.
+- Semantic `primary` menjadi series utama; `info`, `special`, `warning/accent`, dan neutral menjadi pembanding yang lolos contrast serta tidak mengaburkan makna status.
 - Grid line subtle dan label mengikuti text secondary.
 - Tooltip menampilkan nilai terformat dan dapat dicapai melalui alternatif tabel/summary.
 - Jangan memakai 3D chart.
@@ -1128,6 +1068,40 @@ State:
 - Sync failed.
 
 Indicator menampilkan label atau tooltip. POS/KDS menampilkan status persistently ketika koneksi tidak sehat. Status online normal boleh dipadatkan menjadi icon setelah beberapa detik.
+
+### 19.7 Module Access State
+
+Satu pattern menjelaskan alasan sebuah modul/fitur belum dapat dipakai tanpa mencampur konsep yang berbeda.
+
+State minimum:
+
+- `not-entitled`: modul/capability tidak termasuk subscription; operational nav tidak menampilkan modul, sedangkan Explore Modules boleh menampilkan CTA upgrade;
+- `provisioning`: entitlement ada tetapi installation sedang dipersiapkan;
+- `setup-required`: installation ada tetapi konfigurasi/binding wajib belum lengkap;
+- `active`: feature dapat digunakan sesuai permission;
+- `paused/error`: tampilkan safe reason, last-known state, retry/setup action;
+- `permission-denied`: user tidak berhak meskipun workspace entitled;
+- `feature-unavailable`: feature flag/delivery status belum membuka feature;
+- `subscription-suspended`: read/export/corrective action mengikuti policy.
+
+UI dan API error copy harus dapat membedakan `ENTITLEMENT_REQUIRED`, `TIER_UPGRADE_REQUIRED`, `INSTALLATION_SETUP_REQUIRED`, `LIMIT_REACHED`, `RATE_LIMITED`, dan `SUBSCRIPTION_SUSPENDED`. Jangan menggunakan satu generic `Fitur tidak tersedia` untuk seluruh kondisi.
+
+### 19.8 Usage dan Limit State
+
+Pattern limit menampilkan:
+
+- dimension label yang manusiawi;
+- current usage dan effective limit;
+- percentage/threshold state bila relevan;
+- reset/effective date;
+- allowed corrective action;
+- CTA add-on/upgrade bila user berhak melihat billing.
+
+Threshold UI: normal `<80%`, approaching `80–89,99%`, near-limit `90–99,99%`, dan at/over-limit `>=100%`.
+
+Hard count limit dapat memblokir create/activate resource baru. Soft-metered operational event tidak boleh dipresentasikan sebagai transaksi gagal hanya karena quota; owner/admin menerima usage warning secara terpisah. Cashier/Kitchen/Employee tidak perlu melihat detail billing kecuali action mereka benar-benar tidak dapat dilakukan.
+
+Responsive adalah baseline produk dan **bukan** usage dimension, capability, tier, atau add-on.
 
 ## 20. Komponen POS dan order
 
@@ -1236,20 +1210,19 @@ State:
 
 - Available.
 - Occupied.
-- Waiting order confirmation.
-- Waiting payment.
-- Ready/needs service.
-- Reserved future.
-- Disabled/non-service.
+- Closing / waiting payment.
+- Cleaning.
+- Inactive/non-service.
+- Reserved hanya jika reservation capability aktif.
 
-Tile menampilkan nomor meja, jumlah guest/order, durasi, dan status label. Status tidak hanya berupa fill warna seluruh tile.
+Tile menampilkan public label meja, capacity, jumlah guest/order aktif, durasi session, dan status label. Status tidak hanya berupa fill warna seluruh tile.
 
 Pada layout, `TableTile` memiliki dua mode:
 
 - `view`: read-only untuk POS, dapat dipilih untuk membuka/membuat order.
 - `edit`: dipilih, dipindah, dan diubah ukurannya oleh manager berizin.
 
-Menggeser tile pada mode edit hanya mengubah posisi visual dan tidak memindahkan order/table session.
+Menggeser tile pada mode edit hanya mengubah posisi visual dan tidak memindahkan order/table session. Operasi `Move table` adalah domain action terpisah.
 
 ### 20.9 Floor Selector
 
@@ -1262,6 +1235,20 @@ Variant:
 - `compact`: POS toolbar.
 
 Size mengikuti Tabs/Select `sm`, `md`, atau `lg`. Label lantai harus berupa nama yang dimengerti staff seperti `Lantai 1`, `Mezzanine`, atau `Rooftop`, bukan database ID.
+
+Location yang baru dapat memakai `Main Floor` tanpa user harus membuat lantai secara manual. Floor tidak merepresentasikan `Indoor/Outdoor`; grouping seperti itu berada di Area.
+
+### 20.9A Area Selector
+
+Area adalah grouping user-defined di dalam Floor. Contoh: `Indoor`, `Outdoor`, `Smoking`, `VIP`, `Garden`, `Bar`, `Terrace`.
+
+Variant:
+
+- chips/tabs untuk 2–6 area;
+- select/combobox jika area banyak;
+- compact filter pada Live Table View.
+
+`Main Area` dibuat sebagai default untuk cafe sederhana. Area tidak boleh di-hardcode menjadi enum Indoor/Outdoor karena workspace bebas memberi nama sesuai kebutuhan.
 
 ### 20.10 Table Layout Canvas
 
@@ -1299,6 +1286,9 @@ Visual light/dark:
 Behavior edit:
 
 - Drag-and-drop selalu snap-to-grid.
+- Basic mendukung shape `SQUARE`, `RECTANGLE`, `ROUND` dan rotasi `0/90` derajat.
+- Kapasitas adalah integer bisnis; kursi dirender otomatis sebagai visual dari capacity + shape dan bukan record terpisah.
+- Visual size Basic adalah `SMALL`, `MEDIUM`, `LARGE`; user tidak diwajibkan mengisi centimeter.
 - Meja tidak boleh keluar batas canvas.
 - Overlap ditolak dan dijelaskan, bukan hanya ditandai merah.
 - Save menyimpan seluruh perubahan sebagai satu revision/action yang diaudit.
@@ -1315,7 +1305,7 @@ Keyboard alternative:
 - Property panel dapat mengubah posisi/ukuran tanpa drag.
 - Screen reader menerima nama meja, lantai, posisi grid, dan status invalid.
 
-Editor minimum didukung pada tablet landscape dan desktop. Mobile phone menyediakan view/list dan basic property edit, bukan drag canvas penuh.
+Large menyediakan full canvas + palette + persistent property panel. Medium menyediakan touch canvas + collapsible panel. Small menyediakan pannable/simplified editor dan form/sheet untuk konfigurasi sehingga precision drag bukan satu-satunya cara menyelesaikan setup.
 
 ### 20.11 Table Layout Toolbar
 
@@ -1338,9 +1328,12 @@ Field:
 - Label/kode meja.
 - Capacity.
 - Bentuk `ROUND`, `SQUARE`, atau `RECTANGLE`.
-- Grid width/height.
+- Visual size `SMALL`, `MEDIUM`, `LARGE`.
+- Grid width/height yang diturunkan/diatur sesuai capability.
+- Rotation `0/90` pada Basic.
 - Floor dan area opsional.
 - Active state.
+- QR ordering flag.
 - QR status dan shortcut pengelolaan QR.
 
 Position grid dapat ditampilkan untuk aksesibilitas, tetapi user umum mengatur melalui canvas. Mengganti floor untuk meja yang memiliki session aktif memerlukan policy/validation.
@@ -1351,9 +1344,26 @@ Menampilkan meja yang belum mempunyai posisi pada lantai aktif. Meja dapat diser
 
 ### 20.14 QR Table Card
 
-Menampilkan outlet, area/meja, QR, short code/token status, print/download, regenerate, dan last generated. QR selalu memiliki quiet zone serta ukuran minimum cetak yang diuji. Regenerate memerlukan konfirmasi karena QR lama menjadi tidak berlaku.
+Menampilkan outlet/location, floor, area, meja, QR image, status/version, print/download, rotate/regenerate, revoke, dan last generated. Raw token/hash/internal table ID tidak dirender sebagai teks. QR selalu memiliki quiet zone serta ukuran minimum cetak yang diuji. Rotate/regenerate memerlukan konfirmasi karena QR lama menjadi tidak berlaku.
 
 QR Table Card juga menampilkan lantai dan memastikan perubahan posisi meja tidak mengganti token. Status minimal: active, revoked, dan not generated.
+
+### 20.14A Live Table View dan Table Session Panel
+
+Live Table View adalah surface operasional terpisah dari Edit Layout.
+
+Minimum behavior:
+
+- filter Floor + Area + status;
+- lihat `AVAILABLE`, `OCCUPIED`, `CLOSING`, `CLEANING`, `INACTIVE`;
+- pilih meja lalu lihat guest count, session duration, order/bill aktif, dan allowed action;
+- open table session dengan guest count;
+- add order batch ke session yang sama;
+- move session ke meja lain tanpa membuat ulang order/bill;
+- request/checkout/close sesuai role dan lifecycle;
+- Small menyediakan list fallback selain canvas.
+
+`Move table` pada Small menggunakan source/destination selection yang eksplisit; drag bukan requirement. `Merge/Split table session` adalah capability Pro dan tetap harus dapat digunakan secara responsif bila user ter-entitle. Reservation state/action tidak ditampilkan tanpa capability reservation.
 
 ### 20.15 Payment Method Tile
 
@@ -1553,27 +1563,87 @@ Status internal yang tidak berguna untuk customer tidak ditampilkan.
 - CTA customer menghasilkan `Menunggu konfirmasi`, bukan `Lunas`.
 - Screenshot/upload bukti tidak diwajibkan kecuali merchant memang memerlukannya.
 
-## 25. Platform admin components
+## 25. Human Capital components
 
-### 25.1 Tenant Switch/Context
+HC Admin R1 berada di Business Backoffice. Employee self-service web dapat memakai pattern yang sama dengan density/touch yang lebih rendah; native mobile HC adalah future client.
 
-Super-admin harus selalu melihat apakah sedang berada pada platform context atau support context tenant. Support context menggunakan persistent banner dan reason/expiry.
+### 25.1 Employee Row/Card
 
-### 25.2 Entitlement Matrix
+Menampilkan public employee number, nama, employment status, department/job, primary location/branch, dan optional avatar. Data sensitif seperti salary future, attendance evidence mentah, internal ID, atau document secret tidak masuk row default.
 
-Table/matrix menampilkan module, plan default, tenant override, effective state, reason, actor, dan effective time. Effective state tidak hanya checkbox; dependency dan source harus terlihat.
+Responsive:
 
-### 25.3 Subscription Status
+- Large: Data Table + detail panel;
+- Medium: compact table/card + drawer;
+- Small: employee cards/rows + full-screen detail/edit.
+
+### 25.2 Employee Detail Header
+
+Variant active, on-leave, inactive, terminated. Header menampilkan identity bisnis dan allowed action. User account linkage ditampilkan sebagai status terpisah karena Employee tidak sama dengan User.
+
+### 25.3 Schedule Calendar/Board
+
+- Large: week/calendar grid + employee/location filter + detail panel;
+- Medium: compact week grid atau list + drawer;
+- Small: day/week agenda list; tidak memaksa desktop calendar grid mengecil.
+
+Publish schedule adalah mutation terpisah dari save draft dan memerlukan acknowledgement. Timezone location harus terlihat bila user mengelola lebih dari satu zona waktu.
+
+### 25.4 Attendance Event/Record
+
+`AttendanceEventRow` menampilkan employee, event type, occurred time, source, validation status, dan safe evidence summary. `AttendanceRecordCard` menampilkan schedule vs actual, late/early/overtime derived metrics, dan correction state.
+
+Status: `PENDING`, `VALID`, `NEEDS_REVIEW`, `REJECTED`. Correction tidak mengedit event lama; UI membuat correction flow dengan reason + audit.
+
+GPS, photo/selfie, device trust, dan raw validation payload hanya tampil bila capability, permission, privacy policy, dan data minimization mengizinkan. Evidence bukan editable input.
+
+### 25.5 Leave Request
+
+Menampilkan type, range, duration, balance/context, reason, status, approver, dan history. Approve/reject memakai action spesifik dan reason sesuai policy. Small memakai stacked detail + sticky allowed action.
+
+### 25.6 HC tier states
+
+- Basic R1: employee, schedule, web/manual attendance, leave, basic report.
+- Pro future: mobile attendance, geofence, selfie evidence, device trust, timesheet/advanced leave policy.
+- Advanced future: payroll, recruitment, performance, training, biometric integration, roster optimization.
+
+Locked capability menjelaskan tier/add-on yang diperlukan; jangan merender Pro/Advanced sebagai feature aktif jika delivery status masih Future.
+
+## 26. Platform admin components
+
+### 26.1 Workspace Switch/Context
+
+Super-admin harus selalu melihat apakah sedang berada pada platform context atau support context workspace. Label dapat menampilkan Tenant/Company sesuai business template, tetapi internal identity tetap workspace. Support context menggunakan persistent banner dan reason/expiry.
+
+### 26.2 Entitlement Matrix
+
+Table/matrix menampilkan module, tier, minimum capability, package default, workspace override, add-on, effective state, delivery status, reason, actor, dan effective time. Effective state tidak hanya checkbox; dependency dan source harus terlihat.
+
+### 26.3 Subscription Status
 
 Mapping: trial info, active success, grace warning, suspended danger, terminated neutral/danger. Perubahan status menggunakan confirmation dialog dan audit reason.
 
-### 25.4 Audit Event
+### 26.4 Package/Limit/Installation Panel
 
-Compact timeline/table dengan actor, action, target, tenant/outlet, before/after summary, reason, time, dan request ID. Sensitive value dimasking.
+Platform Admin harus dapat membedakan:
 
-## 26. Status language contract
+- package version snapshot;
+- module tier;
+- included capability;
+- effective limit dan usage;
+- module installation/status/setup;
+- integration binding/status;
+- feature flag.
 
-### 26.1 Order dan fulfillment
+Jangan satukan semuanya menjadi toggle `module active`. Package version yang published ditampilkan immutable; perubahan membuat version/override baru sesuai policy.
+
+### 26.5 Audit Event
+
+Compact timeline/table dengan actor, action, target, workspace/location, before/after summary aman, reason, time, dan request ID. Sensitive value dimasking.
+
+## 27. Status language contract
+
+### 27.1 Order dan fulfillment
 
 | Enum | Label internal | Label customer bila berbeda |
 |---|---|---|
@@ -1586,7 +1656,7 @@ Compact timeline/table dengan actor, action, target, tenant/outlet, before/after
 | `COMPLETED` | Selesai | Selesai |
 | `CANCELLED` | Dibatalkan | Dibatalkan |
 
-### 26.2 Payment manual
+### 27.2 Payment manual
 
 | Enum | Label | Semantic |
 |---|---|---|
@@ -1598,21 +1668,67 @@ Compact timeline/table dengan actor, action, target, tenant/outlet, before/after
 
 Istilah `Pembayaran berhasil` hanya boleh muncul setelah backend menyimpan status `PAID`.
 
-## 27. Layout system
+### 27.3 Table dan session
 
-### 27.1 Breakpoint
+| State | Label | Semantic |
+|---|---|---|
+| `AVAILABLE` | Tersedia | Success/neutral sesuai density |
+| `OCCUPIED` | Terisi | Info |
+| `CLOSING` | Menunggu selesai/bayar | Warning |
+| `CLEANING` | Dibersihkan | Neutral/info |
+| `INACTIVE` | Tidak aktif | Neutral |
+| `RESERVED` | Direservasi | Warning; hanya jika capability aktif |
 
-| Token | Minimum width | Target |
-|---|---:|---|
-| `sm` | `640px` | Large phone/small tablet |
-| `md` | `768px` | Tablet portrait |
-| `lg` | `1024px` | Tablet landscape/small desktop |
-| `xl` | `1280px` | Desktop |
-| `2xl` | `1536px` | Large desktop/KDS |
+Table status adalah projection lifecycle, bukan editable badge bebas.
 
-Desain tidak bergantung pada nama perangkat; gunakan available space dan container query untuk komponen reusable jika diperlukan.
+### 27.4 Installation dan integration
 
-### 27.2 Page container
+| Domain | State penting |
+|---|---|
+| Installation | provisioning, setup required, active, paused/suspended, error |
+| Integration binding | draft, setup required, active, paused, error, disabled |
+
+`Setup required` berbeda dari `Error`: setup berarti konfigurasi belum lengkap; error berarti konfigurasi/proses yang seharusnya berjalan mengalami masalah.
+
+### 27.5 Inventory
+
+Stock availability: `OK`, `LOW`, `OUT`, dan bila policy mengizinkan `NEGATIVE`. Movement type bukan success/error; `RECEIPT`, `CONSUMPTION`, `REVERSAL`, `WASTE`, `ADJUSTMENT`, `TRANSFER_IN/OUT` memakai type badge netral/informatif.
+
+### 27.6 Business Finance
+
+Transaction state minimum: `DRAFT`, `POSTED`, `REVERSED`; reconciliation: `PENDING`, `RECONCILED`, `EXCEPTION`. Basic HPP/profit selalu menyertakan label `Estimasi operasional`.
+
+### 27.7 Human Capital
+
+Attendance validation: `PENDING`, `VALID`, `NEEDS_REVIEW`, `REJECTED`. Leave request: `DRAFT`, `SUBMITTED`, `APPROVED`, `REJECTED`, `CANCELLED`. Employment status bukan attendance status dan tidak disatukan dalam enum global.
+
+### 27.8 Connection
+
+`ONLINE`, `CONNECTING`, `RECONNECTING`, `OFFLINE`, `STALE`, `SYNC_FAILED`. Realtime indicator tidak boleh memberi kesan transaksi tersimpan bila server acknowledgement belum diterima.
+
+## 28. Layout system
+
+### 28.1 Breakpoint
+
+Tiga kelas berikut adalah **product acceptance contract**. Breakpoint implementasi tambahan boleh dipakai sebagai refinement, tetapi tidak mengganti tiga state ini.
+
+| Kelas | Width viewport CSS | Sasaran | Baseline QA |
+|---|---:|---|---:|
+| `S` Small | `320–767px` | Single-column/touch-first | `390×844` |
+| `M` Medium | `768–1279px` | Compact multi-pane, touch/mouse hybrid | `1024×768` |
+| `L` Large | `>=1280px` | Multi-column/dense management | `1440×900` |
+
+Aturan:
+
+- class ditentukan oleh width CSS, bukan user-agent atau nama device;
+- minimum supported R1 adalah `320px`;
+- boundary QA wajib `320`, `767`, `768`, `1279`, `1280`;
+- orientasi tidak mengganti class bila width aktual tetap sama;
+- container query boleh dipakai untuk reusable component;
+- pada Tailwind, acceptance state dapat dipetakan ke base `<768`, `md >=768`, `xl >=1280`; breakpoint lain hanya refinement;
+- resize/breakpoint transition tidak boleh mereset cart, form draft, selected workspace/location, active filter, atau domain state.
+
+### 28.2 Page container
 
 | Context | Max width | Padding |
 |---|---:|---:|
@@ -1623,15 +1739,15 @@ Desain tidak bergantung pada nama perangkat; gunakan available space dan contain
 | Auth/setup | `480px` | `16-24px` |
 | POS/KDS | Full viewport | Surface-specific |
 
-### 27.3 Grid
+### 28.3 Grid
 
-- 4-column mobile.
-- 8-column tablet.
-- 12-column desktop.
-- Gap `16px` mobile/tablet, `24px` desktop.
+- Small: 4-column layout grid bila grid dibutuhkan.
+- Medium: 8-column layout grid.
+- Large: 12-column layout grid.
+- Gap `16px` Small/Medium, `24px` Large sebagai baseline.
 - Dashboard metrics menggunakan minimum card width, bukan jumlah kolom tetap.
 
-### 27.4 Page anatomy
+### 28.4 Page anatomy
 
 ```text
 Breadcrumb/context
@@ -1644,16 +1760,16 @@ Pagination/secondary information
 
 Tidak semua halaman membutuhkan semua bagian. Single-purpose POS/KDS tidak memakai page anatomy backoffice.
 
-### 27.5 Section
+### 28.5 Section
 
 - Section gap default `24px`, major section `32px`.
 - Section heading dan action berada satu row pada desktop, stacked mobile.
 - Divider digunakan jika dua section berada pada surface yang sama.
 - Jangan membungkus setiap section dengan card jika page surface sudah cukup.
 
-## 28. Surface-specific layout
+## 29. Surface-specific layout
 
-### 28.1 POS desktop/tablet landscape
+### 29.1 POS
 
 ```text
 Category rail 160-200px
@@ -1661,55 +1777,110 @@ Product area flexible
 Cart 360-420px
 ```
 
-- Cart sticky/full height.
-- Product grid memakai minimum tile width.
+- Large: catalog/product area + persistent cart side-by-side.
+- Medium: catalog + compact cart pada landscape; cart boleh collapsible/drawer bila ruang efektif sempit.
+- Small: catalog menjadi primary view; cart dibuka via sticky summary, bottom sheet, atau page/step checkout yang jelas.
+- Product grid memakai minimum readable tile width.
 - Dine-in dapat membuka table-layout view per lantai sebelum masuk product/cart flow.
 - Table-layout view mempertahankan posisi meja dan menampilkan status realtime tanpa mengizinkan drag.
 - Payment flow dapat mengganti cart panel atau membuka dedicated panel.
-- Pada tablet portrait, cart menjadi drawer atau lower panel.
+- Cart/checkout state tidak hilang saat viewport berubah.
 
-### 28.2 KDS
+### 29.2 KDS
 
 - Full viewport tanpa sidebar utama.
 - Top bar minimal `56px`.
-- Ticket grid horizontal atau responsive columns.
+- Large: adaptive multi-column grid dengan minimum readable ticket width.
+- Medium: 2–3 kolom tipikal; jangan memaksa jika content membutuhkan lebih lebar.
+- Small: 1-column prioritized queue; status/timer/action selalu terlihat tanpa page-level horizontal scroll.
 - History/filter berada pada drawer atau secondary screen.
 - Dark mode dapat menjadi default device setting, tetapi tetap dapat diubah.
 
-### 28.3 Backoffice
+### 29.3 Backoffice
 
-- Sidebar `240px`, collapsed `72px`.
+- Large: sidebar persistent `240px` atau collapsed `72px`.
+- Medium: collapsible sidebar/rail + 1–2 column content selektif.
+- Small: drawer navigation, single-column, table kompleks menjadi summary row/card + detail.
 - Content tidak otomatis full-width untuk form.
 - Table list dapat memakai lebar penuh.
 - Sticky filter/action hanya jika list panjang dan tidak mengurangi viewport secara berlebihan.
 
-### 28.4 Customer ordering
+HC Admin mengikuti Backoffice shell: Large table/calendar + detail panel, Medium compact table/calendar + drawer, Small employee/attendance cards + agenda/detail full-screen.
 
-- Mobile-first single column.
+### 29.4 Customer ordering
+
+- Small: mobile-first 1–2 column sesuai minimum card width, sticky cart, modifier/order flow one-handed.
+- Medium: 2–3 column catalog bila content memungkinkan.
+- Large: centered responsive catalog; jangan meregangkan content tanpa batas.
 - Merchant/category header dapat sticky secara bertahap.
 - Sticky cart menggunakan safe-area inset.
-- Desktop customer page tetap dibatasi agar tidak menjadi katalog terlalu lebar.
 
-### 28.5 Platform admin
+### 29.5 Platform admin
 
 - Density default/compact.
-- Tenant context selalu terlihat.
+- Workspace/Tenant context selalu terlihat.
 - Table dan audit dapat full-width.
 - Support impersonation/access banner tidak boleh dapat ditutup selama session aktif.
 
-## 29. Responsive dan touch behavior
+Large memakai dense table + detail drawer, Medium compact table/drawer, Small summary rows/cards + filter sheet + full-screen detail.
+
+### 29.6 Floor/Table
+
+`Live Table View` dan `Edit Layout` memiliki responsive behavior berbeda:
+
+| Mode | Large | Medium | Small |
+|---|---|---|---|
+| Live Table View | Full floor canvas + docked operational context | Pan/zoom touch canvas + collapsible detail | Pannable view + **list fallback**; open/add/move/close tetap tersedia |
+| Edit Layout | Full canvas + palette + persistent property panel | Touch canvas + collapsible palette/property | Simplified editor; pilih meja lalu edit via sheet/form; precision drag tidak wajib |
+
+Zoom/recenter control pada Medium/Small minimum `44×44px`. Move table pada Small menggunakan source/destination selection. Capability merge/split Pro tetap dapat diakses secara responsive setelah ter-entitle.
+
+### 29.7 Inventory, Finance, dan Analytics
+
+- Inventory: Large table/list; Medium compact table/cards; Small item/movement cards + single-column mutation form.
+- Business Finance: Large KPI/report multi-column + transaction table; Medium 2-column KPI + compact transaction list; Small KPI stack + transaction cards + single-column form.
+- Analytics: Large multi-card/chart grid; Medium 2-column/stack; Small single-column. Chart boleh scroll **di dalam chart container** bila semantik memerlukan, bukan membuat page overflow.
+
+## 30. Responsive dan touch behavior
+
+Responsive adalah kontrak produk lintas tier dan package, bukan best-effort CSS. Capability yang dimiliki user harus memiliki primary read/mutation flow pada S/M/L kecuali hardware/surface requirement dinyatakan eksplisit.
+
+### 30.1 Global transformation contract
+
+| Concern | Large | Medium | Small |
+|---|---|---|---|
+| Navigation | Persistent sidebar + header/context | Collapsible sidebar/rail | Drawer atau compact primary navigation |
+| Page grid | Multi-column | 1–2 column | Single-column |
+| Dense data | Full table/list | Compact table | Summary row/card + detail screen/sheet |
+| Filter | Inline + advanced | Compact + drawer | Search + filter sheet; active count terlihat |
+| Form | 1–2 column | 1–2 selective | 1 column |
+| Detail/edit | Page/panel/dialog | Drawer/sheet | Full-screen detail atau bottom sheet |
+| Primary action | Header/toolbar | Toolbar/sticky | Sticky bottom action boleh dipakai dengan safe-area |
+| KPI/chart | Multi-card grid | 2-column/stack | Single-column |
 
 Aturan umum:
 
-- Tidak ada horizontal page scroll kecuali table, KDS rail, atau canvas yang memang membutuhkannya.
-- Primary action tetap dapat dijangkau pada mobile tanpa menutup field aktif.
-- Hover enhancement tidak boleh diperlukan untuk menyelesaikan tugas.
-- Minimum target WCAG adalah `24x24px`; standar internal kita `40px` desktop dan `44-48px` untuk touch.
-- Jarak antar-target touch minimal `8px` bila target kecil.
-- Gunakan safe-area inset untuk sticky mobile bar.
-- Virtual keyboard tidak boleh menutup active field atau checkout CTA.
-- Modal desktop berubah menjadi sheet/full-screen pada mobile jika konten panjang.
-- Table dengan lebih dari 4 kolom tidak dipaksa mengecil; tentukan kolom prioritas, horizontal scroll, atau alternate mobile view.
+- responsive bukan desktop UI yang sekadar diperkecil;
+- tidak ada page-level horizontal scroll pada Small kecuali data table/canvas khusus dengan affordance jelas;
+- primary action tetap reachable tanpa menutup field aktif;
+- hover tidak dibutuhkan untuk menyelesaikan tugas;
+- internal standard target `40px` desktop dan `44–48px` untuk touch; Floor/POS/KDS/Customer touch action minimum `44×44px`;
+- safe-area inset wajib untuk sticky mobile bar;
+- virtual keyboard tidak menutup active field/checkout CTA;
+- modal panjang berubah menjadi sheet/full-screen pada Small;
+- loading, empty, error, permission, locked, setup-required, and over-limit state harus responsif sama seperti happy path;
+- light dan dark harus lulus S/M/L.
+
+### 30.2 Data priority dan table transformation
+
+Kolom/data management memakai priority metadata:
+
+- `P0`: identity + status, selalu ada;
+- `P1`: primary metric/context, tampil bila ruang cukup;
+- `P2`: secondary metadata, boleh dipindah ke detail;
+- `P3`: tertiary/audit metadata, detail-only pada Small.
+
+Transformasi table -> card/row pada Small tidak mengubah API, permission, audit, limit, atau domain semantics. Bulk action dapat masuk selection mode khusus, bukan dihapus.
 
 Responsive component priority:
 
@@ -1723,11 +1894,25 @@ Pertahankan fungsi kritis
 
 Data kritis, status, total, dan primary action tidak boleh disembunyikan hanya untuk membuat layout muat.
 
-## 30. Accessibility
+### 30.3 Responsive QA contract
+
+Setiap page R1 diuji sekurangnya pada `390×844`, `1024×768`, `1440×900`, dan width boundary `320/767/768/1279/1280`.
+
+Minimum pass:
+
+- tidak ada content/action utama terpotong;
+- navigation/context/filter/form/detail/primary mutation dapat diselesaikan;
+- tidak ada accidental page-level horizontal overflow;
+- keyboard/focus tetap benar pada management surface;
+- touch target kritis memenuhi ukuran internal;
+- zoom/text 200% tidak menghilangkan task utama;
+- breakpoint switch tidak mereset draft/domain state.
+
+## 31. Accessibility
 
 Target adalah WCAG 2.2 Level AA.
 
-### 30.1 Contrast
+### 31.1 Contrast
 
 - Teks normal minimal `4.5:1`.
 - Teks besar minimal `3:1`.
@@ -1735,7 +1920,7 @@ Target adalah WCAG 2.2 Level AA.
 - Contrast diuji untuk light, dark, dan seluruh merchant preset.
 - Disabled content dikecualikan dari sebagian requirement tetapi tetap harus dapat dikenali.
 
-### 30.2 Keyboard
+### 31.2 Keyboard
 
 - Semua fungsi dapat dicapai tanpa mouse.
 - Urutan tab mengikuti urutan visual/logis.
@@ -1744,7 +1929,7 @@ Target adalah WCAG 2.2 Level AA.
 - Dropdown, select, combobox, tabs, radio, dan date picker mengikuti pola keyboard WAI-ARIA.
 - Shortcut POS tidak boleh bertabrakan dengan browser/screen reader dan harus terdokumentasi.
 
-### 30.3 Focus
+### 31.3 Focus
 
 - Gunakan `:focus-visible`, bukan menghapus outline.
 - Focus ring `2px` dengan offset `2px`.
@@ -1752,7 +1937,7 @@ Target adalah WCAG 2.2 Level AA.
 - Selected dan focused adalah state berbeda.
 - Dark mode memiliki focus ring lebih terang.
 
-### 30.4 Screen reader
+### 31.4 Screen reader
 
 - Icon-only button memiliki accessible name.
 - Status update kritis memakai live region secukupnya.
@@ -1761,23 +1946,23 @@ Target adalah WCAG 2.2 Level AA.
 - Price, quantity, timer, dan order number memiliki pembacaan yang bermakna.
 - Decorative icon/image disembunyikan dari accessibility tree.
 
-### 30.5 Color dan sensory information
+### 31.5 Color dan sensory information
 
 - Status memakai text + icon + color.
 - Required/error tidak hanya ditandai warna.
 - Instruksi tidak boleh hanya mengatakan `tekan tombol hijau di kanan`.
 - Chart menyediakan label, tooltip, atau summary nonvisual.
 
-### 30.6 Zoom dan reflow
+### 31.6 Zoom dan reflow
 
 - Backoffice tetap dapat digunakan pada zoom 200%.
 - Text tidak terpotong jika ukuran font sistem membesar.
 - KDS menyediakan density setting, bukan mengunci ukuran terlalu kecil.
 - Customer page mengikuti user font scaling sejauh platform browser memungkinkan.
 
-## 31. Motion dan sound
+## 32. Motion dan sound
 
-### 31.1 Duration
+### 32.1 Duration
 
 | Token | Durasi | Penggunaan |
 |---|---:|---|
@@ -1792,23 +1977,23 @@ Target adalah WCAG 2.2 Level AA.
 - Hormati `prefers-reduced-motion`; transform nonessential dimatikan.
 - Status danger tidak berkedip.
 
-### 31.2 KDS sound
+### 32.2 KDS sound
 
 - Audio hanya untuk event penting seperti ticket baru atau reconnect failure.
 - Volume dan mute disimpan per device.
 - Sound memiliki visual equivalent.
 - Event berulang dibatasi agar tidak menimbulkan spam.
 
-## 32. Content design dan locale
+## 33. Content design dan locale
 
-### 32.1 Bahasa
+### 33.1 Bahasa
 
 - Bahasa UI Version 1: Bahasa Indonesia.
 - Istilah menggunakan bahasa operasional yang umum: `Pesanan`, `Meja`, `Kasir`, `Dapur`, `Stok`, `Pengeluaran`.
 - Nama module teknis tidak ditampilkan kepada customer.
 - Gunakan sentence case, bukan Title Case berlebihan.
 
-### 32.2 Action label
+### 33.2 Action label
 
 Gunakan kata kerja spesifik:
 
@@ -1821,7 +2006,7 @@ Gunakan kata kerja spesifik:
 | Save changes | Simpan perubahan |
 | Delete | Hapus produk |
 
-### 32.3 Error copy
+### 33.3 Error copy
 
 Pola:
 
@@ -1835,7 +2020,7 @@ Contoh: `Pesanan belum dapat dikirim karena koneksi terputus. Periksa jaringan l
 
 Hindari: `Something went wrong`, `Error 500`, atau pesan provider/database.
 
-### 32.4 Format lokal
+### 33.4 Format lokal
 
 | Data | Format |
 |---|---|
@@ -1849,7 +2034,7 @@ Hindari: `Something went wrong`, `Error 500`, atau pesan provider/database.
 
 Database/API tetap memakai format canonical; lokalisasi hanya pada presentation layer.
 
-## 33. Image, logo, dan media
+## 34. Image, logo, dan media
 
 - Product image ratio default `1:1`.
 - Customer hero/banner ratio `16:6` sampai `16:9` sesuai viewport.
@@ -1860,30 +2045,30 @@ Database/API tetap memakai format canonical; lokalisasi hanya pada presentation 
 - Informasi kritis tidak ditanam hanya di dalam gambar.
 - Dark mode tidak mengubah foto; logo yang tidak terbaca memerlukan neutral backing surface.
 
-## 34. Light-dark component mapping
+## 35. Light-dark component mapping
 
 Komponen tidak boleh sekadar membalik `white` menjadi `black`. Mapping berikut menjadi acuan.
 
 | Komponen | Light | Dark |
 |---|---|---|
-| App canvas | Slate 50 | Navy-slate canvas |
-| Card/panel | White + subtle border | Slate surface + default border |
-| Raised overlay | White + shadow | Slate 800 + strong border |
-| Input | White + slate border | Slate surface + slate border |
-| Neutral hover | Slate 100 | Slate surface subtle |
-| Primary button | Teal 700 + white | Teal 400 + teal 950 |
-| Secondary button | Slate 100 + slate 900 | Slate 800 + slate 50 |
-| Outline button | White + slate 300 | Transparent + slate 600 |
+| App canvas | Cream canvas semantic | Warm espresso-charcoal canvas |
+| Card/panel | Cream/near-white surface + subtle border | Warm dark surface + default border |
+| Raised overlay | Raised cream + light shadow | Raised warm-dark + strong border |
+| Input | Surface + control border | Dark surface + control border |
+| Neutral hover | Warm muted surface | Dark muted surface |
+| Primary button | Espresso primary + safe on-primary | Amber primary + safe dark on-primary |
+| Secondary button | Warm muted + foreground | Dark muted + foreground |
+| Outline button | Surface + border | Transparent/dark surface + border |
 | Ghost button | Transparent | Transparent |
-| Tooltip | Slate 900 + white | Slate 50 + slate 900 |
-| Table header | Slate 100 | Surface subtle |
-| Selected row | Teal 50/100 | Teal 900 with safe text |
-| Skeleton | Slate 200 | Slate 700/800 |
-| Overlay | Slate 900 alpha 48% | Slate 950 alpha 72% |
+| Tooltip | Espresso inverse + cream text | Cream inverse + espresso text |
+| Table header | Warm muted surface | Dark muted surface |
+| Selected row | Primary-subtle warm | Primary-subtle dark |
+| Skeleton | Warm neutral muted | Dark neutral muted |
+| Overlay | Espresso alpha | Near-black warm alpha |
 
 Visual regression harus memotret kedua mode. Perubahan komponen dianggap belum selesai jika hanya diverifikasi pada satu theme.
 
-## 35. Struktur implementasi
+## 36. Struktur implementasi
 
 Rekomendasi struktur:
 
@@ -1923,7 +2108,7 @@ apps/web/
       platform/
 ```
 
-### 35.1 Styling
+### 36.1 Styling
 
 - Tailwind CSS digunakan sebagai utility layer.
 - Theme token didefinisikan sebagai CSS variables dan diekspos melalui Tailwind theme variables.
@@ -1932,7 +2117,7 @@ apps/web/
 - Radix/headless primitive boleh dipakai untuk behavior dan accessibility, tetapi seluruh visual berasal dari design system ini.
 - Tidak mengambil theme bawaan komponen pihak ketiga.
 
-### 35.2 Theme selector
+### 36.2 Theme selector
 
 Root document menggunakan attribute/class yang stabil:
 
@@ -1943,43 +2128,36 @@ Root document menggunakan attribute/class yang stabil:
 
 `System` menghitung preference pengguna lalu menerapkan theme sebelum paint untuk mencegah flash. CSS juga menetapkan `color-scheme: light` atau `dark` agar browser chrome/form fallback selaras.
 
-### 35.3 Token example
+### 36.3 Token example
 
 ```css
 :root,
 [data-theme=light] {
-  --color-bg-canvas: #f8fafc;
-  --color-bg-surface: #ffffff;
-  --color-text-primary: #0f172a;
-  --color-border-default: #cbd5e1;
-  --color-action-primary: #0f766e;
-  --color-action-on-primary: #ffffff;
+  --color-bg-canvas: oklch(0.976 0.011 84);
+  --color-bg-surface: oklch(0.995 0.006 90);
+  --color-text-primary: oklch(0.243 0.032 52);
+  --color-border-default: oklch(0.897 0.022 82);
+  --color-action-primary: oklch(0.402 0.079 48);
+  --color-accent: oklch(0.808 0.132 74);
 }
 
 [data-theme=dark] {
   color-scheme: dark;
-  --color-bg-canvas: #0b1120;
-  --color-bg-surface: #111827;
-  --color-text-primary: #f8fafc;
-  --color-border-default: #334155;
-  --color-action-primary: #2dd4bf;
-  --color-action-on-primary: #042f2e;
+  --color-bg-canvas: oklch(0.191 0.014 60);
+  --color-bg-surface: oklch(0.232 0.017 60);
+  --color-text-primary: oklch(0.941 0.014 84);
+  --color-border-default: oklch(0.994 0.01 84 / 12%);
+  --color-action-primary: oklch(0.808 0.132 74);
 }
 ```
 
 Nama token final harus konsisten dan tidak dicampur antara format `color.primary` di dokumentasi dan CSS variable tanpa mapping yang jelas.
 
-### 35.4 Font loading
+### 36.4 Font loading
 
-Gunakan package resmi:
+DM Sans dan Fraunces harus dibundel/self-hosted melalui mekanisme font build yang stabil, bukan runtime CDN. DM Sans menjadi root UI font. Fraunces dimuat hanya untuk display/brand usage yang ditentukan agar tidak menyusup ke dense operational UI. Gunakan `font-display: swap` atau behavior setara dan verifikasi layout shift.
 
-```bash
-pnpm add geist
-```
-
-Font dibundel, bukan di-load dari external CDN. Apply variable Geist Sans pada root, Geist Mono hanya pada utility teknis. Gunakan `font-display: swap` sesuai implementasi package.
-
-### 35.5 Component API
+### 36.5 Component API
 
 Setiap component API minimal mempertimbangkan:
 
@@ -1993,7 +2171,7 @@ Setiap component API minimal mempertimbangkan:
 
 Feature tidak boleh mengirim props seperti `backgroundColor=#...`. Domain status menerima enum dan component menentukan visual mapping.
 
-## 36. Component bank
+## 37. Component bank
 
 Sebelum halaman fitur dibangun, buat catalog visual melalui Storybook atau internal `/ui-lab`. Storybook direkomendasikan karena dapat mendokumentasikan props, state, viewport, dan theme tanpa masuk ke business route.
 
@@ -2005,9 +2183,9 @@ Setiap story wajib menampilkan:
 - Light dan dark mode.
 - Long Indonesian label.
 - Empty/zero/large numeric value.
-- Mobile, tablet, dan desktop viewport jika responsive.
+- Small, Medium, dan Large viewport sesuai contract `320–767`, `768–1279`, `>=1280`.
 
-### 36.1 Priority P0 - sebelum halaman
+### 37.1 Priority P0 - sebelum halaman
 
 - Theme provider dan theme switcher.
 - Typography dan icon wrapper.
@@ -2022,34 +2200,36 @@ Setiap story wajib menampilkan:
 - Tabs, Breadcrumb, Pagination.
 - Data Table dan Description List.
 
-### 36.2 Priority P1 - flow operasional
+### 37.2 Priority P1 - flow operasional
 
 - Page/Entity Header, Filter Bar, Action Bar.
+- Module Access State dan Usage/Limit State.
 - Money Display dan Metric Card.
 - Product Tile, Category Rail, Modifier Picker.
 - Cart Item, Cart Summary, Sticky Cart Bar.
 - Order Card, Order Status, Payment Status.
 - Table Tile dan QR Table Card.
-- Floor Selector, Table Layout Canvas/Toolbar, Table Property Panel, dan Unplaced Table Tray.
+- Floor Selector, Area Selector, Table Layout Canvas/Toolbar, Table Property Panel, Unplaced Table Tray, Live Table View, dan Table Session Panel.
 - Payment Method Tile, Cash Keypad, Confirmation Panel.
 - Kitchen Ticket dan KDS Timer.
 - Network/Sync Indicator.
 
-### 36.3 Priority P2 - inventory, finance, platform
+### 37.3 Priority P2 - inventory, finance, HC, platform
 
 - Stock Indicator, Movement Row, Movement Type Badge.
 - Inventory Item Picker, Stock Adjustment, Stocktake Table.
 - Recipe/BOM Editor.
 - Finance Metric, Ledger Row, Reconciliation, Shift Summary.
 - Financial Report Table dan Chart wrapper.
-- Tenant Context, Entitlement Matrix, Subscription Status.
+- Workspace Context, Entitlement Matrix, Package/Limit/Installation State, Subscription Status.
+- Employee Row/Card, Schedule view, Attendance Record/Event, Leave Request.
 - Audit Event dan Timeline.
 
 Component bank bukan halaman showcase sekali pakai. Ia menjadi tempat verifikasi sebelum component digunakan atau diubah.
 
-## 37. Testing design system
+## 38. Testing design system
 
-### 37.1 Unit/component test
+### 38.1 Unit/component test
 
 - Variant dan size menghasilkan semantics yang tepat.
 - Keyboard interaction.
@@ -2058,7 +2238,7 @@ Component bank bukan halaman showcase sekali pakai. Ia menjadi tempat verifikasi
 - Loading mencegah duplicate action.
 - Domain enum selalu memiliki mapping visual/label.
 
-### 37.2 Accessibility test
+### 38.2 Accessibility test
 
 - Automated axe pada story/page kritis.
 - Keyboard-only manual pass.
@@ -2066,7 +2246,7 @@ Component bank bukan halaman showcase sekali pakai. Ia menjadi tempat verifikasi
 - Contrast check seluruh semantic token light/dark dan merchant preset.
 - Zoom/reflow 200% pada backoffice dan customer flow.
 
-### 37.3 Visual regression
+### 38.3 Visual regression
 
 Snapshot minimal untuk:
 
@@ -2075,34 +2255,42 @@ Snapshot minimal untuk:
 - Data table.
 - POS product/cart/payment.
 - Table layout view/edit pada light dan dark mode, termasuk selected, overlap, unsaved, dan revoked QR state.
+- Live Table View S/M/L termasuk occupied/closing/cleaning, list fallback Small, dan move-table selection.
 - KDS ticket states.
 - Customer product/cart/manual payment.
 - Inventory adjustment.
 - Finance summary/report.
+- HC employee/schedule/attendance/leave.
+- Module access state: not-entitled, setup-required, paused/error, permission denied, over-limit.
+- Platform Package/Entitlement/Limit state.
 
-Setiap snapshot dibuat untuk light dan dark mode serta viewport utama.
+Setiap snapshot kritis dibuat untuk light dan dark mode serta baseline S/M/L `390×844`, `1024×768`, `1440×900` menurut relevansi surface.
 
-### 37.4 End-to-end visual behavior
+### 38.4 End-to-end visual behavior
 
 - Theme tetap setelah reload/login.
 - Theme switch tidak menghapus draft.
 - Customer mengikuti system preference.
 - POS/KDS menyimpan theme per device.
-- Overlay dan sticky action tidak menutup content pada mobile.
+- Overlay dan sticky action tidak menutup content pada Small.
+- Resize `767 -> 768` dan `1279 -> 1280` tidak mereset cart, form draft, context, atau selected resource.
+- Boundary `320/767/768/1279/1280` tidak menghasilkan page overflow/action hilang.
+- Capability yang ter-entitle tidak menghasilkan upgrade CTA hanya karena viewport Small/Medium.
+- Floor Basic tetap dapat create/edit table, QR, session, dan move pada Small tanpa precision drag.
 
-## 38. Governance
+## 39. Governance
 
-### 38.1 Aturan coding
+### 39.1 Aturan coding
 
 - Tidak ada raw hex pada feature component.
 - Tidak ada arbitrary radius/shadow/spacing tanpa alasan dan pembaruan dokumen.
 - Tidak membuat button/input/modal versi fitur sendiri.
 - Tidak memakai native select/date/dialog dengan visual browser sebagai final UI.
 - Tidak menyalin class panjang antarhalaman; ekstrak pattern/component jika berulang.
-- Domain component tidak mengakses data tenant lain dan hanya menerima data yang dibutuhkan.
+- Domain component tidak mengakses data workspace lain dan hanya menerima data yang dibutuhkan.
 - Visual hidden bukan authorization; backend tetap memvalidasi permission.
 
-### 38.2 Perubahan design system
+### 39.2 Perubahan design system
 
 Perubahan token atau component contract harus:
 
@@ -2113,7 +2301,7 @@ Perubahan token atau component contract harus:
 5. Menjalankan accessibility dan visual regression terkait.
 6. Menghindari breaking change diam-diam pada feature.
 
-### 38.3 Definition of Done komponen
+### 39.3 Definition of Done komponen
 
 Sebuah komponen dianggap selesai jika:
 
@@ -2128,16 +2316,17 @@ Sebuah komponen dianggap selesai jika:
 - Test relevan lulus.
 - Tidak menggunakan raw color di feature.
 
-## 39. Batas Version 1
+## 40. Batas Version 1
 
 Termasuk:
 
 - Light, dark, dan system theme.
-- Operational Teal dan merchant preset storefront.
-- Geist Sans dan Geist Mono terbatas.
+- Warm cream–espresso–amber foundation dan merchant preset storefront yang tervalidasi.
+- DM Sans untuk operational UI dan Fraunces terbatas untuk display/brand.
 - Custom component dasar dan domain utama.
 - Responsive merchant/customer/platform web.
-- Touch-first POS/KDS/customer.
+- Responsive Backoffice/POS/KDS/Customer/Inventory/Finance/HC/Platform pada tiga class S/M/L.
+- Touch-first POS/KDS/customer/Floor pada action kritis.
 - Accessibility baseline WCAG 2.2 AA.
 - Component bank dan visual verification.
 
@@ -2153,10 +2342,10 @@ Ditunda:
 - KDS high-contrast mode khusus di luar light/dark standar.
 - Full building floor-plan editor dengan dinding, pintu, fasilitas, dekorasi, background image, dan drawing tools.
 
-## 40. Checklist sebelum coding halaman
+## 41. Checklist sebelum coding halaman
 
 - [ ] Token primitive dan semantic light/dark sudah dibuat.
-- [ ] Geist Sans/Mono sudah dibundel dan fallback benar.
+- [ ] DM Sans dan Fraunces sudah dibundel; fallback benar; Fraunces tidak dipakai pada dense operational UI.
 - [ ] Theme tanpa flash dan persistence bekerja.
 - [ ] P0 component bank tersedia.
 - [ ] Contrast light/dark dan brand preset lulus.
@@ -2165,22 +2354,29 @@ Ditunda:
 - [ ] POS touch controls memakai size `lg`.
 - [ ] KDS ticket dapat dibaca pada target perangkat.
 - [ ] Table layout per lantai menggunakan logical grid dan editor menolak overlap/out-of-bounds.
+- [ ] Floor -> Area -> Table memakai `Main Floor/Main Area` default; Indoor/Outdoor adalah user-defined Area.
+- [ ] Basic menyediakan SQUARE/RECTANGLE/ROUND, capacity + derived chairs, visual size, dan rotation 0/90.
 - [ ] POS table-layout view read-only menampilkan posisi serta status realtime.
 - [ ] Table layout dapat dioperasikan tanpa drag melalui keyboard/property panel.
+- [ ] Live Table View dan Edit Layout dipisahkan; Small mempunyai list fallback dan move-table selection.
+- [ ] Merge/split tidak tampil aktif tanpa Floor Pro; reservation tidak tampil aktif tanpa capability terkait.
 - [ ] Tidak ada tool atau asset denah bangunan pada Version 1.
 - [ ] Customer sticky cart aman terhadap viewport/safe area.
+- [ ] Module state membedakan entitlement, permission, installation/setup, feature flag, dan limit.
+- [ ] Limit state tidak memblokir corrective operation yang dijamin PRD.
+- [ ] HC Basic components menjaga Employee != User dan attendance correction append-only secara UX.
 - [ ] Money dan numeric display memakai tabular numbers.
 - [ ] Domain status memakai enum-to-token mapping.
 - [ ] Visual regression light/dark untuk komponen utama tersedia.
+- [ ] S/M/L baseline `390×844`, `1024×768`, `1440×900` dan boundary `320/767/768/1279/1280` lulus.
 
-## 41. Referensi
+## 42. Referensi
 
 Referensi ini digunakan untuk prinsip dan pola interaksi, bukan untuk menyalin visual produknya.
 
 ### Typography dan tooling
 
-- Geist Font: https://examples.vercel.com/font
-- Geist Design System: https://vercel.com/geist/introduction
+- DM Sans dan Fraunces: implementasi memakai font bundle/self-hosted yang tervalidasi pada codebase.
 - Tailwind theme variables: https://tailwindcss.com/docs/theme
 - Radix Primitives: https://www.radix-ui.com/primitives/docs/overview/introduction
 - Lucide Icons: https://lucide.dev/
@@ -2201,19 +2397,20 @@ Referensi ini digunakan untuk prinsip dan pola interaksi, bukan untuk menyalin v
 - Lightspeed dark mode/layout: https://o-series-support.lightspeedhq.com/hc/en-us/articles/31329442916891-Design-your-POS-look-and-layout
 - Shopify POS: https://www.shopify.com/pos
 
-## 42. Keputusan final Version 1
+## 43. Keputusan final Version 1
 
 ```text
-Visual direction : Calm Commerce
-Primary palette  : Operational Teal
-Neutral palette  : Slate/Navy
+Visual direction : Warm Operational
+Primary palette  : Cream / Espresso / Amber
+Neutral palette  : Warm neutral / espresso-charcoal
 Themes           : Light, Dark, System
-UI font          : Geist Sans
-Technical font   : Geist Mono terbatas
+UI font          : DM Sans
+Display font     : Fraunces terbatas
 Icon family      : Lucide
 Base spacing     : 4px
 Default radius   : 8px
 Default control  : 40px backoffice, 48px touch
 Component model  : Custom visual + accessible headless behavior
+Responsive       : S 320-767 / M 768-1279 / L >=1280
 Source of truth  : design-system.md -> token -> packages/ui -> feature
 ```

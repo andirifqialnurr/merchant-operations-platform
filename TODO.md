@@ -1,8 +1,8 @@
 # TODO - Merchant Operations Platform
 
-**Status:** Implementation roadmap  
-**Tanggal:** 14 Juli 2026  
-**Acuan:** `architecture.md`, `design-system.md`, dan PRD MVP Release 1  
+**Status:** Implementation roadmap selaras PRD modular v2.3
+**Tanggal:** 5 Agustus 2026
+**Acuan:** `docs/README.md`, `docs/product/*`, dan `docs/foundation/*`
 **Strategi:** Satu tahap -> verifikasi -> commit/push -> lanjut tahap berikutnya
 
 ## 1. Cara menggunakan TODO ini
@@ -25,37 +25,72 @@ Aturan pengerjaan:
 9. Tidak mengambil theme atau tampilan default shadcn/component library sebagai hasil final.
 10. Jika keputusan implementasi berbeda dari dokumen, perbarui dokumen terkait sebelum melanjutkan.
 11. Patuhi `UI slicing data guard` di `AGENTS.md`: setiap datum wajib memiliki sumber, tujuan, klasifikasi input/display/derived/hidden, serta satu lokasi utama tanpa duplikasi.
-12. Sebelum membuat layar/modul baru, tentukan referensi `design-system.md`, `design-system-modules.md`, dan shell yang dipakai; jangan membuat layout baru tanpa mencatat alasannya.
+12. Sebelum membuat layar/modul baru, tentukan referensi `docs/foundation/design-system.md`, `docs/foundation/design-system-modules.md`, dan shell yang dipakai; jangan membuat layout baru tanpa mencatat alasannya.
 13. Setiap navigasi, tombol, tab, dialog, form submit, filter, dan primary action yang terlihat harus memiliki perilaku yang jelas serta diverifikasi melalui unit/component test, browser smoke, atau HTTP route smoke sesuai risikonya.
+14. Gunakan urutan source of truth pada `docs/README.md`; audit dan TODO boleh mencatat gap implementasi tetapi tidak boleh menurunkan requirement PRD.
 
 ## 2. Status saat ini
 
-### Fondasi produk yang sudah tersedia
+### Basis produk dan foundation aktif
 
-- [x] Architecture Version 1.
-- [x] Global Product Scope.
-- [x] PRD MVP Release 1.
-- [x] Paket dan pricelist awal.
-- [x] Feature Inventory untuk bahan revisi `design-system.md`.
-- [x] Design system light/dark/system.
-- [x] Geist Sans dipilih sebagai UI font.
-- [x] Operational Teal dan Slate/Navy dipilih sebagai palet dasar.
-- [x] Table layout per lantai ditetapkan sebagai scope Version 1.
-- [x] Audit penerapan design-system ke route aplikasi tersedia di `DESIGN_SYSTEM_APP_AUDIT.md`.
+- [x] PRD Modular Platform v2.3 menjadi sumber scope, modularity, integration, data boundary, roadmap, dan Release 1.
+- [x] Module Tiers v1.2 menjadi sumber capability Basic/Pro/Advanced dan delivery status.
+- [x] Packages and Limits v1.2 menjadi sumber package composition, limit, add-on, usage, dan enforcement; pricing belum final.
+- [x] `docs/foundation/architecture.md` menjadi technical boundary.
+- [x] `docs/foundation/design-system.md` menjadi visual/interaction contract Warm Operational, DM Sans, Fraunces terbatas, dan S/M/L.
+- [x] `docs/foundation/design-system-modules.md` menjadi mapping module ke shell/screen/component/state/data guard.
+- [x] `docs/foundation/DESIGN_SYSTEM_APP_AUDIT.md` menjadi catatan gap implementasi, bukan sumber requirement.
+
+### Checkpoint 5 Agustus 2026 - source-of-truth alignment
+
+- [x] Seluruh dokumen baru di `docs/product/` dan `docs/foundation/` dipelajari dan dibandingkan dengan dokumen lama.
+- [x] `docs/packages/*`, `docs/versions/*`, `docs/00-GLOBAL-PRODUCT-SCOPE.md`, dan `docs/FEATURE_INVENTORY.md` ditetapkan superseded karena requirement serta traceability-nya sudah diserap dokumen baru.
+- [x] `docs/README.md`, `AGENTS.md`, dan referensi nama/path antar dokumen diselaraskan.
+- [x] Source route web diaudit ulang: `/backoffice/catalog` sudah memakai API, sedangkan `/pos`, `/kds`, dan `/inventory` masih placeholder; beberapa surface R1 belum mempunyai route aktif.
+- [x] Fondasi backend/API/isolation/security/reliability dikonfirmasi lebih maju daripada implementasi UI route, tetapi belum selesai terhadap kontrak modular baru di `docs/product/` dan `docs/foundation/`.
+- [x] Build produksi yang tersedia berhasil di-smoke melalui HTTP: route aktif utama merespons 200 dan `/finance`, `/hc`, `/platform` merespons 404 sesuai source route yang belum ada.
+- [ ] Runtime visual/interaksi belum terverifikasi: start dev masih tertahan lock `.next/dev` dan browser dalam aplikasi tidak tersedia.
+- [x] `CREDENTIALS.local.md` diperiksa; tidak ada perubahan akun, password, atau aturan pemeliharaan yang diperlukan.
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Tahap 19 reliability/security selesai; berhenti sebelum reslicing route POS -> KDS -> Inventory -> Finance dan minta konfirmasi user.**
+> **NEXT: Backend Delta 1 - Architecture and ORM contract audit.**
 
-Typography Bank Tahap 5 dan Layout/Icon Foundation Tahap 6 sudah diimplementasikan serta lolos verifikasi statis, production build, HTTP smoke test, review visual light/dark, reflow setara zoom 200%, dan reduced-motion render.
+Scope checkpoint berikutnya harus tetap bounded: audit source backend, Prisma schema, contracts, API guards, worker/event foundation, dan security/reliability terhadap PRD Modular v2.3 serta architecture baseline 5 Agustus 2026. Output checkpoint ini adalah gap matrix + update TODO yang memecah backend delta menjadi checkpoint implementasi kecil. Jangan sekaligus membuat route UI baru atau me-reslice POS, KDS, Inventory, Finance, Floor/Table, HC, Customer, atau Platform Admin.
 
-### Gate sebelum coding fitur visual berikutnya
+### Backend delta yang harus diaudit sebelum UI reslicing
 
-- [x] Simpan tiga referensi visual Tasty Station sebagai file lokal di `docs/design-references/` atau dokumentasikan link permanen yang masih dapat diakses.
-- [x] Hubungkan referensi visual tersebut dari `design-system.md` agar agent tidak hanya mengandalkan deskripsi teks.
-- [x] Pastikan setiap modul di `design-system-modules.md` memiliki shell, layar utama, komponen, status bucket, dan data guard yang cukup sebelum JSX dibuat.
-- [x] Tambahkan interaction acceptance untuk setiap checkpoint UI: semua menu yang tampil dapat diklik, route target valid, tombol utama membuka dialog/submit/callback yang sesuai, tab/filter mengubah state, dan aksi sensitif memiliki konfirmasi.
-- [x] Tambahkan verification gate minimum untuk UI route baru: lint, typecheck, test terkait, HTTP smoke untuk route, dan browser/click smoke untuk navigasi serta primary button.
+- [ ] `Workspace -> Business Unit -> Location` dibandingkan dengan implementasi `tenant/brand/outlet`; code baru tidak boleh memperluas terminology F&B sebagai invariant Core.
+- [ ] `workspaceType BUSINESS/PERSONAL`, business template, device/channel metadata, dan employee != user diperiksa terhadap schema/API saat ini.
+- [ ] Module manifest registry diperiksa: module key/version, capability, permission, route, navigation, setting, event produced, handler, install step, dan config schema version.
+- [ ] Module installation lifecycle diperiksa: `NOT_INSTALLED`, `PROVISIONING`, `SETUP_REQUIRED`, `ACTIVE`, `ERROR`, `SUSPENDED`; tidak boleh direduksi menjadi boolean `moduleEnabled`.
+- [ ] Integration binding lifecycle diperiksa: source module, event+version, target module, handler, mapping config, effective time, status, health, retry/dead-letter state, dan audit metadata.
+- [ ] Package/version/entitlement/limit/metering diperiksa: immutable package version, effective entitlement, hard count limit, soft metered event, throttled limit, usage event idempotent, rebuildable counter, adjustment audit, dan downgrade tanpa menghapus histori.
+- [ ] Event/outbox/inbox diperiksa terhadap flow R1: POS -> KDS, POS -> Finance, POS -> Inventory, KDS-only manual/API intake, Inventory-only, Finance-only, HC-only, dan duplicate consumer handling.
+- [ ] ORM schema gap diperiksa untuk Core tables baru, floor/session/QR, KDS ticket, inventory ledger, Finance Core, HC attendance append-only, customer/report projection, usage metering, dan safe DTO boundary.
+- [ ] Security delta diperiksa: integration API rate limit, endpoint sensitif, module boundary lint, PostgreSQL/RLS integration test disposable, QR token hash/rotation privacy, support access scope/reason/expiry, dan PII-safe event/log.
+- [ ] Setiap gap diklasifikasi sebagai `implemented`, `partial`, `missing`, `deferred`, atau `future`, dengan rekomendasi checkpoint implementasi yang dapat dipush sendiri.
+
+### Gate sebelum coding backend berikutnya
+
+- [ ] Backend delta audit selesai dan dicatat pada TODO.
+- [ ] Untuk setiap checkpoint backend implementasi, tentukan owner module/data, mutation command, read model/DTO, permission, entitlement, installation, limit, idempotency, audit, dan error code sebelum coding.
+- [ ] Migration/Prisma change wajib disertai constraint/index/tenant-workspace isolation review dan rollback/rebuild consideration.
+- [ ] Endpoint/API baru wajib memakai shared Zod contract untuk header, params, query, body, dan response yang relevan.
+- [ ] Event/worker change wajib membuktikan idempotency, retry/dead-letter, safe payload, dan duplicate handling.
+- [ ] Verification minimum backend mencakup lint, typecheck, unit/contract test terkait, API test, migration/schema test bila ada, dan privacy/security regression sesuai scope.
+
+### UI Alignment 1 - menunggu backend delta audit
+
+### Gate sebelum coding visual berikutnya
+
+- [ ] Backend Delta 1 selesai dan checkpoint backend implementasi prioritas sudah disepakati.
+- [ ] User mengonfirmasi scope reslicing/redesign UI Alignment 1.
+- [ ] Field inventory dibuat sebelum JSX untuk setiap surface bisnis yang tersentuh.
+- [ ] Component/source audit memastikan API dan behavior existing yang harus dipertahankan.
+- [ ] Module state membedakan entitlement, permission, installation/setup, feature flag/delivery, limit, dan subscription lifecycle.
+- [ ] Interaction acceptance mencakup semua navigasi, tombol, tab, dialog, form submit, filter, dan primary action yang terlihat.
+- [ ] Verification minimum mencakup lint, typecheck, test terkait, HTTP route smoke, browser/click smoke, S/M/L boundary, light/dark, keyboard/focus, dan data guard.
 
 ## 3. Keputusan stack yang dikunci
 
@@ -202,9 +237,11 @@ chore: install workspace foundation dependencies
 
 **Tujuan:** Membuat source of truth warna tanpa membuat komponen bisnis.
 
+**Catatan alignment 5 Agustus 2026:** Checklist selesai di tahap ini adalah bukti baseline lama Operational Teal/Geist. Baseline tersebut sekarang menjadi migration input dan belum memenuhi `docs/foundation/design-system.md` yang menetapkan Warm Operational/DM Sans/Fraunces.
+
 #### 3.1 Primitive color token
 
-- [x] Implementasikan Operational Teal `50-950` sesuai `design-system.md`.
+- [x] Implementasikan Operational Teal `50-950` sesuai baseline design system lama.
 - [x] Implementasikan Slate `50-950` dan white.
 - [x] Implementasikan primitive Blue, Green, Amber, Red, dan Violet untuk status.
 - [x] Jangan menggunakan raw hex di luar file token.
@@ -251,7 +288,7 @@ chore: install workspace foundation dependencies
 
 #### Acceptance gate Tahap 3
 
-- [x] Semua token di `design-system.md` mempunyai implementasi.
+- [x] Semua token pada baseline design system lama mempunyai implementasi.
 - [x] Contrast teks normal minimal `4.5:1`.
 - [x] Contrast control/focus penting minimal `3:1`.
 - [x] Tidak ada raw color pada feature/skeleton app.
@@ -348,7 +385,7 @@ feat(ui): add light dark and system theme engine
 
 #### Acceptance gate Tahap 5
 
-- [x] Seluruh type scale `design-system.md` tersedia.
+- [x] Seluruh type scale Geist pada baseline design system lama tersedia.
 - [x] Tidak ada font-size/weight arbitrary pada preview.
 - [x] Nominal dan table number memakai tabular numbers.
 - [x] Geist Mono tidak digunakan untuk UI normal.
@@ -613,7 +650,7 @@ Setiap sub-tahap P1 dipush terpisah. Jangan membuat seluruh component dalam satu
 
 ### Acceptance gate seluruh P1
 
-- [ ] Seluruh P0 component pada `design-system.md` tersedia.
+- [ ] Seluruh P0 component pada `docs/foundation/design-system.md` tersedia dan sudah dire-audit terhadap API existing.
 - [ ] Semua component mempunyai light/dark stories.
 - [ ] Semua component mempunyai size/variant/state yang terdokumentasi.
 - [ ] Keyboard dan axe test lulus untuk component interaktif.
@@ -624,7 +661,7 @@ Setiap sub-tahap P1 dipush terpisah. Jangan membuat seluruh component dalam satu
 
 ## 6. PRIORITAS P2 - Backend, Contract, dan Data Foundation
 
-P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur.
+Catatan alignment 5 Agustus 2026: urutan historis P2 dimulai setelah primitive UI stabil sudah tidak cukup untuk PRD Modular v2.3. Backend Delta 1-4 di bagian atas file ini menjadi re-audit dan implementasi lanjutan terhadap kontrak modular baru, bukan pengulangan Tahap 9 lama.
 
 ### Tahap 9 - Database dan API foundation
 
@@ -934,30 +971,35 @@ P2 dimulai setelah primitive UI stabil. P2 belum berarti membangun seluruh fitur
 - [ ] Light/dark/system seluruh critical flow lolos visual review.
 - [ ] Backup, monitoring, migration, dan staging smoke test tersedia.
 
-## 9. Urutan push terdekat
+## 9. Urutan checkpoint berikutnya
 
-Urutan yang harus diikuti mulai sekarang:
+Urutan ini menggantikan daftar push fondasi lama. Setiap baris tetap harus menjadi checkpoint yang berdiri sendiri dan route reslicing memerlukan konfirmasi user.
 
 ```text
-Push 1  Workspace structure
-Push 2  Foundation dependencies
-Push 3  Color token bank
-Push 4  Light/Dark/System engine
-Push 5  Geist typography bank
-Push 6  Spacing/radius/shadow/icon foundation
-Push 7  Storybook and test harness
-Push 8  Button primitives
-Push 9  Text field primitives
-Push 10 Selection controls
-... lanjut satu batch komponen per push
+Current  Source-of-truth alignment: product + foundation + audit + TODO
+Next     Backend Delta 1: architecture + ORM/API/security contract audit
+Then     Backend Delta 2: Core Platform terminology, workspace type, manifest, installation, and binding foundation
+Then     Backend Delta 3: package version, effective entitlement, hard/soft limit, usage metering, and downgrade semantics
+Then     Backend Delta 4: event/outbox/inbox integration proof for POS/KDS/Finance/Inventory and standalone modules
+Then     UI Alignment 1: Warm token/theme/font foundation convergence
+Then     UI Alignment 2: S/M/L shell, workspace/location context, module access states
+Then     Catalog + POS Basic end-to-end
+Then     KDS Basic + standalone/integration proof
+Then     Floor/Table + QR + Live Table View
+Then     Customer, Inventory, Business Finance, HC, Platform Admin, Reports
 ```
 
-Jangan menggabungkan Push 1 sampai Push 7 menjadi satu commit. Tujuan pemisahan ini agar setiap keputusan dasar dapat direview dan jika perlu dikoreksi tanpa bercampur dengan feature implementation.
+Jangan menggabungkan backend delta audit, foundation convergence, dan reslicing route bisnis. Setelah setiap checkpoint, update file ini dan lengkapi acceptance gate sebelum lanjut.
 
 ## 10. Hal yang belum dikerjakan sekarang
 
-- Review screenshot Color Bank dan runtime Theme Engine yang masih terbuka pada acceptance gate Tahap 3-4.
-- Audit penutupan acceptance gate Storybook dan seluruh primitive P1 yang masih belum dicentang sebagai satu gate konsolidasi.
+- Browser acceptance aktual belum tersedia; runtime dev masih tertahan lock `.next/dev`. Production HTTP smoke lulus, tetapi tidak ada klaim screenshot, click flow, responsive, light/dark, atau accessibility untuk alignment baru.
+- Backend delta terhadap PRD Modular v2.3 belum diaudit detail: module manifest, installation lifecycle, integration binding, package version snapshot, usage metering, standalone module path, dan workspace terminology baru belum boleh dianggap selesai.
+- ORM/schema delta perlu diperiksa ulang terhadap `docs/foundation/architecture.md`: Core tables, usage tables, module installation/config, integration binding, Floor/Table/QR, KDS, Inventory, Finance Core, HC, Customer, dan reporting projection.
+- Security/reliability lama sudah selesai untuk checkpoint Tahap 19, tetapi requirement baru masih perlu proof tambahan: integration API rate limit, module boundary lint, disposable PostgreSQL/RLS integration test, QR token privacy, support access, PII-safe event/log, dan hard/soft limit semantics.
+- Token, palette, font, theme, development preview, dan component bank masih perlu dimigrasikan dari Operational Teal/Geist ke kontrak Warm Operational/DM Sans/Fraunces.
+- Runtime route matrix perlu dilengkapi setelah server dan browser gate tersedia; source audit awal berada di `docs/foundation/DESIGN_SYSTEM_APP_AUDIT.md`.
+- POS, KDS, Inventory, Floor/Table, Finance, HC, Customer/Self-Order, Reports, Settings, dan Platform Admin belum boleh dianggap UI selesai hanya karena domain component atau backend contract tersedia.
+- Audit penutupan acceptance gate Storybook dan seluruh primitive P1 perlu diulang terhadap design system baru.
 - Redis/BullMQ dan Docker Compose local services tetap deferred sampai use case worker/infrastructure ditetapkan. PostgreSQL development lokal sudah tersedia; integration test PostgreSQL/RLS tetap menunggu database test terisolasi dan disposable.
-- Authentication/session Tahap 10.1, organization registry Tahap 10.2, membership/RBAC/outlet assignment Tahap 10.3, serta seluruh migration saat ini sudah diterapkan pada PostgreSQL development lokal.
-- Subscription/module/entitlement core, application/schema tenant-isolation regression, Platform Owner, dan proteksi dokumentasi production Tahap 10 sudah diimplementasikan; integration PostgreSQL/RLS tetap menjadi gate terpisah.
+- Authentication/session, organization registry, membership/RBAC/outlet assignment, subscription/module/entitlement core, tenant-isolation regression, Platform Owner, security, reliability, dan observability yang sudah diterapkan harus dipertahankan saat UI diselaraskan.

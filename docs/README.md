@@ -1,43 +1,37 @@
-# Dokumentasi Produk Platform Operasional Kafe
+# Dokumentasi Cafe Companion Pro
 
-Dokumentasi ini memisahkan tiga hal yang berbeda:
+**Status:** Source-of-truth index
+**Diselaraskan:** 5 Agustus 2026
 
-1. **Ruang lingkup global produk**: arah aplikasi jika terus dikembangkan.
-2. **Versi produk**: fitur yang benar-benar dibangun pada suatu release.
-3. **Paket komersial**: subset modul yang diaktifkan untuk merchant sesuai langganan.
+Dokumen produk dan foundation di folder ini menjadi basis keputusan berikutnya. Dokumen kemajuan implementasi tidak boleh mengubah scope hanya agar sesuai dengan code yang sudah ada.
 
-## Dokumen utama
+## Urutan source of truth
 
-- [Architecture Version 1](../architecture.md)
-- [Design System Version 1](../design-system.md)
-- [Global Product Scope](./00-GLOBAL-PRODUCT-SCOPE.md)
-- [PRD MVP Release 1](./versions/01-MVP-RELEASE-1.md)
+1. [PRD Modular Platform v2.3](./product/CAFE-COMPANION-PRD-V2-MODULAR-PLATFORM.md) - visi, scope, module boundary, integration, security, roadmap, dan Release 1.
+2. [Module Tiers v1.2](./product/CAFE-COMPANION-MODULE-TIERS-V1.md) - capability Basic/Pro/Advanced, dependency, dan delivery status.
+3. [Packages and Limits v1.2](./product/CAFE-COMPANION-PACKAGES-LIMITS-V1.md) - package composition, limit, add-on, usage, dan enforcement. Angkanya masih baseline, bukan harga publik.
+4. [Architecture](./foundation/architecture.md) - technical boundary modular monolith, data ownership, API, event, persistence, dan security.
+5. [Design System](./foundation/design-system.md) - visual dan interaction contract Warm Operational, light/dark/system, component, responsive, dan accessibility.
+6. [Design System per Module](./foundation/design-system-modules.md) - mapping module ke shell, screen, component, state, responsive behavior, dan data guard.
+7. [Application Audit](./foundation/DESIGN_SYSTEM_APP_AUDIT.md) - bukti kondisi implementasi dan gap; bukan sumber requirement.
+8. [`TODO.md`](../TODO.md) - checkpoint aktif, acceptance gate, dan urutan implementasi.
 
-## Paket komersial
+Jika terjadi konflik, dokumen dengan urutan lebih tinggi mengatur area yang menjadi tanggung jawabnya. Keputusan teknis tidak boleh mengubah capability produk tanpa menyelaraskan PRD dan dokumen tier terkait.
 
-- [Profile](./packages/01-PROFILE.md)
-- [POS Basic](./packages/02-POS-BASIC.md)
-- [Cafe Digital](./packages/03-CAFE-DIGITAL.md)
-- [Cafe Operations](./packages/04-CAFE-OPERATIONS.md)
-- [Custom Modular](./packages/05-CUSTOM-MODULAR.md)
-- [Integrated Payment Add-on - Future](./packages/06-INTEGRATED-PAYMENT-ADDON-FUTURE.md)
+## Struktur folder
 
-## Status harga
+- `docs/product/` berisi kontrak produk, capability tier, package, limit, add-on, dan release direction.
+- `docs/foundation/` berisi kontrak arsitektur, design system, mapping UI per modul, dan audit aplikasi.
+- `apps/web/src/app/foundation/page.tsx` hanya route preview development; file tersebut bukan source-of-truth dokumentasi.
 
-Seluruh harga dalam dokumen paket adalah **hipotesis komersial per 14 Juli 2026**. Harga harus divalidasi melalui wawancara dan pilot pada 2-3 merchant sebelum ditetapkan sebagai harga publik.
+## Dokumen yang digantikan
 
-Harga belum termasuk:
+Pada alignment 5 Agustus 2026, `docs/00-GLOBAL-PRODUCT-SCOPE.md`, `docs/FEATURE_INVENTORY.md`, `docs/versions/*`, dan `docs/packages/*` dihapus karena sudah diserap dan diperinci oleh PRD v2.3, Module Tiers v1.2, Packages and Limits v1.2, serta dokumen foundation.
 
-- PPN atau pajak lain yang berlaku.
-- Perangkat kasir, tablet, KDS, printer, cash drawer, dan jaringan.
-- Biaya instalasi perangkat di luar onboarding standar.
-- Biaya payment gateway, MDR QRIS, payout, refund, atau biaya PJP.
-- Pekerjaan custom dan migrasi data kompleks.
+Traceability keputusan lama tetap tersedia pada PRD bagian 4 dan 44 serta Packages and Limits bagian 19. Harga pada paket lama tidak lagi berlaku sebagai baseline; pricing tetap keputusan terbuka sampai pilot dan validasi komersial selesai.
 
-## Keputusan produk saat ini
+## Kondisi implementasi
 
-- Pembayaran MVP masih manual: tunai, QRIS merchant, transfer, dan EDC merchant.
-- Aplikasi mencatat pembayaran setelah dikonfirmasi kasir, tetapi tidak memproses dana.
-- Inventory Basic dan Finance Basic termasuk dalam MVP Release 1.
-- Integrated Payment dipersiapkan sebagai add-on masa depan melalui PJP/payment gateway berizin.
-- Arsitektur produk ditujukan untuk multi-tenant dan multi-outlet.
+Fondasi backend, API, isolation, security, reliability, dan operational contracts saat ini lebih maju daripada UI route. Source web memiliki device-mode shell, development reference routes, dan Catalog Backoffice yang terhubung API; route POS, KDS, dan Inventory masih placeholder, sedangkan Floor/Table, Finance, HC, Customer/Self-Order, Reports, Settings, dan Platform Admin belum mempunyai route aplikasi aktif.
+
+Status terperinci dan batas verifikasinya dicatat di [Application Audit](./foundation/DESIGN_SYSTEM_APP_AUDIT.md). Credential aplikasi lokal tetap dikelola terpisah di `CREDENTIALS.local.md` dan tidak menjadi bagian source-of-truth produk.
