@@ -847,6 +847,76 @@ export const moduleManifestSchema = z
     path: ["internalDependencies"],
   });
 
+export const moduleInstallationStatusSchema = z.enum([
+  "ACTIVE",
+  "ERROR",
+  "NOT_INSTALLED",
+  "PROVISIONING",
+  "SETUP_REQUIRED",
+  "SUSPENDED",
+]);
+export const moduleInstallationSchema = z
+  .object({
+    activatedAt: z.iso.datetime().nullable(),
+    configSchemaVersion: z.number().int().min(1),
+    errorMessage: z.string().trim().min(1).max(500).nullable(),
+    moduleKey: moduleKeySchema,
+    provisionedAt: z.iso.datetime().nullable(),
+    setupRequiredReason: z.string().trim().min(1).max(500).nullable(),
+    status: moduleInstallationStatusSchema,
+    suspendedReason: z.string().trim().min(1).max(500).nullable(),
+    updatedAt: z.iso.datetime(),
+    workspaceId: z.uuid(),
+  })
+  .strict()
+  .refine((value) => value.status !== "ACTIVE" || value.activatedAt !== null, {
+    message: "Installation ACTIVE wajib memiliki activatedAt.",
+    path: ["activatedAt"],
+  })
+  .refine(
+    (value) => value.status !== "SETUP_REQUIRED" || value.setupRequiredReason !== null,
+    {
+      message: "Installation SETUP_REQUIRED wajib memiliki setupRequiredReason.",
+      path: ["setupRequiredReason"],
+    },
+  );
+
+export const integrationBindingStatusSchema = z.enum([
+  "ACTIVE",
+  "DISABLED",
+  "DRAFT",
+  "ERROR",
+  "PAUSED",
+  "SETUP_REQUIRED",
+]);
+export const integrationBindingHealthSchema = z.enum(["BLOCKED", "HEALTHY", "STALE"]);
+export const integrationBindingSchema = z
+  .object({
+    auditReason: z.string().trim().min(1).max(500).nullable(),
+    configSchemaVersion: z.number().int().min(1),
+    effectiveFrom: z.iso.datetime(),
+    effectiveTo: z.iso.datetime().nullable(),
+    eventType: moduleEventTypeSchema,
+    handlerKey: capabilityKeySchema,
+    health: integrationBindingHealthSchema,
+    id: z.uuid(),
+    lastError: z.string().trim().min(1).max(500).nullable(),
+    sourceModuleKey: moduleKeySchema,
+    status: integrationBindingStatusSchema,
+    targetModuleKey: moduleKeySchema,
+    updatedAt: z.iso.datetime(),
+    workspaceId: z.uuid(),
+  })
+  .strict()
+  .refine((value) => value.sourceModuleKey !== value.targetModuleKey, {
+    message: "Integration binding wajib menghubungkan dua module berbeda.",
+    path: ["targetModuleKey"],
+  })
+  .refine((value) => value.status !== "ERROR" || value.lastError !== null, {
+    message: "Binding ERROR wajib memiliki lastError.",
+    path: ["lastError"],
+  });
+
 export const roleSchema = organizationRecordTimestampsSchema.extend({
   id: z.uuid(),
   tenantId: z.uuid(),
@@ -1021,6 +1091,11 @@ export type ModuleEntitlement = z.infer<typeof moduleEntitlementSchema>;
 export type ModuleEventHandlerRegistration = z.infer<typeof moduleEventHandlerRegistrationSchema>;
 export type ModuleEventType = z.infer<typeof moduleEventTypeSchema>;
 export type ModuleInstallStep = z.infer<typeof moduleInstallStepSchema>;
+export type ModuleInstallation = z.infer<typeof moduleInstallationSchema>;
+export type ModuleInstallationStatus = z.infer<typeof moduleInstallationStatusSchema>;
+export type IntegrationBinding = z.infer<typeof integrationBindingSchema>;
+export type IntegrationBindingHealth = z.infer<typeof integrationBindingHealthSchema>;
+export type IntegrationBindingStatus = z.infer<typeof integrationBindingStatusSchema>;
 export type ModuleManifest = z.infer<typeof moduleManifestSchema>;
 export type ModuleNavigationRegistration = z.infer<
   typeof moduleNavigationRegistrationSchema
@@ -1110,7 +1185,9 @@ export const commonOpenApiSchemas = {
   EntitlementSnapshot: toOpenApiSchema(entitlementSnapshotSchema),
   ModuleEventHandlerRegistration: toOpenApiSchema(moduleEventHandlerRegistrationSchema),
   ModuleInstallStep: toOpenApiSchema(moduleInstallStepSchema),
+  ModuleInstallation: toOpenApiSchema(moduleInstallationSchema),
   ModuleEntitlement: toOpenApiSchema(moduleEntitlementSchema),
+  IntegrationBinding: toOpenApiSchema(integrationBindingSchema),
   ModuleManifest: toOpenApiSchema(moduleManifestSchema),
   ModuleNavigationRegistration: toOpenApiSchema(moduleNavigationRegistrationSchema),
   ModuleRouteRegistration: toOpenApiSchema(moduleRouteRegistrationSchema),

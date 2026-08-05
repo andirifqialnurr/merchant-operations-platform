@@ -22,6 +22,8 @@ import {
   createRoleSchema,
   cursorPaginationQuerySchema,
   entitlementSnapshotSchema,
+  integrationBindingSchema,
+  moduleInstallationSchema,
   moduleManifestSchema,
   MODULES,
   PLAN_CODES,
@@ -331,6 +333,99 @@ test("validates versioned module manifests without boolean module shortcuts", ()
     false,
   );
   assert.equal(commonOpenApiSchemas.ModuleManifest.type, "object");
+});
+
+test("validates installation and integration binding lifecycle states", () => {
+  const workspaceId = "019f738d-e61f-7d46-92de-17b35f970b91";
+  const updatedAt = "2026-08-05T00:00:00.000Z";
+
+  assert.equal(
+    moduleInstallationSchema.safeParse({
+      activatedAt: updatedAt,
+      configSchemaVersion: 1,
+      errorMessage: null,
+      moduleKey: MODULES.kds,
+      provisionedAt: updatedAt,
+      setupRequiredReason: null,
+      status: "ACTIVE",
+      suspendedReason: null,
+      updatedAt,
+      workspaceId,
+    }).success,
+    true,
+  );
+  assert.equal(
+    moduleInstallationSchema.safeParse({
+      activatedAt: null,
+      configSchemaVersion: 1,
+      errorMessage: null,
+      moduleEnabled: true,
+      moduleKey: MODULES.kds,
+      provisionedAt: updatedAt,
+      setupRequiredReason: null,
+      status: "ACTIVE",
+      suspendedReason: null,
+      updatedAt,
+      workspaceId,
+    }).success,
+    false,
+  );
+  assert.equal(
+    moduleInstallationSchema.safeParse({
+      activatedAt: null,
+      configSchemaVersion: 1,
+      errorMessage: null,
+      moduleKey: MODULES.financeBasic,
+      provisionedAt: updatedAt,
+      setupRequiredReason: "Hubungkan akun pendapatan.",
+      status: "SETUP_REQUIRED",
+      suspendedReason: null,
+      updatedAt,
+      workspaceId,
+    }).success,
+    true,
+  );
+
+  assert.equal(
+    integrationBindingSchema.safeParse({
+      auditReason: "POS revenue projection",
+      configSchemaVersion: 1,
+      effectiveFrom: updatedAt,
+      effectiveTo: null,
+      eventType: "sale.completed.v1",
+      handlerKey: "business_finance.record_sales_revenue",
+      health: "HEALTHY",
+      id: "019f738d-e61f-7d46-92de-17b35f970b94",
+      lastError: null,
+      sourceModuleKey: MODULES.pos,
+      status: "ACTIVE",
+      targetModuleKey: MODULES.financeBasic,
+      updatedAt,
+      workspaceId,
+    }).success,
+    true,
+  );
+  assert.equal(
+    integrationBindingSchema.safeParse({
+      auditReason: null,
+      configSchemaVersion: 1,
+      effectiveFrom: updatedAt,
+      effectiveTo: null,
+      eventType: "sale.completed.v1",
+      handlerKey: "pos.loopback",
+      health: "HEALTHY",
+      id: "019f738d-e61f-7d46-92de-17b35f970b94",
+      lastError: null,
+      sourceModuleKey: MODULES.pos,
+      status: "ACTIVE",
+      targetModuleKey: MODULES.pos,
+      updatedAt,
+      workspaceId,
+    }).success,
+    false,
+  );
+  assert.equal(commonOpenApiSchemas.ModuleInstallation.type, "object");
+  assert.equal(commonOpenApiSchemas.IntegrationBinding.type, "object");
 });
 
 test("normalizes catalog defaults and preserves exact minor-unit prices", () => {
