@@ -22,6 +22,7 @@ import {
   createRoleSchema,
   cursorPaginationQuerySchema,
   entitlementSnapshotSchema,
+  moduleManifestSchema,
   MODULES,
   PLAN_CODES,
   replaceSubscriptionSchema,
@@ -267,6 +268,69 @@ test("validates subscription and entitlement core contracts", () => {
     true,
   );
   assert.equal(commonOpenApiSchemas.EntitlementSnapshot.type, "object");
+});
+
+test("validates versioned module manifests without boolean module shortcuts", () => {
+  assert.equal(
+    moduleManifestSchema.safeParse({
+      capabilities: ["pos.order.create", "pos.payment.manual"],
+      configSchemaVersion: 1,
+      displayName: "POS Basic",
+      eventHandlers: [{ eventType: "catalog.product_updated.v1", handlerKey: "pos.sync_catalog" }],
+      eventsProduced: ["sale.completed.v1", "payment.recorded.v1"],
+      installSteps: [{ key: "pos.configure_register", label: "Konfigurasi register" }],
+      internalDependencies: [MODULES.coreCatalog, MODULES.corePaymentLedger],
+      key: MODULES.pos,
+      navigation: [{ label: "POS", path: "/pos", permissionKey: PERMISSIONS.orderCreate }],
+      permissions: [PERMISSIONS.orderCreate, PERMISSIONS.paymentConfirm],
+      routes: [{ path: "/pos", permissionKey: PERMISSIONS.orderCreate }],
+      settings: [{ key: "pos.receipt_profile", label: "Profil struk" }],
+      supportedWorkspaceTypes: ["BUSINESS"],
+      version: "1.0.0",
+    }).success,
+    true,
+  );
+
+  assert.equal(
+    moduleManifestSchema.safeParse({
+      capabilities: ["pos.order.create", "pos.order.create"],
+      configSchemaVersion: 1,
+      displayName: "POS Basic",
+      eventHandlers: [],
+      eventsProduced: [],
+      installSteps: [],
+      internalDependencies: [],
+      key: MODULES.pos,
+      navigation: [],
+      permissions: [],
+      routes: [],
+      settings: [],
+      supportedWorkspaceTypes: ["BUSINESS"],
+      version: "1.0.0",
+    }).success,
+    false,
+  );
+
+  assert.equal(
+    moduleManifestSchema.safeParse({
+      capabilities: [],
+      configSchemaVersion: 1,
+      displayName: "KDS",
+      eventHandlers: [],
+      eventsProduced: [],
+      installSteps: [],
+      internalDependencies: [MODULES.kds],
+      key: MODULES.kds,
+      navigation: [],
+      permissions: [],
+      routes: [],
+      settings: [],
+      supportedWorkspaceTypes: ["BUSINESS"],
+      version: "1.0.0",
+    }).success,
+    false,
+  );
+  assert.equal(commonOpenApiSchemas.ModuleManifest.type, "object");
 });
 
 test("normalizes catalog defaults and preserves exact minor-unit prices", () => {

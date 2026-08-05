@@ -767,6 +767,85 @@ export const roleCodeSchema = z
 
 const uniqueIds = (values: string[]) => new Set(values).size === values.length;
 const uniquePermissions = (values: PermissionKey[]) => new Set(values).size === values.length;
+const uniqueStrings = (values: string[]) => new Set(values).size === values.length;
+
+export const capabilityKeySchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(3)
+  .max(120)
+  .regex(/^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$/);
+export const moduleManifestVersionSchema = z
+  .string()
+  .trim()
+  .regex(/^[0-9]+(?:\.[0-9]+){0,2}$/);
+export const moduleRouteRegistrationSchema = z.object({
+  path: z
+    .string()
+    .trim()
+    .min(1)
+    .max(200)
+    .regex(/^\/[A-Za-z0-9._~!$&'()*+,;=:@/-]*$/),
+  permissionKey: permissionKeySchema.optional(),
+});
+export const moduleNavigationRegistrationSchema = z.object({
+  label: organizationNameSchema,
+  path: moduleRouteRegistrationSchema.shape.path,
+  permissionKey: permissionKeySchema.optional(),
+});
+export const moduleSettingRegistrationSchema = z.object({
+  key: capabilityKeySchema,
+  label: organizationNameSchema,
+  permissionKey: permissionKeySchema.optional(),
+});
+export const moduleEventTypeSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(6)
+  .max(160)
+  .regex(/^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+\.v[1-9][0-9]*$/);
+export const moduleEventHandlerRegistrationSchema = z.object({
+  eventType: moduleEventTypeSchema,
+  handlerKey: capabilityKeySchema,
+});
+export const moduleInstallStepSchema = z.object({
+  key: capabilityKeySchema,
+  label: organizationNameSchema,
+  required: z.boolean().default(true),
+});
+export const moduleManifestSchema = z
+  .object({
+    capabilities: z.array(capabilityKeySchema).refine(uniqueStrings, {
+      message: "Capability tidak boleh duplikat.",
+    }),
+    configSchemaVersion: z.number().int().min(1),
+    displayName: organizationNameSchema,
+    eventHandlers: z.array(moduleEventHandlerRegistrationSchema),
+    eventsProduced: z.array(moduleEventTypeSchema).refine(uniqueStrings, {
+      message: "Event produced tidak boleh duplikat.",
+    }),
+    installSteps: z.array(moduleInstallStepSchema),
+    internalDependencies: z.array(moduleKeySchema).refine(uniqueStrings, {
+      message: "Dependency module tidak boleh duplikat.",
+    }),
+    key: moduleKeySchema,
+    navigation: z.array(moduleNavigationRegistrationSchema),
+    permissions: z.array(permissionKeySchema).refine(uniquePermissions, {
+      message: "Permission tidak boleh duplikat.",
+    }),
+    routes: z.array(moduleRouteRegistrationSchema),
+    settings: z.array(moduleSettingRegistrationSchema),
+    supportedWorkspaceTypes: z.array(workspaceTypeSchema).min(1).refine(uniqueStrings, {
+      message: "Workspace type tidak boleh duplikat.",
+    }),
+    version: moduleManifestVersionSchema,
+  })
+  .refine((value) => !value.internalDependencies.includes(value.key), {
+    message: "Module tidak boleh bergantung pada dirinya sendiri.",
+    path: ["internalDependencies"],
+  });
 
 export const roleSchema = organizationRecordTimestampsSchema.extend({
   id: z.uuid(),
@@ -937,7 +1016,17 @@ export type Location = z.infer<typeof locationSchema>;
 export type Membership = z.infer<typeof membershipSchema>;
 export type MembershipStatus = z.infer<typeof membershipStatusSchema>;
 export type ModifierSelectionType = z.infer<typeof modifierSelectionTypeSchema>;
+export type CapabilityKey = z.infer<typeof capabilityKeySchema>;
 export type ModuleEntitlement = z.infer<typeof moduleEntitlementSchema>;
+export type ModuleEventHandlerRegistration = z.infer<typeof moduleEventHandlerRegistrationSchema>;
+export type ModuleEventType = z.infer<typeof moduleEventTypeSchema>;
+export type ModuleInstallStep = z.infer<typeof moduleInstallStepSchema>;
+export type ModuleManifest = z.infer<typeof moduleManifestSchema>;
+export type ModuleNavigationRegistration = z.infer<
+  typeof moduleNavigationRegistrationSchema
+>;
+export type ModuleRouteRegistration = z.infer<typeof moduleRouteRegistrationSchema>;
+export type ModuleSettingRegistration = z.infer<typeof moduleSettingRegistrationSchema>;
 export type ModuleKey = z.infer<typeof moduleKeySchema>;
 export type ModuleKind = z.infer<typeof moduleKindSchema>;
 export type Outlet = z.infer<typeof outletSchema>;
@@ -1019,7 +1108,13 @@ export const commonOpenApiSchemas = {
   HealthResponse: toOpenApiSchema(healthResponseSchema),
   Membership: toOpenApiSchema(membershipSchema),
   EntitlementSnapshot: toOpenApiSchema(entitlementSnapshotSchema),
+  ModuleEventHandlerRegistration: toOpenApiSchema(moduleEventHandlerRegistrationSchema),
+  ModuleInstallStep: toOpenApiSchema(moduleInstallStepSchema),
   ModuleEntitlement: toOpenApiSchema(moduleEntitlementSchema),
+  ModuleManifest: toOpenApiSchema(moduleManifestSchema),
+  ModuleNavigationRegistration: toOpenApiSchema(moduleNavigationRegistrationSchema),
+  ModuleRouteRegistration: toOpenApiSchema(moduleRouteRegistrationSchema),
+  ModuleSettingRegistration: toOpenApiSchema(moduleSettingRegistrationSchema),
   OrganizationSnapshot: toOpenApiSchema(organizationSnapshotSchema),
   BusinessUnit: toOpenApiSchema(businessUnitSchema),
   Location: toOpenApiSchema(locationSchema),
