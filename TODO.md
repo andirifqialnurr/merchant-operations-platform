@@ -54,9 +54,9 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Backend Delta 4.2 - Command context contract.**
+> **NEXT: Security Delta 1 - Support access contract.**
 
-Scope checkpoint berikutnya harus tetap bounded: tambahkan command context contract untuk banyak adapter satu use case di `packages/contracts`. Jangan sekaligus membuat route UI baru, migration besar, atau me-reslice POS, KDS, Inventory, Finance, Floor/Table, HC, Customer, atau Platform Admin.
+Scope checkpoint berikutnya harus tetap bounded: tambahkan support access contract dengan reason, scope, expiry, actor, audit reference, dan pemisahan platform support dari merchant session di `packages/contracts`. Jangan sekaligus membuat route UI baru, migration besar, atau me-reslice POS, KDS, Inventory, Finance, Floor/Table, HC, Customer, atau Platform Admin.
 
 ### Backend delta yang harus diaudit sebelum UI reslicing
 
@@ -80,7 +80,7 @@ Audit detail: `docs/foundation/BACKEND_MODULAR_DELTA_AUDIT.md`.
 - [x] **Backend Delta 2.3 - Installation and integration lifecycle contract:** lifecycle module installation dan integration binding tersedia sebagai contract typed, tidak memakai boolean `moduleEnabled`.
 - [x] **Backend Delta 3.1 - Package limit and usage metering contract:** package version snapshot, effective limit, usage event/counter/adjustment, hard/soft/throttled enforcement, dan error code minimum tersedia sebagai contract typed.
 - [x] **Backend Delta 4.1 - Event envelope and inbox contract:** event envelope versioned dan inbox/consumer idempotency contract tersedia sebelum ORM/event implementation.
-- [ ] **Backend Delta 4.2 - Command context contract:** command metadata untuk WEB, MOBILE, POS, KDS, API, IMPORT, device/system/integration, idempotency, correlation, causation, occurred/received timestamp, dan client version tersedia sebagai contract typed.
+- [x] **Backend Delta 4.2 - Command context contract:** command metadata untuk WEB, MOBILE, POS, KDS, API, IMPORT, device/system/integration, idempotency, correlation, causation, occurred/received timestamp, dan client version tersedia sebagai contract typed.
 - [ ] **Security Delta 1 - Support access contract:** support access memiliki reason, scope, expiry, actor, audit reference, dan tidak mencampur platform support dengan merchant session.
 - [ ] **Security Delta 2 - QR token lifecycle contract:** QR token memakai hash/version/status/rotation/revocation contract tanpa raw token pada DTO publik.
 - [ ] **Backend Delta 5.1 - Module boundary rule contract:** aturan owner module, allowed dependency, public facade, event-only reaction, dan larangan cross-module repository write tersedia sebagai contract typed.
@@ -997,8 +997,8 @@ Done     Backend Delta 2.2: module manifest contract
 Done     Backend Delta 2.3: installation and integration lifecycle contract
 Done     Backend Delta 3.1: package limit and usage metering contract
 Done     Backend Delta 4.1: event envelope and inbox contract
-Next     Backend Delta 4.2: command context contract
-Then     Security Delta 1: support access contract
+Done     Backend Delta 4.2: command context contract
+Next     Security Delta 1: support access contract
 Then     Security Delta 2: QR token lifecycle contract
 Then     Backend Delta 5.1: module boundary rule contract
 Then     UI Alignment 1: Warm token/theme/font foundation convergence

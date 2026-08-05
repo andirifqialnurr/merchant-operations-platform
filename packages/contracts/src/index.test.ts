@@ -11,6 +11,7 @@ import {
   createTenantSchema,
   commonOpenApiSchemas,
   catalogNameSchema,
+  commandContextSchema,
   createCatalogCategorySchema,
   createDomainEventEnvelopeSchema,
   createCatalogModifierGroupSchema,
@@ -620,6 +621,61 @@ test("validates domain event envelopes and inbox idempotency receipts", () => {
   );
   assert.equal(commonOpenApiSchemas.DomainEventEnvelope.type, "object");
   assert.equal(commonOpenApiSchemas.InboxConsumerReceipt.type, "object");
+});
+
+test("validates command context metadata for multiple adapters", () => {
+  const workspaceId = "019f738d-e61f-7d46-92de-17b35f970b91";
+  const receivedAt = "2026-08-05T00:00:00.000Z";
+
+  assert.equal(
+    commandContextSchema.safeParse({
+      actorId: "019f738d-e61f-7d46-92de-17b35f970ba3",
+      actorType: "USER",
+      causationId: null,
+      channel: "POS",
+      clientVersion: "web-1.0.0",
+      correlationId: "req_019f738d_e61f_7d46_92e0",
+      deviceId: "019f738d-e61f-7d46-92de-17b35f970ba4",
+      idempotencyKey: "pos-order-submit:019f738d-e61f-7d46-92de-17b35f970ba5",
+      occurredAt: receivedAt,
+      receivedAt,
+      workspaceId,
+    }).success,
+    true,
+  );
+  assert.equal(
+    commandContextSchema.safeParse({
+      actorId: null,
+      actorType: "DEVICE",
+      causationId: null,
+      channel: "KDS",
+      clientVersion: null,
+      correlationId: "req_019f738d_e61f_7d46_92e1",
+      deviceId: null,
+      idempotencyKey: "kds-ready:019f738d-e61f-7d46-92de-17b35f970ba5",
+      occurredAt: receivedAt,
+      receivedAt,
+      workspaceId,
+    }).success,
+    false,
+  );
+  assert.equal(
+    commandContextSchema.safeParse({
+      actorId: null,
+      actorType: "SYSTEM",
+      causationId: "019f738d-e61f-7d46-92de-17b35f970ba6",
+      channel: "IMPORT",
+      clientVersion: null,
+      correlationId: "req_019f738d_e61f_7d46_92e2",
+      deviceId: null,
+      idempotencyKey: "import-stock:019f738d-e61f-7d46-92de-17b35f970ba7",
+      occurredAt: receivedAt,
+      receivedAt,
+      workspaceId,
+    }).success,
+    true,
+  );
+  assert.equal(commonOpenApiSchemas.CommandContext.type, "object");
 });
 
 test("normalizes catalog defaults and preserves exact minor-unit prices", () => {

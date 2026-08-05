@@ -1056,6 +1056,32 @@ export const inboxConsumerReceiptSchema = z.object({
   workspaceId: z.uuid(),
 });
 
+export const commandActorTypeSchema = z.enum(["DEVICE", "INTEGRATION", "SYSTEM", "USER"]);
+export const commandChannelSchema = z.enum(["API", "IMPORT", "KDS", "MOBILE", "POS", "WEB"]);
+export const commandContextSchema = z
+  .object({
+    actorId: z.uuid().nullable(),
+    actorType: commandActorTypeSchema,
+    causationId: z.uuid().nullable(),
+    channel: commandChannelSchema,
+    clientVersion: z.string().trim().min(1).max(80).nullable(),
+    correlationId: requestIdSchema,
+    deviceId: z.uuid().nullable(),
+    idempotencyKey: idempotencyKeySchema,
+    occurredAt: z.iso.datetime(),
+    receivedAt: z.iso.datetime(),
+    workspaceId: z.uuid(),
+  })
+  .strict()
+  .refine((value) => value.actorType !== "USER" || value.actorId !== null, {
+    message: "Command actor USER wajib memiliki actorId.",
+    path: ["actorId"],
+  })
+  .refine((value) => value.actorType !== "DEVICE" || value.deviceId !== null, {
+    message: "Command actor DEVICE wajib memiliki deviceId.",
+    path: ["deviceId"],
+  });
+
 export const roleSchema = organizationRecordTimestampsSchema.extend({
   id: z.uuid(),
   tenantId: z.uuid(),
@@ -1241,6 +1267,9 @@ export type DomainEventEnvelope = z.infer<typeof domainEventEnvelopeSchema>;
 export type EventActor = z.infer<typeof eventActorSchema>;
 export type EventPayload = z.infer<typeof eventPayloadSchema>;
 export type EventProducer = z.infer<typeof eventProducerSchema>;
+export type CommandActorType = z.infer<typeof commandActorTypeSchema>;
+export type CommandChannel = z.infer<typeof commandChannelSchema>;
+export type CommandContext = z.infer<typeof commandContextSchema>;
 export type InboxConsumerReceipt = z.infer<typeof inboxConsumerReceiptSchema>;
 export type InboxConsumerStatus = z.infer<typeof inboxConsumerStatusSchema>;
 export type LimitDimensionKey = z.infer<typeof limitDimensionKeySchema>;
@@ -1353,6 +1382,7 @@ export const commonOpenApiSchemas = {
   ModuleRouteRegistration: toOpenApiSchema(moduleRouteRegistrationSchema),
   ModuleSettingRegistration: toOpenApiSchema(moduleSettingRegistrationSchema),
   DomainEventEnvelope: toOpenApiSchema(domainEventEnvelopeSchema),
+  CommandContext: toOpenApiSchema(commandContextSchema),
   InboxConsumerReceipt: toOpenApiSchema(inboxConsumerReceiptSchema),
   EffectiveLimit: toOpenApiSchema(effectiveLimitSchema),
   LimitErrorDetails: toOpenApiSchema(limitErrorDetailsSchema),
