@@ -23,6 +23,7 @@ import {
   cursorPaginationQuerySchema,
   entitlementSnapshotSchema,
   integrationBindingSchema,
+  limitErrorDetailsSchema,
   moduleInstallationSchema,
   moduleManifestSchema,
   MODULES,
@@ -30,6 +31,7 @@ import {
   replaceSubscriptionSchema,
   requestContextHeadersSchema,
   PERMISSIONS,
+  packageVersionSnapshotSchema,
   tenantRequestHeadersSchema,
   setTenantEntitlementSchema,
   updateMembershipSchema,
@@ -39,6 +41,9 @@ import {
   updateTenantSchema,
   workspaceContextsSchema,
   workspaceStructureSchema,
+  usageAdjustmentSchema,
+  usageCounterSchema,
+  usageEventSchema,
 } from "./index.js";
 
 test("normalizes cursor pagination input", () => {
@@ -426,6 +431,126 @@ test("validates installation and integration binding lifecycle states", () => {
   );
   assert.equal(commonOpenApiSchemas.ModuleInstallation.type, "object");
   assert.equal(commonOpenApiSchemas.IntegrationBinding.type, "object");
+});
+
+test("validates package snapshot and usage metering contracts", () => {
+  const workspaceId = "019f738d-e61f-7d46-92de-17b35f970b91";
+  const recordedAt = "2026-08-05T00:00:00.000Z";
+
+  assert.equal(
+    packageVersionSnapshotSchema.safeParse({
+      createdAt: recordedAt,
+      limits: [
+        {
+          dimensionKey: "core.users.active",
+          enforcement: "HARD_COUNT",
+          limitValue: "25",
+          unlimited: false,
+        },
+        {
+          dimensionKey: "api.requests.cycle",
+          enforcement: "THROTTLED",
+          limitValue: null,
+          unlimited: true,
+        },
+      ],
+      modules: [
+        {
+          capabilities: ["pos.order.create", "pos.payment.manual"],
+          moduleKey: MODULES.pos,
+          tier: "BASIC",
+        },
+      ],
+      packageKey: "CAFE_OPERATIONS",
+      publishedAt: recordedAt,
+      version: 2,
+    }).success,
+    true,
+  );
+  assert.equal(
+    packageVersionSnapshotSchema.safeParse({
+      createdAt: recordedAt,
+      limits: [
+        {
+          dimensionKey: "core.users.active",
+          enforcement: "HARD_COUNT",
+          limitValue: null,
+          unlimited: false,
+        },
+      ],
+      modules: [],
+      packageKey: "CAFE_OPERATIONS",
+      publishedAt: recordedAt,
+      version: 2,
+    }).success,
+    false,
+  );
+
+  assert.equal(
+    usageEventSchema.safeParse({
+      dimensionKey: "pos.sales.completed.cycle",
+      id: "019f738d-e61f-7d46-92de-17b35f970b95",
+      idempotencyKey: "sale-completed:019f738d-e61f-7d46-92de-17b35f970b96",
+      occurredAt: recordedAt,
+      quantity: "1",
+      receivedAt: recordedAt,
+      sourceRecordId: "019f738d-e61f-7d46-92de-17b35f970b96",
+      sourceRecordType: "sale",
+      workspaceId,
+    }).success,
+    true,
+  );
+  assert.equal(
+    usageCounterSchema.safeParse({
+      dimensionKey: "pos.sales.completed.cycle",
+      effectiveLimit: {
+        dimensionKey: "pos.sales.completed.cycle",
+        enforcement: "SOFT_METERED",
+        limitValue: "75000",
+        source: "PACKAGE",
+        unlimited: false,
+      },
+      periodEnd: "2026-09-05T00:00:00.000Z",
+      periodStart: recordedAt,
+      updatedAt: recordedAt,
+      used: "75001",
+      workspaceId,
+    }).success,
+    true,
+  );
+  assert.equal(
+    usageAdjustmentSchema.safeParse({
+      actorId: "019f738d-e61f-7d46-92de-17b35f970b97",
+      dimensionKey: "pos.sales.completed.cycle",
+      id: "019f738d-e61f-7d46-92de-17b35f970b98",
+      quantityDelta: "-1",
+      reason: "Duplicate event correction",
+      recordedAt,
+      workspaceId,
+    }).success,
+    true,
+  );
+  assert.equal(
+    limitErrorDetailsSchema.safeParse({
+      allowedAction: "Nonaktifkan user lama atau tambah User Pack.",
+      code: "LIMIT_REACHED",
+      currentUsage: "25",
+      dimensionKey: "core.users.active",
+      effectiveLimit: {
+        dimensionKey: "core.users.active",
+        enforcement: "HARD_COUNT",
+        limitValue: "25",
+        source: "PACKAGE",
+        unlimited: false,
+      },
+      message: "Batas user aktif tercapai.",
+    }).success,
+    true,
+  );
+  assert.equal(commonOpenApiSchemas.PackageVersionSnapshot.type, "object");
+  assert.equal(commonOpenApiSchemas.UsageEvent.type, "object");
+  assert.equal(commonOpenApiSchemas.UsageCounter.type, "object");
+  assert.equal(commonOpenApiSchemas.LimitErrorDetails.type, "object");
 });
 
 test("normalizes catalog defaults and preserves exact minor-unit prices", () => {
