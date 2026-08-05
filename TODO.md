@@ -54,9 +54,9 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: Security Delta 2 - QR token lifecycle contract.**
+> **NEXT: Backend Delta 5.1 - Module boundary rule contract.**
 
-Scope checkpoint berikutnya harus tetap bounded: tambahkan QR token lifecycle contract dengan hash/version/status/rotation/revocation dan DTO publik tanpa raw token di `packages/contracts`. Jangan sekaligus membuat route UI baru, migration besar, atau me-reslice POS, KDS, Inventory, Finance, Floor/Table, HC, Customer, atau Platform Admin.
+Scope checkpoint berikutnya harus tetap bounded: tambahkan module boundary rule contract untuk owner module, allowed dependency, public facade, event-only reaction, dan larangan cross-module repository write di `packages/contracts`. Jangan sekaligus membuat route UI baru, migration besar, atau me-reslice POS, KDS, Inventory, Finance, Floor/Table, HC, Customer, atau Platform Admin.
 
 ### Backend delta yang harus diaudit sebelum UI reslicing
 
@@ -82,7 +82,7 @@ Audit detail: `docs/foundation/BACKEND_MODULAR_DELTA_AUDIT.md`.
 - [x] **Backend Delta 4.1 - Event envelope and inbox contract:** event envelope versioned dan inbox/consumer idempotency contract tersedia sebelum ORM/event implementation.
 - [x] **Backend Delta 4.2 - Command context contract:** command metadata untuk WEB, MOBILE, POS, KDS, API, IMPORT, device/system/integration, idempotency, correlation, causation, occurred/received timestamp, dan client version tersedia sebagai contract typed.
 - [x] **Security Delta 1 - Support access contract:** support access memiliki reason, scope, expiry, actor, audit reference, dan tidak mencampur platform support dengan merchant session.
-- [ ] **Security Delta 2 - QR token lifecycle contract:** QR token memakai hash/version/status/rotation/revocation contract tanpa raw token pada DTO publik.
+- [x] **Security Delta 2 - QR token lifecycle contract:** QR token memakai hash/version/status/rotation/revocation contract tanpa raw token pada DTO publik.
 - [ ] **Backend Delta 5.1 - Module boundary rule contract:** aturan owner module, allowed dependency, public facade, event-only reaction, dan larangan cross-module repository write tersedia sebagai contract typed.
 
 ### Gate sebelum coding backend berikutnya
@@ -999,8 +999,8 @@ Done     Backend Delta 3.1: package limit and usage metering contract
 Done     Backend Delta 4.1: event envelope and inbox contract
 Done     Backend Delta 4.2: command context contract
 Done     Security Delta 1: support access contract
-Next     Security Delta 2: QR token lifecycle contract
-Then     Backend Delta 5.1: module boundary rule contract
+Done     Security Delta 2: QR token lifecycle contract
+Next     Backend Delta 5.1: module boundary rule contract
 Then     UI Alignment 1: Warm token/theme/font foundation convergence
 Then     UI Alignment 2: S/M/L shell, workspace/location context, module access states
 Then     Catalog + POS Basic end-to-end

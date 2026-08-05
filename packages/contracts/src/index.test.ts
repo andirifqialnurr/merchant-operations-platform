@@ -38,7 +38,9 @@ import {
   requestContextHeadersSchema,
   PERMISSIONS,
   packageVersionSnapshotSchema,
+  publicQrResolutionSchema,
   supportAccessGrantSchema,
+  tableQrTokenRecordSchema,
   tenantRequestHeadersSchema,
   setTenantEntitlementSchema,
   updateMembershipSchema,
@@ -716,6 +718,67 @@ test("validates support access grant scope, reason, expiry, and revocation audit
     false,
   );
   assert.equal(commonOpenApiSchemas.SupportAccessGrant.type, "object");
+});
+
+test("validates QR token lifecycle without exposing raw token in public DTOs", () => {
+  const updatedAt = "2026-08-05T00:00:00.000Z";
+
+  assert.equal(
+    tableQrTokenRecordSchema.safeParse({
+      activatedAt: updatedAt,
+      hash: "a".repeat(64),
+      id: "019f738d-e61f-7d46-92de-17b35f970bac",
+      locationId: "019f738d-e61f-7d46-92de-17b35f970bad",
+      revokedAt: null,
+      rotatedFromVersion: null,
+      status: "ACTIVE",
+      tableId: "019f738d-e61f-7d46-92de-17b35f970bae",
+      updatedAt,
+      version: 1,
+      workspaceId: "019f738d-e61f-7d46-92de-17b35f970b91",
+    }).success,
+    true,
+  );
+  assert.equal(
+    tableQrTokenRecordSchema.safeParse({
+      activatedAt: updatedAt,
+      hash: "raw-token-value",
+      id: "019f738d-e61f-7d46-92de-17b35f970baf",
+      locationId: "019f738d-e61f-7d46-92de-17b35f970bad",
+      revokedAt: null,
+      rotatedFromVersion: 1,
+      status: "ROTATED",
+      tableId: "019f738d-e61f-7d46-92de-17b35f970bae",
+      updatedAt,
+      version: 2,
+      workspaceId: "019f738d-e61f-7d46-92de-17b35f970b91",
+    }).success,
+    false,
+  );
+  assert.equal(
+    publicQrResolutionSchema.safeParse({
+      merchantName: "Kopi Kita",
+      message: "Meja siap digunakan.",
+      outletName: "Jakarta",
+      status: "READY",
+      tableLabel: "Meja 4",
+    }).success,
+    true,
+  );
+  assert.equal(
+    publicQrResolutionSchema.safeParse({
+      merchantName: "Kopi Kita",
+      outletName: "Jakarta",
+      rawToken: "secret",
+      status: "READY",
+      tableId: "019f738d-e61f-7d46-92de-17b35f970bae",
+      tableLabel: "Meja 4",
+      url: "https://example.test/qr/raw",
+    }).success,
+    false,
+  );
+  assert.equal(commonOpenApiSchemas.TableQrTokenRecord.type, "object");
+  assert.equal(commonOpenApiSchemas.PublicQrResolution.type, "object");
 });
 
 test("normalizes catalog defaults and preserves exact minor-unit prices", () => {
