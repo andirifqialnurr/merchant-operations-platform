@@ -31,6 +31,7 @@ import {
   inboxConsumerReceiptSchema,
   limitErrorDetailsSchema,
   moduleInstallationSchema,
+  moduleBoundaryRuleSchema,
   moduleManifestSchema,
   MODULES,
   PLAN_CODES,
@@ -779,6 +780,43 @@ test("validates QR token lifecycle without exposing raw token in public DTOs", (
   );
   assert.equal(commonOpenApiSchemas.TableQrTokenRecord.type, "object");
   assert.equal(commonOpenApiSchemas.PublicQrResolution.type, "object");
+});
+
+test("validates module boundary rules for facade and event-only access", () => {
+  assert.equal(
+    moduleBoundaryRuleSchema.safeParse({
+      accessType: "PUBLIC_FACADE",
+      allowedDependencyKeys: [MODULES.coreCatalog],
+      forbiddenRepositoryWriteKeys: [MODULES.kds, MODULES.financeBasic, MODULES.inventoryBasic],
+      ownerModuleKey: MODULES.pos,
+      publicFacadeKeys: ["catalog.check_sellability"],
+      reason: "POS membaca sellability catalog melalui facade publik.",
+    }).success,
+    true,
+  );
+  assert.equal(
+    moduleBoundaryRuleSchema.safeParse({
+      accessType: "EVENT_REACTION",
+      allowedDependencyKeys: [MODULES.pos],
+      forbiddenRepositoryWriteKeys: [MODULES.kds],
+      ownerModuleKey: MODULES.kds,
+      publicFacadeKeys: [],
+      reason: "KDS bereaksi dari event order tanpa menulis order repository.",
+    }).success,
+    false,
+  );
+  assert.equal(
+    moduleBoundaryRuleSchema.safeParse({
+      accessType: "EVENT_REACTION",
+      allowedDependencyKeys: [MODULES.coreOrder],
+      forbiddenRepositoryWriteKeys: [MODULES.pos, MODULES.financeBasic, MODULES.inventoryBasic],
+      ownerModuleKey: MODULES.kds,
+      publicFacadeKeys: [],
+      reason: "KDS menerima event order dan hanya menulis repository KDS.",
+    }).success,
+    true,
+  );
+  assert.equal(commonOpenApiSchemas.ModuleBoundaryRule.type, "object");
 });
 
 test("normalizes catalog defaults and preserves exact minor-unit prices", () => {

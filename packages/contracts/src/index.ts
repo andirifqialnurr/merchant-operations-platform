@@ -1146,6 +1146,37 @@ export const publicQrResolutionSchema = z
   })
   .strict();
 
+export const moduleBoundaryAccessTypeSchema = z.enum([
+  "EVENT_REACTION",
+  "INTERNAL_DEPENDENCY",
+  "PUBLIC_FACADE",
+  "READ_MODEL",
+]);
+export const moduleBoundaryRuleSchema = z
+  .object({
+    accessType: moduleBoundaryAccessTypeSchema,
+    allowedDependencyKeys: z.array(moduleKeySchema).refine(uniqueStrings, {
+      message: "Allowed dependency tidak boleh duplikat.",
+    }),
+    forbiddenRepositoryWriteKeys: z.array(moduleKeySchema).refine(uniqueStrings, {
+      message: "Forbidden repository write tidak boleh duplikat.",
+    }),
+    ownerModuleKey: moduleKeySchema,
+    publicFacadeKeys: z.array(capabilityKeySchema).refine(uniqueStrings, {
+      message: "Public facade key tidak boleh duplikat.",
+    }),
+    reason: z.string().trim().min(10).max(500),
+  })
+  .strict()
+  .refine((value) => !value.allowedDependencyKeys.includes(value.ownerModuleKey), {
+    message: "Owner module tidak perlu menjadi dependency dirinya sendiri.",
+    path: ["allowedDependencyKeys"],
+  })
+  .refine((value) => !value.forbiddenRepositoryWriteKeys.includes(value.ownerModuleKey), {
+    message: "Owner module boleh menulis repository miliknya sendiri.",
+    path: ["forbiddenRepositoryWriteKeys"],
+  });
+
 export const roleSchema = organizationRecordTimestampsSchema.extend({
   id: z.uuid(),
   tenantId: z.uuid(),
@@ -1341,6 +1372,8 @@ export type PublicQrResolution = z.infer<typeof publicQrResolutionSchema>;
 export type PublicQrResolutionStatus = z.infer<typeof publicQrResolutionStatusSchema>;
 export type QrTokenStatus = z.infer<typeof qrTokenStatusSchema>;
 export type TableQrTokenRecord = z.infer<typeof tableQrTokenRecordSchema>;
+export type ModuleBoundaryAccessType = z.infer<typeof moduleBoundaryAccessTypeSchema>;
+export type ModuleBoundaryRule = z.infer<typeof moduleBoundaryRuleSchema>;
 export type InboxConsumerReceipt = z.infer<typeof inboxConsumerReceiptSchema>;
 export type InboxConsumerStatus = z.infer<typeof inboxConsumerStatusSchema>;
 export type LimitDimensionKey = z.infer<typeof limitDimensionKeySchema>;
@@ -1457,6 +1490,7 @@ export const commonOpenApiSchemas = {
   SupportAccessGrant: toOpenApiSchema(supportAccessGrantSchema),
   PublicQrResolution: toOpenApiSchema(publicQrResolutionSchema),
   TableQrTokenRecord: toOpenApiSchema(tableQrTokenRecordSchema),
+  ModuleBoundaryRule: toOpenApiSchema(moduleBoundaryRuleSchema),
   InboxConsumerReceipt: toOpenApiSchema(inboxConsumerReceiptSchema),
   EffectiveLimit: toOpenApiSchema(effectiveLimitSchema),
   LimitErrorDetails: toOpenApiSchema(limitErrorDetailsSchema),
