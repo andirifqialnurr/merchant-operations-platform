@@ -116,7 +116,7 @@ describe("CustomerOrderSurface", () => {
     await user.click(screen.getByRole("button", { name: "Hapus Kopi susu signature" }));
     expect(onRemoveCartItem).toHaveBeenCalledWith("cart-safe-01");
 
-    await user.click(screen.getByRole("button", { name: /Makanan\s*1 produk/ }));
+    await user.click(screen.getByRole("button", { name: /Makanan\s*1/ }));
     expect(onSelectCategory).toHaveBeenCalledWith("food");
 
     await user.click(screen.getByRole("button", { name: "Kirim pesanan" }));

@@ -251,6 +251,7 @@ export function CustomerOrderSurface(props: CustomerOrderSurfaceProps) {
         <section aria-label="Produk customer" className="ui-customer-order-products">
           <CategoryRail
             activeId={activeCategoryId}
+            ariaLabel="Kategori produk"
             categories={categories}
             onSelect={(id) => onSelectCategory?.(id)}
             orientation="horizontal"
@@ -261,7 +262,14 @@ export function CustomerOrderSurface(props: CustomerOrderSurfaceProps) {
               {visibleProducts.map((product) => {
                 const productTileProps = {
                   ...(product.availability !== undefined
-                    ? { availability: product.availability }
+                    ? {
+                        availability: product.availability,
+                        ...(product.availability === "sold-out"
+                          ? { availabilityLabel: "Habis" }
+                          : product.availability === "unavailable"
+                            ? { availabilityLabel: "Belum tersedia" }
+                            : {}),
+                      }
                     : {}),
                   ...(product.description !== undefined
                     ? { description: product.description }
