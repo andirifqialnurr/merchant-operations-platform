@@ -208,3 +208,33 @@ test("keeps POS shifts tenant-scoped with one open shift per cashier and exact c
   );
   assert.match(posShiftMigration, /"amount_minor" > 0/);
 });
+
+test("keeps orders tenant-scoped with unique outlet numbers and exact line totals", () => {
+  const orderMigration = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261003090000_order_intake/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(schema, /model Order \{[\s\S]*@@map\("order_orders"\)/);
+  assert.match(
+    schema,
+    /order\s+Order\s+@relation\(fields: \[tenantId, orderId\], references: \[tenantId, id\]/,
+  );
+  assert.match(
+    orderMigration,
+    /FOREIGN KEY \("tenant_id", "order_id"\) REFERENCES "order_orders"\("tenant_id", "id"\)/,
+  );
+  assert.match(
+    orderMigration,
+    /FOREIGN KEY \("tenant_id", "order_item_id"\) REFERENCES "order_order_items"\("tenant_id", "id"\)/,
+  );
+  assert.match(
+    orderMigration,
+    /FOREIGN KEY \("tenant_id", "product_id"\) REFERENCES "products"\("tenant_id", "id"\)/,
+  );
+  assert.match(orderMigration, /ON "order_orders"\("tenant_id", "outlet_id", "order_number"\)/);
+  assert.match(orderMigration, /ON "order_orders"\("tenant_id", "outlet_id", "idempotency_key"\)/);
+  assert.match(orderMigration, /"line_total_minor" = "unit_price_minor" \* "quantity"/);
+});
