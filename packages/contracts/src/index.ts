@@ -873,13 +873,10 @@ export const moduleInstallationSchema = z
     message: "Installation ACTIVE wajib memiliki activatedAt.",
     path: ["activatedAt"],
   })
-  .refine(
-    (value) => value.status !== "SETUP_REQUIRED" || value.setupRequiredReason !== null,
-    {
-      message: "Installation SETUP_REQUIRED wajib memiliki setupRequiredReason.",
-      path: ["setupRequiredReason"],
-    },
-  );
+  .refine((value) => value.status !== "SETUP_REQUIRED" || value.setupRequiredReason !== null, {
+    message: "Installation SETUP_REQUIRED wajib memiliki setupRequiredReason.",
+    path: ["setupRequiredReason"],
+  });
 
 export const integrationBindingStatusSchema = z.enum([
   "ACTIVE",
@@ -1382,9 +1379,7 @@ export type LimitErrorCode = z.infer<typeof limitErrorCodeSchema>;
 export type LimitErrorDetails = z.infer<typeof limitErrorDetailsSchema>;
 export type ModuleManifest = z.infer<typeof moduleManifestSchema>;
 export type ModuleTier = z.infer<typeof moduleTierSchema>;
-export type ModuleNavigationRegistration = z.infer<
-  typeof moduleNavigationRegistrationSchema
->;
+export type ModuleNavigationRegistration = z.infer<typeof moduleNavigationRegistrationSchema>;
 export type ModuleRouteRegistration = z.infer<typeof moduleRouteRegistrationSchema>;
 export type ModuleSettingRegistration = z.infer<typeof moduleSettingRegistrationSchema>;
 export type ModuleKey = z.infer<typeof moduleKeySchema>;

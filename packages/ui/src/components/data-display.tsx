@@ -250,9 +250,7 @@ export function Chart({
           categories,
           labels: { style: { colors: "var(--color-text-secondary)" } },
         },
-    yaxis: isDonut
-      ? undefined
-      : { labels: { style: { colors: "var(--color-text-secondary)" } } },
+    yaxis: isDonut ? undefined : { labels: { style: { colors: "var(--color-text-secondary)" } } },
   };
 
   return (
