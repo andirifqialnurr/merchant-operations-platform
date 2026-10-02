@@ -588,7 +588,7 @@ Pola bawaan Backoffice: klik baris tabel membuka `Sheet` detail di kanan, bukan 
 
 | Komponen | Aturan |
 |---|---|
-| `Panel` | Pengganti kartu: bagian dengan garis, tanpa bayangan, tanpa sarang |
+| `Panel` | Pengganti kartu: bagian dengan garis, tanpa bayangan, tanpa sarang. Sudah tersedia di `data-display` |
 | `DescriptionList` | Detail entitas; horizontal di Large, bertumpuk di Small; pasangan label–nilai tidak dijadikan kartu |
 | `MetricCard` | Judul, nilai, perubahan terhadap periode pembanding; tanpa ikon dekoratif |
 | `Avatar` | Inisial dua huruf dengan warna token |
