@@ -20,6 +20,7 @@
     "db:studio": "prisma studio",
     "db:validate": "prisma validate",
     "db:backup-drill": "tsx src/backup-restore-drill.ts",
+    "db:seed:menu": "node --env-file=../../.env --import tsx src/seed-cafe-menu.ts",
     "format:check": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint . --max-warnings=0",
     "test": "tsx --test src/*.spec.ts",
