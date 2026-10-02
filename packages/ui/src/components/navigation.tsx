@@ -8,6 +8,17 @@ import { AppIcon } from "./app-icon";
  * default into the id/en dictionaries.
  */
 export type NavItem = { href?: string; icon?: ReactNode; label: string; active?: boolean };
+/** Lets the app render its router link (e.g. next/link) instead of a plain anchor. */
+export type NavLinkRenderer = (
+  item: NavItem,
+  props: {
+    "aria-current": "page" | undefined;
+    children: ReactNode;
+    className: string | undefined;
+    href: string;
+    title: string | undefined;
+  },
+) => ReactNode;
 export type TabsVariant = "line" | "contained" | "vertical";
 export type TabsSize = "sm" | "md" | "lg";
 export function Sidebar({
@@ -15,30 +26,46 @@ export function Sidebar({
   items,
   label = "Navigasi utama",
   mobile = false,
+  onNavigate,
+  renderLink,
 }: {
   collapsed?: boolean;
   items: readonly NavItem[];
   /** Accessible name of the navigation landmark. */
   label?: string;
   mobile?: boolean;
+  /** Called after an item is activated, e.g. to close a mobile drawer. */
+  onNavigate?: () => void;
+  renderLink?: NavLinkRenderer;
 }) {
   return (
     <nav
       aria-label={label}
       className={`ui-sidebar ${collapsed ? "ui-sidebar--collapsed" : ""} ${mobile ? "ui-sidebar--mobile" : ""}`}
     >
-      {items.map((item) => (
-        <a
-          aria-current={item.active ? "page" : undefined}
-          className={item.active ? "is-active" : undefined}
-          href={item.href ?? "#"}
-          key={item.label}
-          title={collapsed ? item.label : undefined}
-        >
-          {item.icon}
-          <span>{item.label}</span>
-        </a>
-      ))}
+      {items.map((item) => {
+        const linkProps = {
+          "aria-current": item.active ? ("page" as const) : undefined,
+          children: (
+            <>
+              {item.icon ?? (
+                <span aria-hidden="true" className="ui-sidebar__initial">
+                  {item.label.slice(0, 1).toUpperCase()}
+                </span>
+              )}
+              <span className="ui-sidebar__label">{item.label}</span>
+            </>
+          ),
+          className: item.active ? "is-active" : undefined,
+          href: item.href ?? "#",
+          title: collapsed ? item.label : undefined,
+        };
+        return (
+          <span className="ui-sidebar__item" key={item.label} onClick={onNavigate}>
+            {renderLink ? renderLink(item, linkProps) : <a {...linkProps} />}
+          </span>
+        );
+      })}
     </nav>
   );
 }

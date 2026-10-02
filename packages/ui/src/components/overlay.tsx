@@ -44,12 +44,18 @@ export type SheetProps = {
   footer?: ReactNode;
   onOpenChange: (open: boolean) => void;
   open: boolean;
+  /** Edge the sheet slides from on wider screens. Navigation drawers use `start`. */
+  side?: "start" | "end";
   size?: SheetSize;
   title: string;
 };
 export type PopoverProps = {
+  /** Edge of the trigger the content aligns to. */
+  align?: "start" | "end";
   children: ReactNode;
   content: ReactNode;
+  /** Accessible name of the trigger when its content is not text. */
+  label?: string;
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
 };
@@ -240,6 +246,7 @@ export function Sheet({
   footer,
   onOpenChange,
   open,
+  side = "end",
   size = "md",
   title,
 }: SheetProps) {
@@ -249,7 +256,7 @@ export function Sheet({
       <section
         aria-labelledby={titleId}
         aria-modal="true"
-        className={`ui-sheet ui-sheet--${size}`}
+        className={`ui-sheet ui-sheet--${size} ui-sheet--${side}`}
         role="dialog"
       >
         <header>
@@ -269,9 +276,16 @@ export function Sheet({
     </Overlay>
   );
 }
-export function Popover({ children, content, onOpenChange, open }: PopoverProps) {
+export function Popover({
+  align = "start",
+  children,
+  content,
+  label,
+  onOpenChange,
+  open,
+}: PopoverProps) {
   const controlled = open !== undefined;
-  const rootRef = useRef<HTMLSpanElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const visible = controlled ? open : uncontrolledOpen;
   function toggle(next: boolean) {
@@ -280,16 +294,26 @@ export function Popover({ children, content, onOpenChange, open }: PopoverProps)
   }
   useDismiss(visible, rootRef, () => toggle(false));
   return (
-    <span className="ui-popover" ref={rootRef}>
-      <button aria-expanded={visible} onClick={() => toggle(!visible)} type="button">
+    <div className="ui-popover" ref={rootRef}>
+      <button
+        aria-expanded={visible}
+        aria-haspopup="dialog"
+        aria-label={label}
+        onClick={() => toggle(!visible)}
+        type="button"
+      >
         {children}
       </button>
       {visible ? (
-        <span className="ui-popover__content" role="dialog">
+        <div
+          aria-label={label}
+          className={`ui-popover__content ui-popover__content--${align}`}
+          role="dialog"
+        >
           {content}
-        </span>
+        </div>
       ) : null}
-    </span>
+    </div>
   );
 }
 export function DropdownMenu({ items, label, trigger }: DropdownMenuProps) {

@@ -7,6 +7,8 @@
   ],
   "exports": {
     "./app-icon": "./src/components/app-icon.tsx",
+    "./app-shell": "./src/components/app-shell.tsx",
+    "./page": "./src/components/page.tsx",
     "./button": "./src/components/button.tsx",
     "./icon-button": "./src/components/button.tsx",
     "./form-field": "./src/components/text-field.tsx",
@@ -63,6 +65,8 @@
     "./styles/primitives.css": "./src/styles/primitives.css",
     "./styles/tailwind-theme.css": "./src/styles/tailwind-theme.css",
     "./styles/tokens.css": "./src/styles/tokens.css",
+    "./styles/app-shell.css": "./src/styles/app-shell.css",
+    "./styles/page.css": "./src/styles/page.css",
     "./styles/button.css": "./src/styles/button.css",
     "./styles/text-field.css": "./src/styles/text-field.css",
     "./styles/selection-control.css": "./src/styles/selection-control.css",

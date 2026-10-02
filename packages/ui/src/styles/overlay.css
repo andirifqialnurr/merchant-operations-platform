@@ -122,6 +122,12 @@
 .ui-sheet__body {
   padding-block-start: var(--space-5);
 }
+.ui-sheet--start {
+  border-inline-end: 1px solid var(--color-border-default);
+  border-inline-start: 0;
+  inset-inline-end: auto;
+  inset-inline-start: 0;
+}
 .ui-sheet--sm {
   --ui-sheet-width: 22.5rem;
 }
@@ -168,6 +174,10 @@
   inset-block-start: calc(100% + var(--space-1));
   inset-inline-start: 0;
   padding: var(--space-3);
+}
+.ui-popover__content--end {
+  inset-inline-end: 0;
+  inset-inline-start: auto;
 }
 .ui-dropdown {
   inset-block-start: calc(100% + var(--space-1));
@@ -262,5 +272,16 @@
   .ui-dialog footer .ui-button,
   .ui-sheet footer .ui-button {
     inline-size: 100%;
+  }
+}
+/* A start-side sheet stays a side drawer on small screens (navigation). */
+@media (max-width: 40rem) {
+  .ui-sheet--start {
+    border: 0;
+    border-inline-end: 1px solid var(--color-border-default);
+    border-radius: 0;
+    inset-block-start: 0;
+    inline-size: min(88%, var(--ui-sheet-width));
+    max-block-size: none;
   }
 }
