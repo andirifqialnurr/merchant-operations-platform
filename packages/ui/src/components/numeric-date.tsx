@@ -1,9 +1,21 @@
 "use client";
 
-import { type ChangeEvent, type InputHTMLAttributes, useId, useMemo, useState } from "react";
+import {
+  type ChangeEvent,
+  type InputHTMLAttributes,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { AppIcon } from "./app-icon";
 
+/*
+ * Label props default to Indonesian until the i18n checkpoint moves every
+ * default into the id/en dictionaries. `locale` drives all Intl formatting.
+ */
 export type NumericSize = "sm" | "md" | "lg";
 type NumericProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -16,23 +28,34 @@ type NumericProps = Omit<
   value?: string | undefined;
 };
 export type MoneyInputProps = Omit<NumericProps, "allowDecimal" | "onValueChange" | "value"> & {
+  locale?: string;
   onValueChange?: (value: number | undefined) => void;
   value?: number;
 };
-export type DatePickerProps = {
+type CalendarLabels = {
+  nextMonthLabel?: string;
+  previousMonthLabel?: string;
+};
+export type DatePickerProps = CalendarLabels & {
   disabled?: boolean;
   error?: string;
   label: string;
+  locale?: string;
   onValueChange?: (value: string | undefined) => void;
   placeholder?: string;
   value?: string | undefined;
 };
-export type DateRangePickerProps = {
+export type DateRangePickerProps = CalendarLabels & {
   disabled?: boolean;
   end?: string | undefined;
+  endLabel?: string;
+  endPlaceholder?: string;
   label: string;
+  locale?: string;
   onValueChange?: (range: { start?: string | undefined; end?: string | undefined }) => void;
   start?: string | undefined;
+  startLabel?: string;
+  startPlaceholder?: string;
 };
 export type MonthPickerProps = {
   disabled?: boolean;
@@ -43,20 +66,38 @@ export type MonthPickerProps = {
 export type TimeInputProps = {
   disabled?: boolean;
   error?: string;
+  /** Message shown when the typed value is not a valid 24-hour time. */
+  formatError?: string;
   label: string;
   onValueChange?: (value: string | undefined) => void;
   value?: string;
 };
-const idFormatter = new Intl.NumberFormat("id-ID");
+
+const DEFAULT_LOCALE = "id-ID";
+
 function classes(...values: Array<string | false | undefined>) {
   return values.filter(Boolean).join(" ");
 }
-function formatDate(value?: string) {
-  return value
-    ? new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "long", year: "numeric" }).format(
-        new Date(`${value}T00:00:00`),
-      )
-    : "Pilih tanggal";
+/** Local calendar date as YYYY-MM-DD, without the timezone shift of toISOString(). */
+function toDateValue(date: Date) {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+function fromDateValue(value: string) {
+  return new Date(`${value}T00:00:00`);
+}
+function formatDate(value: string, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(fromDateValue(value));
+}
+function weekdayNames(locale: string) {
+  const formatter = new Intl.DateTimeFormat(locale, { weekday: "short" });
+  // 4 January 1970 was a Sunday.
+  return Array.from({ length: 7 }, (_, index) => formatter.format(new Date(1970, 0, 4 + index)));
 }
 
 export function NumericInput({
@@ -93,21 +134,23 @@ export function NumericInput({
 export function MoneyInput({
   className,
   invalid = false,
+  locale = DEFAULT_LOCALE,
   onValueChange,
   size = "md",
   value,
   ...props
 }: MoneyInputProps) {
-  const display = value === undefined ? "" : `Rp${idFormatter.format(value)}`;
+  const formatter = useMemo(() => new Intl.NumberFormat(locale), [locale]);
+  const display = value === undefined ? "" : `Rp${formatter.format(value)}`;
   return (
     <NumericInput
+      placeholder="Rp0"
       {...props}
-      className={className}
+      className={classes("ui-numeric-input--money", className)}
       invalid={invalid}
       onValueChange={(next) =>
         onValueChange?.(next ? Number(next.replace(/[^0-9]/g, "")) : undefined)
       }
-      placeholder="Rp0"
       size={size}
       value={display}
     />
@@ -115,57 +158,65 @@ export function MoneyInput({
 }
 
 function Calendar({
+  locale,
+  nextMonthLabel,
   onSelect,
+  previousMonthLabel,
   value,
 }: {
+  locale: string;
+  nextMonthLabel: string;
   onSelect: (value: string) => void;
+  previousMonthLabel: string;
   value?: string | undefined;
 }) {
-  const [month, setMonth] = useState(() => (value ? new Date(`${value}T00:00:00`) : new Date()));
+  const [month, setMonth] = useState(() => (value ? fromDateValue(value) : new Date()));
+  const today = toDateValue(new Date());
   const days = useMemo(() => {
     const count = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
     return Array.from({ length: count }, (_, index) =>
-      new Date(month.getFullYear(), month.getMonth(), index + 1).toISOString().slice(0, 10),
+      toDateValue(new Date(month.getFullYear(), month.getMonth(), index + 1)),
     );
   }, [month]);
+  const firstWeekday = new Date(month.getFullYear(), month.getMonth(), 1).getDay();
+  const weekdays = useMemo(() => weekdayNames(locale), [locale]);
   return (
     <div className="ui-calendar" role="dialog">
       <header>
         <button
-          aria-label="Bulan sebelumnya"
+          aria-label={previousMonthLabel}
           onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}
           type="button"
         >
           <AppIcon icon={ChevronLeft} size="sm" />
         </button>
         <strong>
-          {new Intl.DateTimeFormat("id-ID", { month: "long", year: "numeric" }).format(month)}
+          {new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(month)}
         </strong>
         <button
-          aria-label="Bulan berikutnya"
+          aria-label={nextMonthLabel}
           onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}
           type="button"
         >
           <AppIcon icon={ChevronRight} size="sm" />
         </button>
       </header>
-      <div className="ui-calendar__week">
-        {["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"].map((day) => (
+      <div aria-hidden="true" className="ui-calendar__week">
+        {weekdays.map((day) => (
           <span key={day}>{day}</span>
         ))}
       </div>
-      <div
-        className="ui-calendar__days"
-        style={{ gridColumnStart: new Date(month.getFullYear(), month.getMonth(), 1).getDay() + 1 }}
-      >
-        {days.map((day) => (
+      <div className="ui-calendar__days">
+        {days.map((day, index) => (
           <button
+            aria-current={day === today ? "date" : undefined}
             aria-pressed={day === value}
             key={day}
             onClick={() => onSelect(day)}
+            style={index === 0 ? { gridColumnStart: firstWeekday + 1 } : undefined}
             type="button"
           >
-            {new Date(`${day}T00:00:00`).getDate()}
+            {index + 1}
           </button>
         ))}
       </div>
@@ -177,14 +228,39 @@ export function DatePicker({
   disabled = false,
   error,
   label,
+  locale = DEFAULT_LOCALE,
+  nextMonthLabel = "Bulan berikutnya",
   onValueChange,
-  placeholder,
+  placeholder = "Pilih tanggal",
+  previousMonthLabel = "Bulan sebelumnya",
   value,
 }: DatePickerProps) {
   const id = useId();
+  const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    function onPointerDown(event: PointerEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
   return (
-    <div aria-label={label} className="ui-date-control">
+    <div
+      aria-label={label}
+      className={classes("ui-date-control", error && "ui-date-control--invalid")}
+      ref={rootRef}
+    >
       <button
         aria-controls={id}
         aria-expanded={open}
@@ -194,15 +270,20 @@ export function DatePicker({
         type="button"
       >
         <AppIcon icon={CalendarDays} size="sm" />
-        <span>{value ? formatDate(value) : (placeholder ?? "Pilih tanggal")}</span>
+        <span className={value ? undefined : "ui-date-control__placeholder"}>
+          {value ? formatDate(value, locale) : placeholder}
+        </span>
       </button>
       {open ? (
         <div id={id}>
           <Calendar
+            locale={locale}
+            nextMonthLabel={nextMonthLabel}
             onSelect={(next) => {
               onValueChange?.(next);
               setOpen(false);
             }}
+            previousMonthLabel={previousMonthLabel}
             value={value}
           />
         </div>
@@ -214,24 +295,39 @@ export function DatePicker({
 export function DateRangePicker({
   disabled = false,
   end,
+  endLabel,
+  endPlaceholder = "Tanggal selesai",
   label,
+  locale = DEFAULT_LOCALE,
+  nextMonthLabel,
   onValueChange,
+  previousMonthLabel,
   start,
+  startLabel,
+  startPlaceholder = "Tanggal mulai",
 }: DateRangePickerProps) {
+  const calendarLabels = {
+    ...(nextMonthLabel ? { nextMonthLabel } : {}),
+    ...(previousMonthLabel ? { previousMonthLabel } : {}),
+  };
   return (
     <div className="ui-date-range">
       <DatePicker
+        {...calendarLabels}
         disabled={disabled}
-        label={`${label} mulai`}
+        label={startLabel ?? `${label} mulai`}
+        locale={locale}
         onValueChange={(next) => onValueChange?.({ start: next, end })}
-        placeholder="Tanggal mulai"
+        placeholder={startPlaceholder}
         value={start}
       />
       <DatePicker
+        {...calendarLabels}
         disabled={disabled}
-        label={`${label} selesai`}
+        label={endLabel ?? `${label} selesai`}
+        locale={locale}
         onValueChange={(next) => onValueChange?.({ start, end: next })}
-        placeholder="Tanggal selesai"
+        placeholder={endPlaceholder}
         value={end}
       />
     </div>
@@ -258,6 +354,7 @@ export function MonthPicker({ disabled = false, label, onValueChange, value }: M
 export function TimeInput({
   disabled = false,
   error,
+  formatError = "Gunakan format 24 jam, misalnya 18:30.",
   label,
   onValueChange,
   value = "",
@@ -268,7 +365,7 @@ export function TimeInput({
     <label className="ui-time-input">
       <span>{label}</span>
       <input
-        aria-invalid={Boolean(time) && !valid}
+        aria-invalid={Boolean(error) || (Boolean(time) && !valid)}
         disabled={disabled}
         inputMode="numeric"
         maxLength={5}
@@ -280,9 +377,7 @@ export function TimeInput({
         placeholder="00:00"
         value={time}
       />
-      {error || (time && !valid) ? (
-        <small role="alert">{error ?? "Gunakan format 24 jam, misalnya 18:30."}</small>
-      ) : null}
+      {error || (time && !valid) ? <small role="alert">{error ?? formatError}</small> : null}
     </label>
   );
 }

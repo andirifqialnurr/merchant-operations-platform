@@ -7,39 +7,71 @@
   border-radius: var(--foundation-radius-sm);
   color: var(--color-text-primary);
   font: inherit;
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
   min-block-size: var(--control-height-md);
   padding: 0 var(--space-3);
+  transition:
+    border-color var(--motion-duration-fast) var(--motion-easing-enter),
+    box-shadow var(--motion-duration-fast) var(--motion-easing-enter);
 }
 .ui-numeric-input {
   inline-size: 100%;
 }
 .ui-numeric-input--sm {
   min-block-size: var(--control-height-sm);
-  font-size: var(--text-caption);
+  font-size: var(--text-body-sm);
+  padding: 0 calc(var(--space-2) + var(--space-1) / 2);
 }
 .ui-numeric-input--lg {
   min-block-size: var(--control-height-lg);
-  font-size: var(--text-body);
+  font-size: var(--text-body-lg);
+}
+.ui-numeric-input::placeholder,
+.ui-month-picker input::placeholder,
+.ui-time-input input::placeholder,
+.ui-date-control__placeholder {
+  color: var(--color-text-muted);
+}
+.ui-numeric-input:hover:not(:disabled),
+.ui-date-control__trigger:hover:not(:disabled),
+.ui-month-picker input:hover:not(:disabled),
+.ui-time-input input:hover:not(:disabled) {
+  border-color: var(--color-border-strong);
 }
 .ui-numeric-input:focus-visible,
 .ui-date-control__trigger:focus-visible,
+.ui-date-control__trigger[aria-expanded="true"],
 .ui-month-picker input:focus-visible,
-.ui-time-input input:focus-visible,
-.ui-calendar button:focus-visible {
-  border-color: var(--color-action-primary);
-  box-shadow: 0 0 0 2px var(--color-focus-ring);
+.ui-time-input input:focus-visible {
+  border-color: var(--color-focus-ring);
+  box-shadow: 0 0 0 1px var(--color-focus-ring);
   outline: 0;
 }
 .ui-numeric-input--invalid,
 .ui-numeric-input[aria-invalid="true"],
-.ui-time-input input[aria-invalid="true"] {
+.ui-time-input input[aria-invalid="true"],
+.ui-date-control--invalid .ui-date-control__trigger {
   border-color: var(--color-status-danger-text);
+}
+.ui-numeric-input[aria-invalid="true"]:focus-visible,
+.ui-time-input input[aria-invalid="true"]:focus-visible {
+  box-shadow: 0 0 0 1px var(--color-status-danger-text);
+}
+.ui-numeric-input:disabled,
+.ui-date-control__trigger:disabled,
+.ui-month-picker input:disabled,
+.ui-time-input input:disabled {
+  background: var(--color-bg-surface-subtle);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
 }
 .ui-date-control,
 .ui-month-picker,
 .ui-time-input {
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-1-5);
 }
 .ui-date-control__trigger {
   align-items: center;
@@ -47,18 +79,30 @@
   display: flex;
   gap: var(--space-2);
   justify-content: flex-start;
+  text-align: left;
+}
+.ui-date-control__trigger > svg {
+  color: var(--color-text-secondary);
+  flex: 0 0 auto;
 }
 .ui-date-control > div {
   position: relative;
+}
+.ui-date-control > p,
+.ui-time-input small {
+  color: var(--color-status-danger-text);
+  font-size: var(--text-body-sm);
+  margin: 0;
 }
 .ui-calendar {
   background: var(--color-bg-surface-raised);
   border: 1px solid var(--color-border-default);
   border-radius: var(--foundation-radius-md);
-  box-shadow: var(--foundation-shadow-lg);
+  box-shadow: var(--foundation-shadow-md);
   display: grid;
   gap: var(--space-2);
-  margin-top: var(--space-2);
+  inline-size: max-content;
+  margin-top: var(--space-1);
   padding: var(--space-3);
   position: absolute;
   z-index: 20;
@@ -66,32 +110,60 @@
 .ui-calendar header {
   align-items: center;
   display: flex;
+  font-size: var(--text-label);
   justify-content: space-between;
+}
+.ui-calendar header strong {
+  font-weight: 600;
 }
 .ui-calendar header button,
 .ui-calendar__days button {
+  align-items: center;
   background: transparent;
   border: 0;
   border-radius: var(--foundation-radius-xs);
   color: var(--color-text-primary);
   cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: var(--text-body-sm);
+  font-variant-numeric: tabular-nums;
+  justify-content: center;
   min-block-size: var(--control-height-sm);
+  min-inline-size: var(--control-height-sm);
+}
+.ui-calendar header button {
+  color: var(--color-text-secondary);
+}
+.ui-calendar button:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
 }
 .ui-calendar__week,
 .ui-calendar__days {
   display: grid;
-  gap: var(--space-1);
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-0-5);
+  grid-template-columns: repeat(7, var(--control-height-sm));
   text-align: center;
 }
 .ui-calendar__week {
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   font-size: var(--text-caption);
 }
-.ui-calendar__days button:hover,
-.ui-calendar__days button[aria-pressed="true"] {
+.ui-calendar header button:hover,
+.ui-calendar__days button:hover {
+  background: var(--color-bg-surface-subtle);
+  color: var(--color-text-primary);
+}
+.ui-calendar__days button[aria-current="date"] {
+  box-shadow: inset 0 0 0 1px var(--color-border-control);
+}
+.ui-calendar__days button[aria-pressed="true"],
+.ui-calendar__days button[aria-pressed="true"]:hover {
   background: var(--color-action-primary);
+  box-shadow: none;
   color: var(--color-action-on-primary);
+  font-weight: 500;
 }
 .ui-date-range {
   display: grid;
@@ -104,15 +176,16 @@
   font-size: var(--text-label);
   font-weight: 500;
 }
-.ui-time-input small {
-  color: var(--color-status-danger-text);
-  font-size: var(--text-body-sm);
-}
 @media (max-width: 40rem) {
   .ui-date-range {
     grid-template-columns: minmax(0, 1fr);
   }
-  .ui-calendar {
-    inset-inline: 0;
+  .ui-calendar__week,
+  .ui-calendar__days {
+    grid-template-columns: repeat(7, minmax(var(--control-height-md), 1fr));
+  }
+  .ui-calendar header button,
+  .ui-calendar__days button {
+    min-block-size: var(--control-height-md);
   }
 }
