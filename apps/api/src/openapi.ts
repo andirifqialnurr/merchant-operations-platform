@@ -1,6 +1,7 @@
 import {
   API_HEADERS,
   commonOpenApiSchemas,
+  posOpenApiSchemas,
   PLATFORM_PERMISSIONS,
   platformRequestHeadersSchema,
 } from "@merchant/contracts";
@@ -116,6 +117,7 @@ export function createOpenApiDocument(app: INestApplication) {
     schemas: {
       ...document.components?.schemas,
       ...(commonOpenApiSchemas as OpenApiSchemas),
+      ...(posOpenApiSchemas as OpenApiSchemas),
     },
   };
 

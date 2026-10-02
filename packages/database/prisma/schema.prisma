@@ -64,18 +64,31 @@ enum ModifierSelectionType {
   MULTIPLE
 }
 
+enum RegisterSessionStatus {
+  OPEN
+  CLOSED
+}
+
+enum CashMovementDirection {
+  IN
+  OUT
+}
+
 model User {
-  id                String             @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  email             String             @unique @db.VarChar(254)
-  passwordHash      String             @map("password_hash") @db.VarChar(255)
-  displayName       String             @map("display_name") @db.VarChar(160)
-  status            UserStatus         @default(ACTIVE)
-  passwordChangedAt DateTime           @default(now()) @map("password_changed_at") @db.Timestamptz(6)
-  lastLoginAt       DateTime?          @map("last_login_at") @db.Timestamptz(6)
-  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
-  loginSessions     LoginSession[]
-  tenantMemberships TenantMembership[]
+  id                     String               @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  email                  String               @unique @db.VarChar(254)
+  passwordHash           String               @map("password_hash") @db.VarChar(255)
+  displayName            String               @map("display_name") @db.VarChar(160)
+  status                 UserStatus           @default(ACTIVE)
+  passwordChangedAt      DateTime             @default(now()) @map("password_changed_at") @db.Timestamptz(6)
+  lastLoginAt            DateTime?            @map("last_login_at") @db.Timestamptz(6)
+  createdAt              DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+  loginSessions          LoginSession[]
+  tenantMemberships      TenantMembership[]
+  openedRegisterSessions PosRegisterSession[] @relation("RegisterSessionOpenedBy")
+  closedRegisterSessions PosRegisterSession[] @relation("RegisterSessionClosedBy")
+  cashMovements          PosCashMovement[]
 
   @@map("users")
 }
@@ -155,6 +168,8 @@ model Tenant {
   catalogProductModifierGroups CatalogProductModifierGroup[]
   catalogProductImages         CatalogProductImage[]
   catalogOutletProducts        CatalogOutletProduct[]
+  posRegisterSessions          PosRegisterSession[]
+  posCashMovements             PosCashMovement[]
 
   @@map("tenants")
 }
@@ -177,22 +192,24 @@ model Brand {
 }
 
 model Outlet {
-  id              String                 @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  tenantId        String                 @map("tenant_id") @db.Uuid
-  brandId         String                 @map("brand_id") @db.Uuid
-  code            String                 @db.VarChar(40)
-  name            String                 @db.VarChar(160)
-  timezone        String                 @default("Asia/Jakarta") @db.VarChar(64)
-  status          OrganizationUnitStatus @default(ACTIVE)
-  createdAt       DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
-  tenant          Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  brand           Brand                  @relation(fields: [tenantId, brandId], references: [tenantId, id], onDelete: Restrict)
-  auditLogs       AuditLog[]
-  idempotencyKeys IdempotencyKey[]
-  outboxEvents    OutboxEvent[]
-  assignments     OutletAssignment[]
-  catalogProducts CatalogOutletProduct[]
+  id               String                 @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId         String                 @map("tenant_id") @db.Uuid
+  brandId          String                 @map("brand_id") @db.Uuid
+  code             String                 @db.VarChar(40)
+  name             String                 @db.VarChar(160)
+  timezone         String                 @default("Asia/Jakarta") @db.VarChar(64)
+  status           OrganizationUnitStatus @default(ACTIVE)
+  createdAt        DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant           Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  brand            Brand                  @relation(fields: [tenantId, brandId], references: [tenantId, id], onDelete: Restrict)
+  auditLogs        AuditLog[]
+  idempotencyKeys  IdempotencyKey[]
+  outboxEvents     OutboxEvent[]
+  assignments      OutletAssignment[]
+  catalogProducts  CatalogOutletProduct[]
+  registerSessions PosRegisterSession[]
+  cashMovements    PosCashMovement[]
 
   @@unique([tenantId, code])
   @@unique([tenantId, id])
@@ -602,4 +619,55 @@ model OutboxEvent {
   @@index([tenantId, outletId, occurredAt])
   @@index([processedAt, availableAt])
   @@map("outbox_events")
+}
+
+/// POS shift. One open session per cashier per outlet (partial unique index in SQL).
+model PosRegisterSession {
+  id                String                @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId          String                @map("tenant_id") @db.Uuid
+  outletId          String                @map("outlet_id") @db.Uuid
+  status            RegisterSessionStatus @default(OPEN)
+  openedBy          String                @map("opened_by") @db.Uuid
+  openedAt          DateTime              @default(now()) @map("opened_at") @db.Timestamptz(6)
+  openingCashMinor  BigInt                @map("opening_cash_minor") @db.BigInt
+  closedBy          String?               @map("closed_by") @db.Uuid
+  closedAt          DateTime?             @map("closed_at") @db.Timestamptz(6)
+  expectedCashMinor BigInt?               @map("expected_cash_minor") @db.BigInt
+  countedCashMinor  BigInt?               @map("counted_cash_minor") @db.BigInt
+  varianceMinor     BigInt?               @map("variance_minor") @db.BigInt
+  varianceReason    String?               @map("variance_reason") @db.VarChar(500)
+  createdAt         DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime              @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant            Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet            Outlet                @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
+  opener            User                  @relation("RegisterSessionOpenedBy", fields: [openedBy], references: [id], onDelete: Restrict)
+  closer            User?                 @relation("RegisterSessionClosedBy", fields: [closedBy], references: [id], onDelete: Restrict)
+  cashMovements     PosCashMovement[]
+
+  @@unique([tenantId, id])
+  @@index([tenantId, outletId, status, openedAt])
+  @@map("pos_register_sessions")
+}
+
+/// Cash put into or taken out of the drawer during a shift. Append-only.
+model PosCashMovement {
+  id                String                @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId          String                @map("tenant_id") @db.Uuid
+  outletId          String                @map("outlet_id") @db.Uuid
+  registerSessionId String                @map("register_session_id") @db.Uuid
+  direction         CashMovementDirection
+  amountMinor       BigInt                @map("amount_minor") @db.BigInt
+  reason            String                @db.VarChar(300)
+  actorId           String                @map("actor_id") @db.Uuid
+  idempotencyKey    String                @map("idempotency_key") @db.VarChar(255)
+  createdAt         DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  tenant            Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet            Outlet                @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
+  registerSession   PosRegisterSession    @relation(fields: [tenantId, registerSessionId], references: [tenantId, id], onDelete: Restrict)
+  actor             User                  @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, registerSessionId, idempotencyKey])
+  @@index([tenantId, registerSessionId, createdAt])
+  @@map("pos_cash_movements")
 }

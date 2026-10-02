@@ -179,3 +179,32 @@ test("keeps outlet catalog assignments scoped to both outlet and product tenant 
     /CONSTRAINT "outlet_products_price_override_minor_check" CHECK \([\s\S]*"price_override_minor" IS NULL OR "price_override_minor" >= 0/,
   );
 });
+
+test("keeps POS shifts tenant-scoped with one open shift per cashier and exact cash facts", () => {
+  const posShiftMigration = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261002120000_pos_register_sessions/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(schema, /model PosRegisterSession[\s\S]*@@map\("pos_register_sessions"\)/);
+  assert.match(schema, /model PosCashMovement[\s\S]*@@map\("pos_cash_movements"\)/);
+  assert.match(
+    posShiftMigration,
+    /FOREIGN KEY \("tenant_id", "outlet_id"\) REFERENCES "outlets"\("tenant_id", "id"\)/,
+  );
+  assert.match(
+    posShiftMigration,
+    /FOREIGN KEY \("tenant_id", "register_session_id"\) REFERENCES "pos_register_sessions"\("tenant_id", "id"\)/,
+  );
+  assert.match(
+    posShiftMigration,
+    /CREATE UNIQUE INDEX "pos_register_sessions_one_open_per_cashier_key"\s+ON "pos_register_sessions"\("tenant_id", "outlet_id", "opened_by"\)\s+WHERE "status" = 'OPEN'/,
+  );
+  assert.match(
+    posShiftMigration,
+    /"variance_minor" = "counted_cash_minor" - "expected_cash_minor"/,
+  );
+  assert.match(posShiftMigration, /"amount_minor" > 0/);
+});
