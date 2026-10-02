@@ -331,7 +331,7 @@ Aturan:
 
 `xs` dan `sm` tidak dipakai pada surface sentuh.
 
-**Radius** — `sm` 4px (badge, checkbox), `md` 6px (tombol, input), `lg` 8px (panel, tile, ticket), `xl` 12px (dialog, sheet), `full` (avatar, pil status).
+**Radius** — mengikuti token di kode: `xs` 4px (badge, checkbox), `sm` 6px (tombol, input), `md` 8px (panel, tile, ticket), `lg` 12px (dialog, sheet), `xl` 16px (hanya surface Customer), `full` (avatar, pil status).
 
 **Bayangan** — `none` untuk panel dan tabel; `sm` untuk elemen sticky; `md` untuk popover dan menu; `lg` untuk dialog dan sheet. Kartu tidak memiliki bayangan. Pada mode gelap, garis menggantikan bayangan.
 
@@ -424,7 +424,7 @@ Setiap komponen interaktif memiliki state: default, hover, focus-visible, presse
 | Variant | Fungsi | Tampilan |
 |---|---|---|
 | `primary` | Satu aksi utama | Isi tinta |
-| `secondary` | Aksi pendamping | Surface + garis |
+| `secondary` | Aksi pendamping | Surface + garis (`outline` adalah alias lama untuk variant ini) |
 | `ghost` | Toolbar, aksi baris | Transparan, hover `bg.subtle` |
 | `destructive` | Hapus, batalkan, suspend | Isi danger |
 | `link` | Navigasi dalam teks | Teks utama bergaris bawah |
@@ -450,7 +450,8 @@ Pesan error (hanya saat tidak valid) atau bantuan satu baris (hanya bila perlu)
 ```
 
 - Label selalu terlihat; placeholder bukan label.
-- Field wajib tidak diberi tanda; field opsional diberi keterangan `opsional` di label. Ini mengurangi noise karena sebagian besar field wajib.
+- Field wajib tidak diberi tanda; field opsional diberi keterangan `opsional` di label (`FormField optionalLabel`). Ini mengurangi noise karena sebagian besar field wajib.
+- Fokus input: garis berubah menjadi tinta dengan tambahan 1px, bukan cincin ber-offset, supaya form padat tetap tenang.
 - Error muncul di bawah kontrol dan terhubung melalui `aria-describedby`.
 - Form mempertahankan isian ketika validasi server gagal.
 - Tombol simpan tidak dinonaktifkan hanya karena form belum disentuh.
@@ -805,7 +806,7 @@ Font            : Geist Sans; Geist Mono terbatas
 Ikon            : Tabler Icons melalui AppIcon
 Chart           : ApexCharts melalui wrapper Chart
 Grid dasar      : 4px
-Radius bawaan   : 6px
+Radius bawaan   : 6px (token `sm`)
 Tinggi kontrol  : 36px Backoffice, 48px sentuh
 Responsive      : S 320–767 / M 768–1279 / L ≥1280
 Aturan halaman  : judul saja, satu aksi utama, satu fakta satu lokasi

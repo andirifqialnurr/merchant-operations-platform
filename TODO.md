@@ -77,7 +77,11 @@ Urutan fondasi UI mengikuti `docs/foundation/frontend.md` bagian 14; setiap buti
 - [ ] **UI Foundation 5 - Shell dan pattern:** `AppShell`, `ContextSwitcher`, `UserMenu`, `PageHeader`, `FilterBar`, `Chip`, `ModuleAccessState`, `UsageLimitState`.
 - [ ] **UI Foundation 6 - Route group dan guard:** `(auth)`, `(backoffice)`, `(pos)`, `(kds)`, `(customer)`, `(platform)`.
 - [ ] **UI Foundation 7 - Reslice Catalog:** pecah `catalog-backoffice.tsx` menjadi `features/catalog` sesuai pola halaman baru.
-- [ ] **UI Foundation 8 - Komponen dibenahi satu per satu:** satu komponen per checkpoint, urutan Button → Input/FormField → Select/Combobox → kontrol pilihan → Badge/Alert/Toast → overlay → navigasi → DataTable dan tampilan data → komponen domain. Atas permintaan user, pekerjaan ini boleh didahulukan sebelum UI Foundation 2-7.
+- [x] **Komponen 1 - Button/IconButton:** tinggi kontrol bawaan 36px, secondary bergaris (outline menjadi alias), ghost dan link netral, link selalu bergaris bawah, state tekan, disabled mengikuti bentuk variant, loading mempertahankan tampilan variant, ikon xl dibatasi 24px.
+- [x] **Komponen 2 - FormField/Input/Textarea:** penanda `optionalLabel` menggantikan `required`, label aksi cari/kata sandi menjadi props, fokus 1px tinta, read-only dibedakan dari disabled.
+- [x] **Komponen 3 - Checkbox/Radio/Switch/SegmentedControl/QuantityStepper:** thumb switch terlihat di mode gelap, state hover dan disabled, label tombol stepper menjadi props.
+- [ ] **Gate komponen 1-3:** user meninjau Storybook (`Primitives/Button`, `TextField`, `SelectionControl`) pada light dan dark; verifikasi otomatis (lint, typecheck ui/storybook, format, 205 test) lulus, visual belum ditinjau.
+- [ ] **UI Foundation 8 - Komponen berikutnya satu per satu:** satu komponen per checkpoint, urutan Select/Combobox → input angka/tanggal → Badge/Alert/Toast → overlay → navigasi → DataTable dan tampilan data → komponen domain. Atas permintaan user, pekerjaan ini boleh didahulukan sebelum UI Foundation 2-7.
 
 ### Backend delta yang harus diaudit sebelum UI reslicing
 

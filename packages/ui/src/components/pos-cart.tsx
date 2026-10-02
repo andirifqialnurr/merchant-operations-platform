@@ -129,7 +129,9 @@ export function CartItem({
           </span>
         ) : (
           <QuantityStepper
+            decreaseLabel={`Kurangi ${name}`}
             disabled={disabled || !onQuantityChange}
+            increaseLabel={`Tambah ${name}`}
             label={name}
             max={maxQuantity}
             min={1}

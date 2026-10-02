@@ -40,7 +40,13 @@ export const SizesAndInteraction: Story = {
         <div className="story-contract-grid" key={size}>
           <Checkbox label={`Checkbox ${size}`} size={size} />
           <Switch label={`Switch ${size}`} size={size} />
-          <QuantityStepper defaultValue={1} label={`Jumlah ${size}`} size={size} />
+          <QuantityStepper
+            decreaseLabel={`Kurangi jumlah ${size}`}
+            defaultValue={1}
+            increaseLabel={`Tambah jumlah ${size}`}
+            label={`Jumlah ${size}`}
+            size={size}
+          />
         </div>
       ))}
       <SegmentedControl

@@ -298,7 +298,9 @@ export function ProductModifierPicker({
             <span>Maksimal {maxQuantity} per item</span>
           </div>
           <QuantityStepper
+            decreaseLabel={`Kurangi ${productName}`}
             disabled={pickerDisabled}
+            increaseLabel={`Tambah ${productName}`}
             label={productName}
             max={maxQuantity}
             min={1}

@@ -34,15 +34,22 @@ describe("selection controls", () => {
           ]}
           label="Tampilan menu"
         />
-        <QuantityStepper defaultValue={1} label="Jumlah produk" max={2} min={1} />
+        <QuantityStepper
+          decreaseLabel="Kurangi jumlah produk"
+          defaultValue={1}
+          increaseLabel="Tambah jumlah produk"
+          label="Jumlah produk"
+          max={2}
+          min={1}
+        />
       </>,
     );
     const grid = screen.getByRole("radio", { name: "Grid" });
     await user.click(grid);
     await user.keyboard("{ArrowRight}");
     expect(screen.getByRole("radio", { name: "Daftar" })).toHaveAttribute("aria-checked", "true");
-    expect(screen.getByRole("button", { name: "Kurangi Jumlah produk" })).toBeDisabled();
-    await user.click(screen.getByRole("button", { name: "Tambah Jumlah produk" }));
+    expect(screen.getByRole("button", { name: "Kurangi jumlah produk" })).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Tambah jumlah produk" }));
     expect(screen.getByRole("status")).toHaveTextContent("2");
   });
 
