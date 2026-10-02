@@ -2,21 +2,29 @@
 import type { ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { AppIcon } from "./app-icon";
+
+/*
+ * Label props default to Indonesian until the i18n checkpoint moves every
+ * default into the id/en dictionaries.
+ */
 export type NavItem = { href?: string; icon?: ReactNode; label: string; active?: boolean };
 export type TabsVariant = "line" | "contained" | "vertical";
 export type TabsSize = "sm" | "md" | "lg";
 export function Sidebar({
   collapsed = false,
   items,
+  label = "Navigasi utama",
   mobile = false,
 }: {
   collapsed?: boolean;
   items: readonly NavItem[];
+  /** Accessible name of the navigation landmark. */
+  label?: string;
   mobile?: boolean;
 }) {
   return (
     <nav
-      aria-label="Navigasi utama"
+      aria-label={label}
       className={`ui-sidebar ${collapsed ? "ui-sidebar--collapsed" : ""} ${mobile ? "ui-sidebar--mobile" : ""}`}
     >
       {items.map((item) => (
@@ -25,6 +33,7 @@ export function Sidebar({
           className={item.active ? "is-active" : undefined}
           href={item.href ?? "#"}
           key={item.label}
+          title={collapsed ? item.label : undefined}
         >
           {item.icon}
           <span>{item.label}</span>
@@ -38,19 +47,42 @@ export function TopBar({ children }: { children: ReactNode }) {
 }
 export function Tabs({
   items,
+  label,
   size = "md",
   value,
   onValueChange,
   variant = "line",
 }: {
   items: readonly { label: string; value: string; disabled?: boolean }[];
+  /** Accessible name of the tab list. */
+  label?: string;
   size?: TabsSize;
   value: string;
   onValueChange: (value: string) => void;
   variant?: TabsVariant;
 }) {
+  const vertical = variant === "vertical";
+  const forward = vertical ? "ArrowDown" : "ArrowRight";
+  const backward = vertical ? "ArrowUp" : "ArrowLeft";
+  function move(index: number, direction: 1 | -1, target: HTMLElement) {
+    for (let offset = 1; offset <= items.length; offset += 1) {
+      const nextIndex = (index + direction * offset + items.length) % items.length;
+      const next = items[nextIndex];
+      if (next && !next.disabled) {
+        onValueChange(next.value);
+        const tabs = target.parentElement?.querySelectorAll<HTMLElement>('[role="tab"]');
+        tabs?.[nextIndex]?.focus();
+        return;
+      }
+    }
+  }
   return (
-    <div className={`ui-tabs ui-tabs--${variant} ui-tabs--${size}`} role="tablist">
+    <div
+      aria-label={label}
+      aria-orientation={vertical ? "vertical" : "horizontal"}
+      className={`ui-tabs ui-tabs--${variant} ui-tabs--${size}`}
+      role="tablist"
+    >
       {items.map((item, index) => (
         <button
           aria-selected={item.value === value}
@@ -58,16 +90,13 @@ export function Tabs({
           key={item.value}
           onClick={() => onValueChange(item.value)}
           onKeyDown={(event) => {
-            if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+            if (event.key === forward || event.key === backward) {
               event.preventDefault();
-              const next =
-                items[
-                  (index + (event.key === "ArrowRight" ? 1 : -1) + items.length) % items.length
-                ];
-              if (next && !next.disabled) onValueChange(next.value);
+              move(index, event.key === forward ? 1 : -1, event.currentTarget);
             }
           }}
           role="tab"
+          tabIndex={item.value === value ? 0 : -1}
           type="button"
         >
           {item.label}
@@ -76,12 +105,19 @@ export function Tabs({
     </div>
   );
 }
-export function Breadcrumb({ items }: { items: readonly { label: string; href?: string }[] }) {
+export function Breadcrumb({
+  items,
+  label = "Breadcrumb",
+}: {
+  items: readonly { label: string; href?: string }[];
+  label?: string;
+}) {
+  const visible = items.slice(-3);
   return (
-    <nav aria-label="Breadcrumb" className="ui-breadcrumb">
+    <nav aria-label={label} className="ui-breadcrumb">
       <ol>
-        {items.slice(-4).map((item, index) => {
-          const last = index === Math.min(items.length, 4) - 1;
+        {visible.map((item, index) => {
+          const last = index === visible.length - 1;
           return (
             <li key={item.label}>
               {last ? (
@@ -97,43 +133,52 @@ export function Breadcrumb({ items }: { items: readonly { label: string; href?: 
   );
 }
 export function Pagination({
+  formatRange = (start, end, total) => `${start}-${end} dari ${total}`,
+  label = "Pagination",
+  nextLabel = "Halaman berikutnya",
   page,
   onPageChange,
   pageSize = 25,
+  previousLabel = "Halaman sebelumnya",
   total,
 }: {
+  /** Builds the visible range text, e.g. "1-25 dari 240". */
+  formatRange?: (start: number, end: number, total: number) => string;
+  label?: string;
+  nextLabel?: string;
   page: number;
   onPageChange: (page: number) => void;
   pageSize?: number;
+  previousLabel?: string;
   total: number;
 }) {
   const pages = Math.max(1, Math.ceil(total / pageSize));
-  const start = (page - 1) * pageSize + 1;
+  const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = Math.min(total, page * pageSize);
   return (
-    <nav aria-label="Pagination" className="ui-pagination">
-      <span>
-        {start}-{end} dari {total}
-      </span>
-      <button
-        aria-label="Halaman sebelumnya"
-        disabled={page <= 1}
-        onClick={() => onPageChange(page - 1)}
-        type="button"
-      >
-        <AppIcon icon={ChevronLeft} size="sm" />
-      </button>
-      <span>
-        {page}/{pages}
-      </span>
-      <button
-        aria-label="Halaman berikutnya"
-        disabled={page >= pages}
-        onClick={() => onPageChange(page + 1)}
-        type="button"
-      >
-        <AppIcon icon={ChevronRight} size="sm" />
-      </button>
+    <nav aria-label={label} className="ui-pagination">
+      <span>{formatRange(start, end, total)}</span>
+      <div>
+        <button
+          aria-label={previousLabel}
+          disabled={page <= 1}
+          onClick={() => onPageChange(page - 1)}
+          type="button"
+        >
+          <AppIcon icon={ChevronLeft} size="sm" />
+        </button>
+        <span aria-hidden="true">
+          {page}/{pages}
+        </span>
+        <button
+          aria-label={nextLabel}
+          disabled={page >= pages}
+          onClick={() => onPageChange(page + 1)}
+          type="button"
+        >
+          <AppIcon icon={ChevronRight} size="sm" />
+        </button>
+      </div>
     </nav>
   );
 }
@@ -148,6 +193,7 @@ export function Stepper({
     <ol className="ui-stepper">
       {steps.map((step, index) => (
         <li
+          aria-current={index === current ? "step" : undefined}
           className={
             step.error
               ? "is-error"
