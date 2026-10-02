@@ -49,6 +49,7 @@ import {
   type UpdateCatalogProductImage,
   type UpdateCatalogProductModifierGroup,
   type UpdateCatalogProductVariant,
+  sellableMenuSchema,
 } from "@merchant/contracts";
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
@@ -65,6 +66,7 @@ import {
   type CatalogProductVariantRecord,
   type CatalogRepository,
 } from "./catalog.repository.js";
+import { buildSellableMenu } from "./sellable-menu.js";
 
 const notFound = (code: string, message: string) => new NotFoundException({ code, message });
 const conflict = (code: string, message: string) => new ConflictException({ code, message });
@@ -648,6 +650,18 @@ export class CatalogService {
       outletStatus: outlet.status,
       tenantId,
     });
+  }
+
+  /** The outlet's sellable menu; empty while the tenant or outlet is inactive. */
+  async getSellableMenu(tenantId: string, outletId: string) {
+    const tenant = await this.requireTenant(tenantId);
+    const outlet = await this.requireOutlet(tenantId, outletId);
+    const snapshot = await this.repository.getSnapshot(tenantId);
+    if (!snapshot) throw notFound("TENANT_NOT_FOUND", "Tenant tidak ditemukan.");
+    const open = tenant.status === "ACTIVE" && outlet.status === "ACTIVE";
+    return sellableMenuSchema.parse(
+      open ? buildSellableMenu(snapshot, outletId) : { categories: [], outletId, products: [] },
+    );
   }
 
   async getSnapshot(tenantId: string) {
