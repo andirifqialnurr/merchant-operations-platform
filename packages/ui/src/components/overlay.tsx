@@ -1,14 +1,29 @@
 "use client";
 
-import { type KeyboardEvent, type ReactNode, useEffect, useId, useRef, useState } from "react";
+import {
+  type KeyboardEvent,
+  type ReactNode,
+  type RefObject,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { AppIcon } from "./app-icon";
+import { Button } from "./button";
 
+/*
+ * Label props default to Indonesian until the i18n checkpoint moves every
+ * default into the id/en dictionaries.
+ */
 export type DialogSize = "xs" | "sm" | "md" | "lg" | "xl" | "full";
 export type SheetSize = "sm" | "md" | "lg";
 export type DialogProps = {
   children: ReactNode;
+  /** Accessible name of the close button. */
+  closeLabel?: string;
   description?: string;
   footer?: ReactNode;
   onOpenChange: (open: boolean) => void;
@@ -16,9 +31,16 @@ export type DialogProps = {
   size?: DialogSize;
   title: string;
 };
-export type AlertDialogProps = DialogProps & { confirmLabel: string; onConfirm: () => void };
+export type AlertDialogProps = Omit<DialogProps, "footer"> & {
+  cancelLabel?: string;
+  confirmLabel: string;
+  /** Destructive by default; set false for a neutral confirmation. */
+  destructive?: boolean;
+  onConfirm: () => void;
+};
 export type SheetProps = {
   children: ReactNode;
+  closeLabel?: string;
   footer?: ReactNode;
   onOpenChange: (open: boolean) => void;
   open: boolean;
@@ -50,6 +72,32 @@ function focusable(container: HTMLElement) {
       'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
     ),
   );
+}
+/** Closes a non-modal layer on outside press or Escape. */
+function useDismiss(
+  open: boolean,
+  rootRef: RefObject<HTMLElement | null>,
+  onDismiss: (reason: "escape" | "outside") => void,
+) {
+  const onDismissRef = useRef(onDismiss);
+  useEffect(() => {
+    onDismissRef.current = onDismiss;
+  });
+  useEffect(() => {
+    if (!open) return;
+    function onPointerDown(event: PointerEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) onDismissRef.current("outside");
+    }
+    function onKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.key === "Escape") onDismissRef.current("escape");
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open, rootRef]);
 }
 function Overlay({
   children,
@@ -106,7 +154,7 @@ function Overlay({
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div onKeyDown={trap} ref={panelRef}>
+      <div className="ui-overlay__panel" onKeyDown={trap} ref={panelRef}>
         {children}
       </div>
     </div>,
@@ -115,6 +163,7 @@ function Overlay({
 }
 export function Dialog({
   children,
+  closeLabel = "Tutup dialog",
   description,
   footer,
   onOpenChange,
@@ -137,7 +186,12 @@ export function Dialog({
             <h2 id={titleId}>{title}</h2>
             {description ? <p id={`${titleId}-description`}>{description}</p> : null}
           </div>
-          <button aria-label="Tutup dialog" onClick={() => onOpenChange(false)} type="button">
+          <button
+            aria-label={closeLabel}
+            className="ui-overlay__close"
+            onClick={() => onOpenChange(false)}
+            type="button"
+          >
             <AppIcon icon={X} size="sm" />
           </button>
         </header>
@@ -147,43 +201,65 @@ export function Dialog({
     </Overlay>
   );
 }
-export function AlertDialog({ confirmLabel, onConfirm, onOpenChange, ...props }: AlertDialogProps) {
+export function AlertDialog({
+  cancelLabel = "Batal",
+  confirmLabel,
+  destructive = true,
+  onConfirm,
+  onOpenChange,
+  size = "xs",
+  ...props
+}: AlertDialogProps) {
   return (
     <Dialog
       {...props}
       footer={
         <>
-          <button onClick={() => onOpenChange(false)} type="button">
-            Batal
-          </button>
-          <button
-            className="ui-overlay__destructive"
+          <Button onClick={() => onOpenChange(false)} variant="secondary">
+            {cancelLabel}
+          </Button>
+          <Button
             onClick={() => {
               onConfirm();
               onOpenChange(false);
             }}
-            type="button"
+            variant={destructive ? "destructive" : "primary"}
           >
             {confirmLabel}
-          </button>
+          </Button>
         </>
       }
       onOpenChange={onOpenChange}
+      size={size}
     />
   );
 }
-export function Sheet({ children, footer, onOpenChange, open, size = "md", title }: SheetProps) {
+export function Sheet({
+  children,
+  closeLabel = "Tutup panel",
+  footer,
+  onOpenChange,
+  open,
+  size = "md",
+  title,
+}: SheetProps) {
+  const titleId = useId();
   return (
     <Overlay onClose={() => onOpenChange(false)} open={open}>
       <section
+        aria-labelledby={titleId}
         aria-modal="true"
-        aria-label={title}
         className={`ui-sheet ui-sheet--${size}`}
         role="dialog"
       >
         <header>
-          <h2>{title}</h2>
-          <button aria-label="Tutup panel" onClick={() => onOpenChange(false)} type="button">
+          <h2 id={titleId}>{title}</h2>
+          <button
+            aria-label={closeLabel}
+            className="ui-overlay__close"
+            onClick={() => onOpenChange(false)}
+            type="button"
+          >
             <AppIcon icon={X} size="sm" />
           </button>
         </header>
@@ -195,14 +271,16 @@ export function Sheet({ children, footer, onOpenChange, open, size = "md", title
 }
 export function Popover({ children, content, onOpenChange, open }: PopoverProps) {
   const controlled = open !== undefined;
+  const rootRef = useRef<HTMLSpanElement>(null);
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const visible = controlled ? open : uncontrolledOpen;
   function toggle(next: boolean) {
     if (!controlled) setUncontrolledOpen(next);
     onOpenChange?.(next);
   }
+  useDismiss(visible, rootRef, () => toggle(false));
   return (
-    <span className="ui-popover">
+    <span className="ui-popover" ref={rootRef}>
       <button aria-expanded={visible} onClick={() => toggle(!visible)} type="button">
         {children}
       </button>
@@ -216,12 +294,39 @@ export function Popover({ children, content, onOpenChange, open }: PopoverProps)
 }
 export function DropdownMenu({ items, label, trigger }: DropdownMenuProps) {
   const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLSpanElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  useDismiss(open, rootRef, (reason) => {
+    setOpen(false);
+    if (reason === "escape") triggerRef.current?.focus();
+  });
+  function menuItems() {
+    return Array.from(
+      rootRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled)') ??
+        [],
+    );
+  }
+  function onKeyDown(event: KeyboardEvent<HTMLSpanElement>) {
+    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const targets = menuItems();
+    if (!targets.length) return;
+    const current = targets.indexOf(document.activeElement as HTMLButtonElement);
+    const next =
+      event.key === "Home"
+        ? 0
+        : event.key === "End"
+          ? targets.length - 1
+          : (current + (event.key === "ArrowDown" ? 1 : -1) + targets.length) % targets.length;
+    targets[next]?.focus();
+  }
   return (
-    <span className="ui-popover">
+    <span className="ui-popover" onKeyDown={onKeyDown} ref={rootRef}>
       <button
         aria-expanded={open}
         aria-haspopup="menu"
         onClick={() => setOpen((value) => !value)}
+        ref={triggerRef}
         type="button"
       >
         {trigger}
@@ -236,6 +341,7 @@ export function DropdownMenu({ items, label, trigger }: DropdownMenuProps) {
               onClick={() => {
                 item.onSelect();
                 setOpen(false);
+                triggerRef.current?.focus();
               }}
               role="menuitem"
               type="button"
@@ -249,10 +355,13 @@ export function DropdownMenu({ items, label, trigger }: DropdownMenuProps) {
   );
 }
 export function Tooltip({ children, content }: TooltipProps) {
+  const id = useId();
   return (
-    <span className="ui-tooltip" tabIndex={0}>
+    <span aria-describedby={id} className="ui-tooltip" tabIndex={0}>
       {children}
-      <span role="tooltip">{content}</span>
+      <span id={id} role="tooltip">
+        {content}
+      </span>
     </span>
   );
 }
