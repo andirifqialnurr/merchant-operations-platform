@@ -99,7 +99,7 @@ function Login({ onLoggedIn }: { onLoggedIn: (session: AuthSession) => Promise<v
           </Alert>
         ) : null}
         <form className="catalog-form" onSubmit={submit}>
-          <FormField htmlFor="login-email" label="Email" required>
+          <FormField htmlFor="login-email" label="Email">
             <Input
               autoComplete="email"
               id="login-email"
@@ -108,12 +108,14 @@ function Login({ onLoggedIn }: { onLoggedIn: (session: AuthSession) => Promise<v
               value={email}
             />
           </FormField>
-          <FormField htmlFor="login-password" label="Kata sandi" required>
+          <FormField htmlFor="login-password" label="Kata sandi">
             <Input
               autoComplete="current-password"
               id="login-password"
               onChange={(event) => setPassword(event.target.value)}
               value={password}
+              hidePasswordLabel="Sembunyikan kata sandi"
+              showPasswordLabel="Tampilkan kata sandi"
               variant="password"
             />
           </FormField>
@@ -194,7 +196,7 @@ function MasterCatalog({ busy, canManage, onMutate, snapshot, tenantId }: Catalo
               ).then(() => setCategory({ name: "", slug: "", order: "0" }));
             }}
           >
-            <FormField htmlFor="category-name" label="Nama kategori" required>
+            <FormField htmlFor="category-name" label="Nama kategori">
               <Input
                 id="category-name"
                 onChange={(event) => setCategory({ ...category, name: event.target.value })}
@@ -303,7 +305,7 @@ function MasterCatalog({ busy, canManage, onMutate, snapshot, tenantId }: Catalo
               options={categoryOptions}
               value={product.categoryId}
             />
-            <FormField htmlFor="product-name" label="Nama produk" required>
+            <FormField htmlFor="product-name" label="Nama produk">
               <Input
                 id="product-name"
                 onChange={(event) => setProduct({ ...product, name: event.target.value })}
@@ -314,7 +316,6 @@ function MasterCatalog({ busy, canManage, onMutate, snapshot, tenantId }: Catalo
               helperText="Rp25.000 ditulis 25000."
               htmlFor="product-price"
               label="Harga dasar"
-              required
             >
               <NumericInput
                 id="product-price"
@@ -452,7 +453,7 @@ function CompositionCatalog({ busy, canManage, onMutate, snapshot, tenantId }: C
             options={productOptions}
             value={variant.productId}
           />
-          <FormField htmlFor="variant-name" label="Nama variant" required>
+          <FormField htmlFor="variant-name" label="Nama variant">
             <Input
               id="variant-name"
               onChange={(event) => setVariant({ ...variant, name: event.target.value })}
@@ -493,7 +494,7 @@ function CompositionCatalog({ busy, canManage, onMutate, snapshot, tenantId }: C
       title: "Modifier group",
       content: (
         <>
-          <FormField htmlFor="group-name" label="Nama group" required>
+          <FormField htmlFor="group-name" label="Nama group">
             <Input
               id="group-name"
               onChange={(event) => setGroup({ ...group, name: event.target.value })}
@@ -564,7 +565,7 @@ function CompositionCatalog({ busy, canManage, onMutate, snapshot, tenantId }: C
             options={groupOptions}
             value={option.groupId}
           />
-          <FormField htmlFor="option-name" label="Nama opsi" required>
+          <FormField htmlFor="option-name" label="Nama opsi">
             <Input
               id="option-name"
               onChange={(event) => setOption({ ...option, name: event.target.value })}
@@ -652,7 +653,6 @@ function CompositionCatalog({ busy, canManage, onMutate, snapshot, tenantId }: C
             helperText="Object key storage; bukan URL publik."
             htmlFor="image-key"
             label="Object key"
-            required
           >
             <Input
               id="image-key"

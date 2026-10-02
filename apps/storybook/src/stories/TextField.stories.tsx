@@ -27,7 +27,6 @@ export const Default: Story = {
       helperText="Gunakan nama yang mudah dikenali kasir."
       htmlFor="product-name"
       label="Nama produk"
-      required
     >
       <Input {...args} />
     </FormField>
@@ -41,6 +40,7 @@ export const VariantsAndStates: Story = {
       <FormField htmlFor="search-menu" label="Cari menu">
         <Input
           clearable
+          clearLabel="Hapus pencarian"
           id="search-menu"
           onClear={() => undefined}
           value="kopi"
@@ -49,10 +49,18 @@ export const VariantsAndStates: Story = {
         />
       </FormField>
       <FormField htmlFor="password" label="Kata sandi">
-        <Input id="password" variant="password" />
+        <Input
+          hidePasswordLabel="Sembunyikan kata sandi"
+          id="password"
+          showPasswordLabel="Tampilkan kata sandi"
+          variant="password"
+        />
       </FormField>
-      <FormField error="Harga jual wajib diisi." htmlFor="price" label="Harga jual" required>
+      <FormField error="Harga jual wajib diisi." htmlFor="price" label="Harga jual">
         <Input id="price" invalid prefix="Rp" suffix="/ porsi" value="25000" readOnly />
+      </FormField>
+      <FormField htmlFor="note" label="Catatan" optionalLabel="opsional">
+        <Input id="note" placeholder="Contoh: tanpa gula" />
       </FormField>
       <FormField htmlFor="disabled" label="Kode outlet">
         <Input disabled id="disabled" value="JKT-01" readOnly />

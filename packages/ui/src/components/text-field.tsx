@@ -28,7 +28,8 @@ export type FormFieldProps = {
   helperText?: string;
   htmlFor: string;
   label: string;
-  required?: boolean;
+  /** Marker shown next to the label of an optional field, e.g. "opsional". Required fields are unmarked. */
+  optionalLabel?: string;
 };
 
 export type InputSize = "sm" | "md" | "lg";
@@ -36,9 +37,15 @@ export type InputVariant = "default" | "search" | "password";
 
 export type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "type"> & {
   clearable?: boolean;
+  /** Accessible name of the clear action on the search variant. */
+  clearLabel?: string;
+  /** Accessible name of the password toggle while the password is visible. */
+  hidePasswordLabel?: string;
   invalid?: boolean;
   onClear?: () => void;
   prefix?: ReactNode;
+  /** Accessible name of the password toggle while the password is hidden. */
+  showPasswordLabel?: string;
   size?: InputSize;
   suffix?: ReactNode;
   variant?: InputVariant;
@@ -64,7 +71,7 @@ export function FormField({
   helperText,
   htmlFor,
   label,
-  required = false,
+  optionalLabel,
 }: FormFieldProps) {
   const descriptionId = useId();
   const description = error ?? helperText;
@@ -78,7 +85,7 @@ export function FormField({
       <div className="ui-form-field">
         <label className="ui-form-field__label" htmlFor={htmlFor}>
           {label}
-          {required ? <span className="ui-form-field__required">Wajib</span> : null}
+          {optionalLabel ? <span className="ui-form-field__optional">{optionalLabel}</span> : null}
         </label>
         {children}
         {description ? (
@@ -102,12 +109,15 @@ export function Input({
   "aria-describedby": ariaDescribedBy,
   className,
   clearable = false,
+  clearLabel = "Clear",
   disabled,
+  hidePasswordLabel = "Hide password",
   id,
   invalid,
   onClear,
   prefix,
   readOnly,
+  showPasswordLabel = "Show password",
   size = "md",
   suffix,
   variant = "default",
@@ -144,7 +154,7 @@ export function Input({
       {suffix ? <span className="ui-text-field__affix">{suffix}</span> : null}
       {canClear ? (
         <button
-          aria-label="Hapus pencarian"
+          aria-label={clearLabel}
           className="ui-text-field__action"
           onClick={onClear}
           type="button"
@@ -154,7 +164,8 @@ export function Input({
       ) : null}
       {variant === "password" ? (
         <button
-          aria-label={passwordVisible ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+          aria-label={passwordVisible ? hidePasswordLabel : showPasswordLabel}
+          aria-pressed={passwordVisible}
           className="ui-text-field__action"
           disabled={disabled}
           onClick={() => setPasswordVisible((visible) => !visible)}

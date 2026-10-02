@@ -279,7 +279,6 @@ export function OpenShiftForm({
         helperText="Hitung uang fisik di laci kas sebelum membuka shift."
         htmlFor={openingCashId}
         label="Kas awal"
-        required
       >
         <MoneyInput
           disabled={disabled || loading}
@@ -361,7 +360,6 @@ export function CloseShiftForm({
         helperText="Masukkan hasil hitung uang fisik di laci kas."
         htmlFor={countedCashId}
         label="Kas fisik dihitung"
-        required
       >
         <MoneyInput
           disabled={disabled || loading}
@@ -391,7 +389,6 @@ export function CloseShiftForm({
           helperText="Jelaskan penyebab selisih agar dapat ditinjau oleh Owner atau Manager."
           htmlFor={varianceReasonId}
           label="Alasan selisih"
-          required
         >
           <Textarea
             disabled={disabled || loading}

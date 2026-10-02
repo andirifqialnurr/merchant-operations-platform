@@ -8,12 +8,7 @@ import { FormField, Input, Textarea } from "./text-field";
 describe("text field primitives", () => {
   it("connects the label and error description to the input", () => {
     render(
-      <FormField
-        error="Nama produk wajib diisi."
-        htmlFor="product-name"
-        label="Nama produk"
-        required
-      >
+      <FormField error="Nama produk wajib diisi." htmlFor="product-name" label="Nama produk">
         <Input id="product-name" />
       </FormField>,
     );
@@ -24,17 +19,45 @@ describe("text field primitives", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("Nama produk wajib diisi.");
   });
 
+  it("marks optional fields instead of required ones", () => {
+    render(
+      <FormField htmlFor="note" label="Catatan" optionalLabel="opsional">
+        <Input id="note" />
+      </FormField>,
+    );
+
+    expect(screen.getByText("opsional")).toHaveClass("ui-form-field__optional");
+    expect(screen.getByLabelText(/Catatan/)).toBeInTheDocument();
+  });
+
   it("supports clearable search and password visibility actions", async () => {
     const user = userEvent.setup();
     const onClear = vi.fn();
 
     const { rerender } = render(
-      <Input clearable id="search" onClear={onClear} value="kopi" variant="search" readOnly />,
+      <Input
+        clearable
+        clearLabel="Hapus pencarian"
+        id="search"
+        onClear={onClear}
+        readOnly
+        value="kopi"
+        variant="search"
+      />,
     );
     await user.click(screen.getByRole("button", { name: "Hapus pencarian" }));
     expect(onClear).toHaveBeenCalledOnce();
 
-    rerender(<Input id="password" readOnly value="" variant="password" />);
+    rerender(
+      <Input
+        hidePasswordLabel="Sembunyikan kata sandi"
+        id="password"
+        readOnly
+        showPasswordLabel="Tampilkan kata sandi"
+        value=""
+        variant="password"
+      />,
+    );
     const password = document.querySelector<HTMLInputElement>("#password");
     expect(password).toHaveAttribute("type", "password");
     await user.click(screen.getByRole("button", { name: "Tampilkan kata sandi" }));
