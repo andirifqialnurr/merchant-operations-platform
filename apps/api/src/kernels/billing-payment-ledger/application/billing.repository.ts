@@ -73,6 +73,15 @@ export interface BillingRepository {
     payment: FullPayment,
     context: BillingMutationContext,
   ): Promise<FullPaymentOutcome>;
+  /**
+   * The paid checkout of an order with the name of the cashier who took the
+   * payment, or null while the order is unpaid.
+   */
+  findPaidCheckoutByOrder(
+    tenantId: string,
+    outletId: string,
+    orderId: string,
+  ): Promise<(CheckoutRecord & { cashierName: string }) | null>;
   /** Paid orders among `orderIds`, with the number of the sale each became. */
   paidOrders(tenantId: string, orderIds: readonly string[]): Promise<Map<string, number>>;
   /** Cash taken in a shift: paid cash payments attached to it. */

@@ -21,7 +21,18 @@ export const orderKeys = {
   detail: (tenantId: string, outletId: string, orderId: string) =>
     ["pos", tenantId, "orders", outletId, orderId] as const,
   list: (tenantId: string, outletId: string) => ["pos", tenantId, "orders", outletId] as const,
+  receipt: (tenantId: string, outletId: string, orderId: string) =>
+    ["pos", tenantId, "orders", outletId, orderId, "receipt"] as const,
 };
+
+/** A paid order's receipt; it never changes once paid, so it is cached for the session. */
+export function useReceipt(tenantId: string, outletId: string, orderId: string) {
+  return useQuery({
+    queryFn: () => merchantApi.posReceipt(tenantId, outletId, orderId),
+    queryKey: orderKeys.receipt(tenantId, outletId, orderId),
+    staleTime: Number.POSITIVE_INFINITY,
+  });
+}
 
 /** The outlet's orders of the last 24 hours with their payment state. */
 export function useOrders(tenantId: string, outletId: string) {

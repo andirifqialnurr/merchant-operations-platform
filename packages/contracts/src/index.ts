@@ -1835,7 +1835,22 @@ export type PaymentStatus = z.infer<typeof paymentStatusSchema>;
 export type Sale = z.infer<typeof saleSchema>;
 export type SaleStatus = z.infer<typeof saleStatusSchema>;
 
+/**
+ * Everything a receipt prints for one paid order. Outlet and workspace names
+ * come from the caller's workspace context, so they are not repeated here.
+ */
+export const receiptSchema = z.object({
+  bill: billSchema,
+  cashierName: z.string().min(1).max(160),
+  order: orderSchema,
+  payment: paymentSchema,
+  sale: saleSchema,
+});
+
+export type Receipt = z.infer<typeof receiptSchema>;
+
 export const posOpenApiSchemas = {
+  Receipt: toOpenApiSchema(receiptSchema),
   CancelOrder: toOpenApiSchema(cancelOrderSchema),
   PosOrderList: toOpenApiSchema(posOrderListSchema),
   Checkout: toOpenApiSchema(checkoutSchema),

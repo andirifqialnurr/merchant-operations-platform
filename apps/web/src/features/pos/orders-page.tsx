@@ -21,6 +21,7 @@ import { useToast } from "@/providers/toast-provider";
 import { orderKeys, useOrder, useOrders } from "./api";
 import { PaidView } from "./paid-view";
 import { PaymentView } from "./payment-view";
+import { ReceiptSheet } from "./receipt-sheet";
 
 const REASON_MIN_LENGTH = 3;
 
@@ -42,6 +43,7 @@ function OrderSheet({
   canPay,
   onClose,
   onPay,
+  onReceipt,
   orderId,
   outletId,
   summary,
@@ -51,6 +53,7 @@ function OrderSheet({
   canPay: boolean;
   onClose: () => void;
   onPay: (order: Order) => void;
+  onReceipt: () => void;
   orderId: string;
   outletId: string;
   summary: PosOrderSummary;
@@ -116,6 +119,8 @@ function OrderSheet({
         {canPay ? <Button onClick={() => onPay(order)}>{t("pay")}</Button> : null}
       </>
     );
+  } else if (summary.paymentState === "PAID") {
+    footer = <Button onClick={onReceipt}>{t("receipt")}</Button>;
   }
 
   return (
@@ -217,6 +222,7 @@ function OrdersForOutlet({
   const [selectedId, setSelectedId] = useState<string | undefined>();
   const [paying, setPaying] = useState<Order | undefined>();
   const [checkout, setCheckout] = useState<Checkout | undefined>();
+  const [receiptFor, setReceiptFor] = useState<string | undefined>();
 
   if (checkout) {
     return (
@@ -313,9 +319,22 @@ function OrdersForOutlet({
             setSelectedId(undefined);
             setPaying(order);
           }}
+          onReceipt={() => {
+            setSelectedId(undefined);
+            setReceiptFor(selected.id);
+          }}
           orderId={selected.id}
           outletId={outletId}
           summary={selected}
+          tenantId={tenantId}
+        />
+      ) : null}
+      {receiptFor ? (
+        <ReceiptSheet
+          copy
+          onClose={() => setReceiptFor(undefined)}
+          orderId={receiptFor}
+          outletId={outletId}
           tenantId={tenantId}
         />
       ) : null}

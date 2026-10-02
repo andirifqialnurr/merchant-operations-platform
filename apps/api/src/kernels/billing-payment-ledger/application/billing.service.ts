@@ -143,6 +143,12 @@ export class BillingService {
     return toCheckout(outcome.checkout);
   }
 
+  /** The paid checkout of an order and its cashier, or null while unpaid. */
+  async paidCheckout(tenantId: string, outletId: string, orderId: string) {
+    const found = await this.billing.findPaidCheckoutByOrder(tenantId, outletId, orderId);
+    return found ? { cashierName: found.cashierName, checkout: toCheckout(found) } : null;
+  }
+
   /** Sale numbers of the paid orders among `orderIds`, keyed by order id. */
   paidOrders(tenantId: string, orderIds: readonly string[]) {
     return this.billing.paidOrders(tenantId, orderIds);

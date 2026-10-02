@@ -197,6 +197,13 @@ Tidak ada warna aksen. Tombol utama, fokus, dan item terpilih memakai tinta dan 
 | `info` | `#0062A1` / `#E5F4FF` | 5,7:1 | `#78BFF9` / `#0E293D` | 7,6:1 |
 | `neutral` | `text.secondary` / `bg.subtle` | 7,1:1 | `text.secondary` / `bg.subtle` | 7,4:1 |
 
+**Cetak**
+
+| Token | Nilai | Pemakaian |
+|---|---|---|
+| `print.ink` | `#090A0C` | Teks dan garis pada hasil cetak, apa pun tema layar |
+| `print.paper` | `#FFFFFF` | Latar hasil cetak |
+
 Token status lama `special` (ungu) dihapus; kasus yang memakainya pindah ke `neutral` atau `info`.
 
 ### 6.3 Aturan pemakaian warna
@@ -726,7 +733,7 @@ Status terhadap kode per 2 Oktober 2026. "Ada" berarti komponen tersedia di `pac
 | P0 | `ModuleAccessState`, `UsageLimitState` | Gating modul |
 | P0 | `LanguageSwitcher` | Dua bahasa |
 | P0 | `MultiSelect`, `FileUpload` | Filter, gambar produk, lampiran |
-| P1 | `BottomNav`, `OrderCard`, `Receipt`, `HeldOrderList`, `PinInput` | POS |
+| P1 | `BottomNav`, `OrderCard`, `HeldOrderList`, `PinInput` | POS (`Receipt` selesai 3 Oktober 2026: kertas 58 mm, 80 mm, A4; hanya struk yang tercetak) |
 | P1 | `AreaSelector`, `LiveTableView`, `TableSessionPanel`, bentuk meja | Floor |
 | P1 | `StickyCartBar`, `OrderProgress` | Customer |
 | P1 | Form ticket manual KDS | KDS-only |

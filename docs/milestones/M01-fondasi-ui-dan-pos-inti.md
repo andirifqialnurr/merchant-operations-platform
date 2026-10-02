@@ -34,7 +34,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-FT-04 Pembayaran tunai dan QRIS manual** — bayar penuh dalam shift terbuka, kembalian dihitung server, penjualan tunai masuk kas seharusnya. `76e0a57`
 - [x] **M1-FT-05 Layar jual** — kategori, produk, pilihan varian/tambahan, keranjang, pembayaran, layar lunas. `293e37c`
 - [x] **M1-FT-06 Daftar pesanan dan batal** — pesanan 24 jam terakhir, bayar nanti, batal dengan alasan. `e68e655`, `a1932b6`
-- [ ] **M1-FT-07 Struk** — tampilan struk setelah lunas dan dari daftar pesanan, bisa dicetak dari browser (cetak ulang ditandai "salinan"). Selesai bila: struk memuat nama outlet, nomor penjualan, waktu, baris item, total, metode, uang diterima, dan kembalian; tidak memuat ID internal.
+- [x] **M1-FT-07 Struk** — tampilan struk setelah lunas dan dari daftar pesanan, bisa dicetak dari browser (cetak ulang ditandai "salinan"). Selesai bila: struk memuat nama outlet, nomor penjualan, waktu, baris item, total, metode, uang diterima, dan kembalian; tidak memuat ID internal.
 - [ ] **M1-FT-08 Transfer dan EDC manual** — dua metode tambahan dengan nomor referensi opsional, tercatat terpisah dari tunai. Selesai bila: tidak menambah kas seharusnya; muncul di ringkasan shift per metode.
 - [ ] **M1-FT-09 Refund sederhana** — refund penuh atau sebagian atas penjualan dengan alasan wajib, izin `payment.refund`; penjualan asli tetap ada. Selesai bila: refund tunai mengurangi kas seharusnya shift yang sedang terbuka; refund melebihi sisa ditolak; event `sale.refunded.v1`.
 - [ ] **M1-FT-10 Persetujuan manager untuk refund** — kasir tanpa izin refund meminta persetujuan manager dengan PIN (flowchart 5.4). Selesai bila: PIN tersimpan ber-hash; persetujuan diaudit dengan nama penyetuju. Boleh dipindah ke M2 bila PIN butuh pengaturan pengguna.
@@ -52,7 +52,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [ ] **M1-BE-05 Refund** — tabel `sales_refunds` dan alokasi refund ke pembayaran; status penjualan `PARTIALLY_REFUNDED`/`REFUNDED`; kas seharusnya shift dikurangi refund tunai di bawah kunci shift yang sama.
 - [ ] **M1-BE-06 Metode transfer dan EDC** — perluas `payOrderSchema`; ringkasan shift per metode dari billing.
 - [ ] **M1-BE-07 Pesanan DRAFT** — buat, ubah, dan submit pesanan yang ditahan; nomor pesanan baru diberikan saat submit.
-- [ ] **M1-BE-08 Data struk** — endpoint baca struk per penjualan (snapshot, tanpa ID internal selain nomor).
+- [x] **M1-BE-08 Data struk** — endpoint baca struk per penjualan (snapshot, tanpa ID internal selain nomor).
 - [ ] **M1-BE-09 Preferensi pengguna** — kolom `users.locale` dan `users.theme` (schema B.1); endpoint ubah preferensi; bahasa tersimpan menang atas bahasa browser (D-09).
 - [ ] **M1-BE-10 Pesan error katalog berbahasa netral** — ganti pesan server Indonesia di modul catalog dengan pesan Inggris + kode stabil, terjemahan di kamus web (`SEC-F6`).
 
@@ -74,7 +74,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-DS-04 Label kartu produk dan rel kategori lewat props.** `1b3a7fc`, `a3c3645`
 - [ ] **M1-DS-05 Hapus bawaan Bahasa Indonesia di komponen 4–9** — semua label menjadi props wajib; perbarui story dan test.
 - [ ] **M1-DS-06 Komponen POS lama** — putuskan nasib `ProductModifierPicker`, `CartItem`, `CartSummary`, `PaymentMethodTile`, `CashKeypad`, `PaymentConfirmationPanel`: dirapikan (label lewat props, tanpa deskripsi) atau dihapus beserta story. Layar pelanggan (M4) memakai hasilnya.
-- [ ] **M1-DS-07 `Receipt`** — komponen struk layar dan cetak (design-system 21.2, P1).
+- [x] **M1-DS-07 `Receipt`** — komponen struk layar dan cetak (design-system 21.2, P1).
 - [ ] **M1-DS-08 `HeldOrderList` dan `PinInput`** — untuk tahan pesanan dan persetujuan manager.
 - [ ] **M1-DS-09 `MultiSelect`** — hanya bila filter Catalog membutuhkannya; bila tidak, pindahkan ke milestone yang pertama memakainya.
 - [ ] **M1-DS-10 Penyesuaian 21.3** — hapus status `special`; tinggi kontrol `md` 36px; pastikan tidak ada kartu bersarang di komponen domain.
@@ -84,7 +84,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 
 - [ ] **M1-AS-01 Logo dan wordmark** — tanda produk sederhana monokrom untuk login, sidebar, dan kepala struk; versi terang dan gelap; SVG.
 - [ ] **M1-AS-02 Ikon aplikasi** — favicon, ikon PWA 192/512 dan maskable, `apple-touch-icon`; `manifest.ts` memakai nama dan warna dari token.
-- [ ] **M1-AS-03 Gaya cetak struk** — stylesheet cetak untuk kertas 58 mm dan 80 mm serta A4; tanpa elemen navigasi.
+- [x] **M1-AS-03 Gaya cetak struk** — stylesheet cetak untuk kertas 58 mm dan 80 mm serta A4; tanpa elemen navigasi.
 
 ### SC — Keamanan dan privasi
 

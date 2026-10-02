@@ -10,6 +10,9 @@
 
   /* Text */
   --color-text-primary: var(--primitive-color-neutral-900);
+  /* Paper output is always ink on white, whatever the screen theme. */
+  --color-print-ink: var(--primitive-color-neutral-950);
+  --color-print-paper: var(--primitive-color-neutral-0);
   --color-text-secondary: var(--primitive-color-neutral-600);
   --color-text-muted: var(--primitive-color-neutral-500);
   --color-text-disabled: var(--primitive-color-neutral-300);

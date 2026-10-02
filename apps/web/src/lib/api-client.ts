@@ -32,6 +32,7 @@ import {
   orderSchema,
   payOrderSchema,
   posOrderListSchema,
+  receiptSchema,
   recordCashMovementSchema,
   registerSessionSchema,
   requestContextHeadersSchema,
@@ -379,6 +380,14 @@ export const merchantApi = {
     apiRequest(`/pos/orders/${entityIdParamsSchema.parse({ id: orderId }).id}`, orderSchema, {
       headers: outletHeaders(tenantId, outletId),
     }),
+  posReceipt: (tenantId: string, outletId: string, orderId: string) =>
+    apiRequest(
+      `/pos/orders/${entityIdParamsSchema.parse({ id: orderId }).id}/receipt`,
+      receiptSchema,
+      {
+        headers: outletHeaders(tenantId, outletId),
+      },
+    ),
   cancelOrder: (tenantId: string, outletId: string, orderId: string, input: CancelOrder) =>
     jsonMutation(
       `/pos/orders/${entityIdParamsSchema.parse({ id: orderId }).id}/cancel`,

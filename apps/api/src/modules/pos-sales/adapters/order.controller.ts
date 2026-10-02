@@ -9,6 +9,7 @@ import {
   orderSchema,
   payOrderSchema,
   posOrderListSchema,
+  receiptSchema,
   PERMISSIONS,
   requestContextHeadersSchema,
   type AuthorizationContext,
@@ -132,6 +133,24 @@ export class OrderController {
         params.id,
         input,
         { actorId: access.userId, ...(requestId ? { requestId } : {}) },
+      ),
+    );
+  }
+
+  @ApiOperation({ summary: "Read the receipt of a paid order" })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/Receipt" } })
+  @RequirePermission(PERMISSIONS.orderCreate)
+  @Get(":id/receipt")
+  async receipt(
+    @RequestHeaders(new ZodValidationPipe(requestContextHeadersSchema))
+    headers: RequestContextHeaders,
+    @Param(new ZodValidationPipe(entityIdParamsSchema)) params: { id: string },
+  ) {
+    return receiptSchema.parse(
+      await this.posOrders.receipt(
+        headers[API_HEADERS.tenantId],
+        headers[API_HEADERS.outletId],
+        params.id,
       ),
     );
   }

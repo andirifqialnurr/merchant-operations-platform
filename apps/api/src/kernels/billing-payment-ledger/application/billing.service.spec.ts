@@ -23,6 +23,11 @@ class InMemoryBillingRepository implements BillingRepository {
   shiftOpen = true;
   canceledOrders = new Set<string>();
 
+  async findPaidCheckoutByOrder(_tenantId: string, _outletId: string, orderId: string) {
+    const found = this.checkouts.find((item) => item.bill.orderId === orderId);
+    return found ? { ...found, cashierName: "Kasir Uji" } : null;
+  }
+
   async paidOrders(_tenantId: string, orderIds: readonly string[]) {
     return new Map(
       this.checkouts
@@ -244,4 +249,18 @@ test("refuses an order cancelled while it was being paid, and reports paid order
     [...(await service.paidOrders(TENANT, [paidOrder.id, raced.id]))],
     [[paidOrder.id, 1]],
   );
+});
+
+test("returns the paid checkout of an order with its cashier", async () => {
+  const { service } = setup();
+  const paidOrder = order();
+  assert.equal(await service.paidCheckout(TENANT, OUTLET, paidOrder.id), null);
+  await service.payOrderInFull(
+    { ...base, idempotencyKey: "key-1", order: paidOrder, pay: cash("100000") },
+    context,
+  );
+  const receipt = await service.paidCheckout(TENANT, OUTLET, paidOrder.id);
+  assert.equal(receipt?.cashierName, "Kasir Uji");
+  assert.equal(receipt?.checkout.payment.changeMinor, "36000");
+  assert.equal(receipt?.checkout.sale.saleNumber, 1);
 });

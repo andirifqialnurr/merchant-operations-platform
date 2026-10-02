@@ -81,6 +81,44 @@ export class PrismaBillingRepository implements BillingRepository {
     };
   }
 
+  async findPaidCheckoutByOrder(tenantId: string, outletId: string, orderId: string) {
+    const bill = await getPrismaClient().bill.findFirst({
+      select: {
+        ...billSelect,
+        allocations: {
+          orderBy: { createdAt: "asc" },
+          select: {
+            payment: { select: { ...paymentSelect, actor: { select: { displayName: true } } } },
+          },
+          take: 1,
+        },
+        sale: { select: saleSelect },
+      },
+      where: { orderId, outletId, status: "PAID", tenantId },
+    });
+    const paid = bill?.allocations[0]?.payment;
+    if (!bill?.sale || !paid) return null;
+    const { actor, ...payment } = paid;
+    return {
+      bill: {
+        currency: bill.currency,
+        discountMinor: bill.discountMinor,
+        id: bill.id,
+        orderId: bill.orderId,
+        paidMinor: bill.paidMinor,
+        roundingMinor: bill.roundingMinor,
+        serviceChargeMinor: bill.serviceChargeMinor,
+        status: bill.status,
+        subtotalMinor: bill.subtotalMinor,
+        taxMinor: bill.taxMinor,
+        totalMinor: bill.totalMinor,
+      },
+      cashierName: actor.displayName,
+      payment,
+      sale: bill.sale,
+    };
+  }
+
   async paidOrders(tenantId: string, orderIds: readonly string[]) {
     if (orderIds.length === 0) return new Map<string, number>();
     const bills = await getPrismaClient().bill.findMany({

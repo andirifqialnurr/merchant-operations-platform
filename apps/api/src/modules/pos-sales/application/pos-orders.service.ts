@@ -1,5 +1,5 @@
-import { posOrderListSchema, type CancelOrder } from "@merchant/contracts";
-import { ConflictException, Inject, Injectable } from "@nestjs/common";
+import { posOrderListSchema, receiptSchema, type CancelOrder } from "@merchant/contracts";
+import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
 import { BillingService } from "../../../kernels/billing-payment-ledger/application/billing.service.js";
 import { OrderIntakeService } from "../../../kernels/order-intake/application/order-intake.service.js";
@@ -43,6 +43,19 @@ export class PosOrdersService {
         subtotalMinor: order.subtotalMinor,
       })),
     });
+  }
+
+  /** The receipt of a paid order; an unpaid order has no receipt yet. */
+  async receipt(tenantId: string, outletId: string, orderId: string) {
+    const order = await this.orders.getOrder(tenantId, outletId, orderId);
+    const paid = await this.billing.paidCheckout(tenantId, outletId, orderId);
+    if (!paid) {
+      throw new NotFoundException({
+        code: "RECEIPT_NOT_FOUND",
+        message: "This order has no receipt because it is not paid.",
+      });
+    }
+    return receiptSchema.parse({ ...paid.checkout, cashierName: paid.cashierName, order });
   }
 
   /** A paid order is a sale; it is refunded, never cancelled. */
