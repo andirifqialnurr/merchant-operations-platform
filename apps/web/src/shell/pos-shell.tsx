@@ -32,6 +32,7 @@ export function PosShell({
   const { can } = useWorkspace();
   const surfaces = [
     ...(can(PERMISSIONS.orderCreate) ? [{ href: "/pos", label: t("navSell") }] : []),
+    ...(can(PERMISSIONS.orderCreate) ? [{ href: "/pos/orders", label: t("navOrders") }] : []),
     ...(can(PERMISSIONS.shiftOpen) ? [{ href: "/pos/shift", label: t("navShift") }] : []),
   ];
 
@@ -41,7 +42,7 @@ export function PosShell({
         <div className="min-w-0 flex-1">
           <ShellContext />
         </div>
-        <nav aria-label={t("posNavigation")} className="flex items-center gap-1">
+        <nav aria-label={t("posNavigation")} className="flex shrink-0 items-center gap-1">
           {surfaces.map((surface) => {
             const active = pathname === surface.href;
             return (
@@ -56,15 +57,18 @@ export function PosShell({
             );
           })}
         </nav>
+        {/* The way back to the backoffice gives its space to the outlet on phones. */}
         {can(PERMISSIONS.catalogRead) ? (
-          <Link
-            aria-label={t("openBackoffice")}
-            className="ui-button ui-icon-button ui-button--md ui-button--ghost"
-            href="/catalog"
-            title={t("openBackoffice")}
-          >
-            <AppIcon icon={IconLayoutSidebar} />
-          </Link>
+          <span className="max-sm:hidden">
+            <Link
+              aria-label={t("openBackoffice")}
+              className="ui-button ui-icon-button ui-button--md ui-button--ghost"
+              href="/catalog"
+              title={t("openBackoffice")}
+            >
+              <AppIcon icon={IconLayoutSidebar} />
+            </Link>
+          </span>
         ) : null}
         <ShellAccount onSignOut={onSignOut} user={user} />
       </header>

@@ -17,6 +17,28 @@ import { useToast } from "@/providers/toast-provider";
 export const shiftKeys = {
   current: (tenantId: string, outletId: string) => ["pos", tenantId, "shift", outletId] as const,
 };
+export const orderKeys = {
+  detail: (tenantId: string, outletId: string, orderId: string) =>
+    ["pos", tenantId, "orders", outletId, orderId] as const,
+  list: (tenantId: string, outletId: string) => ["pos", tenantId, "orders", outletId] as const,
+};
+
+/** The outlet's orders of the last 24 hours with their payment state. */
+export function useOrders(tenantId: string, outletId: string) {
+  return useQuery({
+    queryFn: () => merchantApi.posOrders(tenantId, outletId),
+    queryKey: orderKeys.list(tenantId, outletId),
+  });
+}
+
+export function useOrder(tenantId: string, outletId: string, orderId: string | undefined) {
+  return useQuery({
+    enabled: Boolean(orderId),
+    queryFn: () => merchantApi.posOrder(tenantId, outletId, orderId ?? ""),
+    queryKey: orderKeys.detail(tenantId, outletId, orderId ?? ""),
+  });
+}
+
 export const menuKeys = {
   outlet: (tenantId: string, outletId: string) => ["pos", tenantId, "menu", outletId] as const,
 };

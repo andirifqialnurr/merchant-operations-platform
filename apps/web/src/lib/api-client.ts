@@ -13,6 +13,7 @@ import {
   catalogProductModifierGroupSchema,
   catalogProductSchema,
   catalogProductVariantSchema,
+  cancelOrderSchema,
   catalogSnapshotSchema,
   checkoutSchema,
   closeRegisterSessionSchema,
@@ -30,6 +31,7 @@ import {
   openRegisterSessionSchema,
   orderSchema,
   payOrderSchema,
+  posOrderListSchema,
   recordCashMovementSchema,
   registerSessionSchema,
   requestContextHeadersSchema,
@@ -45,6 +47,7 @@ import {
   updateCatalogProductVariantSchema,
   workspaceContextsSchema,
   type AuthLoginRequest,
+  type CancelOrder,
   type CatalogRecordStatus,
   type CloseRegisterSession,
   type CreateCatalogCategory,
@@ -368,6 +371,21 @@ export const merchantApi = {
       input,
       closeRegisterSessionSchema,
       registerSessionSchema,
+      outletHeaders(tenantId, outletId),
+    ),
+  posOrders: (tenantId: string, outletId: string) =>
+    apiRequest("/pos/orders", posOrderListSchema, { headers: outletHeaders(tenantId, outletId) }),
+  posOrder: (tenantId: string, outletId: string, orderId: string) =>
+    apiRequest(`/pos/orders/${entityIdParamsSchema.parse({ id: orderId }).id}`, orderSchema, {
+      headers: outletHeaders(tenantId, outletId),
+    }),
+  cancelOrder: (tenantId: string, outletId: string, orderId: string, input: CancelOrder) =>
+    jsonMutation(
+      `/pos/orders/${entityIdParamsSchema.parse({ id: orderId }).id}/cancel`,
+      "POST",
+      input,
+      cancelOrderSchema,
+      orderSchema,
       outletHeaders(tenantId, outletId),
     ),
   posMenu: (tenantId: string, outletId: string) =>

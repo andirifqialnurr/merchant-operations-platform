@@ -13,7 +13,6 @@ import {
 import { Button } from "@merchant/ui/button";
 import { Panel } from "@merchant/ui/data-display";
 import { EmptyState, ErrorState, Skeleton } from "@merchant/ui/feedback";
-import { MoneyDisplay } from "@merchant/ui/money-display";
 import { CategoryRail, ProductTile } from "@merchant/ui/pos-catalog";
 import { Sheet } from "@merchant/ui/sheet";
 
@@ -30,57 +29,11 @@ import {
   type CartLine,
 } from "./cart";
 import { CartPanel } from "./cart-panel";
+import { PaidView } from "./paid-view";
 import { PaymentView } from "./payment-view";
 import { ProductOptionsSheet } from "./product-options-sheet";
 
 const ALL_CATEGORIES = "all";
-
-function PaidView({
-  checkout,
-  onNewOrder,
-}: Readonly<{ checkout: Checkout; onNewOrder: () => void }>) {
-  const t = useTranslations("pos");
-  const { locale } = useFormat();
-  const { payment, sale } = checkout;
-  const row = "flex items-baseline justify-between gap-3 py-3";
-
-  return (
-    <div className="mx-auto grid w-full max-w-md gap-6">
-      <h1 className="m-0 text-heading-lg">{t("paid")}</h1>
-      <dl className="m-0 divide-y divide-line-subtle border-y border-line-default">
-        <div className={row}>
-          <dt className="text-body-sm text-foreground-secondary">{t("saleNumber")}</dt>
-          <dd className="m-0 text-label font-semibold">#{sale.saleNumber}</dd>
-        </div>
-        <div className={row}>
-          <dt className="text-body-sm text-foreground-secondary">{t("total")}</dt>
-          <dd className="m-0">
-            <MoneyDisplay amountMinor={sale.totalMinor} locale={locale} />
-          </dd>
-        </div>
-        {payment.tenderedMinor !== null && payment.changeMinor !== null ? (
-          <>
-            <div className={row}>
-              <dt className="text-body-sm text-foreground-secondary">{t("tendered")}</dt>
-              <dd className="m-0">
-                <MoneyDisplay amountMinor={payment.tenderedMinor} locale={locale} />
-              </dd>
-            </div>
-            <div className={row}>
-              <dt className="text-label font-semibold">{t("change")}</dt>
-              <dd className="m-0">
-                <MoneyDisplay amountMinor={payment.changeMinor} locale={locale} variant="total" />
-              </dd>
-            </div>
-          </>
-        ) : null}
-      </dl>
-      <Button fullWidth onClick={onNewOrder} size="lg">
-        {t("newOrder")}
-      </Button>
-    </div>
-  );
-}
 
 function SellScreen({
   canPay,
@@ -121,8 +74,9 @@ function SellScreen({
   if (checkout) {
     return (
       <PaidView
+        actionLabel={t("newOrder")}
         checkout={checkout}
-        onNewOrder={() => {
+        onDone={() => {
           setCheckout(undefined);
           changeCart([]);
           setStage("sell");
@@ -134,11 +88,18 @@ function SellScreen({
   if (stage === "pay") {
     return (
       <PaymentView
-        cartTotalMinor={view.totalMinor}
-        items={toOrderItems(view.lines)}
         onBack={() => setStage("sell")}
+        onLater={() => {
+          changeCart([]);
+          setStage("sell");
+        }}
         onPaid={(result) => setCheckout(result)}
-        orderKey={orderKey}
+        source={{
+          cartTotalMinor: view.totalMinor,
+          items: toOrderItems(view.lines),
+          kind: "cart",
+          orderKey,
+        }}
         outletId={outletId}
         tenantId={tenantId}
       />
