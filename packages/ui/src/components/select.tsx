@@ -1,6 +1,17 @@
 "use client";
 
-import { type KeyboardEvent, type ReactNode, useId, useMemo, useState } from "react";
+import {
+  type CSSProperties,
+  type KeyboardEvent,
+  type ReactNode,
+  type RefObject,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import { Check, ChevronDown, Search } from "lucide-react";
 
@@ -15,10 +26,15 @@ export type SelectOption = {
   label: string;
   value: string;
 };
+/*
+ * Label props default to Indonesian until the i18n checkpoint moves every
+ * default into the id/en dictionaries.
+ */
 type CommonProps = {
   className?: string;
   defaultValue?: string;
   disabled?: boolean;
+  emptyLabel?: string;
   error?: string;
   label: string;
   onValueChange?: (value: string) => void;
@@ -29,10 +45,13 @@ type CommonProps = {
 };
 export type SelectProps = CommonProps;
 export type ComboboxProps = CommonProps & {
-  emptyLabel?: string;
   errorLabel?: string | undefined;
   loading?: boolean | undefined;
+  loadingLabel?: string;
   onRetry?: (() => void) | undefined;
+  retryLabel?: string;
+  /** Accessible name of the search input. */
+  searchLabel?: string;
   searchPlaceholder?: string;
 };
 
@@ -43,11 +62,67 @@ function selectedOption(options: readonly SelectOption[], value?: string) {
   return options.find((option) => option.value === value);
 }
 
+function useAnchoredMenu(open: boolean, onClose: () => void) {
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  const [style, setStyle] = useState<CSSProperties | undefined>(undefined);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    function place() {
+      const anchor = anchorRef.current?.querySelector(".ui-select__trigger");
+      const isSheet =
+        typeof window.matchMedia === "function" && window.matchMedia("(max-width: 40rem)").matches;
+      if (!anchor || isSheet) {
+        setStyle(undefined);
+        return;
+      }
+      const rect = anchor.getBoundingClientRect();
+      const menuHeight = menuRef.current?.offsetHeight ?? 0;
+      const gap = 4;
+      const below = window.innerHeight - rect.bottom;
+      const openUp = below < menuHeight + gap && rect.top > below;
+      setStyle({
+        left: rect.left,
+        minInlineSize: rect.width,
+        top: openUp ? Math.max(gap, rect.top - menuHeight - gap) : rect.bottom + gap,
+      });
+    }
+    place();
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    function onPointerDown(event: PointerEvent) {
+      const target = event.target as Node;
+      if (anchorRef.current?.contains(target) || menuRef.current?.contains(target)) return;
+      onCloseRef.current();
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [open]);
+
+  return { anchorRef, menuRef, style };
+}
+
 function Options({
   emptyLabel,
   errorLabel,
   loading,
+  loadingLabel,
   onRetry,
+  retryLabel,
   options,
   selectedValue,
   onSelect,
@@ -55,7 +130,9 @@ function Options({
   emptyLabel: string;
   errorLabel?: string | undefined;
   loading?: boolean | undefined;
+  loadingLabel?: string | undefined;
   onRetry?: (() => void) | undefined;
+  retryLabel?: string | undefined;
   options: readonly SelectOption[];
   selectedValue?: string | undefined;
   onSelect: (option: SelectOption) => void;
@@ -63,7 +140,7 @@ function Options({
   if (loading)
     return (
       <p className="ui-select__status" role="status">
-        Memuat pilihan...
+        {loadingLabel}
       </p>
     );
   if (errorLabel)
@@ -72,7 +149,7 @@ function Options({
         <span>{errorLabel}</span>
         {onRetry ? (
           <button onClick={onRetry} type="button">
-            Coba lagi
+            {retryLabel}
           </button>
         ) : null}
       </div>
@@ -103,20 +180,26 @@ function Options({
 function Menu({
   children,
   id,
+  menuRef,
   mobileSheet,
   open,
+  style,
 }: {
   children: ReactNode;
   id: string;
+  menuRef: RefObject<HTMLDivElement | null>;
   mobileSheet?: boolean;
   open: boolean;
+  style: CSSProperties | undefined;
 }) {
   if (!open) return null;
   const menu = (
     <div
       className={classes("ui-select__menu", mobileSheet && "ui-select__menu--sheet")}
       id={id}
+      ref={menuRef}
       role="listbox"
+      style={style}
     >
       {children}
     </div>
@@ -128,6 +211,7 @@ export function Select({
   className,
   defaultValue,
   disabled = false,
+  emptyLabel = "Tidak ada opsi tersedia.",
   error,
   label,
   onValueChange,
@@ -141,6 +225,7 @@ export function Select({
   const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue);
   const selectedValue = value ?? uncontrolledValue;
   const selected = selectedOption(options, selectedValue);
+  const { anchorRef, menuRef, style } = useAnchoredMenu(open, () => setOpen(false));
   function choose(option: SelectOption) {
     if (!option.disabled) {
       if (value === undefined) setUncontrolledValue(option.value);
@@ -175,6 +260,7 @@ export function Select({
         error && "ui-select--invalid",
         className,
       )}
+      ref={anchorRef}
     >
       <button
         aria-controls={id}
@@ -186,7 +272,9 @@ export function Select({
         onKeyDown={onKeyDown}
         type="button"
       >
-        <span>{selected?.label ?? placeholder}</span>
+        <span className={selected ? undefined : "ui-select__placeholder"}>
+          {selected?.label ?? placeholder}
+        </span>
         <AppIcon icon={ChevronDown} size={size === "sm" ? "sm" : "md"} />
       </button>
       {error ? (
@@ -194,9 +282,9 @@ export function Select({
           {error}
         </p>
       ) : null}
-      <Menu id={id} mobileSheet open={open}>
+      <Menu id={id} menuRef={menuRef} mobileSheet open={open} style={style}>
         <Options
-          emptyLabel="Tidak ada opsi tersedia."
+          emptyLabel={emptyLabel}
           onSelect={choose}
           options={options}
           selectedValue={selectedValue}
@@ -215,10 +303,13 @@ export function Combobox({
   errorLabel,
   label,
   loading = false,
+  loadingLabel = "Memuat pilihan...",
   onRetry,
   onValueChange,
   options,
   placeholder = "Pilih atau cari opsi",
+  retryLabel = "Coba lagi",
+  searchLabel,
   searchPlaceholder = "Cari...",
   size = "md",
   value,
@@ -236,6 +327,7 @@ export function Combobox({
       ),
     [options, query],
   );
+  const { anchorRef, menuRef, style } = useAnchoredMenu(open, () => setOpen(false));
   function choose(option: SelectOption) {
     if (!option.disabled) {
       if (value === undefined) setUncontrolledValue(option.value);
@@ -252,6 +344,7 @@ export function Combobox({
         error && "ui-select--invalid",
         className,
       )}
+      ref={anchorRef}
     >
       <button
         aria-controls={id}
@@ -262,7 +355,9 @@ export function Combobox({
         onClick={() => setOpen(true)}
         type="button"
       >
-        <span>{selected?.label ?? placeholder}</span>
+        <span className={selected ? undefined : "ui-select__placeholder"}>
+          {selected?.label ?? placeholder}
+        </span>
         <AppIcon icon={ChevronDown} size={size === "sm" ? "sm" : "md"} />
       </button>
       {error ? (
@@ -270,11 +365,11 @@ export function Combobox({
           {error}
         </p>
       ) : null}
-      <Menu id={id} mobileSheet open={open}>
+      <Menu id={id} menuRef={menuRef} mobileSheet open={open} style={style}>
         <div className="ui-select__search">
           <AppIcon icon={Search} size="sm" />
           <input
-            aria-label={`Cari ${label}`}
+            aria-label={searchLabel ?? `Cari ${label}`}
             autoFocus
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={(event) => {
@@ -303,7 +398,9 @@ export function Combobox({
           emptyLabel={emptyLabel}
           errorLabel={errorLabel}
           loading={loading}
+          loadingLabel={loadingLabel}
           onRetry={onRetry}
+          retryLabel={retryLabel}
           onSelect={choose}
           options={filtered}
           selectedValue={selectedValue}

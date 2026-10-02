@@ -33,6 +33,19 @@ describe("select primitives", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("Gagal memuat outlet.");
     expect(screen.getByRole("button", { name: "Coba lagi" })).toBeInTheDocument();
   });
+  it("closes the menu when the user presses outside", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <Select label="Outlet" options={options} />
+        <button type="button">Di luar</button>
+      </>,
+    );
+    await user.click(screen.getByRole("button", { name: "Pilih opsi" }));
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Di luar" }));
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+  });
   it("passes an axe smoke test", async () => {
     const { container } = render(<Select label="Outlet" options={options} />);
     expect((await axe(container)).violations).toEqual([]);
