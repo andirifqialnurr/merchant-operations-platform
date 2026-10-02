@@ -97,6 +97,39 @@ enum OrderStatus {
   CANCELED
 }
 
+enum BillStatus {
+  UNPAID
+  PARTIALLY_PAID
+  PAID
+  VOID
+}
+
+enum PaymentMethod {
+  CASH
+  MERCHANT_QRIS
+  TRANSFER
+  EDC
+  OTHER
+}
+
+enum PaymentStatus {
+  UNPAID
+  VERIFYING
+  PAID
+  REFUND_PENDING
+  REFUNDED
+  FAILED
+  EXPIRED
+}
+
+enum SaleStatus {
+  OPEN
+  COMPLETED
+  PARTIALLY_REFUNDED
+  REFUNDED
+  VOIDED
+}
+
 model User {
   id                     String               @id @default(dbgenerated("uuidv7()")) @db.Uuid
   email                  String               @unique @db.VarChar(254)
@@ -113,6 +146,8 @@ model User {
   closedRegisterSessions PosRegisterSession[] @relation("RegisterSessionClosedBy")
   cashMovements          PosCashMovement[]
   orders                 Order[]
+  paymentsRecorded       BillingPayment[]     @relation("PaymentActor")
+  paymentsConfirmed      BillingPayment[]     @relation("PaymentConfirmedBy")
 
   @@map("users")
 }
@@ -195,6 +230,9 @@ model Tenant {
   posRegisterSessions          PosRegisterSession[]
   posCashMovements             PosCashMovement[]
   orders                       Order[]
+  bills                        Bill[]
+  payments                     BillingPayment[]
+  sales                        Sale[]
 
   @@map("tenants")
 }
@@ -236,6 +274,10 @@ model Outlet {
   registerSessions   PosRegisterSession[]
   cashMovements      PosCashMovement[]
   orders             Order[]
+  bills              Bill[]
+  payments           BillingPayment[]
+  sales              Sale[]
+  saleNumberCounter  SaleNumberCounter?
   orderNumberCounter OrderNumberCounter?
 
   @@unique([tenantId, code])
@@ -671,6 +713,7 @@ model PosRegisterSession {
   opener            User                  @relation("RegisterSessionOpenedBy", fields: [openedBy], references: [id], onDelete: Restrict)
   closer            User?                 @relation("RegisterSessionClosedBy", fields: [closedBy], references: [id], onDelete: Restrict)
   cashMovements     PosCashMovement[]
+  payments          BillingPayment[]
 
   @@unique([tenantId, id])
   @@index([tenantId, outletId, status, openedAt])
@@ -731,6 +774,7 @@ model Order {
   outlet         Outlet      @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
   actor          User?       @relation(fields: [actorId], references: [id], onDelete: Restrict)
   items          OrderItem[]
+  bill           Bill?
 
   @@unique([tenantId, id])
   @@unique([tenantId, outletId, orderNumber])
@@ -774,4 +818,112 @@ model OrderItemModifier {
 
   @@unique([tenantId, orderItemId, position])
   @@map("order_item_modifiers")
+}
+
+/// What is owed for an order. Owned by the billing-payment-ledger kernel.
+model Bill {
+  id                 String              @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId           String              @map("tenant_id") @db.Uuid
+  outletId           String              @map("outlet_id") @db.Uuid
+  orderId            String              @map("order_id") @db.Uuid
+  currency           String              @db.Char(3)
+  subtotalMinor      BigInt              @map("subtotal_minor") @db.BigInt
+  discountMinor      BigInt              @default(0) @map("discount_minor") @db.BigInt
+  taxMinor           BigInt              @default(0) @map("tax_minor") @db.BigInt
+  serviceChargeMinor BigInt              @default(0) @map("service_charge_minor") @db.BigInt
+  roundingMinor      BigInt              @default(0) @map("rounding_minor") @db.BigInt
+  totalMinor         BigInt              @map("total_minor") @db.BigInt
+  paidMinor          BigInt              @default(0) @map("paid_minor") @db.BigInt
+  status             BillStatus          @default(UNPAID)
+  createdAt          DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet             Outlet              @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
+  order              Order               @relation(fields: [tenantId, orderId], references: [tenantId, id], onDelete: Restrict)
+  allocations        PaymentAllocation[]
+  sale               Sale?
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, orderId])
+  @@index([tenantId, outletId, status, createdAt])
+  @@map("billing_bills")
+}
+
+/// Money received. Append-only apart from status changes such as refunds.
+model BillingPayment {
+  id                String              @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId          String              @map("tenant_id") @db.Uuid
+  outletId          String              @map("outlet_id") @db.Uuid
+  registerSessionId String?             @map("register_session_id") @db.Uuid
+  method            PaymentMethod
+  amountMinor       BigInt              @map("amount_minor") @db.BigInt
+  tenderedMinor     BigInt?             @map("tendered_minor") @db.BigInt
+  status            PaymentStatus
+  reference         String?             @db.VarChar(120)
+  actorId           String              @map("actor_id") @db.Uuid
+  confirmedBy       String?             @map("confirmed_by") @db.Uuid
+  confirmedAt       DateTime?           @map("confirmed_at") @db.Timestamptz(6)
+  idempotencyKey    String              @map("idempotency_key") @db.VarChar(255)
+  createdAt         DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant            Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet            Outlet              @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
+  registerSession   PosRegisterSession? @relation(fields: [tenantId, registerSessionId], references: [tenantId, id], onDelete: Restrict)
+  actor             User                @relation("PaymentActor", fields: [actorId], references: [id], onDelete: Restrict)
+  confirmer         User?               @relation("PaymentConfirmedBy", fields: [confirmedBy], references: [id], onDelete: Restrict)
+  allocations       PaymentAllocation[]
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, outletId, idempotencyKey])
+  @@index([tenantId, registerSessionId, method, status])
+  @@map("billing_payments")
+}
+
+model PaymentAllocation {
+  id          String         @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId    String         @map("tenant_id") @db.Uuid
+  paymentId   String         @map("payment_id") @db.Uuid
+  billId      String         @map("bill_id") @db.Uuid
+  amountMinor BigInt         @map("amount_minor") @db.BigInt
+  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  payment     BillingPayment @relation(fields: [tenantId, paymentId], references: [tenantId, id], onDelete: Restrict)
+  bill        Bill           @relation(fields: [tenantId, billId], references: [tenantId, id], onDelete: Restrict)
+
+  @@unique([tenantId, paymentId, billId])
+  @@index([tenantId, billId])
+  @@map("billing_payment_allocations")
+}
+
+/// Last sale number handed out per outlet.
+model SaleNumberCounter {
+  tenantId   String @map("tenant_id") @db.Uuid
+  outletId   String @map("outlet_id") @db.Uuid
+  lastNumber Int    @default(0) @map("last_number")
+  outlet     Outlet @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
+
+  @@id([tenantId, outletId])
+  @@map("sales_number_counters")
+}
+
+/// A completed sale: the record finance and reports are built from.
+model Sale {
+  id          String     @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId    String     @map("tenant_id") @db.Uuid
+  outletId    String     @map("outlet_id") @db.Uuid
+  saleNumber  Int        @map("sale_number")
+  billId      String     @map("bill_id") @db.Uuid
+  status      SaleStatus
+  totalMinor  BigInt     @map("total_minor") @db.BigInt
+  completedAt DateTime?  @map("completed_at") @db.Timestamptz(6)
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet      Outlet     @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
+  bill        Bill       @relation(fields: [tenantId, billId], references: [tenantId, id], onDelete: Restrict)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, outletId, saleNumber])
+  @@unique([tenantId, billId])
+  @@index([tenantId, outletId, completedAt])
+  @@map("sales_sales")
 }

@@ -4,6 +4,7 @@ import test from "node:test";
 
 import { ConflictException, NotFoundException } from "@nestjs/common";
 
+import type { BillingService } from "../../../kernels/billing-payment-ledger/application/billing.service.js";
 import { cashVariance, decideClose, totalCash } from "../domain/register-session.js";
 import type {
   CloseFacts,
@@ -75,6 +76,8 @@ class InMemoryRegisterSessionRepository implements RegisterSessionRepository {
     return this.clone(session);
   }
 
+  cashSales = 0n;
+
   async appendCashMovement(
     session: RegisterSessionRecord,
     movement: {
@@ -89,8 +92,13 @@ class InMemoryRegisterSessionRepository implements RegisterSessionRepository {
     return this.clone(stored);
   }
 
-  async close(session: RegisterSessionRecord, facts: CloseFacts) {
+  async close(
+    session: RegisterSessionRecord,
+    decide: (locked: RegisterSessionRecord) => Promise<CloseFacts>,
+  ) {
     const stored = this.sessions.get(session.id)!;
+    if (stored.status === "CLOSED") return this.clone(stored);
+    const facts = await decide(this.clone(stored));
     Object.assign(stored, facts, { closedAt: new Date(), status: "CLOSED" });
     this.events.push("shift.closed.v1");
     return this.clone(stored);
@@ -99,7 +107,10 @@ class InMemoryRegisterSessionRepository implements RegisterSessionRepository {
 
 function setup() {
   const repository = new InMemoryRegisterSessionRepository();
-  return { repository, service: new ShiftService(repository) };
+  const billing = {
+    cashReceivedInSession: async () => repository.cashSales,
+  } as unknown as BillingService;
+  return { repository, service: new ShiftService(repository, billing) };
 }
 
 const asCashier: ShiftMutationContext = { actorId: CASHIER };
@@ -316,4 +327,37 @@ test("hides shifts of another tenant, outlet, or cashier", async () => {
     "POS_SHIFT_NOT_FOUND",
   );
   assert.equal((await service.getCurrent(TENANT_A, OUTLET_A, CASHIER)).session?.id, shift.id);
+});
+
+test("counts cash sales in the cash a shift expects", async () => {
+  const { repository, service } = setup();
+  const shift = await service.open(TENANT_A, OUTLET_A, { openingCashMinor: "100000" }, asCashier);
+  repository.cashSales = 64_000n;
+
+  const current = await service.getCurrent(TENANT_A, OUTLET_A, CASHIER);
+  assert.equal(current.session?.cashSalesMinor, "64000");
+  assert.equal(current.session?.expectedCashMinor, "164000");
+
+  // Cash from sales may be taken out of the drawer.
+  const out = await service.recordCashMovement(
+    TENANT_A,
+    OUTLET_A,
+    shift.id,
+    { amountMinor: "150000", direction: "OUT", reason: "Setor ke bank" },
+    "key-1",
+    asCashier,
+  );
+  assert.equal(out.expectedCashMinor, "14000");
+
+  // A sale that lands just before the close is part of what the close expects.
+  repository.cashSales = 90_000n;
+  const closed = await service.close(
+    TENANT_A,
+    OUTLET_A,
+    shift.id,
+    { countedCashMinor: "40000" },
+    asCashier,
+  );
+  assert.equal(closed.expectedCashMinor, "40000");
+  assert.equal(closed.varianceMinor, "0");
 });

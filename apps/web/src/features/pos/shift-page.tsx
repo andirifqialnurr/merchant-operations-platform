@@ -137,6 +137,7 @@ function OpenShiftView({
             <ShiftSummary
               cashInMinor={shift.cashInMinor}
               cashOutMinor={shift.cashOutMinor}
+              cashSalesMinor={shift.cashSalesMinor}
               expectedCashMinor={shift.expectedCashMinor}
               facts={[{ label: t("openedAt"), value: dateTime(shift.openedAt) }]}
               labels={{

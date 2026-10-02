@@ -152,6 +152,12 @@ export class PrismaRegisterSessionRepository implements RegisterSessionRepositor
     context: ShiftMutationContext,
   ) {
     const write = getPrismaClient().$transaction(async (transaction) => {
+      // Takes the shift lock, so a movement is never added to a closing shift.
+      const open = await transaction.posRegisterSession.updateMany({
+        data: { updatedAt: new Date() },
+        where: { id: session.id, status: "OPEN", tenantId: session.tenantId },
+      });
+      if (open.count !== 1) return null;
       const created = await transaction.posCashMovement.create({
         data: {
           actorId: context.actorId,
@@ -196,10 +202,31 @@ export class PrismaRegisterSessionRepository implements RegisterSessionRepositor
     }
   }
 
-  async close(session: RegisterSessionRecord, facts: CloseFacts, context: ShiftMutationContext) {
+  async close(
+    session: RegisterSessionRecord,
+    decide: (locked: RegisterSessionRecord) => Promise<CloseFacts>,
+    context: ShiftMutationContext,
+  ) {
+    const where = { tenantId_id: { id: session.id, tenantId: session.tenantId } };
     return getPrismaClient().$transaction(async (transaction) => {
+      // Locks the shift row. Payments and cash movements take the same lock,
+      // so everything committed before this point is visible to `decide` and
+      // nothing can be added after it.
+      const lock = await transaction.posRegisterSession.updateMany({
+        data: { updatedAt: new Date() },
+        where: { id: session.id, status: "OPEN", tenantId: session.tenantId },
+      });
+      if (lock.count !== 1) {
+        return toRecord(
+          await transaction.posRegisterSession.findUniqueOrThrow({ select: sessionSelect, where }),
+        );
+      }
+      const facts = await decide(
+        toRecord(
+          await transaction.posRegisterSession.findUniqueOrThrow({ select: sessionSelect, where }),
+        ),
+      );
       const closedAt = new Date();
-      // Guarded by status so two concurrent closes cannot both succeed.
       const updated = await transaction.posRegisterSession.updateMany({
         data: {
           closedAt,

@@ -1,18 +1,21 @@
 import {
   API_HEADERS,
+  checkoutSchema,
   createPosOrderSchema,
   entityIdParamsSchema,
   idempotentRequestHeadersSchema,
   MODULES,
   orderSchema,
+  payOrderSchema,
   PERMISSIONS,
   requestContextHeadersSchema,
   type AuthorizationContext,
   type CreatePosOrder,
   type IdempotentRequestHeaders,
+  type PayOrder,
   type RequestContextHeaders,
 } from "@merchant/contracts";
-import { Body, Controller, Get, Inject, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Inject, Param, Post, UseGuards } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -37,6 +40,7 @@ import {
 import { SESSION_COOKIE_NAME } from "../../../auth/session-cookie.js";
 import { OrderIntakeService } from "../../../kernels/order-intake/application/order-intake.service.js";
 import { RequestHeaders, ZodValidationPipe } from "../../../zod-validation.pipe.js";
+import { CheckoutService } from "../application/checkout.service.js";
 
 /** Orders taken at the cashier. Pricing and storage belong to order intake. */
 @ApiTags("pos")
@@ -60,7 +64,10 @@ import { RequestHeaders, ZodValidationPipe } from "../../../zod-validation.pipe.
 @RequireModule(MODULES.pos)
 @Controller("pos/orders")
 export class OrderController {
-  constructor(@Inject(OrderIntakeService) private readonly orders: OrderIntakeService) {}
+  constructor(
+    @Inject(OrderIntakeService) private readonly orders: OrderIntakeService,
+    @Inject(CheckoutService) private readonly checkout: CheckoutService,
+  ) {}
 
   @ApiOperation({ summary: "Submit a cashier order priced from the outlet menu" })
   @ApiHeader({ name: API_HEADERS.idempotencyKey, required: true })
@@ -100,6 +107,33 @@ export class OrderController {
         headers[API_HEADERS.tenantId],
         headers[API_HEADERS.outletId],
         params.id,
+      ),
+    );
+  }
+
+  @ApiOperation({ summary: "Take the full payment of an order in the cashier's open shift" })
+  @ApiHeader({ name: API_HEADERS.idempotencyKey, required: true })
+  @ApiBody({ schema: { $ref: "#/components/schemas/PayOrder" } })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/Checkout" } })
+  @RequirePermission(PERMISSIONS.paymentConfirm)
+  @HttpCode(200)
+  @Post(":id/payments")
+  async pay(
+    @RequestHeaders(new ZodValidationPipe(idempotentRequestHeadersSchema))
+    headers: IdempotentRequestHeaders,
+    @Param(new ZodValidationPipe(entityIdParamsSchema)) params: { id: string },
+    @Body(new ZodValidationPipe(payOrderSchema)) input: PayOrder,
+    @CurrentAccess() access: AuthorizationContext,
+  ) {
+    const requestId = headers[API_HEADERS.requestId];
+    return checkoutSchema.parse(
+      await this.checkout.payOrder(
+        headers[API_HEADERS.tenantId],
+        headers[API_HEADERS.outletId],
+        params.id,
+        input,
+        headers[API_HEADERS.idempotencyKey],
+        { actorId: access.userId, ...(requestId ? { requestId } : {}) },
       ),
     );
   }

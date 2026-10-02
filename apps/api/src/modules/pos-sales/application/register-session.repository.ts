@@ -40,6 +40,7 @@ export type CloseFacts = {
  * session id from another workspace is simply not found.
  */
 export interface RegisterSessionRepository {
+  /** Returns null when the shift was closed in the meantime. */
   appendCashMovement(
     session: RegisterSessionRecord,
     movement: {
@@ -49,10 +50,15 @@ export interface RegisterSessionRepository {
       reason: string;
     },
     context: ShiftMutationContext,
-  ): Promise<RegisterSessionRecord>;
+  ): Promise<RegisterSessionRecord | null>;
+  /**
+   * Locks the shift, then asks `decide` for the closing facts with the shift
+   * as it is under the lock. A shift that is already closed is returned as is
+   * and `decide` is not called; an error thrown by `decide` leaves it open.
+   */
   close(
     session: RegisterSessionRecord,
-    facts: CloseFacts,
+    decide: (locked: RegisterSessionRecord) => Promise<CloseFacts>,
     context: ShiftMutationContext,
   ): Promise<RegisterSessionRecord>;
   findById(tenantId: string, sessionId: string): Promise<RegisterSessionRecord | null>;

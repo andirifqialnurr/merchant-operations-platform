@@ -12,6 +12,7 @@ export const CRITICAL_AUDIT_ACTIONS = [
   "membership.update",
   "order.submit",
   "outlet.update",
+  "payment.record",
   "pos_cash_movement.record",
   "pos_register_session.close",
   "pos_register_session.open",

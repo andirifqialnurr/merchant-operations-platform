@@ -238,3 +238,38 @@ test("keeps orders tenant-scoped with unique outlet numbers and exact line total
   assert.match(orderMigration, /ON "order_orders"\("tenant_id", "outlet_id", "idempotency_key"\)/);
   assert.match(orderMigration, /"line_total_minor" = "unit_price_minor" \* "quantity"/);
 });
+
+test("keeps bills, payments, and sales tenant-scoped with derived totals", () => {
+  const billingMigration = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261003120000_billing_sales/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(schema, /model Bill \{[\s\S]*@@map\("billing_bills"\)/);
+  assert.match(schema, /model Sale \{[\s\S]*@@map\("sales_sales"\)/);
+  assert.match(
+    billingMigration,
+    /FOREIGN KEY \("tenant_id", "order_id"\) REFERENCES "order_orders"\("tenant_id", "id"\)/,
+  );
+  assert.match(
+    billingMigration,
+    /FOREIGN KEY \("tenant_id", "register_session_id"\) REFERENCES "pos_register_sessions"\("tenant_id", "id"\)/,
+  );
+  assert.match(
+    billingMigration,
+    /FOREIGN KEY \("tenant_id", "bill_id"\) REFERENCES "billing_bills"\("tenant_id", "id"\)/,
+  );
+  assert.match(billingMigration, /ON "billing_bills"\("tenant_id", "order_id"\)/);
+  assert.match(
+    billingMigration,
+    /ON "billing_payments"\("tenant_id", "outlet_id", "idempotency_key"\)/,
+  );
+  assert.match(billingMigration, /ON "sales_sales"\("tenant_id", "bill_id"\)/);
+  assert.match(
+    billingMigration,
+    /"total_minor" = "subtotal_minor" - "discount_minor" \+ "tax_minor" \+ "service_charge_minor" \+ "rounding_minor"/,
+  );
+  assert.match(billingMigration, /"tendered_minor" >= "amount_minor"/);
+});
