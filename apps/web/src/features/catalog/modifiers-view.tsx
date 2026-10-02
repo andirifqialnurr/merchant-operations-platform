@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
 
 import type { CatalogModifierGroup, CatalogSnapshot } from "@merchant/contracts";
@@ -12,10 +13,9 @@ import { Sheet } from "@merchant/ui/overlay";
 import { SegmentedControl } from "@merchant/ui/selection-control";
 
 import { merchantApi, nextCatalogStatus } from "@/lib/api-client";
-import { formatMoney } from "@/lib/format";
+import { useFormat } from "@/lib/i18n";
 
 import type { CatalogMutation } from "./api";
-import { catalogMessages as t } from "./messages";
 import { RecordStatusBadge } from "./status";
 
 type Props = {
@@ -27,10 +27,6 @@ type Props = {
   tenantId: string;
 };
 type SelectionType = "SINGLE" | "MULTIPLE";
-
-function typeLabel(type: SelectionType) {
-  return type === "SINGLE" ? t.typeSingle : t.typeMultiple;
-}
 
 function ModifierSheet({
   group,
@@ -45,6 +41,8 @@ function ModifierSheet({
   snapshot: CatalogSnapshot;
   tenantId: string;
 }>) {
+  const t = useTranslations("catalog");
+  const { locale, money } = useFormat();
   const [name, setName] = useState(group?.name ?? "");
   const [type, setType] = useState<SelectionType>(group?.selectionType ?? "SINGLE");
   const [min, setMin] = useState(String(group?.minSelections ?? 0));
@@ -61,8 +59,8 @@ function ModifierSheet({
     // A single-choice group can never allow more than one selection.
     const maxSelections = type === "SINGLE" ? 1 : Number(max) || 1;
     const nextErrors = {
-      ...(name.trim().length < 2 ? { name: t.nameRequired } : {}),
-      ...(minSelections > maxSelections ? { range: t.minimumExceedsMaximum } : {}),
+      ...(name.trim().length < 2 ? { name: t("nameRequired") } : {}),
+      ...(minSelections > maxSelections ? { range: t("minimumExceedsMaximum") } : {}),
     };
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
@@ -72,7 +70,7 @@ function ModifierSheet({
       group
         ? {
             action: () => merchantApi.updateModifierGroup(tenantId, group.id, fields),
-            success: t.modifierUpdated,
+            success: t("modifierUpdated"),
           }
         : {
             action: () =>
@@ -80,7 +78,7 @@ function ModifierSheet({
                 ...fields,
                 displayOrder: snapshot.modifierGroups.length,
               }),
-            success: t.modifierCreated,
+            success: t("modifierCreated"),
           },
       { onSuccess: onClose },
     );
@@ -88,7 +86,7 @@ function ModifierSheet({
 
   return (
     <Sheet
-      closeLabel={t.closeSheet}
+      closeLabel={t("closeSheet")}
       footer={
         <>
           {group ? (
@@ -101,18 +99,18 @@ function ModifierSheet({
                       merchantApi.updateModifierGroup(tenantId, group.id, {
                         status: nextCatalogStatus(group.status),
                       }),
-                    success: t.modifierUpdated,
+                    success: t("modifierUpdated"),
                   },
                   { onSuccess: onClose },
                 )
               }
               variant="secondary"
             >
-              {group.status === "ACTIVE" ? t.deactivate : t.activate}
+              {group.status === "ACTIVE" ? t("deactivate") : t("activate")}
             </Button>
           ) : null}
-          <Button form="modifier-form" loading={busy} loadingLabel={t.saving} type="submit">
-            {t.save}
+          <Button form="modifier-form" loading={busy} loadingLabel={t("saving")} type="submit">
+            {t("save")}
           </Button>
         </>
       }
@@ -120,14 +118,14 @@ function ModifierSheet({
         if (!open) onClose();
       }}
       open
-      title={group?.name ?? t.newModifier}
+      title={group?.name ?? t("newModifier")}
     >
       <div className="grid gap-6">
         <form className="grid gap-4" id="modifier-form" noValidate onSubmit={submit}>
           <FormField
             {...(errors.name ? { error: errors.name } : {})}
             htmlFor="modifier-name"
-            label={t.modifierName}
+            label={t("modifierName")}
           >
             <Input
               id="modifier-name"
@@ -136,13 +134,13 @@ function ModifierSheet({
             />
           </FormField>
           <div className="grid gap-1.5">
-            <span className="text-label">{t.type}</span>
+            <span className="text-label">{t("type")}</span>
             <SegmentedControl
               items={[
-                { label: t.typeSingle, value: "SINGLE" },
-                { label: t.typeMultiple, value: "MULTIPLE" },
+                { label: t("typeSingle"), value: "SINGLE" },
+                { label: t("typeMultiple"), value: "MULTIPLE" },
               ]}
-              label={t.type}
+              label={t("type")}
               onValueChange={(value) => setType(value as SelectionType)}
               value={type}
             />
@@ -151,12 +149,12 @@ function ModifierSheet({
             <FormField
               {...(errors.range ? { error: errors.range } : {})}
               htmlFor="modifier-min"
-              label={t.minimum}
+              label={t("minimum")}
             >
               <NumericInput id="modifier-min" onValueChange={setMin} value={min} />
             </FormField>
             {type === "MULTIPLE" ? (
-              <FormField htmlFor="modifier-max" label={t.maximum}>
+              <FormField htmlFor="modifier-max" label={t("maximum")}>
                 <NumericInput id="modifier-max" onValueChange={setMax} value={max} />
               </FormField>
             ) : null}
@@ -167,9 +165,9 @@ function ModifierSheet({
           <>
             <Divider />
             <section className="grid gap-3">
-              <h3 className="text-label">{t.choices}</h3>
+              <h3 className="text-label">{t("choices")}</h3>
               {options.length === 0 ? (
-                <p className="text-body-sm text-foreground-muted">{t.emptyOptions}</p>
+                <p className="text-body-sm text-foreground-muted">{t("emptyOptions")}</p>
               ) : null}
               {options.map((option) => (
                 <div className="flex items-center justify-between gap-3 text-label" key={option.id}>
@@ -182,7 +180,7 @@ function ModifierSheet({
                   </span>
                   <span className="flex items-center gap-2">
                     <span className="numeric-tabular text-foreground-secondary">
-                      +{formatMoney(option.priceDeltaMinor)}
+                      +{money(option.priceDeltaMinor)}
                     </span>
                     <Button
                       disabled={busy}
@@ -192,28 +190,29 @@ function ModifierSheet({
                             merchantApi.updateModifierOption(tenantId, option.id, {
                               status: nextCatalogStatus(option.status),
                             }),
-                          success: t.modifierUpdated,
+                          success: t("modifierUpdated"),
                         })
                       }
                       size="xs"
                       variant="ghost"
                     >
-                      {option.status === "ACTIVE" ? t.deactivate : t.activate}
+                      {option.status === "ACTIVE" ? t("deactivate") : t("activate")}
                     </Button>
                   </span>
                 </div>
               ))}
               <div className="grid grid-cols-[1fr_8rem_auto] items-end gap-2">
                 <Input
-                  aria-label={t.optionName}
+                  aria-label={t("optionName")}
                   onChange={(event) => setOptionName(event.target.value)}
-                  placeholder={t.optionName}
+                  placeholder={t("optionName")}
                   value={optionName}
                 />
                 <MoneyInput
-                  aria-label={t.extraPrice}
+                  aria-label={t("extraPrice")}
+                  locale={locale}
                   onValueChange={setOptionPrice}
-                  placeholder={t.extraPrice}
+                  placeholder={t("extraPrice")}
                   {...(optionPrice === undefined ? {} : { value: optionPrice })}
                 />
                 <Button
@@ -229,7 +228,7 @@ function ModifierSheet({
                             name: optionName.trim(),
                             priceDeltaMinor: String(optionPrice ?? 0),
                           }),
-                        success: t.modifierUpdated,
+                        success: t("modifierUpdated"),
                       },
                       {
                         onSuccess: () => {
@@ -241,7 +240,7 @@ function ModifierSheet({
                   }
                   variant="secondary"
                 >
-                  {t.add}
+                  {t("add")}
                 </Button>
               </div>
             </section>
@@ -260,6 +259,7 @@ export function ModifiersView({
   snapshot,
   tenantId,
 }: Readonly<Props>) {
+  const t = useTranslations("catalog");
   const groups = snapshot.modifierGroups;
   const selected = groups.find((item) => item.id === selectedId);
   const sheetOpen = canManage && (selectedId === "new" || Boolean(selected));
@@ -268,18 +268,18 @@ export function ModifiersView({
     <>
       <Panel>
         <DataTable
-          caption={t.modifiers}
+          caption={t("modifiers")}
           columns={[
-            t.modifiers,
-            { label: t.type, priority: 2 },
-            { align: "end", label: t.choices },
-            t.status,
+            t("modifiers"),
+            { label: t("type"), priority: 2 },
+            { align: "end", label: t("choices") },
+            t("status"),
           ]}
-          empty={<EmptyState description={t.emptyModifiers} title={t.modifiers} />}
+          empty={<EmptyState description={t("emptyModifiers")} title={t("modifiers")} />}
           {...(canManage ? { onRowSelect: (index: number) => onSelect(groups[index]?.id) } : {})}
           rows={groups.map((item) => [
             item.name,
-            typeLabel(item.selectionType),
+            t(item.selectionType === "SINGLE" ? "typeSingle" : "typeMultiple"),
             snapshot.modifierOptions.filter(
               (option) => option.groupId === item.id && option.status === "ACTIVE",
             ).length,

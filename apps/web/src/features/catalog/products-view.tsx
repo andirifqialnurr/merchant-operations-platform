@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import type { CatalogSnapshot } from "@merchant/contracts";
@@ -8,16 +9,15 @@ import { EmptyState } from "@merchant/ui/feedback";
 import { FilterBar } from "@merchant/ui/page";
 import { Select } from "@merchant/ui/select";
 
-import { formatMoney } from "@/lib/format";
+import { useFormat } from "@/lib/i18n";
 
 import type { CatalogMutation } from "./api";
-import { catalogMessages as t, removeFilterLabel } from "./messages";
 import { ProductSheet } from "./product-sheet";
 import {
   ProductStatusBadge,
   type ProductStatusFilter,
-  productStatusLabel,
   productStatusOf,
+  useProductStatusLabel,
 } from "./status";
 
 const ALL = "ALL";
@@ -43,6 +43,9 @@ export function ProductsView({
   snapshot,
   tenantId,
 }: Readonly<Props>) {
+  const t = useTranslations("catalog");
+  const { money } = useFormat();
+  const statusLabel = useProductStatusLabel();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<string>(ALL);
   const [categoryId, setCategoryId] = useState<string>(ALL);
@@ -67,7 +70,10 @@ export function ProductsView({
       : [
           {
             key: "status",
-            label: `${t.status}: ${productStatusLabel(status as ProductStatusFilter)}`,
+            label: t("filterValue", {
+              name: t("status"),
+              value: statusLabel(status as ProductStatusFilter),
+            }),
             onRemove: () => setStatus(ALL),
           },
         ]),
@@ -76,11 +82,14 @@ export function ProductsView({
       : [
           {
             key: "category",
-            label: `${t.category}: ${categoryNames.get(categoryId) ?? ""}`,
+            label: t("filterValue", {
+              name: t("category"),
+              value: categoryNames.get(categoryId) ?? "",
+            }),
             onRemove: () => setCategoryId(ALL),
           },
         ]),
-  ].map((chip) => ({ ...chip, removeLabel: removeFilterLabel(chip.label) }));
+  ].map((chip) => ({ ...chip, removeLabel: t("removeFilter", { filter: chip.label }) }));
 
   const selected = snapshot.products.find((item) => item.id === selectedId);
   const sheetOpen = selectedId === "new" ? canManage : Boolean(selected);
@@ -89,36 +98,36 @@ export function ProductsView({
     <>
       <FilterBar
         chips={chips}
-        filtersLabel={t.filters}
+        filtersLabel={t("filters")}
         onReset={() => {
           setStatus(ALL);
           setCategoryId(ALL);
         }}
-        resetLabel={t.reset}
+        resetLabel={t("reset")}
         search={{
-          clearLabel: t.clearSearch,
-          label: t.searchProducts,
+          clearLabel: t("clearSearch"),
+          label: t("searchProducts"),
           onChange: setQuery,
-          placeholder: t.searchProducts,
+          placeholder: t("searchProducts"),
           value: query,
         }}
-        sheetCloseLabel={t.closeFilters}
-        sheetDoneLabel={t.showResults}
+        sheetCloseLabel={t("closeFilters")}
+        sheetDoneLabel={t("showResults")}
       >
         <Select
-          label={t.status}
+          label={t("status")}
           onValueChange={setStatus}
           options={[
-            { label: `${t.status}: ${t.filterAll}`, value: ALL },
-            ...statusFilters.map((value) => ({ label: productStatusLabel(value), value })),
+            { label: t("filterValue", { name: t("status"), value: t("filterAll") }), value: ALL },
+            ...statusFilters.map((value) => ({ label: statusLabel(value), value })),
           ]}
           value={status}
         />
         <Select
-          label={t.category}
+          label={t("category")}
           onValueChange={setCategoryId}
           options={[
-            { label: `${t.category}: ${t.filterAll}`, value: ALL },
+            { label: t("filterValue", { name: t("category"), value: t("filterAll") }), value: ALL },
             ...snapshot.categories.map((item) => ({ label: item.name, value: item.id })),
           ]}
           value={categoryId}
@@ -126,17 +135,17 @@ export function ProductsView({
       </FilterBar>
       <Panel>
         <DataTable
-          caption={t.products}
+          caption={t("products")}
           columns={[
-            t.product,
-            { label: t.category, priority: 2 },
-            t.status,
-            { align: "end", label: t.price },
+            t("product"),
+            { label: t("category"), priority: 2 },
+            t("status"),
+            { align: "end", label: t("price") },
           ]}
           empty={
             <EmptyState
-              description={snapshot.products.length ? t.emptySearch : t.emptyProducts}
-              title={t.products}
+              description={snapshot.products.length ? t("emptySearch") : t("emptyProducts")}
+              title={t("products")}
             />
           }
           onRowSelect={(index) => onSelect(visible[index]?.id)}
@@ -147,7 +156,7 @@ export function ProductsView({
               key="status"
               status={productStatusOf(item.status, item.availability)}
             />,
-            formatMoney(item.basePriceMinor, item.currency),
+            money(item.basePriceMinor, item.currency),
           ])}
         />
       </Panel>

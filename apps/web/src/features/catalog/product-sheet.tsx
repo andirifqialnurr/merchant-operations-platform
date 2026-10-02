@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
 
 import type { CatalogOutletProduct, CatalogProduct, CatalogSnapshot } from "@merchant/contracts";
@@ -12,10 +13,10 @@ import { Select } from "@merchant/ui/select";
 import { Switch } from "@merchant/ui/selection-control";
 
 import { merchantApi, nextCatalogStatus } from "@/lib/api-client";
-import { formatMoney, slugify } from "@/lib/format";
+import { slugify } from "@/lib/format";
+import { useFormat } from "@/lib/i18n";
 
 import type { CatalogMutation } from "./api";
-import { catalogMessages as t } from "./messages";
 
 type Props = {
   canManage: boolean;
@@ -44,6 +45,8 @@ export function ProductSheet({
   snapshot,
   tenantId,
 }: Readonly<Props>) {
+  const t = useTranslations("catalog");
+  const { locale, money } = useFormat();
   const [name, setName] = useState(product?.name ?? "");
   const [categoryId, setCategoryId] = useState(product?.categoryId ?? "");
   const [price, setPrice] = useState<number | undefined>(
@@ -84,9 +87,9 @@ export function ProductSheet({
   function submit(event: FormEvent) {
     event.preventDefault();
     const nextErrors: Errors = {
-      ...(name.trim().length < 2 ? { name: t.nameRequired } : {}),
-      ...(categoryId ? {} : { category: t.categoryRequired }),
-      ...(price === undefined ? { price: t.priceRequired } : {}),
+      ...(name.trim().length < 2 ? { name: t("nameRequired") } : {}),
+      ...(categoryId ? {} : { category: t("categoryRequired") }),
+      ...(price === undefined ? { price: t("priceRequired") } : {}),
     };
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length || price === undefined) return;
@@ -98,7 +101,11 @@ export function ProductSheet({
       name: name.trim(),
     };
     if (product) {
-      run(() => merchantApi.updateProduct(tenantId, product.id, fields), t.productUpdated, onClose);
+      run(
+        () => merchantApi.updateProduct(tenantId, product.id, fields),
+        t("productUpdated"),
+        onClose,
+      );
     } else {
       run(
         () =>
@@ -108,7 +115,7 @@ export function ProductSheet({
             currency: "IDR",
             slug: slugify(fields.name),
           }),
-        t.productCreated,
+        t("productCreated"),
         onClose,
       );
     }
@@ -116,7 +123,7 @@ export function ProductSheet({
 
   return (
     <Sheet
-      closeLabel={t.closeSheet}
+      closeLabel={t("closeSheet")}
       footer={
         canManage ? (
           <>
@@ -129,17 +136,17 @@ export function ProductSheet({
                       merchantApi.updateProduct(tenantId, product.id, {
                         status: nextCatalogStatus(product.status),
                       }),
-                    t.productUpdated,
+                    t("productUpdated"),
                     onClose,
                   )
                 }
                 variant="secondary"
               >
-                {product.status === "ACTIVE" ? t.deactivate : t.activate}
+                {product.status === "ACTIVE" ? t("deactivate") : t("activate")}
               </Button>
             ) : null}
-            <Button form="product-form" loading={busy} loadingLabel={t.saving} type="submit">
-              {t.save}
+            <Button form="product-form" loading={busy} loadingLabel={t("saving")} type="submit">
+              {t("save")}
             </Button>
           </>
         ) : undefined
@@ -148,14 +155,14 @@ export function ProductSheet({
         if (!open) onClose();
       }}
       open
-      title={product?.name ?? t.newProduct}
+      title={product?.name ?? t("newProduct")}
     >
       <div className="grid gap-6">
         <form className="grid gap-4" id="product-form" noValidate onSubmit={submit}>
           <FormField
             {...(errors.name ? { error: errors.name } : {})}
             htmlFor="product-name"
-            label={t.productName}
+            label={t("productName")}
           >
             <Input
               id="product-name"
@@ -165,31 +172,36 @@ export function ProductSheet({
             />
           </FormField>
           <div className="grid gap-1.5">
-            <span className="text-label">{t.category}</span>
+            <span className="text-label">{t("category")}</span>
             <Select
               {...(errors.category ? { error: errors.category } : {})}
               {...(categoryId ? { value: categoryId } : {})}
               disabled={readOnly}
-              emptyLabel={t.noCategoryYet}
-              label={t.category}
+              emptyLabel={t("noCategoryYet")}
+              label={t("category")}
               onValueChange={setCategoryId}
               options={categories.map((item) => ({ label: item.name, value: item.id }))}
-              placeholder={t.selectCategory}
+              placeholder={t("selectCategory")}
             />
           </div>
           <FormField
             {...(errors.price ? { error: errors.price } : {})}
             htmlFor="product-price"
-            label={t.price}
+            label={t("price")}
           >
             <MoneyInput
               disabled={readOnly}
               id="product-price"
+              locale={locale}
               onValueChange={setPrice}
               {...(price === undefined ? {} : { value: price })}
             />
           </FormField>
-          <FormField htmlFor="product-description" label={t.description} optionalLabel={t.optional}>
+          <FormField
+            htmlFor="product-description"
+            label={t("description")}
+            optionalLabel={t("optional")}
+          >
             <Textarea
               autoGrow
               id="product-description"
@@ -203,7 +215,7 @@ export function ProductSheet({
             <Switch
               checked={product.availability === "SOLD_OUT"}
               disabled={busy}
-              label={t.soldOutEverywhere}
+              label={t("soldOutEverywhere")}
               onChange={() =>
                 run(
                   () =>
@@ -212,7 +224,7 @@ export function ProductSheet({
                       // after the server confirms.
                       availability: product.availability === "SOLD_OUT" ? "AVAILABLE" : "SOLD_OUT",
                     }),
-                  t.productUpdated,
+                  t("productUpdated"),
                 )
               }
             />
@@ -223,7 +235,7 @@ export function ProductSheet({
           <>
             <Divider />
             <section className="grid gap-3">
-              <SectionTitle>{t.variants}</SectionTitle>
+              <SectionTitle>{t("variants")}</SectionTitle>
               {variants.map((variant) => (
                 <div
                   className="flex items-center justify-between gap-3 text-label"
@@ -238,7 +250,7 @@ export function ProductSheet({
                   </span>
                   <span className="flex items-center gap-2">
                     <span className="numeric-tabular text-foreground-secondary">
-                      +{formatMoney(variant.priceDeltaMinor)}
+                      +{money(variant.priceDeltaMinor)}
                     </span>
                     {canManage ? (
                       <Button
@@ -249,13 +261,13 @@ export function ProductSheet({
                               merchantApi.updateVariant(tenantId, variant.id, {
                                 status: nextCatalogStatus(variant.status),
                               }),
-                            t.productUpdated,
+                            t("productUpdated"),
                           )
                         }
                         size="xs"
                         variant="ghost"
                       >
-                        {variant.status === "ACTIVE" ? t.deactivate : t.activate}
+                        {variant.status === "ACTIVE" ? t("deactivate") : t("activate")}
                       </Button>
                     ) : null}
                   </span>
@@ -264,15 +276,16 @@ export function ProductSheet({
               {canManage ? (
                 <div className="grid grid-cols-[1fr_8rem_auto] items-end gap-2">
                   <Input
-                    aria-label={t.variantName}
+                    aria-label={t("variantName")}
                     onChange={(event) => setVariantName(event.target.value)}
-                    placeholder={t.variantName}
+                    placeholder={t("variantName")}
                     value={variantName}
                   />
                   <MoneyInput
-                    aria-label={t.extraPrice}
+                    aria-label={t("extraPrice")}
+                    locale={locale}
                     onValueChange={setVariantPrice}
-                    placeholder={t.extraPrice}
+                    placeholder={t("extraPrice")}
                     {...(variantPrice === undefined ? {} : { value: variantPrice })}
                   />
                   <Button
@@ -287,7 +300,7 @@ export function ProductSheet({
                             priceDeltaMinor: String(variantPrice ?? 0),
                             productId: product.id,
                           }),
-                        t.productUpdated,
+                        t("productUpdated"),
                         () => {
                           setVariantName("");
                           setVariantPrice(undefined);
@@ -296,7 +309,7 @@ export function ProductSheet({
                     }
                     variant="secondary"
                   >
-                    {t.add}
+                    {t("add")}
                   </Button>
                 </div>
               ) : null}
@@ -304,7 +317,7 @@ export function ProductSheet({
 
             <Divider />
             <section className="grid gap-3">
-              <SectionTitle>{t.modifiers}</SectionTitle>
+              <SectionTitle>{t("modifiers")}</SectionTitle>
               {links.map((link) => (
                 <div className="flex items-center justify-between gap-3 text-label" key={link.id}>
                   <span>
@@ -319,13 +332,13 @@ export function ProductSheet({
                             merchantApi.updateProductModifierGroup(tenantId, link.id, {
                               status: "INACTIVE",
                             }),
-                          t.productUpdated,
+                          t("productUpdated"),
                         )
                       }
                       size="xs"
                       variant="ghost"
                     >
-                      {t.detach}
+                      {t("detach")}
                     </Button>
                   ) : null}
                 </div>
@@ -334,10 +347,10 @@ export function ProductSheet({
                 <div className="grid grid-cols-[1fr_auto] items-start gap-2">
                   <Select
                     {...(modifierId ? { value: modifierId } : {})}
-                    label={t.modifiers}
+                    label={t("modifiers")}
                     onValueChange={setModifierId}
                     options={attachable.map((item) => ({ label: item.name, value: item.id }))}
-                    placeholder={t.selectModifier}
+                    placeholder={t("selectModifier")}
                   />
                   <Button
                     disabled={busy || !modifierId}
@@ -357,13 +370,13 @@ export function ProductSheet({
                                 modifierGroupId: modifierId,
                                 productId: product.id,
                               }),
-                        t.productUpdated,
+                        t("productUpdated"),
                         () => setModifierId(""),
                       );
                     }}
                     variant="secondary"
                   >
-                    {t.attach}
+                    {t("attach")}
                   </Button>
                 </div>
               ) : null}
@@ -377,7 +390,7 @@ export function ProductSheet({
                   <Switch
                     checked={assignment?.status === "ACTIVE"}
                     disabled={busy || readOnly}
-                    label={t.outletSold}
+                    label={t("outletSold")}
                     onChange={() =>
                       run(
                         () =>
@@ -391,7 +404,7 @@ export function ProductSheet({
                                 priceOverrideMinor: null,
                                 productId: product.id,
                               }),
-                        t.outletUpdated,
+                        t("outletUpdated"),
                       )
                     }
                   />
@@ -400,7 +413,7 @@ export function ProductSheet({
                       <Switch
                         checked={assignment.availabilityOverride === "SOLD_OUT"}
                         disabled={busy || readOnly}
-                        label={t.outletSoldOut}
+                        label={t("outletSoldOut")}
                         onChange={() =>
                           run(
                             () =>
@@ -410,21 +423,22 @@ export function ProductSheet({
                                     ? null
                                     : "SOLD_OUT",
                               }),
-                            t.outletUpdated,
+                            t("outletUpdated"),
                           )
                         }
                       />
                       <FormField
-                        helperText={t.outletFollowsProduct}
+                        helperText={t("outletFollowsProduct")}
                         htmlFor="outlet-price"
-                        label={t.outletPrice}
+                        label={t("outletPrice")}
                       >
                         <div className="grid grid-cols-[1fr_auto] gap-2">
                           <MoneyInput
                             disabled={readOnly}
                             id="outlet-price"
+                            locale={locale}
                             onValueChange={setOutletPrice}
-                            placeholder={formatMoney(product.basePriceMinor)}
+                            placeholder={money(product.basePriceMinor)}
                             {...(outletPrice === undefined ? {} : { value: outletPrice })}
                           />
                           {canManage ? (
@@ -442,12 +456,12 @@ export function ProductSheet({
                                           outletPrice === undefined ? null : String(outletPrice),
                                       },
                                     ),
-                                  t.outletUpdated,
+                                  t("outletUpdated"),
                                 )
                               }
                               variant="secondary"
                             >
-                              {t.save}
+                              {t("save")}
                             </Button>
                           ) : null}
                         </div>

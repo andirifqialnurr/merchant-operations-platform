@@ -246,13 +246,17 @@ const canRefund = useCan("pos.sale.refund");      // izin + capability + cakupan
 
 ## 6. Bahasa (i18n)
 
-**Pustaka:** `next-intl`, mode tanpa prefix URL (bahasa dari cookie).
+**Pustaka:** `next-intl`, mode tanpa prefix URL (bahasa dari cookie), **tanpa plugin build**. Plugin `next-intl` membutuhkan binding native `@swc/core` yang gagal dimuat di lingkungan Windows ini, jadi bahasa dan kamus di-resolve di root layout lalu diteruskan ke provider klien.
 
 ```text
 apps/web/messages/id.json, en.json
-apps/web/src/i18n/request.ts     membaca cookie "locale" -> memuat kamus
-apps/web/next.config.ts          plugin next-intl
-app/layout.tsx                   <html lang={locale}> + NextIntlClientProvider
+apps/web/src/i18n/locale.ts            daftar bahasa, deteksi dari Accept-Language, tag format
+apps/web/src/i18n/server.ts            resolveLocale() dan loadMessages() untuk root layout
+apps/web/src/i18n/use-locale-switch.ts  menulis cookie lalu router.refresh()
+apps/web/src/i18n/messages.d.ts        kunci terjemahan diperiksa tipe terhadap id.json
+apps/web/src/providers/intl-provider.tsx  NextIntlClientProvider (klien)
+apps/web/src/lib/i18n.ts               useFormat() dan useErrorMessage()
+app/layout.tsx                         <html lang={locale}> + IntlProvider
 ```
 
 ### 6.1 Penentuan bahasa
@@ -421,7 +425,7 @@ Setiap butir adalah checkpoint yang dapat di-push sendiri.
 
 1. Token Calm Neutral di `tokens.css`/`primitives.css` — **selesai**; pratinjau di `/color-bank`.
 2. `AppIcon` ke Tabler; ganti semua impor ikon; hapus `lucide-react`.
-3. `next-intl`: plugin, `i18n/request.ts`, kamus awal, `LanguageSwitcher`; keluarkan string dari `packages/ui`.
+3. `next-intl` — **selesai** untuk shell, login, dan Catalog: kamus `id`/`en`, bawaan mengikuti browser, pemilih bahasa di menu akun dan halaman login, error diterjemahkan per kode. Yang tersisa: menyimpan pilihan ke `users.locale`, dan menghapus bawaan Bahasa Indonesia pada props label `packages/ui`.
 4. Klien API: header CSRF dan TanStack Query — **selesai**. Idempotency dan pemetaan error berdasarkan kode menyusul.
 5. `AppShell`, `ContextSwitcher`, `UserMenu`, `PageHeader`, `FilterBar`, `Chip` — **selesai**. `ModuleAccessState` dan `UsageLimitState` menyusul.
 6. Grup rute dan guard: `(auth)` dan `(backoffice)` — **selesai**. `(pos)`, `(kds)`, `(customer)`, `(platform)` menyusul bersama halamannya.

@@ -1,7 +1,9 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 import type { CatalogRecordStatus } from "@merchant/contracts";
 import { Badge } from "@merchant/ui/feedback";
-
-import { catalogMessages as t } from "./messages";
 
 export type ProductStatusFilter = "ACTIVE" | "SOLD_OUT" | "INACTIVE";
 
@@ -14,25 +16,29 @@ export function productStatusOf(
   return availability === "SOLD_OUT" ? "SOLD_OUT" : "ACTIVE";
 }
 
-const labels: Record<ProductStatusFilter, string> = {
-  ACTIVE: t.statusActive,
-  INACTIVE: t.statusInactive,
-  SOLD_OUT: t.soldOut,
-};
+const labelKeys = {
+  ACTIVE: "statusActive",
+  INACTIVE: "statusInactive",
+  SOLD_OUT: "soldOut",
+} as const;
 const tones = { ACTIVE: "success", INACTIVE: "neutral", SOLD_OUT: "warning" } as const;
 
-export function productStatusLabel(status: ProductStatusFilter) {
-  return labels[status];
+/** Returns a translator from a product status to its label in the active language. */
+export function useProductStatusLabel() {
+  const t = useTranslations("catalog");
+  return (status: ProductStatusFilter) => t(labelKeys[status]);
 }
 
 export function ProductStatusBadge({ status }: Readonly<{ status: ProductStatusFilter }>) {
-  return <Badge tone={tones[status]}>{labels[status]}</Badge>;
+  const label = useProductStatusLabel();
+  return <Badge tone={tones[status]}>{label(status)}</Badge>;
 }
 
 export function RecordStatusBadge({ status }: Readonly<{ status: CatalogRecordStatus }>) {
+  const t = useTranslations("catalog");
   return (
     <Badge tone={status === "ACTIVE" ? "success" : "neutral"}>
-      {status === "ACTIVE" ? t.statusActive : t.statusInactive}
+      {status === "ACTIVE" ? t("statusActive") : t("statusInactive")}
     </Badge>
   );
 }

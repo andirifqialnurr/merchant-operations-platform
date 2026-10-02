@@ -8,7 +8,7 @@
     "start": "next start --port 3000",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "node --test src/components/device-mode-selector.test.mjs src/components/device-mode-selector-navigation.test.mjs src/components/pwa/service-worker-registration.test.mjs && tsx --test src/components/pwa/menu-cart-cache.test.ts src/components/pwa/server-acknowledgement.test.ts",
+    "test": "node --test src/components/device-mode-selector.test.mjs src/components/device-mode-selector-navigation.test.mjs src/components/pwa/service-worker-registration.test.mjs && tsx --test src/components/pwa/menu-cart-cache.test.ts src/components/pwa/server-acknowledgement.test.ts src/i18n/locale.test.ts",
     "format:check": "prettier --check . --ignore-path ../../.gitignore"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
     "geist": "1.7.2",
     "lucide-react": "1.24.0",
     "next": "16.2.10",
+    "next-intl": "^4.14.8",
     "next-themes": "0.4.6",
     "postcss": "8.5.19",
     "radix-ui": "1.6.2",

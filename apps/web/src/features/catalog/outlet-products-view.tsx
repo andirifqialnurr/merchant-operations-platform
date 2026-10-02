@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { CatalogOutletSnapshot } from "@merchant/contracts";
 import { DataTable, Panel } from "@merchant/ui/data-display";
 import { EmptyState } from "@merchant/ui/feedback";
@@ -7,10 +8,9 @@ import { Sheet } from "@merchant/ui/overlay";
 import { Switch } from "@merchant/ui/selection-control";
 
 import { merchantApi } from "@/lib/api-client";
-import { formatMoney } from "@/lib/format";
+import { useFormat } from "@/lib/i18n";
 
 import type { CatalogMutation } from "./api";
-import { catalogMessages as t } from "./messages";
 import { ProductStatusBadge, productStatusOf } from "./status";
 
 type Props = {
@@ -36,6 +36,8 @@ export function OutletProductsView({
   snapshot,
   tenantId,
 }: Readonly<Props>) {
+  const t = useTranslations("catalog");
+  const { money } = useFormat();
   const items = snapshot.items;
   const selected = items.find((item) => item.assignment.id === selectedId);
 
@@ -43,9 +45,9 @@ export function OutletProductsView({
     <>
       <Panel>
         <DataTable
-          caption={t.products}
-          columns={[t.product, t.status, { align: "end", label: t.price }]}
-          empty={<EmptyState description={t.emptyProducts} title={t.products} />}
+          caption={t("products")}
+          columns={[t("product"), t("status"), { align: "end", label: t("price") }]}
+          empty={<EmptyState description={t("emptyProducts")} title={t("products")} />}
           {...(canManage
             ? { onRowSelect: (index: number) => onSelect(items[index]?.assignment.id) }
             : {})}
@@ -55,13 +57,13 @@ export function OutletProductsView({
               key="status"
               status={productStatusOf(item.assignment.status, item.effectiveAvailability)}
             />,
-            formatMoney(item.effectivePriceMinor, item.product.currency),
+            money(item.effectivePriceMinor, item.product.currency),
           ])}
         />
       </Panel>
       {selected && canManage ? (
         <Sheet
-          closeLabel={t.closeSheet}
+          closeLabel={t("closeSheet")}
           onOpenChange={(open) => {
             if (!open) onSelect(undefined);
           }}
@@ -72,7 +74,7 @@ export function OutletProductsView({
           <Switch
             checked={selected.assignment.availabilityOverride === "SOLD_OUT"}
             disabled={mutation.isPending}
-            label={t.outletSoldOut}
+            label={t("outletSoldOut")}
             onChange={() =>
               mutation.mutate({
                 action: () =>
@@ -80,7 +82,7 @@ export function OutletProductsView({
                     availabilityOverride:
                       selected.assignment.availabilityOverride === "SOLD_OUT" ? null : "SOLD_OUT",
                   }),
-                success: t.outletUpdated,
+                success: t("outletUpdated"),
               })
             }
           />

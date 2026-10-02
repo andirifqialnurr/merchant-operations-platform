@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { type ReactNode, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -9,15 +10,17 @@ import { EmptyState, ErrorState, Skeleton } from "@merchant/ui/feedback";
 import { useLogout, useSession } from "@/features/auth";
 import { useWorkspaces, WorkspaceProvider } from "@/features/workspace";
 import { ApiClientError } from "@/lib/api-client";
+import { useErrorMessage } from "@/lib/i18n";
 import { ToastProvider } from "@/providers/toast-provider";
 import { BackofficeShell } from "@/shell/backoffice-shell";
-import { shellMessages as t } from "@/shell/messages";
 
 function Centered({ children }: Readonly<{ children: ReactNode }>) {
   return <main className="grid min-h-dvh place-items-center bg-canvas p-6">{children}</main>;
 }
 
 export default function BackofficeLayout({ children }: Readonly<{ children: ReactNode }>) {
+  const t = useTranslations("shell");
+  const errorMessage = useErrorMessage();
   const router = useRouter();
   const pathname = usePathname();
   const session = useSession();
@@ -56,11 +59,11 @@ export default function BackofficeLayout({ children }: Readonly<{ children: Reac
               }}
               variant="secondary"
             >
-              {t.retry}
+              {t("retry")}
             </Button>
           }
-          description={failure?.message ?? ""}
-          title={t.loadFailed}
+          description={errorMessage(failure)}
+          title={t("loadFailed")}
         />
       </Centered>
     );
@@ -72,11 +75,11 @@ export default function BackofficeLayout({ children }: Readonly<{ children: Reac
         <EmptyState
           action={
             <Button onClick={signOut} variant="secondary">
-              {t.signOut}
+              {t("signOut")}
             </Button>
           }
-          description={t.noWorkspace}
-          title={t.noWorkspaceTitle}
+          description={t("noWorkspace")}
+          title={t("noWorkspaceTitle")}
         />
       </Centered>
     );
@@ -84,7 +87,7 @@ export default function BackofficeLayout({ children }: Readonly<{ children: Reac
 
   return (
     <WorkspaceProvider workspaces={workspaces.data}>
-      <ToastProvider dismissLabel={t.dismissToast}>
+      <ToastProvider dismissLabel={t("dismissToast")}>
         <BackofficeShell onSignOut={signOut} user={session.data.user}>
           {children}
         </BackofficeShell>

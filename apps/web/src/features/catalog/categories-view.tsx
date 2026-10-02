@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
 
 import type { CatalogCategory, CatalogSnapshot } from "@merchant/contracts";
@@ -14,7 +15,6 @@ import { merchantApi, nextCatalogStatus } from "@/lib/api-client";
 import { slugify } from "@/lib/format";
 
 import type { CatalogMutation } from "./api";
-import { catalogMessages as t } from "./messages";
 import { RecordStatusBadge } from "./status";
 
 type Props = {
@@ -39,6 +39,7 @@ function CategorySheet({
   onClose: () => void;
   tenantId: string;
 }>) {
+  const t = useTranslations("catalog");
   const [name, setName] = useState(category?.name ?? "");
   const [order, setOrder] = useState(String(category?.displayOrder ?? nextOrder));
   const [error, setError] = useState<string>();
@@ -47,7 +48,7 @@ function CategorySheet({
   function submit(event: FormEvent) {
     event.preventDefault();
     if (name.trim().length < 2) {
-      setError(t.nameRequired);
+      setError(t("nameRequired"));
       return;
     }
     const fields = { displayOrder: Number(order) || 0, name: name.trim() };
@@ -55,12 +56,12 @@ function CategorySheet({
       category
         ? {
             action: () => merchantApi.updateCategory(tenantId, category.id, fields),
-            success: t.categoryUpdated,
+            success: t("categoryUpdated"),
           }
         : {
             action: () =>
               merchantApi.createCategory(tenantId, { ...fields, slug: slugify(fields.name) }),
-            success: t.categoryCreated,
+            success: t("categoryCreated"),
           },
       { onSuccess: onClose },
     );
@@ -68,7 +69,7 @@ function CategorySheet({
 
   return (
     <Sheet
-      closeLabel={t.closeSheet}
+      closeLabel={t("closeSheet")}
       footer={
         <>
           {category ? (
@@ -81,18 +82,18 @@ function CategorySheet({
                       merchantApi.updateCategory(tenantId, category.id, {
                         status: nextCatalogStatus(category.status),
                       }),
-                    success: t.categoryUpdated,
+                    success: t("categoryUpdated"),
                   },
                   { onSuccess: onClose },
                 )
               }
               variant="secondary"
             >
-              {category.status === "ACTIVE" ? t.deactivate : t.activate}
+              {category.status === "ACTIVE" ? t("deactivate") : t("activate")}
             </Button>
           ) : null}
-          <Button form="category-form" loading={busy} loadingLabel={t.saving} type="submit">
-            {t.save}
+          <Button form="category-form" loading={busy} loadingLabel={t("saving")} type="submit">
+            {t("save")}
           </Button>
         </>
       }
@@ -101,17 +102,17 @@ function CategorySheet({
       }}
       open
       size="sm"
-      title={category?.name ?? t.newCategory}
+      title={category?.name ?? t("newCategory")}
     >
       <form className="grid gap-4" id="category-form" noValidate onSubmit={submit}>
-        <FormField {...(error ? { error } : {})} htmlFor="category-name" label={t.categoryName}>
+        <FormField {...(error ? { error } : {})} htmlFor="category-name" label={t("categoryName")}>
           <Input
             id="category-name"
             onChange={(event) => setName(event.target.value)}
             value={name}
           />
         </FormField>
-        <FormField htmlFor="category-order" label={t.categoryOrder}>
+        <FormField htmlFor="category-order" label={t("categoryOrder")}>
           <NumericInput id="category-order" onValueChange={setOrder} value={order} />
         </FormField>
       </form>
@@ -127,6 +128,7 @@ export function CategoriesView({
   snapshot,
   tenantId,
 }: Readonly<Props>) {
+  const t = useTranslations("catalog");
   const categories = [...snapshot.categories].sort((a, b) => a.displayOrder - b.displayOrder);
   const selected = categories.find((item) => item.id === selectedId);
   const sheetOpen = canManage && (selectedId === "new" || Boolean(selected));
@@ -135,9 +137,9 @@ export function CategoriesView({
     <>
       <Panel>
         <DataTable
-          caption={t.category}
-          columns={[t.category, { align: "end", label: t.products }, t.status]}
-          empty={<EmptyState description={t.emptyCategories} title={t.category} />}
+          caption={t("category")}
+          columns={[t("category"), { align: "end", label: t("products") }, t("status")]}
+          empty={<EmptyState description={t("emptyCategories")} title={t("category")} />}
           {...(canManage
             ? { onRowSelect: (index: number) => onSelect(categories[index]?.id) }
             : {})}

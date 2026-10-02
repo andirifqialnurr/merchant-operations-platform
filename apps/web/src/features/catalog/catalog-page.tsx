@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 
@@ -10,21 +11,21 @@ import { Tabs } from "@merchant/ui/navigation";
 import { PageHeader } from "@merchant/ui/page";
 
 import { useWorkspace } from "@/features/workspace";
+import { useErrorMessage } from "@/lib/i18n";
 
 import { useCatalog, useCatalogMutation, useOutletCatalog } from "./api";
 import { CategoriesView } from "./categories-view";
-import { catalogMessages as t } from "./messages";
 import { ModifiersView } from "./modifiers-view";
 import { OutletProductsView } from "./outlet-products-view";
 import { ProductsView } from "./products-view";
 
 const tabs = ["products", "categories", "modifiers"] as const;
 type Tab = (typeof tabs)[number];
-const addLabels: Record<Tab, string> = {
-  categories: t.addCategory,
-  modifiers: t.addModifier,
-  products: t.addProduct,
-};
+const addLabelKeys = {
+  categories: "addCategory",
+  modifiers: "addModifier",
+  products: "addProduct",
+} as const satisfies Record<Tab, string>;
 
 function TableSkeleton() {
   return (
@@ -37,6 +38,8 @@ function TableSkeleton() {
 }
 
 export function CatalogPage() {
+  const t = useTranslations("catalog");
+  const errorMessage = useErrorMessage();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -70,7 +73,7 @@ export function CatalogPage() {
   const select = (id: string | undefined) => navigate({ id });
 
   if (!canRead) {
-    return <ErrorState description={t.accessDenied} title={t.accessDeniedTitle} />;
+    return <ErrorState description={t("accessDenied")} title={t("accessDeniedTitle")} />;
   }
 
   const query = fullCatalog ? master : outletCatalog;
@@ -80,7 +83,7 @@ export function CatalogPage() {
         ? {
             primaryAction: (
               <Button iconLeft={Plus} onClick={() => select("new")}>
-                {addLabels[tab]}
+                {t(addLabelKeys[tab])}
               </Button>
             ),
           }
@@ -90,18 +93,18 @@ export function CatalogPage() {
             tabs: (
               <Tabs
                 items={[
-                  { label: t.products, value: "products" },
-                  { label: t.category, value: "categories" },
-                  { label: t.modifiers, value: "modifiers" },
+                  { label: t("products"), value: "products" },
+                  { label: t("category"), value: "categories" },
+                  { label: t("modifiers"), value: "modifiers" },
                 ]}
-                label={t.tabs}
+                label={t("tabs")}
                 onValueChange={(value) => navigate({ tab: value as Tab })}
                 value={tab}
               />
             ),
           }
         : {})}
-      title={t.title}
+      title={t("title")}
     />
   );
 
@@ -109,7 +112,7 @@ export function CatalogPage() {
     return (
       <>
         {header}
-        <ErrorState description={t.noOutlet} title={t.accessDeniedTitle} />
+        <ErrorState description={t("noOutlet")} title={t("accessDeniedTitle")} />
       </>
     );
   }
@@ -130,11 +133,11 @@ export function CatalogPage() {
         <ErrorState
           action={
             <Button onClick={() => void query.refetch()} variant="secondary">
-              {t.retry}
+              {t("retry")}
             </Button>
           }
-          description={query.error.message}
-          title={t.loadFailed}
+          description={errorMessage(query.error)}
+          title={t("loadFailed")}
         />
       </>
     );

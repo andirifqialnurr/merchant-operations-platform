@@ -6,6 +6,7 @@ export function formatMoney(valueMinor: string, currency = "IDR", locale = DEFAU
   if (!Number.isSafeInteger(amount)) return `${valueMinor} ${currency}`;
   return new Intl.NumberFormat(locale, {
     currency,
+    currencyDisplay: "narrowSymbol",
     maximumFractionDigits: 0,
     style: "currency",
   })

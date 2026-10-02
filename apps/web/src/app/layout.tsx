@@ -6,6 +6,8 @@ import { GeistSans } from "geist/font/sans";
 
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { loadMessages, resolveLocale } from "@/i18n/server";
+import { IntlProvider } from "@/providers/intl-provider";
 import { QueryProvider } from "@/providers/query-provider";
 
 import "./globals.css";
@@ -38,17 +40,22 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+  const locale = await resolveLocale();
+  const messages = await loadMessages(locale);
+
   return (
     <html
       className={`${GeistSans.variable} ${GeistMono.variable}`}
-      lang="id"
+      lang={locale}
       suppressHydrationWarning
     >
       <body>
-        <ThemeProvider>
-          <QueryProvider>{children}</QueryProvider>
-        </ThemeProvider>
+        <IntlProvider locale={locale} messages={messages}>
+          <ThemeProvider>
+            <QueryProvider>{children}</QueryProvider>
+          </ThemeProvider>
+        </IntlProvider>
         <ServiceWorkerRegistration />
       </body>
     </html>
