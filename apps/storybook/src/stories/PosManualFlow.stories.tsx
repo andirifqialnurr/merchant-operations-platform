@@ -204,6 +204,7 @@ function ManualPosFlow() {
           <h2 id="manual-catalog-title">Pilih produk</h2>
           <div className="story-pos-manual-catalog-body">
             <CategoryRail
+              ariaLabel="Kategori"
               activeId={categoryId}
               categories={categories}
               onSelect={(next) => setCategoryId(next as typeof categoryId)}

@@ -55,12 +55,17 @@ export const ProductStates: Story = {
       <ProductTile name="Cappuccino" priceLabel="Rp26.000" />
       <ProductTile name="Kopi susu baru ditambahkan" priceLabel="Rp24.000" selected />
       <ProductTile lowStockLabel="Sisa 3" name="Croissant almond" priceLabel="Rp30.000" />
-      <ProductTile availability="sold-out" name="Banana bread" priceLabel="Rp22.000" />
+      <ProductTile
+        availability="sold-out"
+        availabilityLabel="Habis"
+        name="Banana bread"
+        priceLabel="Rp22.000"
+      />
       <ProductTile
         availability="unavailable"
         name="Paket makan siang"
         priceLabel="Rp45.000"
-        unavailableLabel="Tersedia pukul 11.00"
+        availabilityLabel="Tersedia pukul 11.00"
       />
       <ProductTile imageLoading name="Memuat foto produk" priceLabel="Rp25.000" />
       <ProductTile name="Foto produk gagal dimuat" priceLabel="Rp25.000" />
@@ -81,11 +86,17 @@ export const CategoryVariants: Story = {
     <div className="story-pos-category-comparison">
       <section>
         <h2 className="text-heading-sm">POS desktop</h2>
-        <CategoryRail activeId="coffee" categories={categories} onSelect={() => undefined} />
+        <CategoryRail
+          ariaLabel="Kategori"
+          activeId="coffee"
+          categories={categories}
+          onSelect={() => undefined}
+        />
       </section>
       <section>
         <h2 className="text-heading-sm">Customer dan mobile</h2>
         <CategoryRail
+          ariaLabel="Kategori"
           activeId="coffee"
           categories={categories}
           onSelect={() => undefined}
@@ -107,6 +118,7 @@ export const ThemeComparison: Story = {
         <h2 className="text-heading-sm">Light</h2>
         <ProductTile name="Es kopi susu" priceLabel="Rp24.000" selected />
         <CategoryRail
+          ariaLabel="Kategori"
           activeId="coffee"
           categories={categories.slice(0, 3)}
           onSelect={() => undefined}
@@ -117,6 +129,7 @@ export const ThemeComparison: Story = {
         <h2 className="text-heading-sm">Dark</h2>
         <ProductTile name="Es kopi susu" priceLabel="Rp24.000" selected />
         <CategoryRail
+          ariaLabel="Kategori"
           activeId="coffee"
           categories={categories.slice(0, 3)}
           onSelect={() => undefined}

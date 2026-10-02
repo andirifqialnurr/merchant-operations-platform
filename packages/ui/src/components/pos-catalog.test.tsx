@@ -40,6 +40,7 @@ describe("ProductTile", () => {
     const { rerender } = render(
       <ProductTile
         availability="sold-out"
+        availabilityLabel="Habis"
         name="Croissant mentega"
         onClick={onClick}
         priceLabel="Rp28.000"
@@ -53,9 +54,9 @@ describe("ProductTile", () => {
     rerender(
       <ProductTile
         availability="unavailable"
+        availabilityLabel="Tersedia pukul 11.00"
         name="Menu makan siang"
         priceLabel="Rp45.000"
-        unavailableLabel="Tersedia pukul 11.00"
       />,
     );
     expect(screen.getByText("Tersedia pukul 11.00")).toBeVisible();
@@ -80,6 +81,7 @@ describe("CategoryRail", () => {
     render(
       <CategoryRail
         activeId="all"
+        ariaLabel="Kategori"
         categories={categories}
         onSelect={onSelect}
         orientation="horizontal"
@@ -97,7 +99,12 @@ describe("CategoryRail", () => {
   it("passes an axe smoke test for the POS catalog controls", async () => {
     const { container } = render(
       <div>
-        <CategoryRail activeId="all" categories={categories} onSelect={() => undefined} />
+        <CategoryRail
+          activeId="all"
+          ariaLabel="Kategori"
+          categories={categories}
+          onSelect={() => undefined}
+        />
         <ProductTile
           lowStockLabel="Sisa 3"
           name="Kopi filter pilihan barista"

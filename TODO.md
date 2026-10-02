@@ -825,7 +825,11 @@ Catatan alignment 5 Agustus 2026: urutan historis P2 dimulai setelah primitive U
 - [x] **12.10a Menu jual:** `GET /pos/menu` (izin `order.create`, modul POS, scope outlet) mengembalikan kategori, produk, varian, dan modifier yang benar-benar bisa dijual di outlet beserta harga outlet.
 - [x] **12.10b Order:** kernel `apps/api/src/kernels/order-intake` dengan tabel `order_orders`, `order_order_items`, `order_item_modifiers`, `order_number_counters`; `POST /pos/orders` dan `GET /pos/orders/:id`; harga dihitung server dari menu jual; audit dan outbox `order.submitted.v1`.
 - [x] **12.10c Bill, pembayaran, dan sale:** kernel `apps/api/src/kernels/billing-payment-ledger` dengan tabel `billing_bills`, `billing_payments`, `billing_payment_allocations`, `sales_sales`, `sales_number_counters`; `POST /pos/orders/:id/payments` untuk tunai dan QRIS manual; penjualan tunai masuk ke kas seharusnya pada shift; audit dan outbox `payment.recorded.v1` serta `sale.completed.v1`.
-- [ ] **12.10d Layar jual:** `/pos` dengan kategori, produk, keranjang, dan pembayaran.
+- [x] **12.10d-1 Kartu produk dan rel kategori:** label status produk dan nama navigasi kategori lewat props; teks cadangan gambar dihapus (ikon saja).
+- [ ] **12.10d-2 Keranjang:** label `CartItem` dan `CartSummary` lewat props.
+- [ ] **12.10d-3 Pemilih varian/tambahan:** label `ProductModifierPicker` lewat props.
+- [ ] **12.10d-4 Panel pembayaran:** label metode bayar, keypad tunai, dan konfirmasi lewat props.
+- [ ] **12.10d-5 Layar jual:** `/pos` dengan kategori, produk, keranjang, dan pembayaran memakai API menu, order, dan pembayaran.
 
 **Checkpoint 12.1:** `feat(ui): add POS product tile and category rail`
 

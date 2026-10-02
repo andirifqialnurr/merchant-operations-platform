@@ -11,6 +11,8 @@ export type ProductAvailability = "available" | "sold-out" | "unavailable";
 
 export type ProductTileProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
   availability?: ProductAvailability;
+  /** Shown in place of the stock label while the product cannot be sold, e.g. "Habis". */
+  availabilityLabel?: string;
   description?: string;
   imageAlt?: string;
   imageLoading?: boolean;
@@ -20,7 +22,6 @@ export type ProductTileProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "ch
   priceLabel: ReactNode;
   selected?: boolean;
   size?: ProductTileSize;
-  unavailableLabel?: string;
   variant?: ProductTileVariant;
 };
 
@@ -33,7 +34,8 @@ export type CategoryRailItem = {
 
 export type CategoryRailProps = {
   activeId: string;
-  ariaLabel?: string;
+  /** Accessible name of the category navigation. */
+  ariaLabel: string;
   categories: readonly CategoryRailItem[];
   className?: string;
   onSelect: (categoryId: string) => void;
@@ -46,6 +48,7 @@ function joinClasses(...values: Array<string | false | null | undefined>) {
 
 export function ProductTile({
   availability = "available",
+  availabilityLabel,
   className,
   description,
   disabled,
@@ -57,7 +60,6 @@ export function ProductTile({
   priceLabel,
   selected = false,
   size,
-  unavailableLabel = "Belum tersedia",
   variant = "default",
   ...props
 }: ProductTileProps) {
@@ -65,7 +67,6 @@ export function ProductTile({
   const resolvedSize = size ?? (variant === "customer" ? "customer" : "md");
   const hasImageArea = variant !== "compact";
   const isUnavailable = availability !== "available";
-  const statusLabel = availability === "sold-out" ? "Habis" : unavailableLabel;
 
   useEffect(() => {
     setImageFailed(false);
@@ -94,9 +95,8 @@ export function ProductTile({
           ) : imageUrl && !imageFailed ? (
             <img alt={imageAlt} onError={() => setImageFailed(true)} src={imageUrl} />
           ) : (
-            <span className="ui-product-tile__image-fallback">
+            <span aria-hidden="true" className="ui-product-tile__image-fallback">
               <AppIcon icon={IconPhotoOff} size="lg" />
-              <span>Gambar tidak tersedia</span>
             </span>
           )}
         </span>
@@ -105,9 +105,9 @@ export function ProductTile({
       <span className="ui-product-tile__content">
         <span className="ui-product-tile__heading">
           <strong className="ui-product-tile__name">{name}</strong>
-          {isUnavailable ? (
-            <span className="ui-product-tile__availability">{statusLabel}</span>
-          ) : lowStockLabel ? (
+          {isUnavailable && availabilityLabel ? (
+            <span className="ui-product-tile__availability">{availabilityLabel}</span>
+          ) : !isUnavailable && lowStockLabel ? (
             <span className="ui-product-tile__stock">{lowStockLabel}</span>
           ) : null}
         </span>
@@ -122,7 +122,7 @@ export function ProductTile({
 
 export function CategoryRail({
   activeId,
-  ariaLabel = "Kategori produk",
+  ariaLabel,
   categories,
   className,
   onSelect,
@@ -149,9 +149,7 @@ export function CategoryRail({
               >
                 <span>{category.label}</span>
                 {category.count !== undefined ? (
-                  <span aria-label={`${category.count} produk`} className="ui-category-rail__count">
-                    {category.count}
-                  </span>
+                  <span className="ui-category-rail__count">{category.count}</span>
                 ) : null}
               </button>
             </li>
