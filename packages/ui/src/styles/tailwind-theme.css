@@ -2,7 +2,7 @@
  * Tailwind v4 theme aliases. Keep these names semantic so feature code uses
  * utilities such as bg-canvas, text-foreground, and border-line-default.
  */
-@theme inline {
+@theme inline static {
   /* Background surfaces */
   --color-canvas: var(--color-bg-canvas);
   --color-surface: var(--color-bg-surface);

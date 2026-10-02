@@ -49,7 +49,7 @@
   --motion-easing-exit: ease-in;
 }
 
-@theme inline {
+@theme inline static {
   --spacing: var(--space-1);
   --spacing-control-xs: var(--control-height-xs);
   --spacing-control-sm: var(--control-height-sm);

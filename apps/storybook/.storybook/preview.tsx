@@ -1,51 +1,6 @@
 import type { Decorator, Preview } from "@storybook/react-vite";
 import { type ReactNode, useLayoutEffect } from "react";
 
-import "@merchant/ui/styles/primitives.css";
-import "@merchant/ui/styles/tokens.css";
-import "@merchant/ui/styles/merchant-presets.css";
-import "@merchant/ui/styles/tailwind-theme.css";
-import "@merchant/ui/styles/typography.css";
-import "@merchant/ui/styles/foundation.css";
-import "@merchant/ui/styles/button.css";
-import "@merchant/ui/styles/text-field.css";
-import "@merchant/ui/styles/selection-control.css";
-import "@merchant/ui/styles/select.css";
-import "@merchant/ui/styles/numeric-date.css";
-import "@merchant/ui/styles/feedback.css";
-import "@merchant/ui/styles/kds-ticket.css";
-import "@merchant/ui/styles/inventory-item-unit.css";
-import "@merchant/ui/styles/inventory-stock.css";
-import "@merchant/ui/styles/inventory-operations.css";
-import "@merchant/ui/styles/recipe-bom.css";
-import "@merchant/ui/styles/inventory-order-flow.css";
-import "@merchant/ui/styles/finance-basic-summary.css";
-import "@merchant/ui/styles/finance-reconciliation-summary.css";
-import "@merchant/ui/styles/finance-profit-estimate.css";
-import "@merchant/ui/styles/finance-validated-report.css";
-import "@merchant/ui/styles/finance-metric.css";
-import "@merchant/ui/styles/floor-selector.css";
-import "@merchant/ui/styles/overlay.css";
-import "@merchant/ui/styles/navigation.css";
-import "@merchant/ui/styles/data-display.css";
-import "@merchant/ui/styles/customer-basic-profile.css";
-import "@merchant/ui/styles/customer-order-surface.css";
-import "@merchant/ui/styles/customer-qr-context.css";
-import "@merchant/ui/styles/platform-entitlement-matrix.css";
-import "@merchant/ui/styles/platform-support-audit.css";
-import "@merchant/ui/styles/platform-tenant-subscription-master.css";
-import "@merchant/ui/styles/pos-catalog.css";
-import "@merchant/ui/styles/pos-modifier.css";
-import "@merchant/ui/styles/pos-cart.css";
-import "@merchant/ui/styles/money-display.css";
-import "@merchant/ui/styles/pos-payment.css";
-import "@merchant/ui/styles/pos-shift.css";
-import "@merchant/ui/styles/table-layout-canvas.css";
-import "@merchant/ui/styles/table-layout-tray.css";
-import "@merchant/ui/styles/table-layout-tools.css";
-import "@merchant/ui/styles/table-qr.css";
-import "@merchant/ui/styles/table-tile.css";
-
 import "./preview.css";
 
 function PreviewThemeBoundary({

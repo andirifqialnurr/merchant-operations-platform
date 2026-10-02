@@ -5,7 +5,7 @@
     "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace;
 }
 
-@theme inline {
+@theme inline static {
   --font-sans: var(--font-family-sans);
   --font-mono: var(--font-family-mono);
 
