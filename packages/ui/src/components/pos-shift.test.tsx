@@ -4,7 +4,36 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
-import { CloseShiftForm, OpenShiftForm, ShiftSummary } from "./pos-shift";
+import {
+  CloseShiftForm,
+  OpenShiftForm,
+  ShiftSummary,
+  type CloseShiftFormLabels,
+  type ShiftSummaryLabels,
+} from "./pos-shift";
+
+const summaryLabels: ShiftSummaryLabels = {
+  cashIn: "Kas masuk",
+  cashOut: "Kas keluar",
+  cashSales: "Penjualan tunai",
+  countedCash: "Kas fisik",
+  expectedCash: "Kas seharusnya",
+  nonCash: "Non-tunai",
+  openingCash: "Kas awal",
+  variance: "Selisih kas",
+};
+
+const closeLabels: CloseShiftFormLabels = {
+  countedCash: "Kas fisik",
+  countedCashRequired: "Isi kas fisik.",
+  expectedCash: "Kas seharusnya",
+  reason: "Alasan selisih",
+  reasonRequired: "Isi alasan selisih.",
+  submit: "Tutup shift",
+  submitting: "Menutup shift",
+  varianceBalanced: "Selisih · Cocok",
+  varianceNeedsReason: "Selisih · Perlu alasan",
+};
 
 function CloseShiftHarness({ onSubmit = () => undefined }: { onSubmit?: () => void }) {
   const [counted, setCounted] = useState<number | undefined>();
@@ -13,6 +42,7 @@ function CloseShiftHarness({ onSubmit = () => undefined }: { onSubmit?: () => vo
   return (
     <CloseShiftForm
       expectedCashMinor="265000"
+      labels={closeLabels}
       onCountedCashChange={setCounted}
       onReasonChange={setReason}
       onSubmit={onSubmit}
@@ -27,58 +57,82 @@ const summaryProps = {
   cashOutMinor: "10000",
   cashSalesMinor: "200000",
   expectedCashMinor: "265000",
-  openedAtLabel: "23 Jul 2026, 08.00",
-  openedBy: "Ayu Pratama",
+  facts: [{ label: "Dibuka", value: "23 Jul 2026, 08.00" }],
+  labels: summaryLabels,
   openingCashMinor: "50000",
 } as const;
 
 describe("OpenShiftForm", () => {
-  it("only asks for the user-owned opening cash value", () => {
+  it("only asks for the user-owned opening cash value", async () => {
+    const onSubmit = vi.fn();
+    const user = userEvent.setup();
     render(
       <OpenShiftForm
+        labels={{ openingCash: "Kas awal", submit: "Buka shift", submitting: "Membuka shift" }}
         onOpeningCashChange={() => undefined}
-        onSubmit={() => undefined}
+        onSubmit={onSubmit}
         openingCashMinor={50_000}
       />,
     );
 
     expect(screen.getAllByRole("textbox")).toHaveLength(1);
     expect(screen.getByRole("textbox", { name: /Kas awal/ })).toBeVisible();
-    expect(screen.queryByLabelText(/Outlet|Kasir|Waktu buka/)).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Buka shift" }));
+    expect(onSubmit).toHaveBeenCalledOnce();
+  });
+
+  it("cannot be submitted without an amount", () => {
+    render(
+      <OpenShiftForm
+        labels={{ openingCash: "Kas awal", submit: "Buka shift", submitting: "Membuka shift" }}
+        onOpeningCashChange={() => undefined}
+        onSubmit={() => undefined}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Buka shift" })).toBeDisabled();
   });
 });
 
 describe("ShiftSummary", () => {
-  it("omits closing-only and unavailable sections from an active shift", () => {
-    render(<ShiftSummary {...summaryProps} status="active" />);
+  it("omits closing-only and unavailable rows from an active shift", () => {
+    render(
+      <ShiftSummary
+        cashInMinor="25000"
+        cashOutMinor="10000"
+        expectedCashMinor="65000"
+        facts={summaryProps.facts}
+        labels={summaryLabels}
+        openingCashMinor="50000"
+        status="active"
+      />,
+    );
 
-    expect(screen.getByText("Aktif")).toBeVisible();
-    expect(screen.queryByText("Kas fisik dihitung")).not.toBeInTheDocument();
+    expect(screen.getByText("Dibuka")).toBeVisible();
+    expect(screen.queryByText("Penjualan tunai")).not.toBeInTheDocument();
+    expect(screen.queryByText("Kas fisik")).not.toBeInTheDocument();
     expect(screen.queryByText("Selisih kas")).not.toBeInTheDocument();
-    expect(screen.queryByText("Pembayaran non-tunai")).not.toBeInTheDocument();
+    expect(screen.queryByText("Non-tunai")).not.toBeInTheDocument();
     expect(screen.getAllByText("Kas seharusnya")).toHaveLength(1);
   });
 
-  it("keeps variance permission-filtered and renders it with a textual state when allowed", () => {
+  it("keeps variance permission-filtered and renders it when allowed", () => {
     const { rerender } = render(
       <ShiftSummary
         {...summaryProps}
-        closedAtLabel="23 Jul 2026, 17.10"
-        closedBy="Ayu Pratama"
         countedCashMinor="260000"
         status="closed"
         varianceMinor="-5000"
       />,
     );
 
-    expect(screen.getByText("Kas fisik dihitung")).toBeVisible();
+    expect(screen.getByText("Penjualan tunai")).toBeVisible();
+    expect(screen.getByText("Kas fisik")).toBeVisible();
     expect(screen.queryByText("Selisih kas")).not.toBeInTheDocument();
 
     rerender(
       <ShiftSummary
         {...summaryProps}
-        closedAtLabel="23 Jul 2026, 17.10"
-        closedBy="Ayu Pratama"
         canViewVariance
         countedCashMinor="260000"
         status="closed"
@@ -99,17 +153,17 @@ describe("CloseShiftForm", () => {
 
     const closeButton = screen.getByRole("button", { name: "Tutup shift" });
     expect(closeButton).toBeDisabled();
-    expect(screen.getByText("Masukkan kas fisik yang dihitung.")).toBeVisible();
+    expect(screen.getByText("Isi kas fisik.")).toBeVisible();
     expect(screen.queryByRole("textbox", { name: /Alasan selisih/ })).not.toBeInTheDocument();
     expect(screen.getAllByText("Kas seharusnya")).toHaveLength(1);
 
-    fireEvent.change(screen.getByRole("textbox", { name: /Kas fisik dihitung/ }), {
+    fireEvent.change(screen.getByRole("textbox", { name: /Kas fisik/ }), {
       target: { value: "Rp260.000" },
     });
 
-    expect(screen.getByText("Selisih kas · Perlu alasan")).toBeVisible();
+    expect(screen.getByText("Selisih · Perlu alasan")).toBeVisible();
     expect(screen.getByText("-Rp5.000")).toBeVisible();
-    expect(screen.getByText("Alasan selisih wajib diisi.")).toBeVisible();
+    expect(screen.getByText("Isi alasan selisih.")).toBeVisible();
     expect(closeButton).toBeDisabled();
 
     await user.type(screen.getByRole("textbox", { name: /Alasan selisih/ }), "Kas kecil terpakai");
@@ -118,12 +172,23 @@ describe("CloseShiftForm", () => {
     expect(onSubmit).toHaveBeenCalledOnce();
   });
 
+  it("accepts a balanced count without a reason", () => {
+    render(<CloseShiftHarness />);
+
+    fireEvent.change(screen.getByRole("textbox", { name: /Kas fisik/ }), {
+      target: { value: "Rp265.000" },
+    });
+
+    expect(screen.getByText("Selisih · Cocok")).toBeVisible();
+    expect(screen.queryByRole("textbox", { name: /Alasan selisih/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Tutup shift" })).toBeEnabled();
+  });
+
   it("does not create extra editable context fields", () => {
     render(<CloseShiftHarness />);
 
-    expect(
-      screen.queryByLabelText(/Outlet|Kasir|Waktu tutup|Kas seharusnya/),
-    ).not.toBeInTheDocument();
+    expect(screen.getAllByRole("textbox")).toHaveLength(1);
+    expect(screen.queryByLabelText(/Kas seharusnya/)).not.toBeInTheDocument();
   });
 
   it("passes axe smoke tests", async () => {

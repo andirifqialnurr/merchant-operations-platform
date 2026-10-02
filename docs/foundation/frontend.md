@@ -35,20 +35,20 @@ apps/storybook/                40 story + smoke Playwright
 
 ### 1.1 Yang perlu dibenahi
 
-| Temuan | Perbaikan |
-|---|---|
-| `catalog-backoffice.tsx` memuat login, tiga tampilan, dan semua form dalam satu file | Pecah per fitur (bagian 2) |
-| Login berada di dalam komponen Catalog | Rute `(auth)` tersendiri + guard sesi di layout |
-| State server dikelola manual (`useState` + `fetch`) | TanStack Query |
-| Form dikelola manual | React Hook Form + skema Zod dari `packages/contracts` |
-| String UI ditulis langsung dalam Bahasa Indonesia, termasuk di `packages/ui` | Kamus `id`/`en`; `packages/ui` menerima label lewat props |
-| `lang="id"` tetap di `<html>` | Mengikuti bahasa aktif |
-| CSS halaman (`catalog.css`, `backoffice-shell.css`) diimpor global di `layout.tsx` | Gaya milik fitur dimuat bersama fiturnya |
-| `packages/ui` datar, primitive dan domain tercampur | Kelompokkan (bagian 3) |
-| Ikon diimpor langsung dari `lucide-react` di halaman | Semua lewat `AppIcon`; ganti ke Tabler |
-| Klien API tidak mengirim header `x-csrf-token`, sedangkan API mewajibkannya untuk mutasi bersesi | Tambahkan di klien API (lihat `security.md` bagian 5) |
-| Navigasi statis | Disusun dari manifest + entitlement + izin |
-| Halaman referensi dev tercampur dengan rute aplikasi | Pindahkan ke grup `(dev)` yang tidak dibangun di produksi, atau cukup di Storybook |
+| Temuan                                                                                           | Perbaikan                                                                          |
+| ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| `catalog-backoffice.tsx` memuat login, tiga tampilan, dan semua form dalam satu file             | Pecah per fitur (bagian 2)                                                         |
+| Login berada di dalam komponen Catalog                                                           | Rute `(auth)` tersendiri + guard sesi di layout                                    |
+| State server dikelola manual (`useState` + `fetch`)                                              | TanStack Query                                                                     |
+| Form dikelola manual                                                                             | React Hook Form + skema Zod dari `packages/contracts`                              |
+| String UI ditulis langsung dalam Bahasa Indonesia, termasuk di `packages/ui`                     | Kamus `id`/`en`; `packages/ui` menerima label lewat props                          |
+| `lang="id"` tetap di `<html>`                                                                    | Mengikuti bahasa aktif                                                             |
+| CSS halaman (`catalog.css`, `backoffice-shell.css`) diimpor global di `layout.tsx`               | Gaya milik fitur dimuat bersama fiturnya                                           |
+| `packages/ui` datar, primitive dan domain tercampur                                              | Kelompokkan (bagian 3)                                                             |
+| Ikon diimpor langsung dari `lucide-react` di halaman                                             | Semua lewat `AppIcon`; ganti ke Tabler                                             |
+| Klien API tidak mengirim header `x-csrf-token`, sedangkan API mewajibkannya untuk mutasi bersesi | Tambahkan di klien API (lihat `security.md` bagian 5)                              |
+| Navigasi statis                                                                                  | Disusun dari manifest + entitlement + izin                                         |
+| Halaman referensi dev tercampur dengan rute aplikasi                                             | Pindahkan ke grup `(dev)` yang tidak dibangun di produksi, atau cukup di Storybook |
 
 ---
 
@@ -110,13 +110,13 @@ apps/web/
 
 ### 2.1 Aturan impor
 
-| Dari | Boleh mengimpor |
-|---|---|
-| `app/**` (rute) | `features/*` (hanya `index.ts`), `shell/*`, `lib/*`, `@merchant/ui` |
-| `features/x` | `lib/*`, `@merchant/ui`, `@merchant/contracts` |
+| Dari                        | Boleh mengimpor                                                                                      |
+| --------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `app/**` (rute)             | `features/*` (hanya `index.ts`), `shell/*`, `lib/*`, `@merchant/ui`                                  |
+| `features/x`                | `lib/*`, `@merchant/ui`, `@merchant/contracts`                                                       |
 | `features/x` → `features/y` | **Dilarang**, kecuali melalui `index.ts` dan hanya untuk komponen tampilan (misalnya pemilih produk) |
-| `lib/*` | `@merchant/contracts`; tidak mengimpor `features/*` |
-| `@merchant/ui` | Tidak mengimpor apa pun dari `apps/web` atau `@merchant/contracts` |
+| `lib/*`                     | `@merchant/contracts`; tidak mengimpor `features/*`                                                  |
+| `@merchant/ui`              | Tidak mengimpor apa pun dari `apps/web` atau `@merchant/contracts`                                   |
 
 File rute (`page.tsx`) tipis: mengambil parameter, memeriksa akses, dan merender komponen fitur. Tidak ada logika bisnis di file rute.
 
@@ -158,14 +158,14 @@ Aturan `packages/ui`:
 
 ### 4.1 Pembagian state
 
-| Jenis state | Tempat | Contoh |
-|---|---|---|
-| Server | TanStack Query | Daftar produk, pesanan, ticket |
-| URL | `searchParams` | Filter, tab, halaman, ID baris yang dibuka |
-| Form | React Hook Form | Isian sebelum disimpan |
-| UI lokal | `useState` | Dialog terbuka |
-| Lintas komponen yang benar-benar perlu | Zustand | Keranjang POS, draft editor tata letak |
-| Preferensi perangkat | `localStorage` | Tema POS/KDS, volume KDS |
+| Jenis state                            | Tempat          | Contoh                                     |
+| -------------------------------------- | --------------- | ------------------------------------------ |
+| Server                                 | TanStack Query  | Daftar produk, pesanan, ticket             |
+| URL                                    | `searchParams`  | Filter, tab, halaman, ID baris yang dibuka |
+| Form                                   | React Hook Form | Isian sebelum disimpan                     |
+| UI lokal                               | `useState`      | Dialog terbuka                             |
+| Lintas komponen yang benar-benar perlu | Zustand         | Keranjang POS, draft editor tata letak     |
+| Preferensi perangkat                   | `localStorage`  | Tema POS/KDS, volume KDS                   |
 
 Tidak ada salinan data server di state global. Filter Backoffice hidup di URL agar dapat dibagikan dan bertahan saat muat ulang.
 
@@ -174,10 +174,11 @@ Tidak ada salinan data server di state global. Filter Backoffice hidup di URL ag
 ```ts
 // lib/api/client.ts
 apiRequest(path, {
-  method, body,
-  responseSchema,          // wajib: semua response divalidasi Zod
-  context: { workspaceId, locationId },   // menjadi header konteks
-  idempotent: true,        // menambahkan Idempotency-Key untuk mutasi kritis
+  method,
+  body,
+  responseSchema, // wajib: semua response divalidasi Zod
+  context: { workspaceId, locationId }, // menjadi header konteks
+  idempotent: true, // menambahkan Idempotency-Key untuk mutasi kritis
 });
 ```
 
@@ -231,8 +232,8 @@ POS dan KDS berlangganan melalui Socket.IO dengan cakupan workspace, lokasi, dan
 ## 5. Akses dan navigasi
 
 ```ts
-const { state } = useModuleState("kds");          // not-entitled | provisioning | setup-required | active | paused | suspended
-const canRefund = useCan("pos.sale.refund");      // izin + capability + cakupan lokasi
+const { state } = useModuleState("kds"); // not-entitled | provisioning | setup-required | active | paused | suspended
+const canRefund = useCan("pos.sale.refund"); // izin + capability + cakupan lokasi
 ```
 
 - Navigasi disusun dari: jenis workspace + template + instalasi aktif + entitlement + izin + konteks lokasi + feature flag.
@@ -344,12 +345,12 @@ Halaman tidak mengimpor `apexcharts` atau `react-apexcharts` langsung.
 
 ## 9. SOLID dalam praktik
 
-| Prinsip | Aturan di repo ini |
-|---|---|
-| **S** — satu tanggung jawab | Komponen tampilan tidak mengambil data. Hook data tidak merender. File rute tidak berisi logika. Komponen di atas ±250 baris dipecah |
-| **O** — terbuka untuk perluasan | Variasi lewat `variant`/`size`/slot, bukan menyalin komponen. Modul baru menambah folder `features/x` dan entri manifest, tanpa mengubah shell |
-| **L** — dapat disubstitusi | Komponen yang membungkus elemen native meneruskan props, `ref`, dan `aria-*` elemen tersebut |
-| **I** — antarmuka kecil | Props seperlunya; komponen domain menerima DTO tampilan yang sempit, bukan objek API utuh. Ini juga mencegah data sensitif ikut terbawa |
+| Prinsip                           | Aturan di repo ini                                                                                                                                   |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **S** — satu tanggung jawab       | Komponen tampilan tidak mengambil data. Hook data tidak merender. File rute tidak berisi logika. Komponen di atas ±250 baris dipecah                 |
+| **O** — terbuka untuk perluasan   | Variasi lewat `variant`/`size`/slot, bukan menyalin komponen. Modul baru menambah folder `features/x` dan entri manifest, tanpa mengubah shell       |
+| **L** — dapat disubstitusi        | Komponen yang membungkus elemen native meneruskan props, `ref`, dan `aria-*` elemen tersebut                                                         |
+| **I** — antarmuka kecil           | Props seperlunya; komponen domain menerima DTO tampilan yang sempit, bukan objek API utuh. Ini juga mencegah data sensitif ikut terbawa              |
 | **D** — bergantung pada abstraksi | Fitur bergantung pada hook data dan klien API bertipe, bukan pada `fetch`. `packages/ui` bergantung pada props, bukan pada router, kamus, atau query |
 
 Aturan tambahan:
@@ -371,8 +372,8 @@ export default function ProductsPage() {
     <ModuleGate module="catalog">
       <PageHeader title={t("catalog.products.title")} primaryAction={<CreateProductButton />} />
       <ProductFilterBar />
-      <ProductTable />          {/* loading, kosong, error ditangani di dalam */}
-      <ProductSheet />          {/* terbuka dari ?id= di URL */}
+      <ProductTable /> {/* loading, kosong, error ditangani di dalam */}
+      <ProductSheet /> {/* terbuka dari ?id= di URL */}
     </ModuleGate>
   );
 }
@@ -407,13 +408,13 @@ export default function ProductsPage() {
 
 ## 13. Test
 
-| Jenis | Alat | Lokasi |
-|---|---|---|
-| Komponen + aksesibilitas | Vitest, Testing Library, axe | `packages/ui/src/**/*.test.tsx` |
-| Story smoke | Playwright | `apps/storybook/tests` |
-| Unit fitur (pemeta, hook, util) | Vitest | `apps/web/src/features/**` |
-| Kesamaan kunci kamus | Vitest | `apps/web/messages` |
-| E2E alur kritis | Playwright | (belum ada) login, katalog, POS, KDS |
+| Jenis                           | Alat                         | Lokasi                               |
+| ------------------------------- | ---------------------------- | ------------------------------------ |
+| Komponen + aksesibilitas        | Vitest, Testing Library, axe | `packages/ui/src/**/*.test.tsx`      |
+| Story smoke                     | Playwright                   | `apps/storybook/tests`               |
+| Unit fitur (pemeta, hook, util) | Vitest                       | `apps/web/src/features/**`           |
+| Kesamaan kunci kamus            | Vitest                       | `apps/web/messages`                  |
+| E2E alur kritis                 | Playwright                   | (belum ada) login, katalog, POS, KDS |
 
 Gerbang tiap halaman: lint, typecheck, test terkait, smoke rute HTTP, smoke klik di browser, S/M/L + batas 320/767/768/1279/1280, terang dan gelap, `id` dan `en`, keyboard dan fokus, serta data guard.
 
@@ -428,7 +429,7 @@ Setiap butir adalah checkpoint yang dapat di-push sendiri.
 3. `next-intl` — **selesai** untuk shell, login, dan Catalog: kamus `id`/`en`, bawaan mengikuti browser, pemilih bahasa di menu akun dan halaman login, error diterjemahkan per kode. Yang tersisa: menyimpan pilihan ke `users.locale`, dan menghapus bawaan Bahasa Indonesia pada props label `packages/ui`.
 4. Klien API: header CSRF dan TanStack Query — **selesai**. Idempotency dan pemetaan error berdasarkan kode menyusul.
 5. `AppShell`, `ContextSwitcher`, `UserMenu`, `PageHeader`, `FilterBar`, `Chip` — **selesai**. `ModuleAccessState` dan `UsageLimitState` menyusul.
-6. Grup rute dan guard: `(auth)` dan `(backoffice)` — **selesai**. `(pos)`, `(kds)`, `(customer)`, `(platform)` menyusul bersama halamannya.
+6. Grup rute dan guard: `(auth)`, `(backoffice)`, dan `(pos)` — **selesai**; guard sesi dipakai bersama lewat `shell/session-gate.tsx`, shell kasir di `shell/pos-shell.tsx`. Guard perangkat/shift untuk layar jual, `(kds)`, `(customer)`, `(platform)` menyusul bersama halamannya.
 7. Pecah `catalog-backoffice.tsx` menjadi `features/catalog` — **selesai**; rutenya `/catalog`. String masih di `messages.ts` per fitur sampai i18n dipasang.
 8. Benahi komponen lama **satu per satu** (satu komponen = satu checkpoint): tampilan pada palet baru, tinggi kontrol, `Panel` menggantikan kartu bersarang, hapus status `special`. Urutan: Button → Input/FormField → Select/Combobox → kontrol pilihan → Badge/Alert/Toast → overlay → navigasi → DataTable dan tampilan data → komponen domain.
 

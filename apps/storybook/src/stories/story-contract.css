@@ -666,3 +666,7 @@
     width: 100%;
   }
 }
+
+.story-shift-panel-body {
+  padding: var(--space-4);
+}

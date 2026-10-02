@@ -3,24 +3,26 @@
 import { type FormEvent, useId } from "react";
 
 import { Button } from "./button";
-import { Badge } from "./feedback";
 import { MoneyDisplay, type MoneyMinorValue } from "./money-display";
 import { MoneyInput } from "./numeric-date";
 import { FormField, Textarea } from "./text-field";
 
-type ShiftSummaryCommonProps = {
-  ariaLabel?: string;
-  cashInMinor: MoneyMinorValue;
-  cashOutMinor: MoneyMinorValue;
-  cashSalesMinor: MoneyMinorValue;
-  className?: string;
-  currency?: string;
-  expectedCashMinor: MoneyMinorValue;
-  locale?: string;
-  nonCashBreakdown?: readonly ShiftNonCashItem[];
-  openedAtLabel: string;
-  openedBy: string;
-  openingCashMinor: MoneyMinorValue;
+/**
+ * Shift surfaces for the POS. They render no card of their own, so a page can
+ * place them in a Panel or a Sheet without nesting. Every label comes from
+ * props. Derived values (expected cash, variance) are displayed, never entered.
+ */
+
+export type ShiftSummaryLabels = {
+  cashIn: string;
+  cashOut: string;
+  cashSales: string;
+  countedCash: string;
+  expectedCash: string;
+  /** Heading of the non-cash section; only shown with nonCashBreakdown. */
+  nonCash: string;
+  openingCash: string;
+  variance: string;
 };
 
 export type ShiftNonCashItem = {
@@ -29,26 +31,65 @@ export type ShiftNonCashItem = {
   label: string;
 };
 
+export type ShiftSummaryFact = { label: string; value: string };
+
+type ShiftSummaryCommonProps = {
+  cashInMinor: MoneyMinorValue;
+  cashOutMinor: MoneyMinorValue;
+  /** Omit while cash sales are not available; the row is then not rendered. */
+  cashSalesMinor?: MoneyMinorValue;
+  className?: string;
+  currency?: string;
+  expectedCashMinor: MoneyMinorValue;
+  /** Read-only context such as who opened the shift and when. */
+  facts?: readonly ShiftSummaryFact[];
+  labels: ShiftSummaryLabels;
+  locale?: string;
+  nonCashBreakdown?: readonly ShiftNonCashItem[];
+  openingCashMinor: MoneyMinorValue;
+};
+
 export type ShiftSummaryProps =
   | (ShiftSummaryCommonProps & {
       status: "active";
     })
   | (ShiftSummaryCommonProps & {
-      closedAtLabel: string;
-      closedBy: string;
+      /** Variance is sensitive; pass true only when the viewer may see it. */
       canViewVariance?: boolean;
       countedCashMinor: MoneyMinorValue;
       status: "closed";
       varianceMinor: MoneyMinorValue;
     });
 
+export type OpenShiftFormLabels = {
+  openingCash: string;
+  submit: string;
+  submitting: string;
+};
+
 export type OpenShiftFormProps = {
   className?: string;
   disabled?: boolean;
+  labels: OpenShiftFormLabels;
   loading?: boolean;
+  locale?: string;
   onOpeningCashChange: (amountMinor: number | undefined) => void;
   onSubmit: () => void;
   openingCashMinor?: number;
+};
+
+export type CloseShiftFormLabels = {
+  countedCash: string;
+  /** Shown under the button while counted cash is empty. */
+  countedCashRequired: string;
+  expectedCash: string;
+  reason: string;
+  /** Shown under the button while a variance has no reason. */
+  reasonRequired: string;
+  submit: string;
+  submitting: string;
+  varianceBalanced: string;
+  varianceNeedsReason: string;
 };
 
 export type CloseShiftFormProps = {
@@ -57,28 +98,31 @@ export type CloseShiftFormProps = {
   currency?: string;
   disabled?: boolean;
   expectedCashMinor: MoneyMinorValue;
+  labels: CloseShiftFormLabels;
   loading?: boolean;
   locale?: string;
   onCountedCashChange: (amountMinor: number | undefined) => void;
   onReasonChange: (reason: string) => void;
   onSubmit: () => void;
   reason: string;
+  /** Shortest reason the server accepts. */
+  reasonMinLength?: number;
 };
 
 function classes(...values: Array<string | false | null | undefined>) {
   return values.filter(Boolean).join(" ");
 }
 
-function toMinorBigInt(value: MoneyMinorValue, label: string) {
+function toMinorBigInt(value: MoneyMinorValue) {
   if (typeof value === "bigint") return value;
   if (typeof value === "number") {
     if (!Number.isSafeInteger(value)) {
-      throw new TypeError(`${label} hanya menerima safe integer minor-unit.`);
+      throw new TypeError("Shift amounts must be safe integer minor units.");
     }
     return BigInt(value);
   }
   if (!/^-?\d+$/.test(value)) {
-    throw new TypeError(`${label} hanya menerima integer minor-unit.`);
+    throw new TypeError("Shift amounts must be integer minor units.");
   }
   return BigInt(value);
 }
@@ -122,138 +166,93 @@ function SummaryMoneyRow({
 
 export function ShiftSummary(props: ShiftSummaryProps) {
   const {
-    ariaLabel = "Ringkasan shift",
     cashInMinor,
     cashOutMinor,
     cashSalesMinor,
     className,
     currency = "IDR",
     expectedCashMinor,
+    facts = [],
+    labels,
     locale = "id-ID",
     nonCashBreakdown = [],
-    openedAtLabel,
-    openedBy,
     openingCashMinor,
     status,
   } = props;
   const isClosed = status === "closed";
   const variance =
-    isClosed && props.canViewVariance
-      ? toMinorBigInt(props.varianceMinor, "Selisih kas")
-      : undefined;
+    isClosed && props.canViewVariance ? toMinorBigInt(props.varianceMinor) : undefined;
+  const row = { currency, locale };
 
   return (
-    <section aria-label={ariaLabel} className={classes("ui-shift-surface", className)}>
-      <header className="ui-shift-surface__header">
-        <div>
-          <h2>Ringkasan shift</h2>
-          <p>Rekonsiliasi kas dan pembayaran non-tunai.</p>
-        </div>
-        <Badge tone={isClosed ? "info" : "success"}>{isClosed ? "Ditutup" : "Aktif"}</Badge>
-      </header>
+    <div className={classes("ui-shift-summary", className)}>
+      {facts.length > 0 ? (
+        <dl className="ui-shift-meta">
+          {facts.map((fact) => (
+            <div key={fact.label}>
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
 
-      <dl className="ui-shift-meta">
-        <div>
-          <dt>Dibuka oleh</dt>
-          <dd>{openedBy}</dd>
-        </div>
-        <div>
-          <dt>Waktu buka</dt>
-          <dd>{openedAtLabel}</dd>
-        </div>
+      <dl className="ui-shift-money-list">
+        <SummaryMoneyRow {...row} amountMinor={openingCashMinor} label={labels.openingCash} />
+        {cashSalesMinor !== undefined ? (
+          <SummaryMoneyRow {...row} amountMinor={cashSalesMinor} label={labels.cashSales} />
+        ) : null}
+        <SummaryMoneyRow {...row} amountMinor={cashInMinor} label={labels.cashIn} />
+        <SummaryMoneyRow {...row} amountMinor={cashOutMinor} label={labels.cashOut} />
+        <SummaryMoneyRow
+          {...row}
+          amountMinor={expectedCashMinor}
+          emphasis
+          label={labels.expectedCash}
+        />
         {isClosed ? (
-          <>
-            <div>
-              <dt>Ditutup oleh</dt>
-              <dd>{props.closedBy}</dd>
-            </div>
-            <div>
-              <dt>Waktu tutup</dt>
-              <dd>{props.closedAtLabel}</dd>
-            </div>
-          </>
+          <SummaryMoneyRow
+            {...row}
+            amountMinor={props.countedCashMinor}
+            label={labels.countedCash}
+          />
+        ) : null}
+        {variance !== undefined ? (
+          <SummaryMoneyRow
+            {...row}
+            amountMinor={variance}
+            emphasis
+            label={labels.variance}
+            tone={variance === 0n ? "success" : "warning"}
+          />
         ) : null}
       </dl>
 
-      <div className="ui-shift-summary-section">
-        <h3>Rekonsiliasi tunai</h3>
-        <dl className="ui-shift-money-list">
-          <SummaryMoneyRow
-            amountMinor={openingCashMinor}
-            currency={currency}
-            label="Kas awal"
-            locale={locale}
-          />
-          <SummaryMoneyRow
-            amountMinor={cashSalesMinor}
-            currency={currency}
-            label="Penjualan tunai"
-            locale={locale}
-          />
-          <SummaryMoneyRow
-            amountMinor={cashInMinor}
-            currency={currency}
-            label="Kas masuk"
-            locale={locale}
-          />
-          <SummaryMoneyRow
-            amountMinor={cashOutMinor}
-            currency={currency}
-            label="Kas keluar"
-            locale={locale}
-          />
-          <SummaryMoneyRow
-            amountMinor={expectedCashMinor}
-            currency={currency}
-            emphasis
-            label="Kas seharusnya"
-            locale={locale}
-          />
-          {isClosed ? (
-            <SummaryMoneyRow
-              amountMinor={props.countedCashMinor}
-              currency={currency}
-              label="Kas fisik dihitung"
-              locale={locale}
-            />
-          ) : null}
-          {variance !== undefined ? (
-            <SummaryMoneyRow
-              amountMinor={variance}
-              currency={currency}
-              emphasis
-              label="Selisih kas"
-              locale={locale}
-              tone={variance === 0n ? "success" : "warning"}
-            />
-          ) : null}
-        </dl>
-      </div>
-
       {nonCashBreakdown.length > 0 ? (
         <div className="ui-shift-summary-section">
-          <h3>Pembayaran non-tunai</h3>
+          <h3>{labels.nonCash}</h3>
           <dl className="ui-shift-money-list">
             {nonCashBreakdown.map((item) => (
               <SummaryMoneyRow
+                {...row}
                 amountMinor={item.amountMinor}
-                currency={currency}
                 key={item.id}
                 label={item.label}
-                locale={locale}
               />
             ))}
           </dl>
         </div>
       ) : null}
-    </section>
+    </div>
   );
 }
 
 export function OpenShiftForm({
   className,
   disabled = false,
+  labels,
   loading = false,
+  locale = "id-ID",
   onOpeningCashChange,
   onSubmit,
   openingCashMinor,
@@ -267,22 +266,12 @@ export function OpenShiftForm({
   }
 
   return (
-    <form className={classes("ui-shift-surface", "ui-shift-form", className)} onSubmit={submit}>
-      <header className="ui-shift-surface__header">
-        <div>
-          <h2>Buka shift</h2>
-          <p>Catat uang tunai yang tersedia sebelum transaksi dimulai.</p>
-        </div>
-      </header>
-
-      <FormField
-        helperText="Hitung uang fisik di laci kas sebelum membuka shift."
-        htmlFor={openingCashId}
-        label="Kas awal"
-      >
+    <form className={classes("ui-shift-form", className)} onSubmit={submit}>
+      <FormField htmlFor={openingCashId} label={labels.openingCash}>
         <MoneyInput
           disabled={disabled || loading}
           id={openingCashId}
+          locale={locale}
           min={0}
           onValueChange={onOpeningCashChange}
           size="lg"
@@ -294,11 +283,11 @@ export function OpenShiftForm({
         disabled={submitDisabled}
         fullWidth
         loading={loading}
-        loadingLabel="Membuka shift"
+        loadingLabel={labels.submitting}
         size="lg"
         type="submit"
       >
-        Buka shift
+        {labels.submit}
       </Button>
     </form>
   );
@@ -310,26 +299,28 @@ export function CloseShiftForm({
   currency = "IDR",
   disabled = false,
   expectedCashMinor,
+  labels,
   loading = false,
   locale = "id-ID",
   onCountedCashChange,
   onReasonChange,
   onSubmit,
   reason,
+  reasonMinLength = 1,
 }: CloseShiftFormProps) {
   const countedCashId = useId();
   const varianceReasonId = useId();
-  const expected = toMinorBigInt(expectedCashMinor, "Kas seharusnya");
+  const expected = toMinorBigInt(expectedCashMinor);
   const counted = countedCashMinor === undefined ? undefined : BigInt(countedCashMinor);
   const variance = counted === undefined ? undefined : counted - expected;
   const needsReason = variance !== undefined && variance !== 0n;
-  const reasonMissing = needsReason && reason.trim().length === 0;
+  const reasonMissing = needsReason && reason.trim().length < reasonMinLength;
   const submitDisabled = disabled || counted === undefined || reasonMissing;
   const disabledReason =
     counted === undefined
-      ? "Masukkan kas fisik yang dihitung."
+      ? labels.countedCashRequired
       : reasonMissing
-        ? "Alasan selisih wajib diisi."
+        ? labels.reasonRequired
         : undefined;
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -338,32 +329,22 @@ export function CloseShiftForm({
   }
 
   return (
-    <form className={classes("ui-shift-surface", "ui-shift-form", className)} onSubmit={submit}>
-      <header className="ui-shift-surface__header">
-        <div>
-          <h2>Tutup shift</h2>
-          <p>Hitung uang fisik dan selesaikan rekonsiliasi kas.</p>
-        </div>
-      </header>
-
+    <form className={classes("ui-shift-form", className)} onSubmit={submit}>
       <dl className="ui-shift-close-expected">
         <SummaryMoneyRow
           amountMinor={expected}
           currency={currency}
           emphasis
-          label="Kas seharusnya"
+          label={labels.expectedCash}
           locale={locale}
         />
       </dl>
 
-      <FormField
-        helperText="Masukkan hasil hitung uang fisik di laci kas."
-        htmlFor={countedCashId}
-        label="Kas fisik dihitung"
-      >
+      <FormField htmlFor={countedCashId} label={labels.countedCash}>
         <MoneyInput
           disabled={disabled || loading}
           id={countedCashId}
+          locale={locale}
           min={0}
           onValueChange={onCountedCashChange}
           size="lg"
@@ -377,7 +358,7 @@ export function CloseShiftForm({
             amountMinor={variance}
             currency={currency}
             emphasis
-            label={variance === 0n ? "Selisih kas · Cocok" : "Selisih kas · Perlu alasan"}
+            label={variance === 0n ? labels.varianceBalanced : labels.varianceNeedsReason}
             locale={locale}
             tone={variance === 0n ? "success" : "warning"}
           />
@@ -385,14 +366,11 @@ export function CloseShiftForm({
       ) : null}
 
       {needsReason ? (
-        <FormField
-          helperText="Jelaskan penyebab selisih agar dapat ditinjau oleh Owner atau Manager."
-          htmlFor={varianceReasonId}
-          label="Alasan selisih"
-        >
+        <FormField htmlFor={varianceReasonId} label={labels.reason}>
           <Textarea
             disabled={disabled || loading}
             id={varianceReasonId}
+            maxLength={500}
             onChange={(event) => onReasonChange(event.target.value)}
             rows={3}
             value={reason}
@@ -406,11 +384,11 @@ export function CloseShiftForm({
           disabled={submitDisabled}
           fullWidth
           loading={loading}
-          loadingLabel="Menutup shift"
+          loadingLabel={labels.submitting}
           size="lg"
           type="submit"
         >
-          Tutup shift
+          {labels.submit}
         </Button>
       </div>
     </form>

@@ -1,28 +1,64 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { CloseShiftForm, OpenShiftForm, ShiftSummary } from "@merchant/ui/pos-shift";
+import { Panel } from "@merchant/ui/data-display";
+import {
+  CloseShiftForm,
+  OpenShiftForm,
+  ShiftSummary,
+  type CloseShiftFormLabels,
+  type ShiftSummaryLabels,
+} from "@merchant/ui/pos-shift";
 
 import { storyContractParameters } from "./story-contract";
+
+const summaryLabels: ShiftSummaryLabels = {
+  cashIn: "Kas masuk",
+  cashOut: "Kas keluar",
+  cashSales: "Penjualan tunai",
+  countedCash: "Kas fisik",
+  expectedCash: "Kas seharusnya",
+  nonCash: "Non-tunai",
+  openingCash: "Kas awal",
+  variance: "Selisih kas",
+};
+
+const closeLabels: CloseShiftFormLabels = {
+  countedCash: "Kas fisik",
+  countedCashRequired: "Isi kas fisik.",
+  expectedCash: "Kas seharusnya",
+  reason: "Alasan selisih",
+  reasonRequired: "Isi alasan selisih.",
+  submit: "Tutup shift",
+  submitting: "Menutup shift",
+  varianceBalanced: "Selisih · Cocok",
+  varianceNeedsReason: "Selisih · Perlu alasan",
+};
 
 const activeSummary = {
   cashInMinor: "25000",
   cashOutMinor: "10000",
   cashSalesMinor: "200000",
   expectedCashMinor: "265000",
+  facts: [{ label: "Dibuka", value: "23 Jul 2026, 08.00" }],
+  labels: summaryLabels,
   nonCashBreakdown: [
     { amountMinor: "175000", id: "qris", label: "QRIS merchant" },
     { amountMinor: "125000", id: "transfer", label: "Transfer bank" },
   ],
-  openedAtLabel: "23 Jul 2026, 08.00",
-  openedBy: "Ayu Pratama",
   openingCashMinor: "50000",
 } as const;
+
+const closedFacts = [
+  { label: "Dibuka", value: "23 Jul 2026, 08.00" },
+  { label: "Ditutup", value: "23 Jul 2026, 17.10" },
+] as const;
 
 function OpenShiftExample() {
   const [openingCash, setOpeningCash] = useState<number | undefined>();
   return (
     <OpenShiftForm
+      labels={{ openingCash: "Kas awal", submit: "Buka shift", submitting: "Membuka shift" }}
       onOpeningCashChange={setOpeningCash}
       onSubmit={() => undefined}
       {...(openingCash === undefined ? {} : { openingCashMinor: openingCash })}
@@ -36,6 +72,7 @@ function CloseShiftExample() {
   return (
     <CloseShiftForm
       expectedCashMinor={activeSummary.expectedCashMinor}
+      labels={closeLabels}
       onCountedCashChange={setCountedCash}
       onReasonChange={setReason}
       onSubmit={() => undefined}
@@ -67,6 +104,19 @@ export const ActiveSummary: Story = {
   args: { ...activeSummary, status: "active" },
 };
 
+/** Before sales exist the cash sales row is left out, not shown as zero. */
+export const ActiveWithoutSales: Story = {
+  args: {
+    cashInMinor: "25000",
+    cashOutMinor: "10000",
+    expectedCashMinor: "65000",
+    facts: activeSummary.facts,
+    labels: summaryLabels,
+    openingCashMinor: "50000",
+    status: "active",
+  },
+};
+
 export const CloseShift: Story = {
   args: { ...activeSummary, status: "active" },
   render: () => <CloseShiftExample />,
@@ -76,9 +126,8 @@ export const ClosedManagerSummary: Story = {
   args: {
     ...activeSummary,
     canViewVariance: true,
-    closedAtLabel: "23 Jul 2026, 17.10",
-    closedBy: "Ayu Pratama",
     countedCashMinor: "260000",
+    facts: closedFacts,
     status: "closed",
     varianceMinor: "-5000",
   },
@@ -87,12 +136,23 @@ export const ClosedManagerSummary: Story = {
 export const ClosedCashierSummary: Story = {
   args: {
     ...activeSummary,
-    closedAtLabel: "23 Jul 2026, 17.10",
-    closedBy: "Ayu Pratama",
     countedCashMinor: "260000",
+    facts: closedFacts,
     status: "closed",
     varianceMinor: "-5000",
   },
+};
+
+/** The summary carries no card of its own; a page places it in one Panel. */
+export const InsidePanel: Story = {
+  args: { ...activeSummary, status: "active" },
+  render: (args) => (
+    <Panel title="Kas">
+      <div className="story-shift-panel-body">
+        <ShiftSummary {...args} />
+      </div>
+    </Panel>
+  ),
 };
 
 export const ThemeComparison: Story = {

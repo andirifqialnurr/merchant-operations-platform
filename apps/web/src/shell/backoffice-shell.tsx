@@ -1,22 +1,18 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { type ReactNode, useSyncExternalStore } from "react";
+import { type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
-import { IconPackage } from "@tabler/icons-react";
+import { IconCashRegister, IconPackage } from "@tabler/icons-react";
 
 import { PERMISSIONS } from "@merchant/contracts";
 import { AppIcon } from "@merchant/ui/app-icon";
-import { AppShell, ContextSwitcher, UserMenu } from "@merchant/ui/app-shell";
+import { AppShell } from "@merchant/ui/app-shell";
 
 import { useWorkspace } from "@/features/workspace";
-import { localeOptions, useLocaleSwitch } from "@/i18n/use-locale-switch";
 
-function subscribeToHydration() {
-  return () => undefined;
-}
+import { ShellAccount, ShellContext, type ShellUser } from "./shell-controls";
 
 export function BackofficeShell({
   children,
@@ -25,72 +21,41 @@ export function BackofficeShell({
 }: Readonly<{
   children: ReactNode;
   onSignOut: () => void;
-  user: { displayName: string; email: string };
+  user: ShellUser;
 }>) {
   const t = useTranslations("shell");
   const pathname = usePathname();
-  const { can, outlet, setOutletId, setTenantId, workspace, workspaces } = useWorkspace();
-  const { setTheme, theme } = useTheme();
-  const { locale, setLocale } = useLocaleSwitch();
-  const mounted = useSyncExternalStore(
-    subscribeToHydration,
-    () => true,
-    () => false,
-  );
+  const { can } = useWorkspace();
 
   // Only modules the user may open appear here; the API still enforces access.
-  const navigation = can(PERMISSIONS.catalogRead)
-    ? [
-        {
-          active: pathname.startsWith("/catalog"),
-          href: "/catalog",
-          icon: <AppIcon icon={IconPackage} />,
-          label: t("navCatalog"),
-        },
-      ]
-    : [];
+  const navigation = [
+    ...(can(PERMISSIONS.catalogRead)
+      ? [
+          {
+            active: pathname.startsWith("/catalog"),
+            href: "/catalog",
+            icon: <AppIcon icon={IconPackage} />,
+            label: t("navCatalog"),
+          },
+        ]
+      : []),
+    ...(can(PERMISSIONS.shiftOpen)
+      ? [
+          {
+            active: false,
+            href: "/pos/shift",
+            icon: <AppIcon icon={IconCashRegister} />,
+            label: t("navPos"),
+          },
+        ]
+      : []),
+  ];
 
   return (
     <AppShell
-      account={
-        <UserMenu
-          email={user.email}
-          label={t("accountMenu")}
-          language={{
-            label: t("language"),
-            onChange: setLocale,
-            options: localeOptions,
-            value: locale,
-          }}
-          name={user.displayName}
-          onSignOut={onSignOut}
-          signOutLabel={t("signOut")}
-          theme={{
-            label: t("theme"),
-            onChange: setTheme,
-            options: [
-              { label: t("themeLight"), value: "light" },
-              { label: t("themeDark"), value: "dark" },
-              { label: t("themeSystem"), value: "system" },
-            ],
-            value: mounted ? (theme ?? "system") : "system",
-          }}
-        />
-      }
+      account={<ShellAccount onSignOut={onSignOut} user={user} />}
       brand={t("brand")}
-      context={
-        <ContextSwitcher
-          label={t("switchContext")}
-          locationId={outlet?.id}
-          locationLabel={t("outlet")}
-          locations={workspace.outlets.map((item) => ({ id: item.id, name: item.name }))}
-          onLocationChange={setOutletId}
-          onWorkspaceChange={setTenantId}
-          workspaceId={workspace.tenant.id}
-          workspaceLabel={t("workspace")}
-          workspaces={workspaces.map((item) => ({ id: item.tenant.id, name: item.tenant.name }))}
-        />
-      }
+      context={<ShellContext />}
       labels={{
         closeNavigation: t("closeNavigation"),
         navigation: t("navigation"),

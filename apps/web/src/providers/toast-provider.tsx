@@ -21,7 +21,13 @@ const SUCCESS_DURATION_MS = 4_000;
 export function ToastProvider({
   children,
   dismissLabel,
-}: Readonly<{ children: ReactNode; dismissLabel: string }>) {
+  placement = "top-right",
+}: Readonly<{
+  children: ReactNode;
+  dismissLabel: string;
+  /** POS and KDS use top-center so a toast never covers the totals. */
+  placement?: "top-center" | "top-right";
+}>) {
   const [items, setItems] = useState<ToastItem[]>([]);
   const nextId = useRef(0);
 
@@ -47,7 +53,7 @@ export function ToastProvider({
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <ToastStack items={items} />
+      <ToastStack items={items} placement={placement} />
     </ToastContext.Provider>
   );
 }

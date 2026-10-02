@@ -32,8 +32,15 @@ test("home shell exposes clickable navigation for every visible device mode", as
   assert.match(source, /href="\/design-system"/);
 });
 
-test("POS, KDS, and Inventory landing routes exist without rendering internal payload fields", async () => {
-  for (const route of ["pos", "kds", "inventory"]) {
+test("POS opens the cashier surface instead of a placeholder", async () => {
+  const source = await readFile(join(appRoot, "(pos)", "pos", "page.tsx"), "utf8");
+
+  assert.match(source, /redirect\("\/pos\/shift"\)/);
+  await access(join(appRoot, "(pos)", "pos", "shift", "page.tsx"));
+});
+
+test("KDS and Inventory landing routes exist without rendering internal payload fields", async () => {
+  for (const route of ["kds", "inventory"]) {
     const pagePath = join(appRoot, route, "page.tsx");
     await access(pagePath);
     const source = await readFile(pagePath, "utf8");

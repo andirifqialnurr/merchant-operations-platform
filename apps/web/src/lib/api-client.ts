@@ -14,6 +14,7 @@ import {
   catalogProductSchema,
   catalogProductVariantSchema,
   catalogSnapshotSchema,
+  closeRegisterSessionSchema,
   createCatalogCategorySchema,
   createCatalogModifierGroupSchema,
   createCatalogModifierOptionSchema,
@@ -22,7 +23,11 @@ import {
   createCatalogProductModifierGroupSchema,
   createCatalogProductSchema,
   createCatalogProductVariantSchema,
+  currentRegisterSessionSchema,
   entityIdParamsSchema,
+  openRegisterSessionSchema,
+  recordCashMovementSchema,
+  registerSessionSchema,
   requestContextHeadersSchema,
   tenantRequestHeadersSchema,
   updateCatalogCategorySchema,
@@ -36,6 +41,7 @@ import {
   workspaceContextsSchema,
   type AuthLoginRequest,
   type CatalogRecordStatus,
+  type CloseRegisterSession,
   type CreateCatalogCategory,
   type CreateCatalogModifierGroup,
   type CreateCatalogModifierOption,
@@ -44,6 +50,8 @@ import {
   type CreateCatalogProductImage,
   type CreateCatalogProductModifierGroup,
   type CreateCatalogProductVariant,
+  type OpenRegisterSession,
+  type RecordCashMovement,
   type UpdateCatalogCategory,
   type UpdateCatalogModifierGroup,
   type UpdateCatalogModifierOption,
@@ -315,6 +323,44 @@ export const merchantApi = {
       input,
       updateCatalogOutletProductSchema,
       catalogOutletProductSchema,
+      outletHeaders(tenantId, outletId),
+    ),
+  currentShift: (tenantId: string, outletId: string) =>
+    apiRequest("/pos/shifts/current", currentRegisterSessionSchema, {
+      headers: outletHeaders(tenantId, outletId),
+    }),
+  openShift: (tenantId: string, outletId: string, input: OpenRegisterSession) =>
+    jsonMutation(
+      "/pos/shifts",
+      "POST",
+      input,
+      openRegisterSessionSchema,
+      registerSessionSchema,
+      outletHeaders(tenantId, outletId),
+    ),
+  /** The caller keeps one key per intended movement so a retry is not recorded twice. */
+  recordCashMovement: (
+    tenantId: string,
+    outletId: string,
+    shiftId: string,
+    input: RecordCashMovement,
+    idempotencyKey: string,
+  ) =>
+    jsonMutation(
+      `/pos/shifts/${entityIdParamsSchema.parse({ id: shiftId }).id}/cash-movements`,
+      "POST",
+      input,
+      recordCashMovementSchema,
+      registerSessionSchema,
+      { ...outletHeaders(tenantId, outletId), [API_HEADERS.idempotencyKey]: idempotencyKey },
+    ),
+  closeShift: (tenantId: string, outletId: string, shiftId: string, input: CloseRegisterSession) =>
+    jsonMutation(
+      `/pos/shifts/${entityIdParamsSchema.parse({ id: shiftId }).id}/close`,
+      "POST",
+      input,
+      closeRegisterSessionSchema,
+      registerSessionSchema,
       outletHeaders(tenantId, outletId),
     ),
 };
