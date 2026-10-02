@@ -61,17 +61,36 @@ export class ApiClientError extends Error {
     message: string,
     readonly code: string,
     readonly status: number,
+    readonly requestId?: string,
   ) {
     super(message);
     this.name = "ApiClientError";
   }
 }
 
+const UNSAFE_METHODS = new Set(["DELETE", "PATCH", "POST", "PUT"]);
+const CSRF_HEADER = "x-csrf-token";
+let csrfToken: string | undefined;
+
+/**
+ * The API rejects session-authenticated writes without this custom header.
+ * A cross-site form cannot set it, so its presence proves a same-origin caller.
+ */
+function getCsrfToken() {
+  csrfToken ??= crypto.randomUUID();
+  return csrfToken;
+}
+
 async function apiRequest<T>(path: string, schema: Schema<T>, init: RequestInit = {}): Promise<T> {
+  const method = (init.method ?? "GET").toUpperCase();
   const response = await fetch(`/api/v1${path}`, {
     ...init,
     credentials: "include",
-    headers: { Accept: "application/json", ...init.headers },
+    headers: {
+      Accept: "application/json",
+      ...(UNSAFE_METHODS.has(method) ? { [CSRF_HEADER]: getCsrfToken() } : {}),
+      ...init.headers,
+    },
   });
   const payload: unknown = await response.json().catch(() => null);
   if (!response.ok) {
@@ -80,6 +99,7 @@ async function apiRequest<T>(path: string, schema: Schema<T>, init: RequestInit 
       parsed.success ? parsed.data.message : "Layanan tidak dapat memproses permintaan.",
       parsed.success ? parsed.data.code : "API_REQUEST_FAILED",
       response.status,
+      parsed.success ? parsed.data.requestId : undefined,
     );
   }
   return schema.parse(payload);
