@@ -10,7 +10,7 @@ import {
   useDroppable,
 } from "@dnd-kit/react";
 import { Accessibility } from "@dnd-kit/dom";
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp } from "lucide-react";
+import { IconArrowDown, IconArrowLeft, IconArrowRight, IconArrowUp } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 import { TableTile, type TableTileProps, type TableTileState } from "./table-tile";
@@ -327,7 +327,7 @@ function TableLayoutKeyboardControls({
         onClick={() => onMove("up")}
         type="button"
       >
-        <AppIcon icon={ArrowUp} size="sm" />
+        <AppIcon icon={IconArrowUp} size="sm" />
       </button>
       <button
         aria-label="Pindahkan meja ke kiri"
@@ -335,7 +335,7 @@ function TableLayoutKeyboardControls({
         onClick={() => onMove("left")}
         type="button"
       >
-        <AppIcon icon={ArrowLeft} size="sm" />
+        <AppIcon icon={IconArrowLeft} size="sm" />
       </button>
       <button
         aria-label="Pindahkan meja ke kanan"
@@ -343,7 +343,7 @@ function TableLayoutKeyboardControls({
         onClick={() => onMove("right")}
         type="button"
       >
-        <AppIcon icon={ArrowRight} size="sm" />
+        <AppIcon icon={IconArrowRight} size="sm" />
       </button>
       <button
         aria-label="Pindahkan meja ke bawah"
@@ -351,7 +351,7 @@ function TableLayoutKeyboardControls({
         onClick={() => onMove("down")}
         type="button"
       >
-        <AppIcon icon={ArrowDown} size="sm" />
+        <AppIcon icon={IconArrowDown} size="sm" />
       </button>
     </div>
   );

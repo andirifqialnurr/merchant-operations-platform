@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import { X } from "lucide-react";
+import { IconX } from "@tabler/icons-react";
 import { AppIcon } from "./app-icon";
 import { Button } from "./button";
 
@@ -198,7 +198,7 @@ export function Dialog({
             onClick={() => onOpenChange(false)}
             type="button"
           >
-            <AppIcon icon={X} size="sm" />
+            <AppIcon icon={IconX} size="sm" />
           </button>
         </header>
         <div className="ui-dialog__body">{children}</div>
@@ -267,7 +267,7 @@ export function Sheet({
             onClick={() => onOpenChange(false)}
             type="button"
           >
-            <AppIcon icon={X} size="sm" />
+            <AppIcon icon={IconX} size="sm" />
           </button>
         </header>
         <div className="ui-sheet__body">{children}</div>

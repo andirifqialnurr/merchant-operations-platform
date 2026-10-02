@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 
-import { Minus, Plus } from "lucide-react";
+import { IconMinus, IconPlus } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 
@@ -247,7 +247,7 @@ export function QuantityStepper({
         onClick={() => update(currentValue - step)}
         type="button"
       >
-        <AppIcon icon={Minus} size="sm" />
+        <AppIcon icon={IconMinus} size="sm" />
       </button>
       <output aria-atomic="true" aria-live="polite" id={id}>
         {currentValue}
@@ -258,7 +258,7 @@ export function QuantityStepper({
         onClick={() => update(currentValue + step)}
         type="button"
       >
-        <AppIcon icon={Plus} size="sm" />
+        <AppIcon icon={IconPlus} size="sm" />
       </button>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardList, LifeBuoy, RefreshCw } from "lucide-react";
+import { IconClipboardList, IconLifebuoy, IconRefresh } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 import { Badge, type FeedbackTone } from "./feedback";
@@ -184,7 +184,7 @@ export function PlatformSupportAudit(props: PlatformSupportAuditProps) {
     >
       <header className="ui-platform-support-audit__header">
         <span className="ui-platform-support-audit__icon" aria-hidden="true">
-          <AppIcon icon={LifeBuoy} size="lg" />
+          <AppIcon icon={IconLifebuoy} size="lg" />
         </span>
         <div>
           <h2>{title.trim()}</h2>
@@ -194,7 +194,7 @@ export function PlatformSupportAudit(props: PlatformSupportAuditProps) {
           {statusLabel ? <Badge tone="info">{statusLabel.trim()}</Badge> : null}
           {onRefresh ? (
             <button aria-label="Refresh Support Audit" onClick={() => onRefresh()} type="button">
-              <AppIcon icon={RefreshCw} size="sm" />
+              <AppIcon icon={IconRefresh} size="sm" />
             </button>
           ) : null}
         </div>
@@ -259,7 +259,7 @@ export function PlatformSupportAudit(props: PlatformSupportAuditProps) {
         <section aria-label="Daftar Audit Event" className="ui-platform-audit-events">
           <header>
             <span aria-hidden="true">
-              <AppIcon icon={ClipboardList} size="sm" />
+              <AppIcon icon={IconClipboardList} size="sm" />
             </span>
             <div>
               <h3>Audit Event</h3>

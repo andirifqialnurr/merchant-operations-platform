@@ -1,7 +1,7 @@
 "use client";
 
 import { type ChangeEvent, type FormEvent, type ReactNode } from "react";
-import { BookOpenCheck, PackageSearch, Plus, Trash2 } from "lucide-react";
+import { IconBook, IconPackages, IconPlus, IconTrash } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 
@@ -181,7 +181,7 @@ export function RecipeBomEditor(props: RecipeBomEditorProps) {
     >
       <header className="ui-recipe-bom-editor__header">
         <span className="ui-recipe-bom-editor__header-icon" aria-hidden="true">
-          <AppIcon icon={BookOpenCheck} size="md" />
+          <AppIcon icon={IconBook} size="md" />
         </span>
         <span>
           <span>Recipe/BOM</span>
@@ -237,7 +237,7 @@ export function RecipeBomEditor(props: RecipeBomEditorProps) {
                     onClick={() => onPickIngredient?.(rowId)}
                     type="button"
                   >
-                    <AppIcon icon={PackageSearch} size="sm" />
+                    <AppIcon icon={IconPackages} size="sm" />
                     <span>
                       <strong>{ingredientLabel}</strong>
                       <span>
@@ -287,7 +287,7 @@ export function RecipeBomEditor(props: RecipeBomEditorProps) {
                     title={`Hapus ${ingredientLabel}`}
                     type="button"
                   >
-                    <AppIcon icon={Trash2} size="sm" />
+                    <AppIcon icon={IconTrash} size="sm" />
                   </button>
                 </span>
               </div>
@@ -302,7 +302,7 @@ export function RecipeBomEditor(props: RecipeBomEditorProps) {
           onClick={() => onAddIngredient?.()}
           type="button"
         >
-          <AppIcon icon={Plus} size="sm" />
+          <AppIcon icon={IconPlus} size="sm" />
           {addIngredientLabel.trim()}
         </button>
         <span>

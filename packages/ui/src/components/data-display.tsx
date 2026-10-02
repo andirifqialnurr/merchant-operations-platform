@@ -1,7 +1,7 @@
 "use client";
 
 import { type ComponentType, type ReactNode, useEffect, useId, useRef, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { IconChevronDown } from "@tabler/icons-react";
 import { AppIcon } from "./app-icon";
 import { Button } from "./button";
 import { EmptyState, ErrorState, Skeleton } from "./feedback";
@@ -247,7 +247,7 @@ export function Accordion({ items }: { items: readonly { title: string; content:
             type="button"
           >
             <span>{item.title}</span>
-            <AppIcon icon={ChevronDown} size="sm" />
+            <AppIcon icon={IconChevronDown} size="sm" />
           </button>
           {open === i ? <div id={`${id}-${i}`}>{item.content}</div> : null}
         </section>

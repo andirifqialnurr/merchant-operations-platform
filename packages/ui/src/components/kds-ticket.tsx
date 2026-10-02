@@ -1,19 +1,19 @@
 "use client";
 
 import {
-  BellRing,
-  CheckCircle2,
-  ChefHat,
-  Clock3,
-  Flame,
-  PackageCheck,
-  PauseCircle,
-  RefreshCcw,
-  Volume2,
-  VolumeX,
-  Wifi,
-  WifiOff,
-} from "lucide-react";
+  IconBellRinging,
+  IconChefHat,
+  IconCircleCheck,
+  IconClock,
+  IconFlame,
+  IconPackageImport,
+  IconPlayerPause,
+  IconRefresh,
+  IconVolume,
+  IconVolumeOff,
+  IconWifi,
+  IconWifiOff,
+} from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 
@@ -91,21 +91,23 @@ const statusLabel: Record<KdsTicketStatus, string> = {
 };
 
 const primaryActionByStatus: Partial<
-  Record<KdsTicketStatus, { action: KdsTicketAction; icon: typeof CheckCircle2; label: string }>
+  Record<KdsTicketStatus, { action: KdsTicketAction; icon: typeof IconCircleCheck; label: string }>
 > = {
-  accepted: { action: "mark-ready", icon: Flame, label: "Siap disajikan" },
-  new: { action: "accept", icon: CheckCircle2, label: "Terima" },
-  preparing: { action: "mark-ready", icon: Flame, label: "Siap disajikan" },
-  ready: { action: "mark-served", icon: PackageCheck, label: "Tandai disajikan" },
-  served: { action: "complete", icon: CheckCircle2, label: "Selesaikan" },
+  accepted: { action: "mark-ready", icon: IconFlame, label: "Siap disajikan" },
+  new: { action: "accept", icon: IconCircleCheck, label: "Terima" },
+  preparing: { action: "mark-ready", icon: IconFlame, label: "Siap disajikan" },
+  ready: { action: "mark-served", icon: IconPackageImport, label: "Tandai disajikan" },
+  served: { action: "complete", icon: IconCircleCheck, label: "Selesaikan" },
 };
 
-const timerStateContent: Record<KdsTicketTimerState, { icon: typeof CheckCircle2; label: string }> =
-  {
-    completed: { icon: CheckCircle2, label: "Timer selesai" },
-    paused: { icon: PauseCircle, label: "Timer ditahan" },
-    running: { icon: Clock3, label: "Timer berjalan" },
-  };
+const timerStateContent: Record<
+  KdsTicketTimerState,
+  { icon: typeof IconCircleCheck; label: string }
+> = {
+  completed: { icon: IconCircleCheck, label: "Timer selesai" },
+  paused: { icon: IconPlayerPause, label: "Timer ditahan" },
+  running: { icon: IconClock, label: "Timer berjalan" },
+};
 
 const slaStateLabel: Record<KdsTicketSlaState, string> = {
   breached: "Lewat SLA",
@@ -115,34 +117,34 @@ const slaStateLabel: Record<KdsTicketSlaState, string> = {
 
 const audioStateContent: Record<
   KdsNewTicketAlertAudioState,
-  { icon: typeof CheckCircle2; label: string }
+  { icon: typeof IconCircleCheck; label: string }
 > = {
-  blocked: { icon: VolumeX, label: "Audio perlu izin perangkat" },
-  muted: { icon: VolumeX, label: "Audio dimatikan" },
-  ready: { icon: Volume2, label: "Audio siap" },
+  blocked: { icon: IconVolumeOff, label: "Audio perlu izin perangkat" },
+  muted: { icon: IconVolumeOff, label: "Audio dimatikan" },
+  ready: { icon: IconVolume, label: "Audio siap" },
 };
 
 const connectionStateContent: Record<
   KdsConnectionState,
-  { icon: typeof CheckCircle2; label: string; message: string }
+  { icon: typeof IconCircleCheck; label: string; message: string }
 > = {
   connected: {
-    icon: Wifi,
+    icon: IconWifi,
     label: "Terhubung",
     message: "Ticket dapur tersinkron otomatis.",
   },
   connecting: {
-    icon: RefreshCcw,
+    icon: IconRefresh,
     label: "Menghubungkan",
     message: "Sedang menyambungkan ulang tampilan dapur.",
   },
   disconnected: {
-    icon: WifiOff,
+    icon: IconWifiOff,
     label: "Terputus",
     message: "Koneksi dapur terputus. Coba sambungkan ulang.",
   },
   stale: {
-    icon: RefreshCcw,
+    icon: IconRefresh,
     label: "Perlu refresh",
     message: "Data ticket mungkin tertinggal. Refresh untuk mengambil snapshot terbaru.",
   },
@@ -301,7 +303,7 @@ export function KdsNewTicketAlert(props: KdsNewTicketAlertProps) {
       role="status"
     >
       <span className="ui-kds-new-ticket-alert__icon" aria-hidden="true">
-        <AppIcon icon={BellRing} size="md" />
+        <AppIcon icon={IconBellRinging} size="md" />
       </span>
       <span className="ui-kds-new-ticket-alert__content">
         <strong>{ticketLabel}</strong>
@@ -458,11 +460,11 @@ export function KdsTicket(props: KdsTicketProps) {
 
       <div className="ui-kds-ticket__meta">
         <span>
-          <AppIcon icon={ChefHat} size="xs" />
+          <AppIcon icon={IconChefHat} size="xs" />
           {sourceLabel.trim()}
         </span>
         <span>
-          <AppIcon icon={Clock3} size="xs" />
+          <AppIcon icon={IconClock} size="xs" />
           {elapsedLabel.trim()}
         </span>
         <span>

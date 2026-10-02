@@ -1,6 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { AppIcon } from "./app-icon";
 
 /*
@@ -192,7 +192,7 @@ export function Pagination({
           onClick={() => onPageChange(page - 1)}
           type="button"
         >
-          <AppIcon icon={ChevronLeft} size="sm" />
+          <AppIcon icon={IconChevronLeft} size="sm" />
         </button>
         <span aria-hidden="true">
           {page}/{pages}
@@ -203,7 +203,7 @@ export function Pagination({
           onClick={() => onPageChange(page + 1)}
           type="button"
         >
-          <AppIcon icon={ChevronRight} size="sm" />
+          <AppIcon icon={IconChevronRight} size="sm" />
         </button>
       </div>
     </nav>

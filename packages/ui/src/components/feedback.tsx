@@ -2,14 +2,13 @@
 
 import type { HTMLAttributes, ReactNode } from "react";
 import {
-  AlertCircle,
-  CheckCircle2,
-  CircleAlert,
-  Info,
-  LoaderCircle,
-  WifiOff,
-  X,
-} from "lucide-react";
+  IconAlertCircle,
+  IconCircleCheck,
+  IconInfoCircle,
+  IconLoader2,
+  IconWifiOff,
+  IconX,
+} from "@tabler/icons-react";
 import { AppIcon } from "./app-icon";
 
 export type FeedbackTone =
@@ -49,13 +48,13 @@ export type SkeletonProps = {
 export type StateProps = { action?: ReactNode; description: ReactNode; title: string };
 
 const iconByTone = {
-  neutral: Info,
-  info: Info,
-  success: CheckCircle2,
-  warning: CircleAlert,
-  danger: AlertCircle,
-  loading: LoaderCircle,
-  offline: WifiOff,
+  neutral: IconInfoCircle,
+  info: IconInfoCircle,
+  success: IconCircleCheck,
+  warning: IconAlertCircle,
+  danger: IconAlertCircle,
+  loading: IconLoader2,
+  offline: IconWifiOff,
 } as const;
 function classes(...values: Array<string | false | undefined>) {
   return values.filter(Boolean).join(" ");
@@ -106,7 +105,7 @@ export function Alert({
       </div>
       {onDismiss ? (
         <button aria-label={dismissLabel} onClick={onDismiss} type="button">
-          <AppIcon icon={X} size="sm" />
+          <AppIcon icon={IconX} size="sm" />
         </button>
       ) : null}
     </div>
@@ -183,7 +182,7 @@ export function Skeleton({ className, variant = "text" }: SkeletonProps) {
 export function EmptyState({ action, description, title }: StateProps) {
   return (
     <section className="ui-state">
-      <AppIcon icon={Info} size="xl" />
+      <AppIcon icon={IconInfoCircle} size="xl" />
       <h2>{title}</h2>
       <p>{description}</p>
       {action}
@@ -193,7 +192,7 @@ export function EmptyState({ action, description, title }: StateProps) {
 export function ErrorState({ action, description, title }: StateProps) {
   return (
     <section className="ui-state ui-state--error" role="alert">
-      <AppIcon icon={AlertCircle} size="xl" />
+      <AppIcon icon={IconAlertCircle} size="xl" />
       <h2>{title}</h2>
       <p>{description}</p>
       {action}

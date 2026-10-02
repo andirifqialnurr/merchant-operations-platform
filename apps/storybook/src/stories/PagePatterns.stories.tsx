@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Download, Plus } from "lucide-react";
+import { IconDownload, IconPlus } from "@tabler/icons-react";
 
 import { Button } from "@merchant/ui/button";
 import { Breadcrumb } from "@merchant/ui/navigation";
@@ -20,14 +20,17 @@ type Story = StoryObj<typeof meta>;
 export const Header: Story = {
   render: () => (
     <div className="story-contract-page">
-      <PageHeader primaryAction={<Button iconLeft={Plus}>Tambah produk</Button>} title="Produk" />
+      <PageHeader
+        primaryAction={<Button iconLeft={IconPlus}>Tambah produk</Button>}
+        title="Produk"
+      />
       <PageHeader
         breadcrumb={
           <Breadcrumb items={[{ href: "#", label: "Stok" }, { label: "Opname Juli 2026" }]} />
         }
         primaryAction={<Button>Finalisasi</Button>}
         secondaryActions={
-          <Button iconLeft={Download} variant="secondary">
+          <Button iconLeft={IconDownload} variant="secondary">
             Ekspor
           </Button>
         }
@@ -110,7 +113,7 @@ export const ThemeComparison: Story = {
       {(["light", "dark"] as const).map((mode) => (
         <section data-theme-preview={mode} key={mode}>
           <PageHeader
-            primaryAction={<Button iconLeft={Plus}>Tambah produk</Button>}
+            primaryAction={<Button iconLeft={IconPlus}>Tambah produk</Button>}
             title="Produk"
           />
           <div className="story-contract-grid">

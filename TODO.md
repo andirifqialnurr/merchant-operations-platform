@@ -71,7 +71,7 @@ Urutan fondasi UI mengikuti `docs/foundation/frontend.md` bagian 14; setiap buti
 
 - [x] **UI Foundation 1 - Bank warna Calm Neutral:** `primitives.css` diganti menjadi ramp netral 16 langkah + status + chart + preset storefront (skala Teal, Slate, Violet, Indigo lama dihapus); `tokens.css` light/dark monokrom tanpa aksen; token `--color-chart-series-1..6` dan utility `bg-chart-*`; preset storefront `ink/blue/teal/green/rose/orange`; `/color-bank` ditulis ulang; warna PWA diselaraskan; status `special` dipetakan ke netral. Verifikasi: kontras WCAG dihitung, penjaga warna, lint, typecheck `ui`/`storybook`, dan 204 test komponen lulus.
 - [ ] **Gate UI Foundation 1:** user meninjau `/color-bank` di browser pada light dan dark. Typecheck `apps/web` masih gagal hanya pada berkas hasil generate `.next/dev/types/routes.d.ts` yang rusak (bukan kode sumber); hapus `apps/web/.next/dev` setelah proses dev lama dihentikan.
-- [ ] **UI Foundation 2 - Tabler Icons:** ganti implementasi `AppIcon`, ganti seluruh impor `lucide-react`, hapus dependensi lama.
+- [x] **UI Foundation 2 - Tabler Icons:** `AppIcon` memakai `@tabler/icons-react` (garis 1,75px); 49 berkas dimigrasikan lewat codemod berbasis AST; `lucide-react` dihapus dari ketiga paket dan dilarang lewat lint. Lint, typecheck, 231 test komponen, build dan 22 smoke test Storybook lulus; ikon terverifikasi di halaman Katalog pada browser.
 - [ ] **UI Foundation 3 - i18n:** pasang `next-intl` berbasis cookie, kamus `id`/`en`, `LanguageSwitcher`, keluarkan string dari `packages/ui`.
 - [ ] **UI Foundation 4 - API client dan server state:** header CSRF (temuan `SEC-F1`), idempotency, error bertipe, TanStack Query.
 - [ ] **UI Foundation 5 - Shell dan pattern:** `AppShell`, `ContextSwitcher`, `UserMenu`, `PageHeader`, `FilterBar`, `Chip`, `ModuleAccessState`, `UsageLimitState`.
@@ -161,7 +161,7 @@ Audit detail: `docs/foundation/BACKEND_MODULAR_DELTA_AUDIT.md`.
 | Styling         | Tailwind CSS + CSS design tokens                              |
 | UI behavior     | Radix/headless primitives                                     |
 | Font            | Geist Sans + Geist Mono terbatas                              |
-| Icon            | Tabler Icons melalui `AppIcon` (migrasi dari Lucide)          |
+| Icon            | Tabler Icons melalui `AppIcon`                                |
 | i18n            | `next-intl` berbasis cookie, `id` dan `en`                    |
 | Server state    | TanStack Query                                                |
 | Local state     | Zustand secukupnya                                            |

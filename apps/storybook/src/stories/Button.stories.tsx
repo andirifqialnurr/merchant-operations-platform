@@ -1,5 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ArrowRight, Check, Plus, Save, Trash2 } from "lucide-react";
+import {
+  IconArrowRight,
+  IconCheck,
+  IconDeviceFloppy,
+  IconPlus,
+  IconTrash,
+} from "@tabler/icons-react";
 
 import { Button, IconButton } from "@merchant/ui/button";
 
@@ -78,18 +84,18 @@ export const IconsAndFullWidth: Story = {
   render: () => (
     <div className="story-contract-page">
       <div className="story-contract-grid">
-        <Button iconLeft={Save}>Simpan perubahan</Button>
-        <Button iconRight={ArrowRight}>Lanjut</Button>
-        <Button fullWidth iconLeft={Check} size="lg">
+        <Button iconLeft={IconDeviceFloppy}>Simpan perubahan</Button>
+        <Button iconRight={IconArrowRight}>Lanjut</Button>
+        <Button fullWidth iconLeft={IconCheck} size="lg">
           Konfirmasi pembayaran pesanan meja 12 dan kirimkan bukti transaksi kepada pelanggan
         </Button>
       </div>
       <div className="story-contract-grid">
         {(["xs", "sm", "md", "lg", "xl"] as const).map((size) => (
-          <IconButton icon={Plus} key={size} label={`Tambah (${size})`} size={size} />
+          <IconButton icon={IconPlus} key={size} label={`Tambah (${size})`} size={size} />
         ))}
         <IconButton
-          icon={Trash2}
+          icon={IconTrash}
           label="Hapus produk"
           tooltip="Hapus produk ini"
           variant="destructive"
@@ -107,11 +113,11 @@ export const ThemeComparison: Story = {
     <div className="story-contract-theme-comparison">
       <section data-theme-preview="light">
         <h2 className="text-heading-sm">Light</h2>
-        <Button iconLeft={Save}>Simpan perubahan</Button>
+        <Button iconLeft={IconDeviceFloppy}>Simpan perubahan</Button>
       </section>
       <section data-theme-preview="dark">
         <h2 className="text-heading-sm">Dark</h2>
-        <Button iconLeft={Save}>Simpan perubahan</Button>
+        <Button iconLeft={IconDeviceFloppy}>Simpan perubahan</Button>
       </section>
     </div>
   ),

@@ -1,13 +1,13 @@
 "use client";
 
 import {
-  BarChart3,
-  CheckCircle2,
-  CircleDollarSign,
-  Table2,
-  TrendingDown,
-  TrendingUp,
-} from "lucide-react";
+  IconChartBar,
+  IconCircleCheck,
+  IconCoin,
+  IconTable,
+  IconTrendingDown,
+  IconTrendingUp,
+} from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 import { Chart } from "./data-display";
@@ -66,7 +66,7 @@ export type FinanceValidatedReportProps = {
 
 type MetricContent = {
   categoryLabel: string;
-  icon: typeof CircleDollarSign;
+  icon: typeof IconCoin;
   label: string;
   tone: FinanceValidatedReportTone;
 };
@@ -74,49 +74,49 @@ type MetricContent = {
 const metricContent: Record<FinanceValidatedReportMetricKind, MetricContent> = {
   cashbook: {
     categoryLabel: "Cashbook",
-    icon: CircleDollarSign,
+    icon: IconCoin,
     label: "Cashbook",
     tone: "info",
   },
   "cash-variance": {
     categoryLabel: "Cash control",
-    icon: TrendingDown,
+    icon: IconTrendingDown,
     label: "Cash variance",
     tone: "warning",
   },
   expense: {
     categoryLabel: "Expense",
-    icon: TrendingDown,
+    icon: IconTrendingDown,
     label: "Expense",
     tone: "warning",
   },
   "gross-profit": {
     categoryLabel: "Profit estimate",
-    icon: CircleDollarSign,
+    icon: IconCoin,
     label: "Gross profit",
     tone: "info",
   },
   "hpp-estimate": {
     categoryLabel: "Profit estimate",
-    icon: Table2,
+    icon: IconTable,
     label: "HPP estimate",
     tone: "warning",
   },
   "operating-profit": {
     categoryLabel: "Profit estimate",
-    icon: CircleDollarSign,
+    icon: IconCoin,
     label: "Operating profit",
     tone: "success",
   },
   "other-income": {
     categoryLabel: "Other income",
-    icon: TrendingUp,
+    icon: IconTrendingUp,
     label: "Other income",
     tone: "success",
   },
   sales: {
     categoryLabel: "Sales",
-    icon: TrendingUp,
+    icon: IconTrendingUp,
     label: "Sales",
     tone: "success",
   },
@@ -354,7 +354,7 @@ export function FinanceValidatedReport(props: FinanceValidatedReportProps) {
         <section aria-label={tableTitle.trim()} className="ui-finance-report-table">
           <header>
             <span className="ui-finance-report-table__icon" aria-hidden="true">
-              <AppIcon icon={BarChart3} size="sm" />
+              <AppIcon icon={IconChartBar} size="sm" />
             </span>
             <div>
               <h3>{tableTitle.trim()}</h3>
@@ -411,7 +411,7 @@ export function FinanceValidatedReport(props: FinanceValidatedReportProps) {
                       </td>
                       <td>
                         <Badge tone="success">
-                          <AppIcon icon={CheckCircle2} size="xs" />
+                          <AppIcon icon={IconCircleCheck} size="xs" />
                           {row.validationLabel}
                         </Badge>
                       </td>

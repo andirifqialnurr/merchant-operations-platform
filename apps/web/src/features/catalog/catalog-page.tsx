@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Plus } from "lucide-react";
+import { IconPlus } from "@tabler/icons-react";
 
 import { PERMISSIONS } from "@merchant/contracts";
 import { Button } from "@merchant/ui/button";
@@ -82,7 +82,7 @@ export function CatalogPage() {
       {...(fullCatalog && canManage
         ? {
             primaryAction: (
-              <Button iconLeft={Plus} onClick={() => select("new")}>
+              <Button iconLeft={IconPlus} onClick={() => select("new")}>
                 {t(addLabelKeys[tab])}
               </Button>
             ),

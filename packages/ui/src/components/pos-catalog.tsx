@@ -1,7 +1,7 @@
 "use client";
 
 import { type ButtonHTMLAttributes, type ReactNode, useEffect, useState } from "react";
-import { ImageOff } from "lucide-react";
+import { IconPhotoOff } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 
@@ -95,7 +95,7 @@ export function ProductTile({
             <img alt={imageAlt} onError={() => setImageFailed(true)} src={imageUrl} />
           ) : (
             <span className="ui-product-tile__image-fallback">
-              <AppIcon icon={ImageOff} size="lg" />
+              <AppIcon icon={IconPhotoOff} size="lg" />
               <span>Gambar tidak tersedia</span>
             </span>
           )}

@@ -329,7 +329,7 @@ import { IconReceipt } from "@tabler/icons-react";
 <AppIcon icon={IconAlertTriangle} size="sm" label={t("common.warning")} />
 ```
 
-Migrasi: ganti tipe ikon di `app-icon.tsx`, ganti impor `lucide-react` di `apps/web`, `packages/ui`, dan `apps/storybook`, lalu hapus dependensi `lucide-react`. Lint melarang impor pustaka ikon di luar `packages/ui` dan pemanggilnya lewat `AppIcon`.
+Migrasi dari Lucide sudah selesai. Tipe ikon untuk props komponen adalah `AppIconComponent` dari `app-icon`. Lint menolak impor `lucide-react`.
 
 **Chart.** Wrapper `Chart` di `packages/ui` membungkus `react-apexcharts`:
 
@@ -424,7 +424,7 @@ Gerbang tiap halaman: lint, typecheck, test terkait, smoke rute HTTP, smoke klik
 Setiap butir adalah checkpoint yang dapat di-push sendiri.
 
 1. Token Calm Neutral di `tokens.css`/`primitives.css` — **selesai**; pratinjau di `/color-bank`.
-2. `AppIcon` ke Tabler; ganti semua impor ikon; hapus `lucide-react`.
+2. `AppIcon` ke Tabler; ganti semua impor ikon; hapus `lucide-react` — **selesai**; lint menolak impor `lucide-react`.
 3. `next-intl` — **selesai** untuk shell, login, dan Catalog: kamus `id`/`en`, bawaan mengikuti browser, pemilih bahasa di menu akun dan halaman login, error diterjemahkan per kode. Yang tersisa: menyimpan pilihan ke `users.locale`, dan menghapus bawaan Bahasa Indonesia pada props label `packages/ui`.
 4. Klien API: header CSRF dan TanStack Query — **selesai**. Idempotency dan pemetaan error berdasarkan kode menyusul.
 5. `AppShell`, `ContextSwitcher`, `UserMenu`, `PageHeader`, `FilterBar`, `Chip` — **selesai**. `ModuleAccessState` dan `UsageLimitState` menyusul.

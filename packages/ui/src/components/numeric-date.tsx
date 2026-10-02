@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { IconCalendar, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { AppIcon } from "./app-icon";
 
 /*
@@ -188,7 +188,7 @@ function Calendar({
           onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}
           type="button"
         >
-          <AppIcon icon={ChevronLeft} size="sm" />
+          <AppIcon icon={IconChevronLeft} size="sm" />
         </button>
         <strong>
           {new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(month)}
@@ -198,7 +198,7 @@ function Calendar({
           onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}
           type="button"
         >
-          <AppIcon icon={ChevronRight} size="sm" />
+          <AppIcon icon={IconChevronRight} size="sm" />
         </button>
       </header>
       <div aria-hidden="true" className="ui-calendar__week">
@@ -269,7 +269,7 @@ export function DatePicker({
         onClick={() => setOpen((current) => !current)}
         type="button"
       >
-        <AppIcon icon={CalendarDays} size="sm" />
+        <AppIcon icon={IconCalendar} size="sm" />
         <span className={value ? undefined : "ui-date-control__placeholder"}>
           {value ? formatDate(value, locale) : placeholder}
         </span>

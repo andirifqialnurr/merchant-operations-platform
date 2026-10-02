@@ -1,12 +1,12 @@
 "use client";
 
 import {
-  ArrowDownRight,
-  ArrowRight,
-  ArrowUpRight,
-  CircleDollarSign,
-  ReceiptText,
-} from "lucide-react";
+  IconArrowDownRight,
+  IconArrowRight,
+  IconArrowUpRight,
+  IconCoin,
+  IconReceipt,
+} from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 import { MoneyDisplay, type MoneyMinorValue } from "./money-display";
@@ -41,18 +41,18 @@ export type FinanceMetricProps = {
 
 const financeMetricContent: Record<
   FinanceMetricVariant,
-  { defaultLabel: string; icon: typeof CircleDollarSign; requiresEstimate: boolean }
+  { defaultLabel: string; icon: typeof IconCoin; requiresEstimate: boolean }
 > = {
-  "cash-variance": { defaultLabel: "Selisih kas", icon: ReceiptText, requiresEstimate: false },
-  expense: { defaultLabel: "Expense", icon: ReceiptText, requiresEstimate: false },
-  "gross-profit": { defaultLabel: "Gross profit", icon: CircleDollarSign, requiresEstimate: true },
-  "hpp-estimate": { defaultLabel: "HPP estimate", icon: ReceiptText, requiresEstimate: true },
+  "cash-variance": { defaultLabel: "Selisih kas", icon: IconReceipt, requiresEstimate: false },
+  expense: { defaultLabel: "Expense", icon: IconReceipt, requiresEstimate: false },
+  "gross-profit": { defaultLabel: "Gross profit", icon: IconCoin, requiresEstimate: true },
+  "hpp-estimate": { defaultLabel: "HPP estimate", icon: IconReceipt, requiresEstimate: true },
   "operating-profit": {
     defaultLabel: "Operating profit",
-    icon: CircleDollarSign,
+    icon: IconCoin,
     requiresEstimate: true,
   },
-  revenue: { defaultLabel: "Revenue", icon: CircleDollarSign, requiresEstimate: false },
+  revenue: { defaultLabel: "Revenue", icon: IconCoin, requiresEstimate: false },
 };
 
 const financeMetricSensitiveKeyPattern =
@@ -94,9 +94,9 @@ function assertDelta(delta: FinanceMetricDelta) {
 }
 
 function deltaIcon(direction: FinanceMetricDeltaDirection) {
-  if (direction === "increase") return ArrowUpRight;
-  if (direction === "decrease") return ArrowDownRight;
-  return ArrowRight;
+  if (direction === "increase") return IconArrowUpRight;
+  if (direction === "decrease") return IconArrowDownRight;
+  return IconArrowRight;
 }
 
 export function FinanceMetric(props: FinanceMetricProps) {

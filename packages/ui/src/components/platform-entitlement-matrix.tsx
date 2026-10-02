@@ -1,6 +1,6 @@
 "use client";
 
-import { Grid3X3, RefreshCw, ShieldCheck } from "lucide-react";
+import { IconGridDots, IconRefresh, IconShieldCheck } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 import { Badge, type FeedbackTone } from "./feedback";
@@ -207,7 +207,7 @@ export function PlatformEntitlementMatrix(props: PlatformEntitlementMatrixProps)
     >
       <header className="ui-platform-entitlement-matrix__header">
         <span className="ui-platform-entitlement-matrix__icon" aria-hidden="true">
-          <AppIcon icon={Grid3X3} size="lg" />
+          <AppIcon icon={IconGridDots} size="lg" />
         </span>
         <div>
           <h2>{title.trim()}</h2>
@@ -221,7 +221,7 @@ export function PlatformEntitlementMatrix(props: PlatformEntitlementMatrixProps)
               onClick={() => onRefresh()}
               type="button"
             >
-              <AppIcon icon={RefreshCw} size="sm" />
+              <AppIcon icon={IconRefresh} size="sm" />
             </button>
           ) : null}
         </div>
@@ -292,7 +292,7 @@ export function PlatformEntitlementMatrix(props: PlatformEntitlementMatrixProps)
         >
           <header>
             <span aria-hidden="true">
-              <AppIcon icon={ShieldCheck} size="sm" />
+              <AppIcon icon={IconShieldCheck} size="sm" />
             </span>
             <div>
               <h3>Module default</h3>

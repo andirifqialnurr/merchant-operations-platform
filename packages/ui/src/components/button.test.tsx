@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ArrowRight, Save, Trash2 } from "lucide-react";
+import { IconArrowRight, IconDeviceFloppy, IconTrash } from "@tabler/icons-react";
 import { describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
@@ -41,7 +41,7 @@ describe("Button", () => {
 
   it("supports icons and full-width layout without losing button semantics", () => {
     render(
-      <Button fullWidth iconLeft={Save} iconRight={ArrowRight}>
+      <Button fullWidth iconLeft={IconDeviceFloppy} iconRight={IconArrowRight}>
         Simpan perubahan
       </Button>,
     );
@@ -52,7 +52,7 @@ describe("Button", () => {
   });
 
   it("provides an accessible icon button and tooltip fallback", () => {
-    render(<IconButton icon={Trash2} label="Hapus produk" tooltip="Hapus produk ini" />);
+    render(<IconButton icon={IconTrash} label="Hapus produk" tooltip="Hapus produk ini" />);
 
     const button = screen.getByRole("button", { name: "Hapus produk" });
     expect(button).toHaveAttribute("title", "Hapus produk ini");
@@ -62,8 +62,8 @@ describe("Button", () => {
   it("passes an axe smoke test", async () => {
     const { container } = render(
       <div>
-        <Button iconLeft={Save}>Simpan perubahan</Button>
-        <IconButton icon={Trash2} label="Hapus produk" />
+        <Button iconLeft={IconDeviceFloppy}>Simpan perubahan</Button>
+        <IconButton icon={IconTrash} label="Hapus produk" />
       </div>,
     );
 

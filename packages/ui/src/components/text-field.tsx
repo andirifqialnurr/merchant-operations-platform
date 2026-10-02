@@ -11,7 +11,7 @@ import {
   useState,
 } from "react";
 
-import { Eye, EyeOff, Search, X } from "lucide-react";
+import { IconEye, IconEyeOff, IconSearch, IconX } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 
@@ -139,7 +139,9 @@ export function Input({
         readOnly && "ui-text-field--readonly",
       )}
     >
-      {variant === "search" ? <AppIcon icon={Search} size={size === "sm" ? "sm" : "md"} /> : null}
+      {variant === "search" ? (
+        <AppIcon icon={IconSearch} size={size === "sm" ? "sm" : "md"} />
+      ) : null}
       {prefix ? <span className="ui-text-field__affix">{prefix}</span> : null}
       <input
         {...props}
@@ -159,7 +161,7 @@ export function Input({
           onClick={onClear}
           type="button"
         >
-          <AppIcon icon={X} size="sm" />
+          <AppIcon icon={IconX} size="sm" />
         </button>
       ) : null}
       {variant === "password" ? (
@@ -171,7 +173,7 @@ export function Input({
           onClick={() => setPasswordVisible((visible) => !visible)}
           type="button"
         >
-          <AppIcon icon={passwordVisible ? EyeOff : Eye} size="sm" />
+          <AppIcon icon={passwordVisible ? IconEyeOff : IconEye} size="sm" />
         </button>
       ) : null}
     </div>

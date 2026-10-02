@@ -1,7 +1,16 @@
 import { useState } from "react";
 
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Boxes, Compass, LayoutGrid, Package, Plus, Settings, Users, Wallet } from "lucide-react";
+import {
+  IconCompass,
+  IconLayoutGrid,
+  IconPackage,
+  IconPackages,
+  IconPlus,
+  IconSettings,
+  IconUsers,
+  IconWallet,
+} from "@tabler/icons-react";
 
 import { AppIcon } from "@merchant/ui/app-icon";
 import { AppShell, ContextSwitcher, UserMenu } from "@merchant/ui/app-shell";
@@ -21,12 +30,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const navigation = [
-  { active: true, href: "#", icon: <AppIcon icon={Package} />, label: "Katalog" },
-  { href: "#", icon: <AppIcon icon={LayoutGrid} />, label: "Meja" },
-  { href: "#", icon: <AppIcon icon={Boxes} />, label: "Stok" },
-  { href: "#", icon: <AppIcon icon={Wallet} />, label: "Keuangan" },
-  { href: "#", icon: <AppIcon icon={Users} />, label: "Karyawan" },
-  { href: "#", icon: <AppIcon icon={Settings} />, label: "Pengaturan" },
+  { active: true, href: "#", icon: <AppIcon icon={IconPackage} />, label: "Katalog" },
+  { href: "#", icon: <AppIcon icon={IconLayoutGrid} />, label: "Meja" },
+  { href: "#", icon: <AppIcon icon={IconPackages} />, label: "Stok" },
+  { href: "#", icon: <AppIcon icon={IconWallet} />, label: "Keuangan" },
+  { href: "#", icon: <AppIcon icon={IconUsers} />, label: "Karyawan" },
+  { href: "#", icon: <AppIcon icon={IconSettings} />, label: "Pengaturan" },
 ];
 
 const products = [
@@ -107,7 +116,9 @@ function ShellExample() {
           ]}
         />
       }
-      footerNavigation={[{ href: "#", icon: <AppIcon icon={Compass} />, label: "Jelajahi modul" }]}
+      footerNavigation={[
+        { href: "#", icon: <AppIcon icon={IconCompass} />, label: "Jelajahi modul" },
+      ]}
       labels={{
         closeNavigation: "Tutup navigasi",
         moreNavigation: "Lainnya",
@@ -118,7 +129,7 @@ function ShellExample() {
       navigation={navigation}
     >
       <PageHeader
-        primaryAction={<Button iconLeft={Plus}>Tambah produk</Button>}
+        primaryAction={<Button iconLeft={IconPlus}>Tambah produk</Button>}
         tabs={
           <Tabs
             items={[

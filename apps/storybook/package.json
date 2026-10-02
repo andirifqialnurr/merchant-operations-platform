@@ -13,19 +13,19 @@
   },
   "dependencies": {
     "@merchant/ui": "workspace:*",
+    "@tabler/icons-react": "^3.48.0",
     "geist": "1.7.2",
-    "lucide-react": "1.24.0",
     "react": "19.2.7",
     "react-dom": "19.2.7"
   },
   "devDependencies": {
+    "@merchant/eslint-config": "workspace:*",
+    "@merchant/typescript-config": "workspace:*",
     "@playwright/test": "1.61.1",
     "@storybook/react-vite": "10.5.0",
     "@tailwindcss/postcss": "4.3.2",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
-    "@merchant/eslint-config": "workspace:*",
-    "@merchant/typescript-config": "workspace:*",
     "storybook": "10.5.0",
     "tailwindcss": "4.3.2",
     "typescript": "6.0.3",

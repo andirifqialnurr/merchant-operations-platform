@@ -1,6 +1,13 @@
 "use client";
 
-import { Ban, CheckCircle2, Crown, RotateCcw, Search, UserRound } from "lucide-react";
+import {
+  IconBan,
+  IconCircleCheck,
+  IconCrown,
+  IconRotate,
+  IconSearch,
+  IconUser,
+} from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 import { Button } from "./button";
@@ -42,15 +49,15 @@ export type CustomerBasicProfileProps = {
 
 type CustomerBasicStatusContent = {
   defaultLabel: string;
-  icon: typeof UserRound;
+  icon: typeof IconUser;
   tone: CustomerBasicTone;
 };
 
 const statusContent: Record<CustomerBasicStatus, CustomerBasicStatusContent> = {
-  blocked: { defaultLabel: "Dibatasi", icon: Ban, tone: "danger" },
-  guest: { defaultLabel: "Tamu", icon: UserRound, tone: "neutral" },
-  known: { defaultLabel: "Dikenal", icon: CheckCircle2, tone: "info" },
-  member: { defaultLabel: "Member", icon: Crown, tone: "success" },
+  blocked: { defaultLabel: "Dibatasi", icon: IconBan, tone: "danger" },
+  guest: { defaultLabel: "Tamu", icon: IconUser, tone: "neutral" },
+  known: { defaultLabel: "Dikenal", icon: IconCircleCheck, tone: "info" },
+  member: { defaultLabel: "Member", icon: IconCrown, tone: "success" },
 };
 
 const customerBasicSensitiveKeyPattern =
@@ -167,7 +174,7 @@ export function CustomerBasicProfile(props: CustomerBasicProfileProps) {
         {onClearSelection ? (
           <Button
             disabled={selectedCount === 0}
-            iconLeft={RotateCcw}
+            iconLeft={IconRotate}
             onClick={() => onClearSelection()}
             size="sm"
             type="button"
@@ -250,7 +257,7 @@ export function CustomerBasicProfile(props: CustomerBasicProfileProps) {
                   <div className="ui-customer-basic-card__actions">
                     <Button
                       disabled={!actionable || item.disabled}
-                      iconLeft={Search}
+                      iconLeft={IconSearch}
                       onClick={() => onSelectCustomer?.(item.id)}
                       size="sm"
                       type="button"

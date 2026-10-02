@@ -2,13 +2,13 @@
 
 import { type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import {
-  ArrowDownToLine,
-  ArrowLeftRight,
-  ArrowUpFromLine,
-  ClipboardCheck,
-  RefreshCw,
-  Trash2,
-} from "lucide-react";
+  IconArrowBarToDown,
+  IconArrowBarUp,
+  IconArrowsLeftRight,
+  IconClipboardCheck,
+  IconRefresh,
+  IconTrash,
+} from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 
@@ -76,14 +76,14 @@ export type StocktakeCountRowProps = {
 
 const operationContent: Record<
   InventoryStockOperationType,
-  { icon: typeof ClipboardCheck; label: string }
+  { icon: typeof IconClipboardCheck; label: string }
 > = {
-  adjustment: { icon: ClipboardCheck, label: "Adjustment" },
-  stocktake: { icon: RefreshCw, label: "Opname" },
-  "stock-in": { icon: ArrowDownToLine, label: "Stock in" },
-  "stock-out": { icon: ArrowUpFromLine, label: "Stock out" },
-  transfer: { icon: ArrowLeftRight, label: "Transfer" },
-  waste: { icon: Trash2, label: "Waste" },
+  adjustment: { icon: IconClipboardCheck, label: "Adjustment" },
+  stocktake: { icon: IconRefresh, label: "Opname" },
+  "stock-in": { icon: IconArrowBarToDown, label: "Stock in" },
+  "stock-out": { icon: IconArrowBarUp, label: "Stock out" },
+  transfer: { icon: IconArrowsLeftRight, label: "Transfer" },
+  waste: { icon: IconTrash, label: "Waste" },
 };
 
 const operationSensitiveDataKeyPattern =

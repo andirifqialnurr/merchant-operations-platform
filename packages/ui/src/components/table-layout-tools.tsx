@@ -1,7 +1,14 @@
 "use client";
 
 import { type ChangeEvent } from "react";
-import { Eye, Grid3X3, Hand, MousePointer2, Pencil, ScanSearch } from "lucide-react";
+import {
+  IconEye,
+  IconGridDots,
+  IconHandStop,
+  IconPencil,
+  IconPointer,
+  IconScan,
+} from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 import type { TableLayoutCanvasMode, TableLayoutGridPosition } from "./table-layout-canvas";
@@ -33,22 +40,22 @@ export type TableLayoutPropertyPanelProps = {
 };
 
 const modeOptions: Array<{
-  icon: typeof Eye;
+  icon: typeof IconEye;
   label: string;
   value: TableLayoutCanvasMode;
 }> = [
-  { icon: Eye, label: "View", value: "view" },
-  { icon: Pencil, label: "Edit", value: "edit" },
-  { icon: ScanSearch, label: "Preview", value: "preview" },
+  { icon: IconEye, label: "View", value: "view" },
+  { icon: IconPencil, label: "Edit", value: "edit" },
+  { icon: IconScan, label: "Preview", value: "preview" },
 ];
 
 const toolOptions: Array<{
-  icon: typeof MousePointer2;
+  icon: typeof IconPointer;
   label: string;
   value: TableLayoutToolbarTool;
 }> = [
-  { icon: MousePointer2, label: "Pilih meja", value: "select" },
-  { icon: Hand, label: "Geser meja", value: "move" },
+  { icon: IconPointer, label: "Pilih meja", value: "select" },
+  { icon: IconHandStop, label: "Geser meja", value: "move" },
 ];
 
 function classes(...values: Array<string | false | null | undefined>) {
@@ -161,7 +168,7 @@ export function TableLayoutToolbar({
           <span className="ui-table-layout-toolbar__switch-thumb" />
         </span>
         <span>
-          <AppIcon icon={Grid3X3} size="sm" />
+          <AppIcon icon={IconGridDots} size="sm" />
           Snap grid
         </span>
       </label>

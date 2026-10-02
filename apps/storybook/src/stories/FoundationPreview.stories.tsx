@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Check, Store } from "lucide-react";
+import { IconBuildingStore, IconCheck } from "@tabler/icons-react";
 
 import { AppIcon } from "@merchant/ui/app-icon";
 
@@ -26,7 +26,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    icon: Store,
+    icon: IconBuildingStore,
     label: "Merchant outlet",
     size: "md",
   },
@@ -34,7 +34,7 @@ export const Default: Story = {
 
 export const FoundationSizes: Story = {
   args: {
-    icon: Check,
+    icon: IconCheck,
     label: "Foundation sizes",
     size: "md",
   },
@@ -42,7 +42,7 @@ export const FoundationSizes: Story = {
     <div style={{ alignItems: "center", display: "flex", gap: "var(--space-6)" }}>
       {(["xs", "sm", "md", "lg", "xl"] as const).map((size) => (
         <div key={size} style={{ alignItems: "center", display: "grid", gap: "var(--space-2)" }}>
-          <AppIcon icon={Check} label={`${size} check`} size={size} />
+          <AppIcon icon={IconCheck} label={`${size} check`} size={size} />
           <span className="text-caption">{size}</span>
         </div>
       ))}

@@ -1,7 +1,7 @@
 "use client";
 
 import { forwardRef, type ButtonHTMLAttributes } from "react";
-import { Clock3, ReceiptText, Users } from "lucide-react";
+import { IconClock, IconReceipt, IconUsers } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 
@@ -147,19 +147,19 @@ export const TableTile = forwardRef<HTMLButtonElement, TableTileProps>(function 
         <span className="ui-table-tile__meta">
           {guestCount !== undefined ? (
             <span aria-label={`${guestCount} tamu`} className="ui-table-tile__meta-item">
-              <AppIcon icon={Users} size="xs" />
+              <AppIcon icon={IconUsers} size="xs" />
               <span>{guestCount}</span>
             </span>
           ) : null}
           {orderCount !== undefined ? (
             <span aria-label={`${orderCount} order`} className="ui-table-tile__meta-item">
-              <AppIcon icon={ReceiptText} size="xs" />
+              <AppIcon icon={IconReceipt} size="xs" />
               <span>{orderCount}</span>
             </span>
           ) : null}
           {duration ? (
             <span aria-label={duration.ariaLabel} className="ui-table-tile__meta-item">
-              <AppIcon icon={Clock3} size="xs" />
+              <AppIcon icon={IconClock} size="xs" />
               <span>{duration.label}</span>
             </span>
           ) : null}

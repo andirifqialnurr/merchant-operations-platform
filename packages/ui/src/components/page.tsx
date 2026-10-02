@@ -1,7 +1,7 @@
 "use client";
 
 import { type ReactNode, useEffect, useState } from "react";
-import { SlidersHorizontal, X } from "lucide-react";
+import { IconAdjustmentsHorizontal, IconX } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 import { Button } from "./button";
@@ -51,7 +51,7 @@ export function Chip({ children, disabled, onClick, onRemove, removeLabel, selec
           onClick={onRemove}
           type="button"
         >
-          <AppIcon icon={X} size="xs" />
+          <AppIcon icon={IconX} size="xs" />
         </button>
       ) : null}
     </span>
@@ -172,7 +172,7 @@ export function FilterBar({
         ) : null}
         {inSheet ? (
           <Button
-            iconLeft={SlidersHorizontal}
+            iconLeft={IconAdjustmentsHorizontal}
             onClick={() => setSheetOpen(true)}
             variant="secondary"
           >

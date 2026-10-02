@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleDollarSign, ReceiptText, TrendingDown, TrendingUp } from "lucide-react";
+import { IconCoin, IconReceipt, IconTrendingDown, IconTrendingUp } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 import { MoneyDisplay, type MoneyMinorValue } from "./money-display";
@@ -42,14 +42,14 @@ type ProfitEstimateRow = {
 
 const profitEstimateContent: Record<
   FinanceProfitEstimateKind,
-  { icon: typeof CircleDollarSign; requiresEstimate: boolean }
+  { icon: typeof IconCoin; requiresEstimate: boolean }
 > = {
-  "gross-profit": { icon: CircleDollarSign, requiresEstimate: true },
-  "hpp-estimate": { icon: ReceiptText, requiresEstimate: true },
-  "operating-expense": { icon: TrendingDown, requiresEstimate: false },
-  "operating-profit": { icon: CircleDollarSign, requiresEstimate: true },
-  "other-income": { icon: TrendingUp, requiresEstimate: false },
-  "sales-revenue": { icon: TrendingUp, requiresEstimate: false },
+  "gross-profit": { icon: IconCoin, requiresEstimate: true },
+  "hpp-estimate": { icon: IconReceipt, requiresEstimate: true },
+  "operating-expense": { icon: IconTrendingDown, requiresEstimate: false },
+  "operating-profit": { icon: IconCoin, requiresEstimate: true },
+  "other-income": { icon: IconTrendingUp, requiresEstimate: false },
+  "sales-revenue": { icon: IconTrendingUp, requiresEstimate: false },
 };
 
 const financeProfitSensitiveKeyPattern =

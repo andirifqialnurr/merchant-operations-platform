@@ -5,7 +5,7 @@ import { type ReactNode, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Package } from "lucide-react";
+import { IconPackage } from "@tabler/icons-react";
 
 import { PERMISSIONS } from "@merchant/contracts";
 import { AppIcon } from "@merchant/ui/app-icon";
@@ -44,7 +44,7 @@ export function BackofficeShell({
         {
           active: pathname.startsWith("/catalog"),
           href: "/catalog",
-          icon: <AppIcon icon={Package} />,
+          icon: <AppIcon icon={IconPackage} />,
           label: t("navCatalog"),
         },
       ]

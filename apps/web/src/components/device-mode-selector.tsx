@@ -2,8 +2,13 @@
 
 import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
-import { ChefHat, MonitorCog, PackageSearch, Store } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import {
+  IconBuildingStore,
+  IconChefHat,
+  IconDeviceDesktopCog,
+  IconPackages,
+} from "@tabler/icons-react";
+import type { AppIconComponent } from "@merchant/ui/app-icon";
 
 import { AppIcon } from "@merchant/ui/app-icon";
 import { Button } from "@merchant/ui/button";
@@ -16,7 +21,7 @@ const DEVICE_MODE_STORAGE_KEY = "merchant-device-mode-v1";
 type DeviceModeOption = {
   description: string;
   href: string;
-  icon: LucideIcon;
+  icon: AppIconComponent;
   label: string;
   mode: MerchantDeviceMode;
   surface: string;
@@ -26,7 +31,7 @@ const deviceModes = [
   {
     description: "Mode kasir untuk tablet atau desktop transaksi.",
     href: "/pos",
-    icon: MonitorCog,
+    icon: IconDeviceDesktopCog,
     label: "POS",
     mode: "POS",
     surface: "Kasir",
@@ -34,7 +39,7 @@ const deviceModes = [
   {
     description: "Mode dapur untuk layar antrean pesanan.",
     href: "/kds",
-    icon: ChefHat,
+    icon: IconChefHat,
     label: "KDS",
     mode: "KDS",
     surface: "Kitchen display",
@@ -42,7 +47,7 @@ const deviceModes = [
   {
     description: "Mode administrasi merchant untuk katalog dan operasional.",
     href: "/catalog",
-    icon: Store,
+    icon: IconBuildingStore,
     label: "Backoffice",
     mode: "BACKOFFICE",
     surface: "Backoffice",
@@ -50,7 +55,7 @@ const deviceModes = [
   {
     description: "Mode stok untuk pencatatan dan review inventory.",
     href: "/inventory",
-    icon: PackageSearch,
+    icon: IconPackages,
     label: "Inventory",
     mode: "INVENTORY",
     surface: "Inventory",

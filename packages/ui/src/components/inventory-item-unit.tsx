@@ -1,7 +1,7 @@
 "use client";
 
 import { type ChangeEvent, type ReactNode } from "react";
-import { Boxes, CheckCircle2, PackageSearch, Ruler, Scale } from "lucide-react";
+import { IconCircleCheck, IconPackages, IconRuler, IconScale } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 
@@ -155,7 +155,7 @@ export function InventoryItemPicker(props: InventoryItemPickerProps) {
       <label className="ui-inventory-item-picker__search">
         <span>Cari item</span>
         <span className="ui-inventory-item-picker__search-control">
-          <AppIcon icon={PackageSearch} size="sm" />
+          <AppIcon icon={IconPackages} size="sm" />
           <input
             aria-controls="inventory-item-picker-results"
             aria-expanded={!loading}
@@ -203,7 +203,7 @@ export function InventoryItemPicker(props: InventoryItemPickerProps) {
                   type="button"
                 >
                   <span className="ui-inventory-item-picker__option-icon" aria-hidden="true">
-                    <AppIcon icon={Boxes} size="md" />
+                    <AppIcon icon={IconPackages} size="md" />
                   </span>
                   <span className="ui-inventory-item-picker__option-main">
                     <strong>{item.name.trim()}</strong>
@@ -233,7 +233,7 @@ export function InventoryItemPicker(props: InventoryItemPickerProps) {
                   </span>
                   {selected ? (
                     <span className="ui-inventory-item-picker__selected" aria-hidden="true">
-                      <AppIcon icon={CheckCircle2} size="sm" />
+                      <AppIcon icon={IconCircleCheck} size="sm" />
                     </span>
                   ) : null}
                 </button>
@@ -260,7 +260,7 @@ export function InventoryUnitConversionList({
     <section aria-label={ariaLabel} className={classes("ui-inventory-unit-list", className)}>
       <header className="ui-inventory-unit-list__header">
         <span className="ui-inventory-unit-list__icon" aria-hidden="true">
-          <AppIcon icon={Scale} size="md" />
+          <AppIcon icon={IconScale} size="md" />
         </span>
         <span>
           <span>Unit utama</span>
@@ -281,7 +281,7 @@ export function InventoryUnitConversionList({
             return (
               <li key={conversion.id}>
                 <span className="ui-inventory-unit-list__row-icon" aria-hidden="true">
-                  <AppIcon icon={Ruler} size="sm" />
+                  <AppIcon icon={IconRuler} size="sm" />
                 </span>
                 <span className="ui-inventory-unit-list__row-main">
                   <strong>

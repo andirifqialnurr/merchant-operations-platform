@@ -2,15 +2,15 @@
 
 import { type InputHTMLAttributes, type ReactNode, useId } from "react";
 import {
-  Banknote,
-  Check,
-  CreditCard,
-  Delete,
-  Landmark,
-  QrCode,
-  Split,
-  type LucideIcon,
-} from "lucide-react";
+  IconArrowsSplit,
+  IconBackspace,
+  IconBuildingBank,
+  IconCash,
+  IconCheck,
+  IconCreditCard,
+  IconQrcode,
+} from "@tabler/icons-react";
+import type { AppIconComponent } from "./app-icon";
 
 import { AppIcon } from "./app-icon";
 import { Button, IconButton } from "./button";
@@ -66,12 +66,12 @@ export type PaymentConfirmationPanelProps = {
   verifierInstruction?: string;
 };
 
-const iconByPaymentMethod: Record<PaymentMethodKind, LucideIcon> = {
-  cash: Banknote,
-  edc: CreditCard,
-  mixed: Split,
-  qris: QrCode,
-  transfer: Landmark,
+const iconByPaymentMethod: Record<PaymentMethodKind, AppIconComponent> = {
+  cash: IconCash,
+  edc: IconCreditCard,
+  mixed: IconArrowsSplit,
+  qris: IconQrcode,
+  transfer: IconBuildingBank,
 };
 
 const availabilityLabel: Record<PaymentMethodAvailability, string> = {
@@ -168,7 +168,7 @@ export function PaymentMethodTile({
         </span>
         {selected ? (
           <span className="ui-payment-method-tile__check">
-            <AppIcon icon={Check} label="Dipilih" size="sm" />
+            <AppIcon icon={IconCheck} label="Dipilih" size="sm" />
           </span>
         ) : null}
         <strong>{label}</strong>
@@ -304,7 +304,7 @@ export function CashKeypad({
         <IconButton
           className="ui-cash-keypad__key"
           disabled={interactionDisabled}
-          icon={Delete}
+          icon={IconBackspace}
           label="Hapus satu digit"
           onClick={removeDigit}
           size="lg"

@@ -1,7 +1,7 @@
 "use client";
 
 import { type ChangeEvent, type FormEvent, type ReactNode } from "react";
-import { ClipboardList, RotateCcw, Trash2 } from "lucide-react";
+import { IconClipboardList, IconRotate, IconTrash } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 import { MovementTypeBadge, type InventoryMovementType } from "./inventory-stock";
@@ -220,7 +220,7 @@ export function OrderInventoryImpactPanel(props: OrderInventoryImpactPanelProps)
     <section aria-label={ariaLabel} className={classes("ui-order-inventory-impact", className)}>
       <header className="ui-order-inventory-impact__header">
         <span className="ui-order-inventory-impact__header-icon" aria-hidden="true">
-          <AppIcon icon={ClipboardList} size="md" />
+          <AppIcon icon={IconClipboardList} size="md" />
         </span>
         <span>
           <span>Order inventory</span>
@@ -352,7 +352,7 @@ export function OrderWasteCaptureForm(props: OrderWasteCaptureFormProps) {
     >
       <header className="ui-order-waste-form__header">
         <span className="ui-order-waste-form__header-icon" aria-hidden="true">
-          <AppIcon icon={Trash2} size="md" />
+          <AppIcon icon={IconTrash} size="md" />
         </span>
         <span>
           <span>Waste order</span>
@@ -424,7 +424,7 @@ export function OrderWasteCaptureForm(props: OrderWasteCaptureFormProps) {
           Batalkan
         </button>
         <button disabled={disabled || !onSubmit || items.length === 0} type="submit">
-          <AppIcon icon={RotateCcw} size="sm" />
+          <AppIcon icon={IconRotate} size="sm" />
           {submitLabel.trim()}
         </button>
       </footer>

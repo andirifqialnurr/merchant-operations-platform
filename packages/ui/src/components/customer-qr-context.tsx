@@ -1,6 +1,6 @@
 "use client";
 
-import { RefreshCw, Store, Utensils } from "lucide-react";
+import { IconBuildingStore, IconRefresh, IconToolsKitchen2 } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 
@@ -147,7 +147,7 @@ export function CustomerQrContext({
           {merchant.logoSrc ? (
             <img alt={merchant.logoAlt?.trim()} src={merchant.logoSrc} />
           ) : (
-            <AppIcon icon={Store} size="lg" />
+            <AppIcon icon={IconBuildingStore} size="lg" />
           )}
         </span>
         <span className="ui-customer-qr__identity">
@@ -162,7 +162,7 @@ export function CustomerQrContext({
       {tableLabel ? (
         <div className="ui-customer-qr__context">
           <span className="ui-customer-qr__context-icon">
-            <AppIcon icon={Utensils} size="lg" />
+            <AppIcon icon={IconToolsKitchen2} size="lg" />
           </span>
           <span className="ui-customer-qr__context-copy">
             <span>Meja</span>
@@ -176,12 +176,12 @@ export function CustomerQrContext({
       <div className="ui-customer-qr__actions">
         {resolution.status === "invalid" ? (
           <button disabled={!canRetry} onClick={() => onRetry?.()} type="button">
-            <AppIcon icon={RefreshCw} size="sm" />
+            <AppIcon icon={IconRefresh} size="sm" />
             <span>Coba lagi</span>
           </button>
         ) : (
           <button disabled={!canStart} onClick={() => onStartOrder?.()} type="button">
-            <AppIcon icon={Utensils} size="sm" />
+            <AppIcon icon={IconToolsKitchen2} size="sm" />
             <span>Mulai pesanan</span>
           </button>
         )}

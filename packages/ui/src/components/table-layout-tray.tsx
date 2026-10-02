@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Rows3 } from "lucide-react";
+import { IconLayoutRows, IconPlus } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 
@@ -58,7 +58,7 @@ export function UnplacedTableTray({
     <section aria-label={ariaLabel} className={classes("ui-unplaced-table-tray", className)}>
       <header className="ui-unplaced-table-tray__header">
         <span className="ui-unplaced-table-tray__title">
-          <AppIcon icon={Rows3} size="sm" />
+          <AppIcon icon={IconLayoutRows} size="sm" />
           <span>{ariaLabel}</span>
         </span>
         <span aria-label={`${items.length} meja`} className="ui-unplaced-table-tray__count">
@@ -94,7 +94,7 @@ export function UnplacedTableTray({
                     {item.reason ? <span>{item.reason.trim()}</span> : null}
                   </span>
                   <span aria-hidden="true" className="ui-unplaced-table-tray__item-action">
-                    <AppIcon icon={Plus} size="sm" />
+                    <AppIcon icon={IconPlus} size="sm" />
                   </span>
                 </button>
               </li>

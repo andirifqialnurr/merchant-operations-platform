@@ -2,7 +2,7 @@
 
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-import type { LucideIcon } from "lucide-react";
+import type { AppIconComponent } from "./app-icon";
 
 import { AppIcon, type AppIconSize } from "./app-icon";
 
@@ -13,8 +13,8 @@ export type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
 export type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
   children: ReactNode;
   fullWidth?: boolean;
-  iconLeft?: LucideIcon;
-  iconRight?: LucideIcon;
+  iconLeft?: AppIconComponent;
+  iconRight?: AppIconComponent;
   loading?: boolean;
   loadingLabel?: ReactNode;
   size?: ButtonSize;
@@ -22,7 +22,7 @@ export type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "childre
 };
 
 export type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
-  icon: LucideIcon;
+  icon: AppIconComponent;
   label: string;
   loading?: boolean;
   size?: ButtonSize;

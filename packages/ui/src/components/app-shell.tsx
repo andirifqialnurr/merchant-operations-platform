@@ -1,7 +1,7 @@
 "use client";
 
 import { type ReactNode, useState } from "react";
-import { Check, ChevronsUpDown, LogOut, Menu } from "lucide-react";
+import { IconCheck, IconLogout, IconMenu2, IconSelector } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 import { IconButton } from "./button";
@@ -100,7 +100,7 @@ export function AppShell({
           <span className="ui-app-shell__menu">
             <IconButton
               aria-expanded={drawerOpen}
-              icon={Menu}
+              icon={IconMenu2}
               label={labels.openNavigation}
               onClick={() => setDrawerOpen(true)}
             />
@@ -166,7 +166,7 @@ function ContextList({
           type="button"
         >
           <span>{option.name}</span>
-          {option.id === selectedId ? <AppIcon icon={Check} size="sm" /> : null}
+          {option.id === selectedId ? <AppIcon icon={IconCheck} size="sm" /> : null}
         </button>
       ))}
     </div>
@@ -233,7 +233,7 @@ export function ContextSwitcher({
       >
         <span className="ui-context-switcher__trigger">
           {summary}
-          <AppIcon icon={ChevronsUpDown} size="sm" />
+          <AppIcon icon={IconSelector} size="sm" />
         </span>
       </Popover>
     </div>
@@ -293,7 +293,7 @@ export function UserMenu({
             ) : null,
           )}
           <button className="ui-user-menu__sign-out" onClick={onSignOut} type="button">
-            <AppIcon icon={LogOut} size="sm" />
+            <AppIcon icon={IconLogout} size="sm" />
             <span>{signOutLabel}</span>
           </button>
         </div>

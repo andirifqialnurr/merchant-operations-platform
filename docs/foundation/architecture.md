@@ -84,9 +84,9 @@ Stack sudah terpasang dan tidak diganti. Versi dikunci di `pnpm-lock.yaml`.
 | Realtime | Socket.IO (server dan klien) | Paket terpasang; gateway belum dibuat |
 | Component bank | Storybook 10 + Playwright smoke | Terpasang |
 | Test | Vitest + Testing Library + axe (UI); `node:test` (API) | Terpasang |
-| Ikon | Tabler Icons (`@tabler/icons-react`) | **Belum** — saat ini `lucide-react` |
-| i18n | `next-intl` | **Belum** |
-| Server state | TanStack Query | **Belum** — saat ini `fetch` manual |
+| Ikon | Tabler Icons (`@tabler/icons-react`) | Terpasang |
+| i18n | `next-intl` (tanpa plugin build) | Terpasang |
+| Server state | TanStack Query | Terpasang |
 | Form | React Hook Form + Zod | **Belum** |
 | State lokal | Zustand (hanya keranjang POS dan editor tata letak) | **Belum** |
 | Queue | Redis + BullMQ | **Ditunda** sampai ada job pertama |

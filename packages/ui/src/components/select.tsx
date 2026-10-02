@@ -13,7 +13,7 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import { Check, ChevronDown, Search } from "lucide-react";
+import { IconCheck, IconChevronDown, IconSearch } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 
@@ -172,7 +172,7 @@ function Options({
         {option.description ? <small>{option.description}</small> : null}
         {option.disabledReason ? <small>{option.disabledReason}</small> : null}
       </span>
-      {option.value === selectedValue ? <AppIcon icon={Check} size="sm" /> : null}
+      {option.value === selectedValue ? <AppIcon icon={IconCheck} size="sm" /> : null}
     </button>
   ));
 }
@@ -275,7 +275,7 @@ export function Select({
         <span className={selected ? undefined : "ui-select__placeholder"}>
           {selected?.label ?? placeholder}
         </span>
-        <AppIcon icon={ChevronDown} size={size === "sm" ? "sm" : "md"} />
+        <AppIcon icon={IconChevronDown} size={size === "sm" ? "sm" : "md"} />
       </button>
       {error ? (
         <p className="ui-select__error" role="alert">
@@ -358,7 +358,7 @@ export function Combobox({
         <span className={selected ? undefined : "ui-select__placeholder"}>
           {selected?.label ?? placeholder}
         </span>
-        <AppIcon icon={ChevronDown} size={size === "sm" ? "sm" : "md"} />
+        <AppIcon icon={IconChevronDown} size={size === "sm" ? "sm" : "md"} />
       </button>
       {error ? (
         <p className="ui-select__error" role="alert">
@@ -367,7 +367,7 @@ export function Combobox({
       ) : null}
       <Menu id={id} menuRef={menuRef} mobileSheet open={open} style={style}>
         <div className="ui-select__search">
-          <AppIcon icon={Search} size="sm" />
+          <AppIcon icon={IconSearch} size="sm" />
           <input
             aria-label={searchLabel ?? `Cari ${label}`}
             autoFocus

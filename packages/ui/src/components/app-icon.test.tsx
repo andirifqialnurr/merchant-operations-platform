@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Check, Store } from "lucide-react";
+import { IconBuildingStore, IconCheck } from "@tabler/icons-react";
 import { describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
@@ -8,13 +8,13 @@ import { AppIcon } from "./app-icon";
 
 describe("AppIcon", () => {
   it("exposes a labelled icon to assistive technology", () => {
-    render(<AppIcon icon={Store} label="Merchant outlet" />);
+    render(<AppIcon icon={IconBuildingStore} label="Merchant outlet" />);
 
     expect(screen.getByRole("img", { name: "Merchant outlet" })).toBeInTheDocument();
   });
 
   it("keeps decorative icons hidden from the accessibility tree", () => {
-    render(<AppIcon icon={Check} />);
+    render(<AppIcon icon={IconCheck} />);
 
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
     expect(document.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
@@ -31,7 +31,7 @@ describe("AppIcon", () => {
   });
 
   it("passes an axe smoke test", async () => {
-    const { container } = render(<AppIcon icon={Store} label="Merchant outlet" />);
+    const { container } = render(<AppIcon icon={IconBuildingStore} label="Merchant outlet" />);
 
     const results = await axe(container);
     expect(results.violations).toEqual([]);

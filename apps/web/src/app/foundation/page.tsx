@@ -1,6 +1,12 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { Bell, CheckCircle2, Clock3, Package, Settings } from "lucide-react";
+import {
+  IconBell,
+  IconCircleCheck,
+  IconClock,
+  IconPackage,
+  IconSettings,
+} from "@tabler/icons-react";
 
 import { AppIcon } from "@merchant/ui/app-icon";
 
@@ -188,23 +194,23 @@ export default function FoundationPage() {
               <h2 className="mt-1 text-title">AppIcon</h2>
               <div className="mt-5 flex flex-wrap items-end gap-6">
                 <div className="grid justify-items-center gap-2">
-                  <AppIcon icon={Bell} label="Notifikasi" size="xs" />
+                  <AppIcon icon={IconBell} label="Notifikasi" size="xs" />
                   <span className="text-caption">xs · 14</span>
                 </div>
                 <div className="grid justify-items-center gap-2">
-                  <AppIcon icon={CheckCircle2} label="Berhasil" size="sm" />
+                  <AppIcon icon={IconCircleCheck} label="Berhasil" size="sm" />
                   <span className="text-caption">sm · 16</span>
                 </div>
                 <div className="grid justify-items-center gap-2 text-primary">
-                  <AppIcon icon={Package} label="Produk" size="md" />
+                  <AppIcon icon={IconPackage} label="Produk" size="md" />
                   <span className="text-caption">md · 20</span>
                 </div>
                 <div className="grid justify-items-center gap-2 text-warning">
-                  <AppIcon icon={Clock3} label="Menunggu" size="lg" />
+                  <AppIcon icon={IconClock} label="Menunggu" size="lg" />
                   <span className="text-caption">lg · 24</span>
                 </div>
                 <div className="grid justify-items-center gap-2">
-                  <AppIcon icon={Settings} label="Pengaturan" size="xl" />
+                  <AppIcon icon={IconSettings} label="Pengaturan" size="xl" />
                   <span className="text-caption">xl · 32</span>
                 </div>
               </div>

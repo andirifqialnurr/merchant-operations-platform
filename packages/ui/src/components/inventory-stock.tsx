@@ -1,18 +1,17 @@
 "use client";
 
 import {
-  AlertTriangle,
-  ArrowDown,
-  ArrowRightLeft,
-  ArrowUp,
-  ClipboardCheck,
-  PackageCheck,
-  PackageMinus,
-  PackagePlus,
-  RotateCcw,
-  Scale,
-  Trash2,
-} from "lucide-react";
+  IconAlertTriangle,
+  IconArrowDown,
+  IconArrowUp,
+  IconArrowsRightLeft,
+  IconClipboardCheck,
+  IconPackageExport,
+  IconPackageImport,
+  IconRotate,
+  IconScale,
+  IconTrash,
+} from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 
@@ -59,26 +58,26 @@ export type StockMovementRowProps = {
 
 const stockStatusContent: Record<
   InventoryStockStatus,
-  { icon: typeof PackageCheck; label: string }
+  { icon: typeof IconPackageImport; label: string }
 > = {
-  low: { icon: AlertTriangle, label: "Stok rendah" },
-  negative: { icon: AlertTriangle, label: "Stok negatif" },
-  normal: { icon: PackageCheck, label: "Stok tersedia" },
-  out: { icon: PackageMinus, label: "Stok habis" },
-  unavailable: { icon: Scale, label: "Stok belum tersedia" },
+  low: { icon: IconAlertTriangle, label: "Stok rendah" },
+  negative: { icon: IconAlertTriangle, label: "Stok negatif" },
+  normal: { icon: IconPackageImport, label: "Stok tersedia" },
+  out: { icon: IconPackageExport, label: "Stok habis" },
+  unavailable: { icon: IconScale, label: "Stok belum tersedia" },
 };
 
 const movementTypeContent: Record<
   InventoryMovementType,
-  { icon: typeof PackageCheck; label: string }
+  { icon: typeof IconPackageImport; label: string }
 > = {
-  adjustment: { icon: ClipboardCheck, label: "Adjustment" },
-  consumption: { icon: PackageMinus, label: "Consumption" },
-  receipt: { icon: PackagePlus, label: "Receipt" },
-  reversal: { icon: RotateCcw, label: "Reversal" },
-  "transfer-in": { icon: ArrowRightLeft, label: "Transfer masuk" },
-  "transfer-out": { icon: ArrowRightLeft, label: "Transfer keluar" },
-  waste: { icon: Trash2, label: "Waste" },
+  adjustment: { icon: IconClipboardCheck, label: "Adjustment" },
+  consumption: { icon: IconPackageExport, label: "Consumption" },
+  receipt: { icon: IconPackageImport, label: "Receipt" },
+  reversal: { icon: IconRotate, label: "Reversal" },
+  "transfer-in": { icon: IconArrowsRightLeft, label: "Transfer masuk" },
+  "transfer-out": { icon: IconArrowsRightLeft, label: "Transfer keluar" },
+  waste: { icon: IconTrash, label: "Waste" },
 };
 
 const inventoryStockSensitiveDataKeyPattern =
@@ -193,7 +192,7 @@ export function StockIndicator(props: StockIndicatorProps) {
         ) : null}
         {variant === "delta" && deltaText ? (
           <strong className="ui-stock-indicator__delta">
-            <AppIcon icon={deltaDirection === "increase" ? ArrowUp : ArrowDown} size="xs" />
+            <AppIcon icon={deltaDirection === "increase" ? IconArrowUp : IconArrowDown} size="xs" />
             {deltaText}
           </strong>
         ) : null}

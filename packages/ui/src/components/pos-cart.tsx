@@ -1,7 +1,7 @@
 "use client";
 
 import { type ReactNode, useId, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { IconTrash } from "@tabler/icons-react";
 
 import { IconButton } from "./button";
 import { QuantityStepper } from "./selection-control";
@@ -81,7 +81,7 @@ export function CartItem({
           <IconButton
             className="ui-cart-item__remove"
             disabled={disabled}
-            icon={Trash2}
+            icon={IconTrash}
             label={`Hapus ${name}`}
             onClick={onRemove}
             size={variant === "compact" ? "sm" : "md"}

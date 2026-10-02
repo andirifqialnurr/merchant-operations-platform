@@ -1,15 +1,15 @@
 import Link from "next/link";
 import {
-  ArrowRight,
-  CheckCircle2,
-  Clock3,
-  LayoutGrid,
-  Package,
-  Palette,
-  Ruler,
-  Settings,
-  Type,
-} from "lucide-react";
+  IconArrowRight,
+  IconCircleCheck,
+  IconClock,
+  IconLayoutGrid,
+  IconPackage,
+  IconPalette,
+  IconRuler,
+  IconSettings,
+  IconTypography,
+} from "@tabler/icons-react";
 
 import { AppIcon } from "@merchant/ui/app-icon";
 
@@ -19,7 +19,7 @@ const foundationBanks = [
   {
     description: "Primitive palette, semantic color, status, dan merchant storefront preset.",
     href: "/color-bank",
-    icon: Palette,
+    icon: IconPalette,
     label: "Buka Color Bank",
     meta: "Light · Dark · 6 brand presets",
     title: "Color Bank",
@@ -27,7 +27,7 @@ const foundationBanks = [
   {
     description: "Geist Sans, 12 text styles, numeric typography, dan overflow utilities.",
     href: "/typography",
-    icon: Type,
+    icon: IconTypography,
     label: "Buka Typography Bank",
     meta: "12 styles · 4 weights · Tabular numbers",
     title: "Typography Bank",
@@ -35,7 +35,7 @@ const foundationBanks = [
   {
     description: "Spacing, control height, radius, shadow, motion, dan wrapper ikon Lucide.",
     href: "/foundation",
-    icon: Ruler,
+    icon: IconRuler,
     label: "Buka Layout dan Icon Foundation",
     meta: "4px grid · 5 icon sizes · Reduced motion",
     title: "Layout & Icon Foundation",
@@ -133,7 +133,7 @@ export default function DesignSystemPage() {
                     href={bank.href}
                   >
                     {bank.label}
-                    <AppIcon icon={ArrowRight} />
+                    <AppIcon icon={IconArrowRight} />
                   </Link>
                 </article>
               ))}
@@ -154,7 +154,7 @@ export default function DesignSystemPage() {
                   <div className="mt-4 rounded-lg border border-line-default bg-surface p-4">
                     <div className="flex items-start gap-3">
                       <span className="rounded-md bg-primary-subtle p-2 text-primary">
-                        <AppIcon icon={LayoutGrid} label="Dashboard" />
+                        <AppIcon icon={IconLayoutGrid} label="Dashboard" />
                       </span>
                       <div>
                         <h3 className="text-heading-sm">Ringkasan outlet</h3>
@@ -215,11 +215,11 @@ export default function DesignSystemPage() {
                 ))}
               </div>
               <div className="mt-6 flex flex-wrap items-end gap-5">
-                <AppIcon icon={CheckCircle2} label="Selesai" size="xs" />
-                <AppIcon icon={Clock3} label="Menunggu" size="sm" />
-                <AppIcon icon={Package} label="Produk" size="md" />
-                <AppIcon icon={Settings} label="Pengaturan" size="lg" />
-                <AppIcon icon={Palette} label="Tema" size="xl" />
+                <AppIcon icon={IconCircleCheck} label="Selesai" size="xs" />
+                <AppIcon icon={IconClock} label="Menunggu" size="sm" />
+                <AppIcon icon={IconPackage} label="Produk" size="md" />
+                <AppIcon icon={IconSettings} label="Pengaturan" size="lg" />
+                <AppIcon icon={IconPalette} label="Tema" size="xl" />
               </div>
             </article>
           </section>

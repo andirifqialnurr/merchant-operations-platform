@@ -1,6 +1,12 @@
 "use client";
 
-import { BadgeCheck, CircleAlert, Clock3, Scale, WalletCards } from "lucide-react";
+import {
+  IconAlertCircle,
+  IconClock,
+  IconRosetteDiscountCheck,
+  IconScale,
+  IconWallet,
+} from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 import { Badge, type FeedbackTone } from "./feedback";
@@ -67,12 +73,12 @@ export type FinanceReconciliationSummaryProps = {
 
 const statusContent: Record<
   FinanceReconciliationStatus,
-  { defaultLabel: string; icon: typeof BadgeCheck; tone: FinanceReconciliationTone }
+  { defaultLabel: string; icon: typeof IconRosetteDiscountCheck; tone: FinanceReconciliationTone }
 > = {
-  blocked: { defaultLabel: "Perlu tindakan", icon: CircleAlert, tone: "danger" },
-  difference: { defaultLabel: "Ada selisih", icon: CircleAlert, tone: "warning" },
-  matched: { defaultLabel: "Cocok", icon: BadgeCheck, tone: "success" },
-  pending: { defaultLabel: "Menunggu cek", icon: Clock3, tone: "info" },
+  blocked: { defaultLabel: "Perlu tindakan", icon: IconAlertCircle, tone: "danger" },
+  difference: { defaultLabel: "Ada selisih", icon: IconAlertCircle, tone: "warning" },
+  matched: { defaultLabel: "Cocok", icon: IconRosetteDiscountCheck, tone: "success" },
+  pending: { defaultLabel: "Menunggu cek", icon: IconClock, tone: "info" },
 };
 
 const financeReconciliationSensitiveKeyPattern =
@@ -322,7 +328,7 @@ export function FinanceReconciliationSummary(props: FinanceReconciliationSummary
               >
                 <header>
                   <span className="ui-finance-reconciliation__icon" aria-hidden="true">
-                    <AppIcon icon={Scale} size="sm" />
+                    <AppIcon icon={IconScale} size="sm" />
                   </span>
                   <div>
                     <h3>{item.label.trim()}</h3>
@@ -390,7 +396,7 @@ export function FinanceReconciliationSummary(props: FinanceReconciliationSummary
         <section className="ui-finance-shift-snapshot" aria-label="Shift Summary">
           <header>
             <span className="ui-finance-reconciliation__icon" aria-hidden="true">
-              <AppIcon icon={WalletCards} size="sm" />
+              <AppIcon icon={IconWallet} size="sm" />
             </span>
             <div>
               <h3>Shift Summary</h3>

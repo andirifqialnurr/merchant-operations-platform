@@ -1,6 +1,12 @@
 "use client";
 
-import { Clock3, RefreshCw, Send, ShoppingBag, Store } from "lucide-react";
+import {
+  IconBuildingStore,
+  IconClock,
+  IconRefresh,
+  IconSend,
+  IconShoppingBag,
+} from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 import { Button } from "./button";
@@ -228,7 +234,7 @@ export function CustomerOrderSurface(props: CustomerOrderSurfaceProps) {
     >
       <header className="ui-customer-order__header">
         <span className="ui-customer-order__brand-icon" aria-hidden="true">
-          <AppIcon icon={Store} size="lg" />
+          <AppIcon icon={IconBuildingStore} size="lg" />
         </span>
         <div>
           <h2>{title.trim()}</h2>
@@ -289,7 +295,7 @@ export function CustomerOrderSurface(props: CustomerOrderSurfaceProps) {
           <section aria-label="Cart customer" className="ui-customer-order-cart">
             <header>
               <span aria-hidden="true">
-                <AppIcon icon={ShoppingBag} size="sm" />
+                <AppIcon icon={IconShoppingBag} size="sm" />
               </span>
               <h3>Cart</h3>
             </header>
@@ -337,7 +343,7 @@ export function CustomerOrderSurface(props: CustomerOrderSurfaceProps) {
 
             <Button
               disabled={!canSubmit}
-              iconLeft={Send}
+              iconLeft={IconSend}
               onClick={() => onSubmitOrder?.()}
               type="button"
             >
@@ -348,7 +354,7 @@ export function CustomerOrderSurface(props: CustomerOrderSurfaceProps) {
           <section aria-label="Status order customer" className="ui-customer-order-status">
             <header>
               <span aria-hidden="true">
-                <AppIcon icon={Clock3} size="sm" />
+                <AppIcon icon={IconClock} size="sm" />
               </span>
               <div>
                 <h3>Status order</h3>
@@ -374,7 +380,7 @@ export function CustomerOrderSurface(props: CustomerOrderSurfaceProps) {
             {onRefreshStatus ? (
               <Button
                 disabled={disabled}
-                iconLeft={RefreshCw}
+                iconLeft={IconRefresh}
                 onClick={() => onRefreshStatus()}
                 size="sm"
                 type="button"

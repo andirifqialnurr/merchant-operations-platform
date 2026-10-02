@@ -1,6 +1,12 @@
 "use client";
 
-import { Landmark, ReceiptText, TrendingDown, TrendingUp, WalletCards } from "lucide-react";
+import {
+  IconBuildingBank,
+  IconReceipt,
+  IconTrendingDown,
+  IconTrendingUp,
+  IconWallet,
+} from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 import { MoneyDisplay, type MoneyMinorValue } from "./money-display";
@@ -41,15 +47,15 @@ export type FinanceBasicSummaryProps = {
 
 type FinanceBasicContent = {
   defaultLabel: string;
-  icon: typeof TrendingUp;
+  icon: typeof IconTrendingUp;
   tone: FinanceBasicTone;
 };
 
 const financeBasicContent: Record<FinanceBasicFlowKind, FinanceBasicContent> = {
-  cashbook: { defaultLabel: "Cashbook", icon: WalletCards, tone: "info" },
-  expense: { defaultLabel: "Expense", icon: TrendingDown, tone: "warning" },
-  "other-income": { defaultLabel: "Other income", icon: Landmark, tone: "success" },
-  sales: { defaultLabel: "Sales", icon: TrendingUp, tone: "success" },
+  cashbook: { defaultLabel: "Cashbook", icon: IconWallet, tone: "info" },
+  expense: { defaultLabel: "Expense", icon: IconTrendingDown, tone: "warning" },
+  "other-income": { defaultLabel: "Other income", icon: IconBuildingBank, tone: "success" },
+  sales: { defaultLabel: "Sales", icon: IconTrendingUp, tone: "success" },
 };
 
 const financeBasicSensitiveKeyPattern =
@@ -254,7 +260,7 @@ export function FinanceBasicSummary(props: FinanceBasicSummaryProps) {
         >
           <header>
             <span className="ui-finance-basic-flow__icon" aria-hidden="true">
-              <AppIcon icon={ReceiptText} size="sm" />
+              <AppIcon icon={IconReceipt} size="sm" />
             </span>
             <h3>{cashbook?.label?.trim() || "Mutasi kas"}</h3>
           </header>

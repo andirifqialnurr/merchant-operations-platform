@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, Crown, RefreshCw, ShieldCheck } from "lucide-react";
+import { IconBuilding, IconCrown, IconRefresh, IconShieldCheck } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 import { Badge, type FeedbackTone } from "./feedback";
@@ -214,7 +214,7 @@ export function PlatformTenantSubscriptionMaster(props: PlatformTenantSubscripti
     >
       <header className="ui-platform-master__header">
         <span className="ui-platform-master__icon" aria-hidden="true">
-          <AppIcon icon={Crown} size="lg" />
+          <AppIcon icon={IconCrown} size="lg" />
         </span>
         <div>
           <h2>{title.trim()}</h2>
@@ -224,7 +224,7 @@ export function PlatformTenantSubscriptionMaster(props: PlatformTenantSubscripti
           {statusLabel ? <Badge tone="info">{statusLabel.trim()}</Badge> : null}
           {onRefresh ? (
             <button aria-label="Refresh master platform" onClick={() => onRefresh()} type="button">
-              <AppIcon icon={RefreshCw} size="sm" />
+              <AppIcon icon={IconRefresh} size="sm" />
             </button>
           ) : null}
         </div>
@@ -258,7 +258,7 @@ export function PlatformTenantSubscriptionMaster(props: PlatformTenantSubscripti
                   type="button"
                 >
                   <span>
-                    <AppIcon icon={Building2} size="sm" />
+                    <AppIcon icon={IconBuilding} size="sm" />
                   </span>
                   <strong>{tenant.name.trim()}</strong>
                   <Badge tone={tenantStatus.tone}>{tenantStatus.label}</Badge>
@@ -337,7 +337,7 @@ export function PlatformTenantSubscriptionMaster(props: PlatformTenantSubscripti
           <section aria-label="Entitlement module platform" className="ui-platform-entitlements">
             <header>
               <span aria-hidden="true">
-                <AppIcon icon={ShieldCheck} size="sm" />
+                <AppIcon icon={IconShieldCheck} size="sm" />
               </span>
               <div>
                 <h3>Entitlement module</h3>

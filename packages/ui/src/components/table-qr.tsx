@@ -1,6 +1,12 @@
 "use client";
 
-import { Printer, QrCode, RefreshCw, RotateCw, ShieldOff } from "lucide-react";
+import {
+  IconPrinter,
+  IconQrcode,
+  IconRefresh,
+  IconRotateClockwise,
+  IconShieldOff,
+} from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 
@@ -68,7 +74,7 @@ export function TableQrManager({
     >
       <header className="ui-table-qr__header">
         <span className="ui-table-qr__title">
-          <AppIcon icon={QrCode} size="sm" />
+          <AppIcon icon={IconQrcode} size="sm" />
           <span>{visibleLabel}</span>
         </span>
         <span className="ui-table-qr__status">{statusLabel[table.status]}</span>
@@ -78,7 +84,7 @@ export function TableQrManager({
         {isActive && table.qrImageSrc ? (
           <img alt="" src={table.qrImageSrc} />
         ) : (
-          <AppIcon icon={QrCode} size="xl" />
+          <AppIcon icon={IconQrcode} size="xl" />
         )}
       </div>
 
@@ -86,19 +92,19 @@ export function TableQrManager({
 
       <div className="ui-table-qr__actions">
         <button disabled={!canGenerate} onClick={() => onGenerate?.(table.id)} type="button">
-          <AppIcon icon={RefreshCw} size="sm" />
+          <AppIcon icon={IconRefresh} size="sm" />
           <span>Buat QR</span>
         </button>
         <button disabled={!canUseActiveQr} onClick={() => onPrint?.(table.id)} type="button">
-          <AppIcon icon={Printer} size="sm" />
+          <AppIcon icon={IconPrinter} size="sm" />
           <span>Cetak QR</span>
         </button>
         <button disabled={!canUseActiveQr} onClick={() => onRotate?.(table.id)} type="button">
-          <AppIcon icon={RotateCw} size="sm" />
+          <AppIcon icon={IconRotateClockwise} size="sm" />
           <span>Rotasi QR</span>
         </button>
         <button disabled={!canUseActiveQr} onClick={() => onRevoke?.(table.id)} type="button">
-          <AppIcon icon={ShieldOff} size="sm" />
+          <AppIcon icon={IconShieldOff} size="sm" />
           <span>Cabut QR</span>
         </button>
       </div>

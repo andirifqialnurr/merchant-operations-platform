@@ -10,6 +10,18 @@ const baseConfig = tseslint.config(
   {
     rules: {
       "@typescript-eslint/consistent-type-imports": "error",
+      // Icons come from Tabler and are rendered through AppIcon.
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              message: "Use @tabler/icons-react and render it through AppIcon.",
+              name: "lucide-react",
+            },
+          ],
+        },
+      ],
     },
   },
 );

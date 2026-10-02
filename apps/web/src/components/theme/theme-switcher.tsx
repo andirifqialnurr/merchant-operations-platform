@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { Monitor, Moon, Sun } from "lucide-react";
+import { IconDeviceDesktop, IconMoon, IconSun } from "@tabler/icons-react";
 
 import { useTheme } from "next-themes";
 import { IconButton } from "@merchant/ui/button";
@@ -96,9 +96,9 @@ const nextTheme: Record<ThemePreference, ThemePreference> = {
 };
 
 const themeIcons = {
-  system: Monitor,
-  light: Sun,
-  dark: Moon,
+  system: IconDeviceDesktop,
+  light: IconSun,
+  dark: IconMoon,
 } as const;
 
 export function CompactThemeSwitcher() {
