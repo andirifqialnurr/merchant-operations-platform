@@ -43,7 +43,7 @@ export function BackofficeShell({
       ? [
           {
             active: false,
-            href: "/pos/shift",
+            href: "/pos",
             icon: <AppIcon icon={IconCashRegister} />,
             label: t("navPos"),
           },

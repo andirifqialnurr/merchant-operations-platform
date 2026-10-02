@@ -35,7 +35,7 @@ test("home shell exposes clickable navigation for every visible device mode", as
 test("POS opens the cashier surface instead of a placeholder", async () => {
   const source = await readFile(join(appRoot, "(pos)", "pos", "page.tsx"), "utf8");
 
-  assert.match(source, /redirect\("\/pos\/shift"\)/);
+  assert.match(source, /<SellPage \/>/);
   await access(join(appRoot, "(pos)", "pos", "shift", "page.tsx"));
 });
 

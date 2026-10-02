@@ -3,5 +3,9 @@
 import { ShiftPage } from "@/features/pos";
 
 export default function ShiftRoute() {
-  return <ShiftPage />;
+  return (
+    <div className="mx-auto w-full max-w-3xl">
+      <ShiftPage />
+    </div>
+  );
 }

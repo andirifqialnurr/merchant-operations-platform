@@ -14,6 +14,7 @@ import {
   catalogProductSchema,
   catalogProductVariantSchema,
   catalogSnapshotSchema,
+  checkoutSchema,
   closeRegisterSessionSchema,
   createCatalogCategorySchema,
   createCatalogModifierGroupSchema,
@@ -23,12 +24,16 @@ import {
   createCatalogProductModifierGroupSchema,
   createCatalogProductSchema,
   createCatalogProductVariantSchema,
+  createPosOrderSchema,
   currentRegisterSessionSchema,
   entityIdParamsSchema,
   openRegisterSessionSchema,
+  orderSchema,
+  payOrderSchema,
   recordCashMovementSchema,
   registerSessionSchema,
   requestContextHeadersSchema,
+  sellableMenuSchema,
   tenantRequestHeadersSchema,
   updateCatalogCategorySchema,
   updateCatalogModifierGroupSchema,
@@ -50,7 +55,9 @@ import {
   type CreateCatalogProductImage,
   type CreateCatalogProductModifierGroup,
   type CreateCatalogProductVariant,
+  type CreatePosOrder,
   type OpenRegisterSession,
+  type PayOrder,
   type RecordCashMovement,
   type UpdateCatalogCategory,
   type UpdateCatalogModifierGroup,
@@ -362,6 +369,35 @@ export const merchantApi = {
       closeRegisterSessionSchema,
       registerSessionSchema,
       outletHeaders(tenantId, outletId),
+    ),
+  posMenu: (tenantId: string, outletId: string) =>
+    apiRequest("/pos/menu", sellableMenuSchema, { headers: outletHeaders(tenantId, outletId) }),
+  /** The caller keeps one key per cart so a retry returns the same order. */
+  submitPosOrder: (
+    tenantId: string,
+    outletId: string,
+    input: CreatePosOrder,
+    idempotencyKey: string,
+  ) =>
+    jsonMutation("/pos/orders", "POST", input, createPosOrderSchema, orderSchema, {
+      ...outletHeaders(tenantId, outletId),
+      [API_HEADERS.idempotencyKey]: idempotencyKey,
+    }),
+  /** The caller keeps one key per payment attempt so a retry never charges twice. */
+  payOrder: (
+    tenantId: string,
+    outletId: string,
+    orderId: string,
+    input: PayOrder,
+    idempotencyKey: string,
+  ) =>
+    jsonMutation(
+      `/pos/orders/${entityIdParamsSchema.parse({ id: orderId }).id}/payments`,
+      "POST",
+      input,
+      payOrderSchema,
+      checkoutSchema,
+      { ...outletHeaders(tenantId, outletId), [API_HEADERS.idempotencyKey]: idempotencyKey },
     ),
 };
 

@@ -1,6 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
 
-/** The sell screen is not built yet; the cashier starts at the shift. */
-export default function PosRoute() {
-  redirect("/pos/shift");
+import { SellPage } from "@/features/pos";
+
+export default function SellRoute() {
+  return <SellPage />;
 }

@@ -17,6 +17,17 @@ import { useToast } from "@/providers/toast-provider";
 export const shiftKeys = {
   current: (tenantId: string, outletId: string) => ["pos", tenantId, "shift", outletId] as const,
 };
+export const menuKeys = {
+  outlet: (tenantId: string, outletId: string) => ["pos", tenantId, "menu", outletId] as const,
+};
+
+/** What the outlet can sell right now, with outlet prices. */
+export function useMenu(tenantId: string, outletId: string) {
+  return useQuery({
+    queryFn: () => merchantApi.posMenu(tenantId, outletId),
+    queryKey: menuKeys.outlet(tenantId, outletId),
+  });
+}
 
 /** Codes that mean the screen's picture of the shift is out of date. */
 const STALE_SHIFT_CODES = new Set([

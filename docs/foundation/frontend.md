@@ -429,7 +429,7 @@ Setiap butir adalah checkpoint yang dapat di-push sendiri.
 3. `next-intl` — **selesai** untuk shell, login, dan Catalog: kamus `id`/`en`, bawaan mengikuti browser, pemilih bahasa di menu akun dan halaman login, error diterjemahkan per kode. Yang tersisa: menyimpan pilihan ke `users.locale`, dan menghapus bawaan Bahasa Indonesia pada props label `packages/ui`.
 4. Klien API: header CSRF dan TanStack Query — **selesai**. Idempotency dan pemetaan error berdasarkan kode menyusul.
 5. `AppShell`, `ContextSwitcher`, `UserMenu`, `PageHeader`, `FilterBar`, `Chip` — **selesai**. `ModuleAccessState` dan `UsageLimitState` menyusul.
-6. Grup rute dan guard: `(auth)`, `(backoffice)`, dan `(pos)` — **selesai**; guard sesi dipakai bersama lewat `shell/session-gate.tsx`, shell kasir di `shell/pos-shell.tsx`. Guard perangkat/shift untuk layar jual, `(kds)`, `(customer)`, `(platform)` menyusul bersama halamannya.
+6. Grup rute dan guard: `(auth)`, `(backoffice)`, dan `(pos)` — **selesai**; guard sesi dipakai bersama lewat `shell/session-gate.tsx`, shell kasir di `shell/pos-shell.tsx`. Layar jual `/pos` meminta shift terbuka. Guard perangkat, `(kds)`, `(customer)`, `(platform)` menyusul bersama halamannya.
 7. Pecah `catalog-backoffice.tsx` menjadi `features/catalog` — **selesai**; rutenya `/catalog`. String masih di `messages.ts` per fitur sampai i18n dipasang.
 8. Benahi komponen lama **satu per satu** (satu komponen = satu checkpoint): tampilan pada palet baru, tinggi kontrol, `Panel` menggantikan kartu bersarang, hapus status `special`. Urutan: Button → Input/FormField → Select/Combobox → kontrol pilihan → Badge/Alert/Toast → overlay → navigasi → DataTable dan tampilan data → komponen domain.
 

@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { type ReactNode } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { IconLayoutSidebar } from "@tabler/icons-react";
 
 import { PERMISSIONS } from "@merchant/contracts";
@@ -13,8 +14,9 @@ import { useWorkspace } from "@/features/workspace";
 import { ShellAccount, ShellContext, type ShellUser } from "./shell-controls";
 
 /**
- * Full-screen cashier shell: a 56px top bar with the outlet and the account
- * menu, and no sidebar, so the whole width belongs to the task.
+ * Full-screen cashier shell: a 56px top bar with the outlet, the cashier's
+ * two surfaces, and the account menu. No sidebar, so the whole width belongs
+ * to the task.
  */
 export function PosShell({
   children,
@@ -26,7 +28,12 @@ export function PosShell({
   user: ShellUser;
 }>) {
   const t = useTranslations("shell");
+  const pathname = usePathname();
   const { can } = useWorkspace();
+  const surfaces = [
+    ...(can(PERMISSIONS.orderCreate) ? [{ href: "/pos", label: t("navSell") }] : []),
+    ...(can(PERMISSIONS.shiftOpen) ? [{ href: "/pos/shift", label: t("navShift") }] : []),
+  ];
 
   return (
     <div className="flex min-h-dvh flex-col bg-canvas text-foreground">
@@ -34,6 +41,21 @@ export function PosShell({
         <div className="min-w-0 flex-1">
           <ShellContext />
         </div>
+        <nav aria-label={t("posNavigation")} className="flex items-center gap-1">
+          {surfaces.map((surface) => {
+            const active = pathname === surface.href;
+            return (
+              <Link
+                aria-current={active ? "page" : undefined}
+                className={`ui-button ui-button--md ${active ? "ui-button--secondary" : "ui-button--ghost"}`}
+                href={surface.href}
+                key={surface.href}
+              >
+                <span className="ui-button__label">{surface.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
         {can(PERMISSIONS.catalogRead) ? (
           <Link
             aria-label={t("openBackoffice")}
@@ -46,7 +68,7 @@ export function PosShell({
         ) : null}
         <ShellAccount onSignOut={onSignOut} user={user} />
       </header>
-      <main className="mx-auto w-full max-w-3xl flex-1 p-4 sm:p-6">{children}</main>
+      <main className="mx-auto w-full max-w-[90rem] flex-1 p-4 sm:p-6">{children}</main>
     </div>
   );
 }
