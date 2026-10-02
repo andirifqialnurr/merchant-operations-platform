@@ -37,7 +37,7 @@ Aturan pengerjaan:
 - [x] Module Tiers v1.2 menjadi sumber capability Basic/Pro/Advanced dan delivery status.
 - [x] Packages and Limits v1.2 menjadi sumber package composition, limit, add-on, usage, dan enforcement; pricing belum final.
 - [x] `docs/foundation/architecture.md` menjadi technical boundary.
-- [x] `docs/foundation/design-system.md` menjadi visual/interaction contract Warm Operational, DM Sans, Fraunces terbatas, dan S/M/L.
+- [x] `docs/foundation/design-system.md` menjadi visual/interaction contract Calm Neutral, Geist Sans, Tabler Icons, ApexCharts, light/dark/system, `id`/`en`, dan S/M/L (menggantikan Warm Operational/DM Sans/Fraunces per 2 Oktober 2026).
 - [x] `docs/foundation/design-system-modules.md` menjadi mapping module ke shell/screen/component/state/data guard.
 - [x] `docs/foundation/DESIGN_SYSTEM_APP_AUDIT.md` menjadi catatan gap implementasi, bukan sumber requirement.
 
@@ -52,11 +52,32 @@ Aturan pengerjaan:
 - [ ] Runtime visual/interaksi belum terverifikasi: start dev masih tertahan lock `.next/dev` dan browser dalam aplikasi tidak tersedia.
 - [x] `CREDENTIALS.local.md` diperiksa; tidak ada perubahan akun, password, atau aturan pemeliharaan yang diperlukan.
 
+### Checkpoint 2 Oktober 2026 - documentation remap (tanpa perubahan kode)
+
+- [x] User mengonfirmasi arah reslicing UI: tema modern minimalis, tanpa data ganda, tanpa deskripsi halaman panjang, light/dark, dan dua bahasa.
+- [x] `docs/product/prd.md` dibuat sebagai ringkasan terkonsolidasi beserta keputusan D-01 sampai D-08.
+- [x] `docs/foundation/design-system.md` ditulis ulang: Calm Neutral, Geist, Tabler Icons, ApexCharts, aturan konten halaman, inventaris dan gap komponen.
+- [x] `docs/foundation/architecture.md` ditulis ulang dengan status stack aktual dan catatan keputusan (ADR).
+- [x] `docs/foundation/schema.md`, `backend.md`, `frontend.md`, `security.md`, `deploy.md`, dan `flowchart.md` dibuat.
+- [x] `docs/README.md` dan `AGENTS.md` diselaraskan.
+- [x] User memutuskan: palet monokrom tanpa aksen (D-01), bahasa bawaan mengikuti browser (D-09), hosting VPS + Docker + Nginx dikerjakan paling akhir (D-10).
+- [ ] Keputusan skema `SCH-01` sampai `SCH-03` masih terbuka; tidak memblokir pekerjaan UI.
+
 ### Tahap implementasi berikutnya
 
-> **NEXT: STOP sebelum UI Alignment 1.**
+> **NEXT: STOP setelah UI Foundation 1.** User meninjau `/color-bank` (light dan dark) sebelum komponen dibenahi satu per satu, dimulai dari Button.
 
-Backend contract batch saat ini selesai. Task berikutnya pada urutan roadmap adalah UI Alignment 1, tetapi sesuai instruksi user pengerjaan harus berhenti sebelum masuk UI. Lanjut UI hanya setelah user mengonfirmasi reslicing/foundation UI.
+Urutan fondasi UI mengikuti `docs/foundation/frontend.md` bagian 14; setiap butir adalah checkpoint yang berdiri sendiri:
+
+- [x] **UI Foundation 1 - Bank warna Calm Neutral:** `primitives.css` diganti menjadi ramp netral 16 langkah + status + chart + preset storefront (skala Teal, Slate, Violet, Indigo lama dihapus); `tokens.css` light/dark monokrom tanpa aksen; token `--color-chart-series-1..6` dan utility `bg-chart-*`; preset storefront `ink/blue/teal/green/rose/orange`; `/color-bank` ditulis ulang; warna PWA diselaraskan; status `special` dipetakan ke netral. Verifikasi: kontras WCAG dihitung, penjaga warna, lint, typecheck `ui`/`storybook`, dan 204 test komponen lulus.
+- [ ] **Gate UI Foundation 1:** user meninjau `/color-bank` di browser pada light dan dark. Typecheck `apps/web` masih gagal hanya pada berkas hasil generate `.next/dev/types/routes.d.ts` yang rusak (bukan kode sumber); hapus `apps/web/.next/dev` setelah proses dev lama dihentikan.
+- [ ] **UI Foundation 2 - Tabler Icons:** ganti implementasi `AppIcon`, ganti seluruh impor `lucide-react`, hapus dependensi lama.
+- [ ] **UI Foundation 3 - i18n:** pasang `next-intl` berbasis cookie, kamus `id`/`en`, `LanguageSwitcher`, keluarkan string dari `packages/ui`.
+- [ ] **UI Foundation 4 - API client dan server state:** header CSRF (temuan `SEC-F1`), idempotency, error bertipe, TanStack Query.
+- [ ] **UI Foundation 5 - Shell dan pattern:** `AppShell`, `ContextSwitcher`, `UserMenu`, `PageHeader`, `FilterBar`, `Chip`, `ModuleAccessState`, `UsageLimitState`.
+- [ ] **UI Foundation 6 - Route group dan guard:** `(auth)`, `(backoffice)`, `(pos)`, `(kds)`, `(customer)`, `(platform)`.
+- [ ] **UI Foundation 7 - Reslice Catalog:** pecah `catalog-backoffice.tsx` menjadi `features/catalog` sesuai pola halaman baru.
+- [ ] **UI Foundation 8 - Komponen dibenahi satu per satu:** satu komponen per checkpoint, urutan Button → Input/FormField → Select/Combobox → kontrol pilihan → Badge/Alert/Toast → overlay → navigasi → DataTable dan tampilan data → komponen domain. Atas permintaan user, pekerjaan ini boleh didahulukan sebelum UI Foundation 2-7.
 
 ### Backend delta yang harus diaudit sebelum UI reslicing
 
@@ -94,12 +115,12 @@ Audit detail: `docs/foundation/BACKEND_MODULAR_DELTA_AUDIT.md`.
 - [ ] Event/worker change wajib membuktikan idempotency, retry/dead-letter, safe payload, dan duplicate handling.
 - [ ] Verification minimum backend mencakup lint, typecheck, unit/contract test terkait, API test, migration/schema test bila ada, dan privacy/security regression sesuai scope.
 
-### UI Alignment 1 - menunggu backend delta audit
-
 ### Gate sebelum coding visual berikutnya
 
-- [ ] Backend Delta 1 selesai dan checkpoint backend implementasi prioritas sudah disepakati.
-- [ ] User mengonfirmasi scope reslicing/redesign UI Alignment 1.
+- [x] Backend Delta 1 selesai dan checkpoint backend implementasi prioritas sudah disepakati.
+- [x] User mengonfirmasi arah reslicing/redesign UI (2 Oktober 2026).
+- [x] User menyetujui arah dokumen hasil remap dan meminta bank warna dikerjakan lebih dulu (2 Oktober 2026).
+- [ ] Halaman lulus checklist review `docs/foundation/design-system.md` bagian 23.3 (judul tanpa deskripsi, satu aksi utama, tanpa data ganda, `id`/`en`).
 - [ ] Field inventory dibuat sebelum JSX untuk setiap surface bisnis yang tersentuh.
 - [ ] Component/source audit memastikan API dan behavior existing yang harus dipertahankan.
 - [ ] Module state membedakan entitlement, permission, installation/setup, feature flag/delivery, limit, dan subscription lifecycle.
@@ -120,7 +141,8 @@ Audit detail: `docs/foundation/BACKEND_MODULAR_DELTA_AUDIT.md`.
 | Styling         | Tailwind CSS + CSS design tokens                              |
 | UI behavior     | Radix/headless primitives                                     |
 | Font            | Geist Sans + Geist Mono terbatas                              |
-| Icon            | Lucide                                                        |
+| Icon            | Tabler Icons melalui `AppIcon` (migrasi dari Lucide)          |
+| i18n            | `next-intl` berbasis cookie, `id` dan `en`                    |
 | Server state    | TanStack Query                                                |
 | Local state     | Zustand secukupnya                                            |
 | Form            | React Hook Form + Zod                                         |
@@ -1001,8 +1023,12 @@ Done     Backend Delta 4.2: command context contract
 Done     Security Delta 1: support access contract
 Done     Security Delta 2: QR token lifecycle contract
 Done     Backend Delta 5.1: module boundary rule contract
-STOP     Before UI Alignment 1: Warm token/theme/font foundation convergence
-Then     UI Alignment 2: S/M/L shell, workspace/location context, module access states
+Done     Documentation remap: prd, design-system, architecture, schema, backend, frontend, security, deploy, flowchart
+Done     UI Foundation 1: bank warna Calm Neutral monokrom
+STOP     User meninjau /color-bank light dan dark
+Then     Komponen UI dibenahi satu per satu, dimulai dari Button
+Then     UI Foundation 2-7: Tabler, i18n, API client, shell/pattern, route group, reslice Catalog
+Then     Core modular: tabel dan API instalasi, binding, paket berversi, limit, inbox
 Then     Catalog + POS Basic end-to-end
 Then     KDS Basic + standalone/integration proof
 Then     Floor/Table + QR + Live Table View
@@ -1017,7 +1043,8 @@ Jangan menggabungkan backend delta audit, foundation convergence, dan reslicing 
 - Backend delta terhadap PRD Modular v2.3 belum diaudit detail: module manifest, installation lifecycle, integration binding, package version snapshot, usage metering, standalone module path, dan workspace terminology baru belum boleh dianggap selesai.
 - ORM/schema delta perlu diperiksa ulang terhadap `docs/foundation/architecture.md`: Core tables, usage tables, module installation/config, integration binding, Floor/Table/QR, KDS, Inventory, Finance Core, HC, Customer, dan reporting projection.
 - Security/reliability lama sudah selesai untuk checkpoint Tahap 19, tetapi requirement baru masih perlu proof tambahan: integration API rate limit, module boundary lint, disposable PostgreSQL/RLS integration test, QR token privacy, support access, PII-safe event/log, dan hard/soft limit semantics.
-- Token, palette, font, theme, development preview, dan component bank masih perlu dimigrasikan dari Operational Teal/Geist ke kontrak Warm Operational/DM Sans/Fraunces.
+- Bank warna sudah Calm Neutral, tetapi tiap komponen belum diperiksa satu per satu pada palet baru dan halaman referensi `/design-system` masih memuat teks lama. Font Geist dipertahankan. Ikon masih Lucide dan belum ada i18n.
+- Web client belum mengirim header `x-csrf-token` yang diwajibkan API untuk mutasi bersesi (temuan `SEC-F1` di `docs/foundation/security.md`); perlu diverifikasi di browser dan diperbaiki pada UI Foundation 4.
 - Runtime route matrix perlu dilengkapi setelah server dan browser gate tersedia; source audit awal berada di `docs/foundation/DESIGN_SYSTEM_APP_AUDIT.md`.
 - POS, KDS, Inventory, Floor/Table, Finance, HC, Customer/Self-Order, Reports, Settings, dan Platform Admin belum boleh dianggap UI selesai hanya karena domain component atau backend contract tersedia.
 - Audit penutupan acceptance gate Storybook dan seluruh primitive P1 perlu diulang terhadap design system baru.

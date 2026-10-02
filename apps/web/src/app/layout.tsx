@@ -34,8 +34,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   colorScheme: "light dark",
   themeColor: [
-    { color: "rgb(248 250 252)", media: "(prefers-color-scheme: light)" }, // color-guardrails-ignore-line: PWA viewport requires concrete CSS color.
-    { color: "rgb(15 23 42)", media: "(prefers-color-scheme: dark)" }, // color-guardrails-ignore-line: PWA viewport requires concrete CSS color.
+    { color: "rgb(249 250 251)", media: "(prefers-color-scheme: light)" }, // color-guardrails-ignore-line: PWA viewport requires concrete CSS color.
+    { color: "rgb(9 10 12)", media: "(prefers-color-scheme: dark)" }, // color-guardrails-ignore-line: PWA viewport requires concrete CSS color.
   ],
 };
 

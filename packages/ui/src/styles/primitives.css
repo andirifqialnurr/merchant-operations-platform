@@ -1,67 +1,64 @@
 :root {
-  /* Neutral base */
-  --primitive-color-white: #ffffff;
+  /* Neutral ramp: structure, text, borders, and primary action in both themes. */
+  --primitive-color-neutral-0: #ffffff;
+  --primitive-color-neutral-25: #f9fafb;
+  --primitive-color-neutral-50: #f3f4f6;
+  --primitive-color-neutral-100: #e4e6e9;
+  --primitive-color-neutral-200: #d7d9dc;
+  --primitive-color-neutral-300: #a7abb0;
+  --primitive-color-neutral-400: #898c91;
+  --primitive-color-neutral-500: #6b6f75;
+  --primitive-color-neutral-600: #4f5358;
+  --primitive-color-neutral-700: #313336;
+  --primitive-color-neutral-750: #252729;
+  --primitive-color-neutral-800: #1f2123;
+  --primitive-color-neutral-850: #1a1c1f;
+  --primitive-color-neutral-900: #16181c;
+  --primitive-color-neutral-925: #111315;
+  --primitive-color-neutral-950: #090a0c;
 
-  /* Operational Teal */
-  --primitive-color-teal-50: #f0fdfa;
-  --primitive-color-teal-100: #ccfbf1;
-  --primitive-color-teal-200: #99f6e4;
-  --primitive-color-teal-300: #5eead4;
-  --primitive-color-teal-400: #2dd4bf;
-  --primitive-color-teal-500: #14b8a6;
-  --primitive-color-teal-600: #0d9488;
-  --primitive-color-teal-700: #0f766e;
-  --primitive-color-teal-800: #115e59;
-  --primitive-color-teal-900: #134e4a;
-  --primitive-color-teal-950: #042f2e;
+  /* Status: surface, light-theme text, dark-theme text, dark-theme surface. */
+  --primitive-color-green-50: #e0f9e8;
+  --primitive-color-green-300: #6ad895;
+  --primitive-color-green-700: #006836;
+  --primitive-color-green-950: #0f2e1b;
 
-  /* Slate neutral */
-  --primitive-color-slate-50: #f8fafc;
-  --primitive-color-slate-100: #f1f5f9;
-  --primitive-color-slate-200: #e2e8f0;
-  --primitive-color-slate-300: #cbd5e1;
-  --primitive-color-slate-400: #94a3b8;
-  --primitive-color-slate-500: #64748b;
-  --primitive-color-slate-600: #475569;
-  --primitive-color-slate-700: #334155;
-  --primitive-color-slate-800: #1e293b;
-  --primitive-color-slate-900: #0f172a;
-  --primitive-color-slate-950: #020617;
+  --primitive-color-amber-50: #fff2d2;
+  --primitive-color-amber-300: #f3bd5c;
+  --primitive-color-amber-700: #844b00;
+  --primitive-color-amber-950: #372508;
 
-  /* Status primitives: only the Version 1 stops used by semantic tokens. */
-  --primitive-color-blue-50: #eff6ff;
-  --primitive-color-blue-300: #93c5fd;
-  --primitive-color-blue-400: #60a5fa;
-  --primitive-color-blue-700: #1d4ed8;
-  --primitive-color-blue-950: #172554;
+  --primitive-color-red-50: #ffece9;
+  --primitive-color-red-300: #fe8b83;
+  --primitive-color-red-700: #b7191c;
+  --primitive-color-red-950: #3f1917;
 
-  --primitive-color-indigo-400: #818cf8;
-  --primitive-color-indigo-700: #4338ca;
+  --primitive-color-blue-50: #e5f4ff;
+  --primitive-color-blue-300: #78bff9;
+  --primitive-color-blue-700: #0062a1;
+  --primitive-color-blue-950: #0e293d;
 
-  --primitive-color-green-50: #f0fdf4;
-  --primitive-color-green-300: #86efac;
-  --primitive-color-green-700: #15803d;
-  --primitive-color-green-950: #052e16;
+  /* Chart series: muted hues, fixed order. */
+  --primitive-color-chart-light-1: #31363d;
+  --primitive-color-chart-light-2: #4675a4;
+  --primitive-color-chart-light-3: #3d908b;
+  --primitive-color-chart-light-4: #b68947;
+  --primitive-color-chart-light-5: #b96365;
+  --primitive-color-chart-dark-1: #e3e5e8;
+  --primitive-color-chart-dark-2: #79a9db;
+  --primitive-color-chart-dark-3: #71c2bc;
+  --primitive-color-chart-dark-4: #e0b771;
+  --primitive-color-chart-dark-5: #e39191;
 
-  --primitive-color-amber-50: #fffbeb;
-  --primitive-color-amber-300: #fcd34d;
-  --primitive-color-amber-700: #b45309;
-  --primitive-color-amber-950: #451a03;
-
-  --primitive-color-red-50: #fef2f2;
-  --primitive-color-red-300: #fca5a5;
-  --primitive-color-red-700: #b91c1c;
-  --primitive-color-red-950: #450a0a;
-
-  --primitive-color-violet-50: #f5f3ff;
-  --primitive-color-violet-300: #c4b5fd;
-  --primitive-color-violet-400: #a78bfa;
-  --primitive-color-violet-700: #6d28d9;
-  --primitive-color-violet-950: #2e1065;
-
-  --primitive-color-rose-400: #fb7185;
-  --primitive-color-rose-700: #be123c;
-
-  --primitive-color-orange-400: #fb923c;
-  --primitive-color-orange-700: #c2410c;
+  /* Customer storefront brand presets only. */
+  --primitive-color-brand-blue-400: #85bcf5;
+  --primitive-color-brand-blue-700: #1666aa;
+  --primitive-color-brand-teal-400: #6bcac9;
+  --primitive-color-brand-teal-700: #017272;
+  --primitive-color-brand-green-400: #7bcc98;
+  --primitive-color-brand-green-700: #1e7546;
+  --primitive-color-brand-rose-400: #f09da3;
+  --primitive-color-brand-rose-700: #a73447;
+  --primitive-color-brand-orange-400: #f2ad73;
+  --primitive-color-brand-orange-700: #a55115;
 }

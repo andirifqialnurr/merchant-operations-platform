@@ -1,35 +1,35 @@
 :root,
 [data-theme-preview="light"] {
   /* Background surfaces */
-  --color-bg-canvas: var(--primitive-color-slate-50);
-  --color-bg-surface: var(--primitive-color-white);
-  --color-bg-surface-subtle: var(--primitive-color-slate-100);
-  --color-bg-surface-raised: var(--primitive-color-white);
-  --color-bg-surface-inverse: var(--primitive-color-slate-900);
-  --color-bg-overlay: color-mix(in srgb, var(--primitive-color-slate-900) 48%, transparent);
+  --color-bg-canvas: var(--primitive-color-neutral-25);
+  --color-bg-surface: var(--primitive-color-neutral-0);
+  --color-bg-surface-subtle: var(--primitive-color-neutral-50);
+  --color-bg-surface-raised: var(--primitive-color-neutral-0);
+  --color-bg-surface-inverse: var(--primitive-color-neutral-900);
+  --color-bg-overlay: color-mix(in srgb, var(--primitive-color-neutral-900) 48%, transparent);
 
   /* Text */
-  --color-text-primary: var(--primitive-color-slate-900);
-  --color-text-secondary: var(--primitive-color-slate-600);
-  --color-text-muted: var(--primitive-color-slate-500);
-  --color-text-disabled: var(--primitive-color-slate-400);
-  --color-text-inverse: var(--primitive-color-white);
+  --color-text-primary: var(--primitive-color-neutral-900);
+  --color-text-secondary: var(--primitive-color-neutral-600);
+  --color-text-muted: var(--primitive-color-neutral-500);
+  --color-text-disabled: var(--primitive-color-neutral-300);
+  --color-text-inverse: var(--primitive-color-neutral-0);
 
   /* Borders */
-  --color-border-subtle: var(--primitive-color-slate-200);
-  --color-border-default: var(--primitive-color-slate-300);
-  --color-border-control: var(--primitive-color-slate-500);
-  --color-border-strong: var(--primitive-color-slate-600);
+  --color-border-subtle: var(--primitive-color-neutral-100);
+  --color-border-default: var(--primitive-color-neutral-200);
+  --color-border-control: var(--primitive-color-neutral-400);
+  --color-border-strong: var(--primitive-color-neutral-600);
 
-  /* Primary action */
-  --color-action-primary: var(--primitive-color-teal-700);
-  --color-action-primary-hover: var(--primitive-color-teal-800);
-  --color-action-primary-pressed: var(--primitive-color-teal-900);
-  --color-action-on-primary: var(--primitive-color-white);
-  --color-action-primary-subtle: var(--primitive-color-teal-100);
+  /* Primary action: ink, no brand hue. */
+  --color-action-primary: var(--primitive-color-neutral-900);
+  --color-action-primary-hover: var(--primitive-color-neutral-700);
+  --color-action-primary-pressed: var(--primitive-color-neutral-950);
+  --color-action-on-primary: var(--primitive-color-neutral-0);
+  --color-action-primary-subtle: var(--primitive-color-neutral-100);
 
   /* Focus */
-  --color-focus-ring: var(--primitive-color-teal-600);
+  --color-focus-ring: var(--primitive-color-neutral-900);
 
   /* Status */
   --color-status-info-text: var(--primitive-color-blue-700);
@@ -40,42 +40,51 @@
   --color-status-warning-bg: var(--primitive-color-amber-50);
   --color-status-danger-text: var(--primitive-color-red-700);
   --color-status-danger-bg: var(--primitive-color-red-50);
-  --color-status-special-text: var(--primitive-color-violet-700);
-  --color-status-special-bg: var(--primitive-color-violet-50);
+  /* Deprecated: kept neutral until components stop using it. */
+  --color-status-special-text: var(--primitive-color-neutral-600);
+  --color-status-special-bg: var(--primitive-color-neutral-50);
+
+  /* Chart series */
+  --color-chart-series-1: var(--primitive-color-chart-light-1);
+  --color-chart-series-2: var(--primitive-color-chart-light-2);
+  --color-chart-series-3: var(--primitive-color-chart-light-3);
+  --color-chart-series-4: var(--primitive-color-chart-light-4);
+  --color-chart-series-5: var(--primitive-color-chart-light-5);
+  --color-chart-series-6: var(--primitive-color-neutral-400);
 }
 
 :root[data-theme="dark"],
 [data-theme-preview="dark"] {
-  /* Navy-slate background surfaces */
-  --color-bg-canvas: #0b1120;
-  --color-bg-surface: #111827;
-  --color-bg-surface-subtle: #182235;
-  --color-bg-surface-raised: var(--primitive-color-slate-800);
-  --color-bg-surface-inverse: var(--primitive-color-slate-50);
-  --color-bg-overlay: color-mix(in srgb, var(--primitive-color-slate-950) 72%, transparent);
+  /* Background surfaces */
+  --color-bg-canvas: var(--primitive-color-neutral-950);
+  --color-bg-surface: var(--primitive-color-neutral-925);
+  --color-bg-surface-subtle: var(--primitive-color-neutral-850);
+  --color-bg-surface-raised: var(--primitive-color-neutral-800);
+  --color-bg-surface-inverse: var(--primitive-color-neutral-50);
+  --color-bg-overlay: color-mix(in srgb, var(--primitive-color-neutral-950) 72%, transparent);
 
   /* Text */
-  --color-text-primary: var(--primitive-color-slate-50);
-  --color-text-secondary: var(--primitive-color-slate-300);
-  --color-text-muted: var(--primitive-color-slate-400);
-  --color-text-disabled: var(--primitive-color-slate-500);
-  --color-text-inverse: var(--primitive-color-slate-900);
+  --color-text-primary: var(--primitive-color-neutral-50);
+  --color-text-secondary: var(--primitive-color-neutral-300);
+  --color-text-muted: var(--primitive-color-neutral-400);
+  --color-text-disabled: var(--primitive-color-neutral-500);
+  --color-text-inverse: var(--primitive-color-neutral-900);
 
   /* Borders */
-  --color-border-subtle: #253247;
-  --color-border-default: var(--primitive-color-slate-700);
-  --color-border-control: var(--primitive-color-slate-500);
-  --color-border-strong: var(--primitive-color-slate-400);
+  --color-border-subtle: var(--primitive-color-neutral-750);
+  --color-border-default: var(--primitive-color-neutral-700);
+  --color-border-control: var(--primitive-color-neutral-500);
+  --color-border-strong: var(--primitive-color-neutral-400);
 
   /* Primary action */
-  --color-action-primary: var(--primitive-color-teal-400);
-  --color-action-primary-hover: var(--primitive-color-teal-300);
-  --color-action-primary-pressed: var(--primitive-color-teal-500);
-  --color-action-on-primary: var(--primitive-color-teal-950);
-  --color-action-primary-subtle: var(--primitive-color-teal-900);
+  --color-action-primary: var(--primitive-color-neutral-50);
+  --color-action-primary-hover: var(--primitive-color-neutral-0);
+  --color-action-primary-pressed: var(--primitive-color-neutral-100);
+  --color-action-on-primary: var(--primitive-color-neutral-950);
+  --color-action-primary-subtle: var(--primitive-color-neutral-750);
 
   /* Focus */
-  --color-focus-ring: var(--primitive-color-teal-300);
+  --color-focus-ring: var(--primitive-color-neutral-50);
 
   /* Status */
   --color-status-info-text: var(--primitive-color-blue-300);
@@ -86,6 +95,14 @@
   --color-status-warning-bg: var(--primitive-color-amber-950);
   --color-status-danger-text: var(--primitive-color-red-300);
   --color-status-danger-bg: var(--primitive-color-red-950);
-  --color-status-special-text: var(--primitive-color-violet-300);
-  --color-status-special-bg: var(--primitive-color-violet-950);
+  --color-status-special-text: var(--primitive-color-neutral-300);
+  --color-status-special-bg: var(--primitive-color-neutral-850);
+
+  /* Chart series */
+  --color-chart-series-1: var(--primitive-color-chart-dark-1);
+  --color-chart-series-2: var(--primitive-color-chart-dark-2);
+  --color-chart-series-3: var(--primitive-color-chart-dark-3);
+  --color-chart-series-4: var(--primitive-color-chart-dark-4);
+  --color-chart-series-5: var(--primitive-color-chart-dark-5);
+  --color-chart-series-6: var(--primitive-color-neutral-500);
 }

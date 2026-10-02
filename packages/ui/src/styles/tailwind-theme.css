@@ -46,6 +46,14 @@
   --color-special: var(--color-status-special-text);
   --color-special-surface: var(--color-status-special-bg);
 
+  /* Chart series */
+  --color-chart-1: var(--color-chart-series-1);
+  --color-chart-2: var(--color-chart-series-2);
+  --color-chart-3: var(--color-chart-series-3);
+  --color-chart-4: var(--color-chart-series-4);
+  --color-chart-5: var(--color-chart-series-5);
+  --color-chart-6: var(--color-chart-series-6);
+
   /* Customer storefront brand */
   --color-brand: var(--color-brand-primary);
   --color-on-brand: var(--color-brand-on-primary);

@@ -30,16 +30,16 @@
 
   --foundation-shadow-none: none;
   --foundation-shadow-xs: 0 1px 2px
-    color-mix(in srgb, var(--primitive-color-slate-950) 10%, transparent);
+    color-mix(in srgb, var(--primitive-color-neutral-950) 10%, transparent);
   --foundation-shadow-sm:
-    0 2px 4px color-mix(in srgb, var(--primitive-color-slate-950) 10%, transparent),
-    0 1px 2px color-mix(in srgb, var(--primitive-color-slate-950) 6%, transparent);
+    0 2px 4px color-mix(in srgb, var(--primitive-color-neutral-950) 10%, transparent),
+    0 1px 2px color-mix(in srgb, var(--primitive-color-neutral-950) 6%, transparent);
   --foundation-shadow-md:
-    0 8px 16px color-mix(in srgb, var(--primitive-color-slate-950) 12%, transparent),
-    0 2px 6px color-mix(in srgb, var(--primitive-color-slate-950) 8%, transparent);
+    0 8px 16px color-mix(in srgb, var(--primitive-color-neutral-950) 12%, transparent),
+    0 2px 6px color-mix(in srgb, var(--primitive-color-neutral-950) 8%, transparent);
   --foundation-shadow-lg:
-    0 20px 32px color-mix(in srgb, var(--primitive-color-slate-950) 16%, transparent),
-    0 6px 12px color-mix(in srgb, var(--primitive-color-slate-950) 10%, transparent);
+    0 20px 32px color-mix(in srgb, var(--primitive-color-neutral-950) 16%, transparent),
+    0 6px 12px color-mix(in srgb, var(--primitive-color-neutral-950) 10%, transparent);
 
   --motion-duration-instant: 75ms;
   --motion-duration-fast: 120ms;

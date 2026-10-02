@@ -68,7 +68,7 @@ export default function DesignSystemPage() {
           </Link>
           <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
-              <p className="text-caption-xs uppercase text-primary">Calm Commerce · Version 1</p>
+              <p className="text-caption-xs uppercase text-primary">Monochrome · Version 2</p>
               <h1 className="mt-2 text-display">Merchant Design System</h1>
               <p className="mt-3 max-w-3xl text-body-lg text-foreground-secondary">
                 Satu halaman untuk melihat fondasi visual yang sudah dikunci sebelum component bank
