@@ -41,7 +41,7 @@ const deviceModes = [
   },
   {
     description: "Mode administrasi merchant untuk katalog dan operasional.",
-    href: "/backoffice/catalog",
+    href: "/catalog",
     icon: Store,
     label: "Backoffice",
     mode: "BACKOFFICE",

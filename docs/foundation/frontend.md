@@ -422,10 +422,10 @@ Setiap butir adalah checkpoint yang dapat di-push sendiri.
 1. Token Calm Neutral di `tokens.css`/`primitives.css` — **selesai**; pratinjau di `/color-bank`.
 2. `AppIcon` ke Tabler; ganti semua impor ikon; hapus `lucide-react`.
 3. `next-intl`: plugin, `i18n/request.ts`, kamus awal, `LanguageSwitcher`; keluarkan string dari `packages/ui`.
-4. Klien API: header CSRF, idempotency, error bertipe; pasang TanStack Query.
-5. `AppShell`, `ContextSwitcher`, `UserMenu`, `PageHeader`, `FilterBar`, `Chip`, `ModuleAccessState`, `UsageLimitState`.
-6. Grup rute dan guard: `(auth)`, `(backoffice)`, `(pos)`, `(kds)`, `(customer)`, `(platform)`.
-7. Pecah `catalog-backoffice.tsx` menjadi `features/catalog` dengan pola halaman bagian 10 — halaman pertama yang sepenuhnya mengikuti aturan baru.
+4. Klien API: header CSRF dan TanStack Query — **selesai**. Idempotency dan pemetaan error berdasarkan kode menyusul.
+5. `AppShell`, `ContextSwitcher`, `UserMenu`, `PageHeader`, `FilterBar`, `Chip` — **selesai**. `ModuleAccessState` dan `UsageLimitState` menyusul.
+6. Grup rute dan guard: `(auth)` dan `(backoffice)` — **selesai**. `(pos)`, `(kds)`, `(customer)`, `(platform)` menyusul bersama halamannya.
+7. Pecah `catalog-backoffice.tsx` menjadi `features/catalog` — **selesai**; rutenya `/catalog`. String masih di `messages.ts` per fitur sampai i18n dipasang.
 8. Benahi komponen lama **satu per satu** (satu komponen = satu checkpoint): tampilan pada palet baru, tinggi kontrol, `Panel` menggantikan kartu bersarang, hapus status `special`. Urutan: Button → Input/FormField → Select/Combobox → kontrol pilihan → Badge/Alert/Toast → overlay → navigasi → DataTable dan tampilan data → komponen domain.
 
 Setelah butir 7 lulus gerbang, pola yang sama dipakai untuk POS, KDS, dan modul berikutnya.

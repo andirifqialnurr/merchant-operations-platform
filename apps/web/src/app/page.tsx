@@ -18,7 +18,7 @@ const primaryNav = [
   { href: "/", icon: LayoutDashboard, label: "Device Mode" },
   { href: "/pos", icon: MonitorCog, label: "POS" },
   { href: "/kds", icon: ChefHat, label: "KDS" },
-  { href: "/backoffice/catalog", icon: Store, label: "Catalog" },
+  { href: "/catalog", icon: Store, label: "Catalog" },
   { href: "/inventory", icon: PackageSearch, label: "Inventory" },
 ] as const;
 

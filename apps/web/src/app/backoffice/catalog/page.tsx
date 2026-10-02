@@ -1,5 +1,6 @@
-import { CatalogBackoffice } from "@/components/catalog-backoffice";
+import { redirect } from "next/navigation";
 
-export default function CatalogPage() {
-  return <CatalogBackoffice />;
+/** The catalog moved to /catalog; keep old bookmarks working. */
+export default function LegacyCatalogPage() {
+  redirect("/catalog");
 }

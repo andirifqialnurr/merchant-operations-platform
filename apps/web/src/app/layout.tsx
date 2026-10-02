@@ -6,10 +6,9 @@ import { GeistSans } from "geist/font/sans";
 
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { QueryProvider } from "@/providers/query-provider";
 
 import "./globals.css";
-import "./backoffice-shell.css";
-import "./catalog.css";
 import "./device-mode.css";
 
 export const metadata: Metadata = {
@@ -47,7 +46,9 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
       suppressHydrationWarning
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <QueryProvider>{children}</QueryProvider>
+        </ThemeProvider>
         <ServiceWorkerRegistration />
       </body>
     </html>

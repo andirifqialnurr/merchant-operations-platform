@@ -34,7 +34,7 @@ Dokumen terkait: [`architecture.md`](./architecture.md), [`backend.md`](./backen
 | Sesi platform terpisah dari sesi merchant | Berjalan | `platform/` |
 | Rate limit login (5 per 15 menit per IP+email) | Berjalan, di memori proses | `security/rate-limit.service.ts` |
 | Header keamanan (`nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, COOP, CORP, `Permissions-Policy`, HSTS di produksi) | Berjalan | `security/http-security.ts` |
-| Pemeriksaan header CSRF untuk mutasi bersesi | Berjalan di API; **klien web belum mengirim header** | `security/http-security.ts`, `apps/web/src/lib/api-client.ts` |
+| Pemeriksaan header CSRF untuk mutasi bersesi | Berjalan di API dan klien web | `security/http-security.ts`, `apps/web/src/lib/api-client.ts` |
 | Guard sesi + keanggotaan + izin + cakupan lokasi + entitlement modul | Berjalan | `access/session-permission.guard.ts` |
 | Validasi Zod untuk header, params, body, response | Berjalan | `zod-validation.pipe.ts`, `packages/contracts` |
 | Error tanpa detail internal pada 5xx | Berjalan | `api-exception.filter.ts` |
@@ -63,7 +63,7 @@ Temuan berikut berasal dari pembacaan kode pada 2 Oktober 2026 dan belum diverif
 
 | ID | Temuan | Dampak | Tindakan |
 |---|---|---|---|
-| SEC-F1 | API menolak `POST/PATCH/PUT/DELETE` bersesi tanpa header `x-csrf-token`, tetapi `apps/web/src/lib/api-client.ts` tidak mengirim header itu | Mutasi Catalog dan logout dari web kemungkinan gagal dengan `CSRF_TOKEN_REQUIRED` | Tambahkan header di klien API (bagian 5); verifikasi di browser |
+| SEC-F1 | **Selesai.** API menolak `POST/PATCH/PUT/DELETE` bersesi tanpa header `x-csrf-token`, dan klien web sebelumnya tidak mengirimnya | Terkonfirmasi: permintaan tanpa header dijawab 403 `CSRF_TOKEN_REQUIRED` | Klien API kini mengirim header pada setiap metode tidak aman; simpan data dari halaman Katalog terverifikasi di browser |
 | SEC-F2 | Pemeriksaan CSRF hanya memvalidasi keberadaan dan format header, tidak mengikat nilainya ke sesi | Cukup sebagai pertahanan "custom header" selama CORS tidak dibuka; tidak cukup bila API diakses lintas origin | Pertahankan satu origin; bila kelak lintas origin, ikat token ke sesi |
 | SEC-F3 | Rate limit disimpan di memori proses | Tidak efektif bila API berjalan lebih dari satu instance; hilang saat restart | Pindah ke Redis sebelum menambah instance |
 | SEC-F4 | Alamat IP untuk rate limit diambil dari koneksi; di belakang reverse proxy semua permintaan tampak dari IP proxy | Satu pengguna dapat mengunci login pengguna lain, atau batas tidak efektif | Konfigurasikan `trust proxy` untuk satu hop (Nginx) di produksi |

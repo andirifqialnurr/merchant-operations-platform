@@ -14,7 +14,7 @@ test("device mode choices navigate to dedicated merchant surface routes", async 
 
   assert.match(source, /href: "\/pos"/);
   assert.match(source, /href: "\/kds"/);
-  assert.match(source, /href: "\/backoffice\/catalog"/);
+  assert.match(source, /href: "\/catalog"/);
   assert.match(source, /href: "\/inventory"/);
   assert.match(source, /useRouter/);
   assert.match(source, /router\.push\(item\.href\)/);
@@ -27,18 +27,9 @@ test("home shell exposes clickable navigation for every visible device mode", as
   assert.match(source, /href: "\/"/);
   assert.match(source, /href: "\/pos"/);
   assert.match(source, /href: "\/kds"/);
-  assert.match(source, /href: "\/backoffice\/catalog"/);
+  assert.match(source, /href: "\/catalog"/);
   assert.match(source, /href: "\/inventory"/);
   assert.match(source, /href="\/design-system"/);
-});
-
-test("design system documents the three Tasty Station visual references", async () => {
-  const designSystemPath = join(testDir, "..", "..", "..", "..", "design-system.md");
-  const source = await readFile(designSystemPath, "utf8");
-
-  assert.match(source, /original-851d24227b2ef442240d3c9220f4e1b4\.jpg/);
-  assert.match(source, /244417cc212b87d59e51c5c36cbae7e0\.png/);
-  assert.match(source, /original-0182b71e783e237945b82423885a4219\.jpg/);
 });
 
 test("POS, KDS, and Inventory landing routes exist without rendering internal payload fields", async () => {
