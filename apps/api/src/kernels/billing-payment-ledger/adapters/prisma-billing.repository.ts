@@ -81,6 +81,17 @@ export class PrismaBillingRepository implements BillingRepository {
     };
   }
 
+  async paidOrders(tenantId: string, orderIds: readonly string[]) {
+    if (orderIds.length === 0) return new Map<string, number>();
+    const bills = await getPrismaClient().bill.findMany({
+      select: { orderId: true, sale: { select: { saleNumber: true } } },
+      where: { orderId: { in: [...orderIds] }, status: "PAID", tenantId },
+    });
+    return new Map(
+      bills.flatMap((bill) => (bill.sale ? [[bill.orderId, bill.sale.saleNumber] as const] : [])),
+    );
+  }
+
   async sumCashPayments(tenantId: string, registerSessionId: string) {
     const result = await getPrismaClient().billingPayment.aggregate({
       _sum: { amountMinor: true },
@@ -104,6 +115,14 @@ export class PrismaBillingRepository implements BillingRepository {
           where: { id: payment.registerSessionId, outletId, status: "OPEN", tenantId },
         });
         if (shift.count !== 1) return { kind: "shift_not_open" };
+
+        // Locks the order the same way cancelling does, so an order is either
+        // canceled before it is paid or paid before it is canceled.
+        const order = await transaction.order.updateMany({
+          data: { updatedAt: new Date() },
+          where: { id: payment.orderId, outletId, status: { not: "CANCELED" }, tenantId },
+        });
+        if (order.count !== 1) return { kind: "order_canceled" };
 
         const existing = await transaction.bill.findUnique({
           select: { id: true },

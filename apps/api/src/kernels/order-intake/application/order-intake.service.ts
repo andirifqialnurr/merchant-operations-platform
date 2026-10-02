@@ -22,6 +22,8 @@ const pricingMessages = {
 export function toOrder(record: OrderRecord): Order {
   const subtotalMinor = record.items.reduce((sum, item) => sum + item.lineTotalMinor, 0n);
   return orderSchema.parse({
+    cancelReason: record.cancelReason,
+    canceledAt: record.canceledAt?.toISOString() ?? null,
     createdAt: record.createdAt.toISOString(),
     currency: record.currency,
     id: record.id,
@@ -98,6 +100,39 @@ export class OrderIntakeService {
         context,
       ),
     );
+  }
+
+  /** Orders of the outlet created in the last `hours` hours, newest first. */
+  async listRecent(tenantId: string, outletId: string, hours: number, limit: number) {
+    const since = new Date(Date.now() - hours * 60 * 60 * 1000);
+    return (await this.orders.listSince(tenantId, outletId, since, limit)).map(toOrder);
+  }
+
+  /**
+   * Cancels an order with a reason. The caller decides whether the order may
+   * still be canceled (for example, that it is unpaid); that check runs while
+   * the order is locked.
+   */
+  async cancelOrder(
+    tenantId: string,
+    outletId: string,
+    orderId: string,
+    reason: string,
+    ensureCancellable: () => Promise<void>,
+    context: OrderMutationContext,
+  ) {
+    const order = await this.orders.cancel(
+      tenantId,
+      outletId,
+      orderId,
+      reason,
+      ensureCancellable,
+      context,
+    );
+    if (!order) {
+      throw new NotFoundException({ code: "ORDER_NOT_FOUND", message: "Order not found." });
+    }
+    return toOrder(order);
   }
 
   async getOrder(tenantId: string, outletId: string, orderId: string) {

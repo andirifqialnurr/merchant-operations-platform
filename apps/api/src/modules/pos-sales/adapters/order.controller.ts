@@ -1,5 +1,6 @@
 import {
   API_HEADERS,
+  cancelOrderSchema,
   checkoutSchema,
   createPosOrderSchema,
   entityIdParamsSchema,
@@ -7,9 +8,11 @@ import {
   MODULES,
   orderSchema,
   payOrderSchema,
+  posOrderListSchema,
   PERMISSIONS,
   requestContextHeadersSchema,
   type AuthorizationContext,
+  type CancelOrder,
   type CreatePosOrder,
   type IdempotentRequestHeaders,
   type PayOrder,
@@ -41,6 +44,7 @@ import { SESSION_COOKIE_NAME } from "../../../auth/session-cookie.js";
 import { OrderIntakeService } from "../../../kernels/order-intake/application/order-intake.service.js";
 import { RequestHeaders, ZodValidationPipe } from "../../../zod-validation.pipe.js";
 import { CheckoutService } from "../application/checkout.service.js";
+import { PosOrdersService } from "../application/pos-orders.service.js";
 
 /** Orders taken at the cashier. Pricing and storage belong to order intake. */
 @ApiTags("pos")
@@ -67,6 +71,7 @@ export class OrderController {
   constructor(
     @Inject(OrderIntakeService) private readonly orders: OrderIntakeService,
     @Inject(CheckoutService) private readonly checkout: CheckoutService,
+    @Inject(PosOrdersService) private readonly posOrders: PosOrdersService,
   ) {}
 
   @ApiOperation({ summary: "Submit a cashier order priced from the outlet menu" })
@@ -88,6 +93,44 @@ export class OrderController {
         headers[API_HEADERS.outletId],
         input,
         headers[API_HEADERS.idempotencyKey],
+        { actorId: access.userId, ...(requestId ? { requestId } : {}) },
+      ),
+    );
+  }
+
+  @ApiOperation({ summary: "List the outlet's orders of the last 24 hours with payment state" })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/PosOrderList" } })
+  @RequirePermission(PERMISSIONS.orderCreate)
+  @Get()
+  async list(
+    @RequestHeaders(new ZodValidationPipe(requestContextHeadersSchema))
+    headers: RequestContextHeaders,
+  ) {
+    return posOrderListSchema.parse(
+      await this.posOrders.list(headers[API_HEADERS.tenantId], headers[API_HEADERS.outletId]),
+    );
+  }
+
+  @ApiOperation({ summary: "Cancel an unpaid order with a reason" })
+  @ApiBody({ schema: { $ref: "#/components/schemas/CancelOrder" } })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/Order" } })
+  @RequirePermission(PERMISSIONS.orderCancel)
+  @HttpCode(200)
+  @Post(":id/cancel")
+  async cancel(
+    @RequestHeaders(new ZodValidationPipe(requestContextHeadersSchema))
+    headers: RequestContextHeaders,
+    @Param(new ZodValidationPipe(entityIdParamsSchema)) params: { id: string },
+    @Body(new ZodValidationPipe(cancelOrderSchema)) input: CancelOrder,
+    @CurrentAccess() access: AuthorizationContext,
+  ) {
+    const requestId = headers[API_HEADERS.requestId];
+    return orderSchema.parse(
+      await this.posOrders.cancel(
+        headers[API_HEADERS.tenantId],
+        headers[API_HEADERS.outletId],
+        params.id,
+        input,
         { actorId: access.userId, ...(requestId ? { requestId } : {}) },
       ),
     );

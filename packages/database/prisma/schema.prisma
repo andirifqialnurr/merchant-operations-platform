@@ -145,7 +145,8 @@ model User {
   openedRegisterSessions PosRegisterSession[] @relation("RegisterSessionOpenedBy")
   closedRegisterSessions PosRegisterSession[] @relation("RegisterSessionClosedBy")
   cashMovements          PosCashMovement[]
-  orders                 Order[]
+  orders                 Order[]              @relation("OrderActor")
+  canceledOrders         Order[]              @relation("OrderCanceledBy")
   paymentsRecorded       BillingPayment[]     @relation("PaymentActor")
   paymentsConfirmed      BillingPayment[]     @relation("PaymentConfirmedBy")
 
@@ -767,12 +768,16 @@ model Order {
   note           String?     @db.VarChar(500)
   submittedAt    DateTime?   @map("submitted_at") @db.Timestamptz(6)
   actorId        String?     @map("actor_id") @db.Uuid
+  canceledAt     DateTime?   @map("canceled_at") @db.Timestamptz(6)
+  canceledBy     String?     @map("canceled_by") @db.Uuid
+  cancelReason   String?     @map("cancel_reason") @db.VarChar(300)
   idempotencyKey String      @map("idempotency_key") @db.VarChar(255)
   createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
   tenant         Tenant      @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   outlet         Outlet      @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
-  actor          User?       @relation(fields: [actorId], references: [id], onDelete: Restrict)
+  actor          User?       @relation("OrderActor", fields: [actorId], references: [id], onDelete: Restrict)
+  canceler       User?       @relation("OrderCanceledBy", fields: [canceledBy], references: [id], onDelete: Restrict)
   items          OrderItem[]
   bill           Bill?
 

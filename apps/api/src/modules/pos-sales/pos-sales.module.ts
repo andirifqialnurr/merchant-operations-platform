@@ -10,6 +10,7 @@ import { OrderController } from "./adapters/order.controller.js";
 import { PrismaRegisterSessionRepository } from "./adapters/prisma-register-session.repository.js";
 import { ShiftController } from "./adapters/shift.controller.js";
 import { CheckoutService } from "./application/checkout.service.js";
+import { PosOrdersService } from "./application/pos-orders.service.js";
 import { REGISTER_SESSION_REPOSITORY } from "./application/register-session.repository.js";
 import { ShiftService } from "./application/shift.service.js";
 
@@ -19,6 +20,7 @@ import { ShiftService } from "./application/shift.service.js";
   imports: [AccessModule, AuthModule, BillingPaymentLedgerModule, CatalogModule, OrderIntakeModule],
   providers: [
     CheckoutService,
+    PosOrdersService,
     ShiftService,
     PrismaRegisterSessionRepository,
     { provide: REGISTER_SESSION_REPOSITORY, useExisting: PrismaRegisterSessionRepository },

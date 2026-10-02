@@ -78,6 +78,30 @@ const menu: SellableMenu = {
 class InMemoryOrderRepository implements OrderRepository {
   readonly orders: (OrderRecord & { idempotencyKey: string })[] = [];
 
+  async listSince(tenantId: string, outletId: string, since: Date, limit: number) {
+    return this.orders
+      .filter(
+        (order) =>
+          order.tenantId === tenantId && order.outletId === outletId && order.createdAt >= since,
+      )
+      .reverse()
+      .slice(0, limit);
+  }
+
+  async cancel(
+    tenantId: string,
+    outletId: string,
+    orderId: string,
+    reason: string,
+    ensureCancellable: () => Promise<void>,
+  ) {
+    const order = await this.findById(tenantId, outletId, orderId);
+    if (!order || order.status === "CANCELED") return order;
+    await ensureCancellable();
+    Object.assign(order, { cancelReason: reason, canceledAt: new Date(), status: "CANCELED" });
+    return order;
+  }
+
   async findById(tenantId: string, outletId: string, orderId: string) {
     return (
       this.orders.find(
@@ -100,7 +124,9 @@ class InMemoryOrderRepository implements OrderRepository {
 
   async createSubmitted(order: NewSubmittedOrder) {
     const orderNumber = this.orders.filter((item) => item.outletId === order.outletId).length + 1;
-    const record = {
+    const record: OrderRecord & { idempotencyKey: string } = {
+      cancelReason: null,
+      canceledAt: null,
       createdAt: new Date(),
       currency: order.currency,
       id: randomUUID(),
@@ -125,7 +151,7 @@ class InMemoryOrderRepository implements OrderRepository {
       orderType: order.orderType,
       outletId: order.outletId,
       source: order.source,
-      status: "SUBMITTED" as const,
+      status: "SUBMITTED",
       submittedAt: new Date(),
       tenantId: order.tenantId,
     };
@@ -272,4 +298,88 @@ test("reads an order only inside its tenant and outlet", async () => {
   assert.equal((await service.getOrder(TENANT, OUTLET, order.id)).id, order.id);
   await assert.rejects(service.getOrder(TENANT, OTHER_OUTLET, order.id), NotFoundException);
   await assert.rejects(service.getOrder(OTHER_OUTLET, OUTLET, order.id), NotFoundException);
+});
+
+test("cancels an order with a reason once, and only when allowed", async () => {
+  const { service } = setup();
+  const order = await service.submitPosOrder(
+    TENANT,
+    OUTLET,
+    { items: [latteLine], orderType: "TAKEAWAY" },
+    "key-1",
+    context,
+  );
+
+  await assert.rejects(
+    service.cancelOrder(
+      TENANT,
+      OUTLET,
+      order.id,
+      "Pelanggan batal",
+      async () => {
+        throw new ConflictException({ code: "ORDER_ALREADY_PAID", message: "Paid." });
+      },
+      context,
+    ),
+    ConflictException,
+  );
+  assert.equal((await service.getOrder(TENANT, OUTLET, order.id)).status, "SUBMITTED");
+
+  const canceled = await service.cancelOrder(
+    TENANT,
+    OUTLET,
+    order.id,
+    "Pelanggan batal",
+    async () => undefined,
+    context,
+  );
+  assert.equal(canceled.status, "CANCELED");
+  assert.equal(canceled.cancelReason, "Pelanggan batal");
+  assert.ok(canceled.canceledAt);
+
+  // Cancelling again returns the cancelled order without asking again.
+  const again = await service.cancelOrder(
+    TENANT,
+    OUTLET,
+    order.id,
+    "Lain",
+    async () => {
+      throw new Error("must not be asked");
+    },
+    context,
+  );
+  assert.equal(again.cancelReason, "Pelanggan batal");
+
+  await assert.rejects(
+    service.cancelOrder(TENANT, OTHER_OUTLET, order.id, "Lain", async () => undefined, context),
+    NotFoundException,
+  );
+});
+
+test("lists recent orders of the outlet, newest first", async () => {
+  const { service } = setup();
+  const submit = (outlet: string, key: string) =>
+    service.submitPosOrder(
+      outlet,
+      OUTLET,
+      { items: [latteLine], orderType: "TAKEAWAY" },
+      key,
+      context,
+    );
+  await submit(TENANT, "key-1");
+  await submit(TENANT, "key-2");
+  await service.submitPosOrder(
+    TENANT,
+    OTHER_OUTLET,
+    { items: [latteLine], orderType: "TAKEAWAY" },
+    "key-3",
+    context,
+  );
+
+  const recent = await service.listRecent(TENANT, OUTLET, 24, 10);
+  assert.deepEqual(
+    recent.map((order) => order.orderNumber),
+    [2, 1],
+  );
+  assert.equal((await service.listRecent(TENANT, OUTLET, 24, 1)).length, 1);
 });

@@ -1685,6 +1685,8 @@ export const orderItemSchema = z.object({
 });
 
 export const orderSchema = z.object({
+  cancelReason: z.string().nullable(),
+  canceledAt: z.iso.datetime().nullable(),
   createdAt: z.iso.datetime(),
   currency: currencyCodeSchema,
   id: z.uuid(),
@@ -1716,6 +1718,30 @@ export const createPosOrderSchema = z.object({
   orderType: z.literal("TAKEAWAY"),
 });
 
+export const cancelOrderSchema = z.object({
+  reason: z.string().trim().min(3).max(300),
+});
+
+export const orderPaymentStateSchema = z.enum(["UNPAID", "PAID"]);
+
+/** One row of the cashier's order list; the payment state comes from billing. */
+export const posOrderSummarySchema = z.object({
+  createdAt: z.iso.datetime(),
+  id: z.uuid(),
+  itemCount: z.number().int().min(0),
+  orderNumber: z.number().int().min(1),
+  paymentState: orderPaymentStateSchema,
+  saleNumber: z.number().int().min(1).nullable(),
+  status: orderStatusSchema,
+  subtotalMinor: moneyMinorSchema,
+});
+
+export const posOrderListSchema = z.object({ orders: z.array(posOrderSummarySchema) });
+
+export type CancelOrder = z.infer<typeof cancelOrderSchema>;
+export type OrderPaymentState = z.infer<typeof orderPaymentStateSchema>;
+export type PosOrderList = z.infer<typeof posOrderListSchema>;
+export type PosOrderSummary = z.infer<typeof posOrderSummarySchema>;
 export type CreateOrderItem = z.infer<typeof createOrderItemSchema>;
 export type CreatePosOrder = z.infer<typeof createPosOrderSchema>;
 export type Order = z.infer<typeof orderSchema>;
@@ -1810,6 +1836,8 @@ export type Sale = z.infer<typeof saleSchema>;
 export type SaleStatus = z.infer<typeof saleStatusSchema>;
 
 export const posOpenApiSchemas = {
+  CancelOrder: toOpenApiSchema(cancelOrderSchema),
+  PosOrderList: toOpenApiSchema(posOrderListSchema),
   Checkout: toOpenApiSchema(checkoutSchema),
   PayOrder: toOpenApiSchema(payOrderSchema),
   CreatePosOrder: toOpenApiSchema(createPosOrderSchema),

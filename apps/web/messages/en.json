@@ -218,6 +218,7 @@
     "CSRF_TOKEN_REQUIRED": "Request rejected. Reload the page and try again.",
     "IDEMPOTENCY_KEY_REUSED": "This request conflicts with an earlier one. Try again.",
     "MODULE_NOT_ENTITLED": "This module is not part of this business's subscription.",
+    "ORDER_ALREADY_PAID": "A paid order cannot be canceled.",
     "ORDER_CANCELED": "A canceled order cannot be paid.",
     "ORDER_CURRENCY_MIXED": "An order cannot use more than one currency.",
     "ORDER_MODIFIER_INVALID": "A chosen add-on does not apply to its product.",

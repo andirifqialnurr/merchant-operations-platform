@@ -10,6 +10,8 @@ import type {
 } from "../application/order.repository.js";
 
 const orderSelect = {
+  cancelReason: true,
+  canceledAt: true,
   createdAt: true,
   currency: true,
   id: true,
@@ -50,6 +52,79 @@ export class PrismaOrderRepository implements OrderRepository {
     return getPrismaClient().order.findFirst({
       select: orderSelect,
       where: { id: orderId, outletId, tenantId },
+    });
+  }
+
+  async listSince(tenantId: string, outletId: string, since: Date, limit: number) {
+    return getPrismaClient().order.findMany({
+      orderBy: { createdAt: "desc" },
+      select: orderSelect,
+      take: limit,
+      where: { createdAt: { gte: since }, outletId, tenantId },
+    });
+  }
+
+  async cancel(
+    tenantId: string,
+    outletId: string,
+    orderId: string,
+    reason: string,
+    ensureCancellable: () => Promise<void>,
+    context: OrderMutationContext,
+  ) {
+    return getPrismaClient().$transaction(async (transaction) => {
+      // Locks the order row. Taking a payment touches the same row first, so
+      // the paid check below sees every payment committed before this lock,
+      // and a payment that comes later finds the order canceled.
+      const lock = await transaction.order.updateMany({
+        data: { updatedAt: new Date() },
+        where: { id: orderId, outletId, status: { not: "CANCELED" }, tenantId },
+      });
+      if (lock.count !== 1) {
+        return transaction.order.findFirst({
+          select: orderSelect,
+          where: { id: orderId, outletId, tenantId },
+        });
+      }
+      await ensureCancellable();
+
+      const canceledAt = new Date();
+      await transaction.order.updateMany({
+        data: {
+          cancelReason: reason,
+          canceledAt,
+          canceledBy: context.actorId,
+          status: "CANCELED",
+        },
+        where: { id: orderId, outletId, tenantId },
+      });
+      const payload = { canceledAt: canceledAt.toISOString(), orderId, reason };
+      await transaction.auditLog.create({
+        data: {
+          action: "order.cancel",
+          actorId: context.actorId,
+          entityId: orderId,
+          entityType: "order_order",
+          metadata: buildAuditMetadata("order.cancel", payload),
+          outletId,
+          ...(context.requestId ? { requestId: context.requestId } : {}),
+          tenantId,
+        },
+      });
+      await transaction.outboxEvent.create({
+        data: {
+          aggregateId: orderId,
+          aggregateType: "order_order",
+          outletId,
+          payload,
+          tenantId,
+          type: "order.canceled.v1",
+        },
+      });
+      return transaction.order.findUniqueOrThrow({
+        select: orderSelect,
+        where: { tenantId_id: { id: orderId, tenantId } },
+      });
     });
   }
 

@@ -21,6 +21,15 @@ const ACTOR = "019f738d-e61f-7d46-92de-17b35f975103";
 class InMemoryBillingRepository implements BillingRepository {
   readonly checkouts: (CheckoutRecord & { key: string; method: string; shift: string })[] = [];
   shiftOpen = true;
+  canceledOrders = new Set<string>();
+
+  async paidOrders(_tenantId: string, orderIds: readonly string[]) {
+    return new Map(
+      this.checkouts
+        .filter((item) => orderIds.includes(item.bill.orderId))
+        .map((item) => [item.bill.orderId, item.sale.saleNumber] as const),
+    );
+  }
 
   async findCheckoutByIdempotencyKey(_tenantId: string, _outletId: string, key: string) {
     return this.checkouts.find((item) => item.key === key) ?? null;
@@ -34,6 +43,7 @@ class InMemoryBillingRepository implements BillingRepository {
 
   async recordFullPayment(payment: FullPayment): Promise<FullPaymentOutcome> {
     if (!this.shiftOpen) return { kind: "shift_not_open" };
+    if (this.canceledOrders.has(payment.orderId)) return { kind: "order_canceled" };
     if (this.checkouts.some((item) => item.bill.orderId === payment.orderId)) {
       return { kind: "bill_already_paid" };
     }
@@ -209,4 +219,29 @@ test("refuses payments that cannot be taken", async () => {
   repository.shiftOpen = false;
   await rejectsWithCode(pay(order(), "64000", "key-4"), "POS_SHIFT_NOT_OPEN");
   assert.equal(repository.checkouts.length, 0);
+});
+
+test("refuses an order cancelled while it was being paid, and reports paid orders", async () => {
+  const { repository, service } = setup();
+  const paidOrder = order();
+  await service.payOrderInFull(
+    { ...base, idempotencyKey: "key-1", order: paidOrder, pay: cash("64000") },
+    context,
+  );
+  assert.equal(await service.isOrderPaid(TENANT, paidOrder.id), true);
+
+  const raced = order();
+  repository.canceledOrders.add(raced.id);
+  await rejectsWithCode(
+    service.payOrderInFull(
+      { ...base, idempotencyKey: "key-2", order: raced, pay: cash("64000") },
+      context,
+    ),
+    "ORDER_CANCELED",
+  );
+  assert.equal(await service.isOrderPaid(TENANT, raced.id), false);
+  assert.deepEqual(
+    [...(await service.paidOrders(TENANT, [paidOrder.id, raced.id]))],
+    [[paidOrder.id, 1]],
+  );
 });

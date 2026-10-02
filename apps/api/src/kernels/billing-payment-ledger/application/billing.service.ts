@@ -134,10 +134,22 @@ export class BillingService {
     if (outcome.kind === "bill_already_paid") {
       throw conflict("BILL_ALREADY_PAID", "This order is already paid.");
     }
+    if (outcome.kind === "order_canceled") {
+      throw conflict("ORDER_CANCELED", "A canceled order cannot be paid.");
+    }
     if (outcome.kind === "shift_not_open") {
       throw conflict("POS_SHIFT_NOT_OPEN", "This shift is already closed.");
     }
     return toCheckout(outcome.checkout);
+  }
+
+  /** Sale numbers of the paid orders among `orderIds`, keyed by order id. */
+  paidOrders(tenantId: string, orderIds: readonly string[]) {
+    return this.billing.paidOrders(tenantId, orderIds);
+  }
+
+  async isOrderPaid(tenantId: string, orderId: string) {
+    return (await this.billing.paidOrders(tenantId, [orderId])).has(orderId);
   }
 
   /** Cash taken in a shift; the shift adds it to the cash it expects. */

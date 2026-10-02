@@ -273,3 +273,18 @@ test("keeps bills, payments, and sales tenant-scoped with derived totals", () =>
   );
   assert.match(billingMigration, /"tendered_minor" >= "amount_minor"/);
 });
+
+test("keeps a cancelled order with its time, actor, and reason", () => {
+  const cancellationMigration = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261003150000_order_cancellation/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(cancellationMigration, /CONSTRAINT "order_orders_cancellation_check" CHECK/);
+  assert.match(
+    cancellationMigration,
+    /"status" = 'CANCELED' AND "canceled_at" IS NOT NULL AND "canceled_by" IS NOT NULL AND "cancel_reason" IS NOT NULL/,
+  );
+});

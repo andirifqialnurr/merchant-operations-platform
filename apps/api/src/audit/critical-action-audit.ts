@@ -10,6 +10,7 @@ export const CRITICAL_AUDIT_ACTIONS = [
   "membership.create",
   "membership.provision_owner",
   "membership.update",
+  "order.cancel",
   "order.submit",
   "outlet.update",
   "payment.record",

@@ -17,6 +17,8 @@ export type OrderItemRecord = {
 };
 
 export type OrderRecord = {
+  cancelReason: string | null;
+  canceledAt: Date | null;
   createdAt: Date;
   currency: string;
   id: string;
@@ -49,7 +51,22 @@ export interface OrderRepository {
    * idempotency key was already used, the order it created is returned.
    */
   createSubmitted(order: NewSubmittedOrder, context: OrderMutationContext): Promise<OrderRecord>;
+  /**
+   * Locks the order, runs `ensureCancellable` (which throws to refuse), then
+   * marks it canceled. Returns null when the order is not found; an order
+   * that is already canceled is returned as is.
+   */
+  cancel(
+    tenantId: string,
+    outletId: string,
+    orderId: string,
+    reason: string,
+    ensureCancellable: () => Promise<void>,
+    context: OrderMutationContext,
+  ): Promise<OrderRecord | null>;
   findById(tenantId: string, outletId: string, orderId: string): Promise<OrderRecord | null>;
+  /** The outlet's orders created since `since`, newest first. */
+  listSince(tenantId: string, outletId: string, since: Date, limit: number): Promise<OrderRecord[]>;
   findByIdempotencyKey(
     tenantId: string,
     outletId: string,

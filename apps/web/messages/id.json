@@ -218,6 +218,7 @@
     "CSRF_TOKEN_REQUIRED": "Permintaan ditolak. Muat ulang halaman lalu coba lagi.",
     "IDEMPOTENCY_KEY_REUSED": "Permintaan ini bentrok dengan permintaan sebelumnya. Coba lagi.",
     "MODULE_NOT_ENTITLED": "Modul ini tidak termasuk dalam langganan bisnis ini.",
+    "ORDER_ALREADY_PAID": "Pesanan yang sudah dibayar tidak bisa dibatalkan.",
     "ORDER_CANCELED": "Pesanan yang dibatalkan tidak bisa dibayar.",
     "ORDER_CURRENCY_MIXED": "Pesanan tidak boleh memakai lebih dari satu mata uang.",
     "ORDER_MODIFIER_INVALID": "Ada pilihan tambahan yang tidak berlaku untuk produknya.",

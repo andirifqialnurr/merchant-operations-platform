@@ -54,6 +54,7 @@ export type FullPayment = {
 export type FullPaymentOutcome =
   | { checkout: CheckoutRecord; kind: "recorded" }
   | { kind: "bill_already_paid" }
+  | { kind: "order_canceled" }
   | { kind: "shift_not_open" };
 
 /** Persistence port for bills, payments, and sales. */
@@ -72,6 +73,8 @@ export interface BillingRepository {
     payment: FullPayment,
     context: BillingMutationContext,
   ): Promise<FullPaymentOutcome>;
+  /** Paid orders among `orderIds`, with the number of the sale each became. */
+  paidOrders(tenantId: string, orderIds: readonly string[]): Promise<Map<string, number>>;
   /** Cash taken in a shift: paid cash payments attached to it. */
   sumCashPayments(tenantId: string, registerSessionId: string): Promise<bigint>;
 }
