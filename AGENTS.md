@@ -2,7 +2,8 @@
 
 ## Checkpoint discipline
 
-- Resume from `TODO.md` and recent Git history.
+- Resume from the active milestone in `docs/milestones/`, `TODO.md`, and recent Git history.
+- Pick the next task from the milestone marked **Berjalan**; tick it with its commit hash when done. Do not start a later milestone before the active one is reviewed by the user, unless the user decides otherwise.
 - Work on one independently pushable checkpoint at a time.
 - Update `TODO.md` in the same checkpoint as the implementation.
 - By default, do not start the next checkpoint before the active acceptance gate is complete and the user has pushed it.

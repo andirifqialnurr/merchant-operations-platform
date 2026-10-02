@@ -7,17 +7,18 @@ Dokumen produk dan foundation di folder ini menjadi dasar keputusan. Dokumen kem
 
 ## Mulai dari sini
 
-| Ingin tahu | Baca |
-|---|---|
-| Aplikasi ini apa dan cakupannya | [`product/prd.md`](./product/prd.md) |
-| Tampilan, komponen, aturan halaman | [`foundation/design-system.md`](./foundation/design-system.md) |
-| Alur layar per pengguna | [`foundation/flowchart.md`](./foundation/flowchart.md) |
-| Batas teknis dan keputusan arsitektur | [`foundation/architecture.md`](./foundation/architecture.md) |
-| Tabel database | [`foundation/schema.md`](./foundation/schema.md) |
-| Struktur dan aturan kode backend | [`foundation/backend.md`](./foundation/backend.md) |
-| Struktur dan aturan kode frontend | [`foundation/frontend.md`](./foundation/frontend.md) |
-| Keamanan dan privasi | [`foundation/security.md`](./foundation/security.md) |
-| Lingkungan, build, rilis | [`foundation/deploy.md`](./foundation/deploy.md) |
+| Ingin tahu                                      | Baca                                                           |
+| ----------------------------------------------- | -------------------------------------------------------------- |
+| Aplikasi ini apa dan cakupannya                 | [`product/prd.md`](./product/prd.md)                           |
+| Tampilan, komponen, aturan halaman              | [`foundation/design-system.md`](./foundation/design-system.md) |
+| Alur layar per pengguna                         | [`foundation/flowchart.md`](./foundation/flowchart.md)         |
+| Batas teknis dan keputusan arsitektur           | [`foundation/architecture.md`](./foundation/architecture.md)   |
+| Tabel database                                  | [`foundation/schema.md`](./foundation/schema.md)               |
+| Struktur dan aturan kode backend                | [`foundation/backend.md`](./foundation/backend.md)             |
+| Struktur dan aturan kode frontend               | [`foundation/frontend.md`](./foundation/frontend.md)           |
+| Keamanan dan privasi                            | [`foundation/security.md`](./foundation/security.md)           |
+| Lingkungan, build, rilis                        | [`foundation/deploy.md`](./foundation/deploy.md)               |
+| Rencana kerja per milestone dan task berikutnya | [`milestones/README.md`](./milestones/README.md)               |
 
 ## Urutan source of truth
 
@@ -31,7 +32,8 @@ Dokumen produk dan foundation di folder ini menjadi dasar keputusan. Dokumen kem
 8. [`foundation/flowchart.md`](./foundation/flowchart.md) — alur interaksi pengguna.
 9. [`foundation/design-system-modules.md`](./foundation/design-system-modules.md) — pemetaan modul ke shell, layar, komponen, dan data guard.
 10. [`foundation/DESIGN_SYSTEM_APP_AUDIT.md`](./foundation/DESIGN_SYSTEM_APP_AUDIT.md) dan [`foundation/BACKEND_MODULAR_DELTA_AUDIT.md`](./foundation/BACKEND_MODULAR_DELTA_AUDIT.md) — bukti kondisi implementasi per 5 Agustus 2026; bukan sumber requirement.
-11. [`TODO.md`](../TODO.md) — checkpoint aktif dan urutan pengerjaan.
+11. [`milestones/`](./milestones/README.md) — rencana kerja Release 1 per milestone (M1–M9) dengan task rinci; tidak menambah cakupan.
+12. [`TODO.md`](../TODO.md) — catatan checkpoint aktif dan gate verifikasinya.
 
 Bila terjadi konflik, dokumen dengan urutan lebih tinggi mengatur area tanggung jawabnya. Keputusan teknis tidak boleh mengubah capability produk tanpa menyelaraskan dokumen produk.
 
@@ -39,6 +41,7 @@ Bila terjadi konflik, dokumen dengan urutan lebih tinggi mengatur area tanggung 
 
 - `docs/product/` — kontrak produk, tier, paket, limit, arah rilis.
 - `docs/foundation/` — arsitektur, skema, backend, frontend, keamanan, deploy, design system, alur, dan audit.
+- `docs/milestones/` — rencana kerja per milestone, kriteria selesai, dan task per jalur kerja.
 - `apps/web/src/app/foundation/page.tsx` hanyalah rute pratinjau development, bukan dokumentasi.
 
 ## Catatan penyelarasan 2 Oktober 2026

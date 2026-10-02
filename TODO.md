@@ -4,6 +4,7 @@
 **Tanggal:** 5 Agustus 2026
 **Acuan:** `docs/README.md`, `docs/product/*`, dan `docs/foundation/*`
 **Strategi:** Satu tahap -> verifikasi -> commit/push -> lanjut tahap berikutnya
+**Rencana:** milestone dan task berikutnya ada di [`docs/milestones/`](docs/milestones/README.md); file ini mencatat checkpoint yang sedang dan sudah dikerjakan.
 
 ## 1. Cara menggunakan TODO ini
 
