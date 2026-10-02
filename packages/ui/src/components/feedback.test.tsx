@@ -12,9 +12,21 @@ describe("feedback primitives", () => {
         <Progress label="Unggah" value={50} />
       </>,
     );
-    expect(screen.getByText("Lunas")).toBeInTheDocument();
+    expect(screen.getByText("Lunas")).toHaveClass("ui-badge--success");
     expect(screen.getAllByRole("alert")).toHaveLength(1);
     expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "50");
+  });
+  it("defaults a badge to the neutral tone and names the dismiss action", () => {
+    render(
+      <>
+        <Badge>Draft</Badge>
+        <Alert dismissLabel="Tutup" onDismiss={() => undefined}>
+          Tersimpan.
+        </Alert>
+      </>,
+    );
+    expect(screen.getByText("Draft")).toHaveClass("ui-badge--neutral");
+    expect(screen.getByRole("button", { name: "Tutup" })).toBeInTheDocument();
   });
   it("passes an axe smoke test", async () => {
     const { container } = render(

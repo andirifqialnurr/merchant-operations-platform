@@ -12,16 +12,24 @@ import {
 } from "lucide-react";
 import { AppIcon } from "./app-icon";
 
-export type FeedbackTone = "info" | "success" | "warning" | "danger" | "loading" | "offline";
+export type FeedbackTone =
+  "neutral" | "info" | "success" | "warning" | "danger" | "loading" | "offline";
 export type BadgeSize = "xs" | "sm" | "md";
 type ToneProps = { children: ReactNode; tone?: FeedbackTone | undefined };
 export type BadgeProps = ToneProps & { size?: BadgeSize } & HTMLAttributes<HTMLSpanElement>;
+/*
+ * Label props default to Indonesian until the i18n checkpoint moves every
+ * default into the id/en dictionaries.
+ */
 export type AlertProps = ToneProps & {
   compact?: boolean;
+  /** Accessible name of the dismiss button. */
+  dismissLabel?: string | undefined;
   onDismiss?: (() => void) | undefined;
   title?: string | undefined;
 } & HTMLAttributes<HTMLDivElement>;
 export type ToastItem = {
+  dismissLabel?: string | undefined;
   id: string;
   message: ReactNode;
   onDismiss?: (() => void) | undefined;
@@ -30,7 +38,7 @@ export type ToastItem = {
 };
 export type ToastStackProps = {
   items: readonly ToastItem[];
-  placement?: "top-right" | "bottom-right";
+  placement?: "top-right" | "top-center" | "bottom-right";
 };
 export type StatusBarProps = ToneProps & { label?: string } & HTMLAttributes<HTMLDivElement>;
 export type ProgressProps = { label?: string; value?: number } & HTMLAttributes<HTMLDivElement>;
@@ -41,6 +49,7 @@ export type SkeletonProps = {
 export type StateProps = { action?: ReactNode; description: ReactNode; title: string };
 
 const iconByTone = {
+  neutral: Info,
   info: Info,
   success: CheckCircle2,
   warning: CircleAlert,
@@ -52,7 +61,13 @@ function classes(...values: Array<string | false | undefined>) {
   return values.filter(Boolean).join(" ");
 }
 
-export function Badge({ children, className, size = "sm", tone = "info", ...props }: BadgeProps) {
+export function Badge({
+  children,
+  className,
+  size = "sm",
+  tone = "neutral",
+  ...props
+}: BadgeProps) {
   return (
     <span
       {...props}
@@ -66,6 +81,7 @@ export function Alert({
   children,
   className,
   compact = false,
+  dismissLabel = "Tutup notifikasi",
   onDismiss,
   title,
   tone = "info",
@@ -89,7 +105,7 @@ export function Alert({
         <div>{children}</div>
       </div>
       {onDismiss ? (
-        <button aria-label="Tutup notifikasi" onClick={onDismiss} type="button">
+        <button aria-label={dismissLabel} onClick={onDismiss} type="button">
           <AppIcon icon={X} size="sm" />
         </button>
       ) : null}
@@ -100,7 +116,14 @@ export function ToastStack({ items, placement = "top-right" }: ToastStackProps) 
   return (
     <div aria-live="polite" className={classes("ui-toast-stack", `ui-toast-stack--${placement}`)}>
       {items.slice(0, 3).map((item) => (
-        <Alert compact key={item.id} onDismiss={item.onDismiss} title={item.title} tone={item.tone}>
+        <Alert
+          compact
+          dismissLabel={item.dismissLabel}
+          key={item.id}
+          onDismiss={item.onDismiss}
+          title={item.title}
+          tone={item.tone}
+        >
           {item.message}
         </Alert>
       ))}
@@ -160,7 +183,7 @@ export function Skeleton({ className, variant = "text" }: SkeletonProps) {
 export function EmptyState({ action, description, title }: StateProps) {
   return (
     <section className="ui-state">
-      <Info aria-hidden="true" />
+      <AppIcon icon={Info} size="xl" />
       <h2>{title}</h2>
       <p>{description}</p>
       {action}
@@ -170,7 +193,7 @@ export function EmptyState({ action, description, title }: StateProps) {
 export function ErrorState({ action, description, title }: StateProps) {
   return (
     <section className="ui-state ui-state--error" role="alert">
-      <AlertCircle aria-hidden="true" />
+      <AppIcon icon={AlertCircle} size="xl" />
       <h2>{title}</h2>
       <p>{description}</p>
       {action}

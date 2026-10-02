@@ -2,13 +2,15 @@
   align-items: center;
   border-radius: var(--foundation-radius-full);
   display: inline-flex;
-  font-weight: 600;
+  font-weight: 500;
   gap: var(--space-1);
   padding: 0 var(--space-2);
+  white-space: nowrap;
 }
 .ui-badge--xs {
-  font-size: var(--text-caption);
+  font-size: var(--text-caption-xs);
   min-block-size: 1.25rem;
+  padding: 0 var(--space-1-5);
 }
 .ui-badge--sm {
   font-size: var(--text-caption);
@@ -17,70 +19,95 @@
 .ui-badge--md {
   font-size: var(--text-body-sm);
   min-block-size: 1.75rem;
+  padding: 0 calc(var(--space-2) + var(--space-1) / 2);
 }
-.ui-badge--info,
-.ui-alert--info,
-.ui-status-bar--info {
-  background: var(--color-status-info-subtle);
-  color: var(--color-status-info-text);
-}
-.ui-badge--success,
-.ui-alert--success,
-.ui-status-bar--success {
-  background: var(--color-status-success-subtle);
-  color: var(--color-status-success-text);
-}
-.ui-badge--warning,
-.ui-alert--warning,
-.ui-status-bar--warning {
-  background: var(--color-status-warning-subtle);
-  color: var(--color-status-warning-text);
-}
-.ui-badge--danger,
-.ui-alert--danger,
-.ui-status-bar--danger {
-  background: var(--color-status-danger-subtle);
-  color: var(--color-status-danger-text);
-}
+.ui-badge--neutral,
+.ui-alert--neutral,
+.ui-status-bar--neutral,
 .ui-badge--loading,
 .ui-alert--loading,
-.ui-status-bar--loading {
-  background: var(--color-bg-surface-subtle);
-  color: var(--color-text-secondary);
-}
+.ui-status-bar--loading,
 .ui-badge--offline,
 .ui-alert--offline,
 .ui-status-bar--offline {
   background: var(--color-bg-surface-subtle);
   color: var(--color-text-secondary);
 }
+.ui-badge--info,
+.ui-alert--info,
+.ui-status-bar--info {
+  background: var(--color-status-info-bg);
+  color: var(--color-status-info-text);
+}
+.ui-badge--success,
+.ui-alert--success,
+.ui-status-bar--success {
+  background: var(--color-status-success-bg);
+  color: var(--color-status-success-text);
+}
+.ui-badge--warning,
+.ui-alert--warning,
+.ui-status-bar--warning {
+  background: var(--color-status-warning-bg);
+  color: var(--color-status-warning-text);
+}
+.ui-badge--danger,
+.ui-alert--danger,
+.ui-status-bar--danger {
+  background: var(--color-status-danger-bg);
+  color: var(--color-status-danger-text);
+}
+/* The tone colors the icon and title; body text stays primary for readability. */
 .ui-alert {
   align-items: flex-start;
-  border: 1px solid currentColor;
+  border: 1px solid color-mix(in srgb, currentColor 24%, transparent);
   border-radius: var(--foundation-radius-sm);
   display: flex;
+  font-size: var(--text-label);
   gap: var(--space-3);
   padding: var(--space-3);
 }
-.ui-alert > div {
-  display: grid;
-  gap: var(--space-1);
-  flex: 1;
+.ui-alert > svg {
+  flex: 0 0 auto;
 }
-.ui-alert button {
+.ui-alert > div {
+  color: var(--color-text-primary);
+  display: grid;
+  flex: 1;
+  gap: var(--space-0-5);
+  min-inline-size: 0;
+}
+.ui-alert strong {
+  font-weight: 600;
+}
+.ui-alert > button {
+  align-items: center;
   background: transparent;
   border: 0;
-  color: inherit;
+  border-radius: var(--foundation-radius-xs);
+  color: var(--color-text-secondary);
   cursor: pointer;
+  display: inline-flex;
+  flex: 0 0 auto;
+  justify-content: center;
+  padding: var(--space-1);
+}
+.ui-alert > button:hover {
+  color: var(--color-text-primary);
+}
+.ui-alert > button:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
 }
 .ui-alert--compact {
   font-size: var(--text-body-sm);
-  padding: var(--space-2);
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
 }
 .ui-toast-stack {
   display: grid;
   gap: var(--space-2);
-  max-inline-size: 24rem;
+  inline-size: min(24rem, calc(100vw - var(--space-8)));
   position: fixed;
   z-index: 60;
 }
@@ -88,9 +115,20 @@
   inset-block-start: var(--space-4);
   inset-inline-end: var(--space-4);
 }
+.ui-toast-stack--top-center {
+  inset-block-start: var(--space-4);
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+}
 .ui-toast-stack--bottom-right {
   inset-block-end: var(--space-4);
   inset-inline-end: var(--space-4);
+}
+/* Toasts float above content: raised surface, tone only on the icon. */
+.ui-toast-stack .ui-alert {
+  background: var(--color-bg-surface-raised);
+  border-color: var(--color-border-default);
+  box-shadow: var(--foundation-shadow-md);
 }
 .ui-status-bar {
   align-items: center;
@@ -104,21 +142,22 @@
 }
 .ui-spinner__visual {
   animation: ui-spin var(--motion-duration-slow) linear infinite;
-  border: 2px solid var(--color-border-control);
+  border: 2px solid var(--color-border-default);
   border-radius: var(--foundation-radius-full);
   border-top-color: var(--color-action-primary);
   block-size: 1.25rem;
   inline-size: 1.25rem;
 }
 .ui-progress {
-  background: var(--color-bg-surface-subtle);
+  background: var(--color-border-subtle);
   border-radius: var(--foundation-radius-full);
-  block-size: var(--space-2);
+  block-size: var(--space-1-5);
   overflow: hidden;
 }
 .ui-progress > span {
   background: var(--color-action-primary);
   block-size: 100%;
+  border-radius: inherit;
   display: block;
   transition: inline-size var(--motion-duration-normal) var(--motion-easing-enter);
 }
@@ -136,20 +175,25 @@
 .ui-skeleton--product-card,
 .ui-skeleton--metric-card,
 .ui-skeleton--ticket {
+  border-radius: var(--foundation-radius-md);
   min-block-size: var(--space-20);
 }
 .ui-skeleton--table-row {
   min-block-size: var(--control-height-md);
 }
+/* Empty and error states: plain, centered, no frame. */
 .ui-state {
   align-items: center;
-  border: 1px dashed var(--color-border-default);
-  border-radius: var(--foundation-radius-md);
   color: var(--color-text-secondary);
   display: grid;
+  font-size: var(--text-label);
+  gap: var(--space-2);
   justify-items: center;
-  padding: var(--space-8);
+  padding: var(--space-8) var(--space-4);
   text-align: center;
+}
+.ui-state > svg {
+  color: var(--color-text-muted);
 }
 .ui-state h2,
 .ui-state p {
@@ -158,9 +202,15 @@
 .ui-state h2 {
   color: var(--color-text-primary);
   font-size: var(--text-heading-sm);
+  font-weight: 600;
 }
-.ui-state--error {
-  border-color: var(--color-status-danger-text);
+.ui-state p {
+  max-inline-size: 28rem;
+}
+.ui-state > :last-child:not(p):not(h2) {
+  margin-block-start: var(--space-2);
+}
+.ui-state--error > svg {
   color: var(--color-status-danger-text);
 }
 .ui-visually-hidden {

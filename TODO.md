@@ -80,8 +80,12 @@ Urutan fondasi UI mengikuti `docs/foundation/frontend.md` bagian 14; setiap buti
 - [x] **Komponen 1 - Button/IconButton:** tinggi kontrol bawaan 36px, secondary bergaris (outline menjadi alias), ghost dan link netral, link selalu bergaris bawah, state tekan, disabled mengikuti bentuk variant, loading mempertahankan tampilan variant, ikon xl dibatasi 24px.
 - [x] **Komponen 2 - FormField/Input/Textarea:** penanda `optionalLabel` menggantikan `required`, label aksi cari/kata sandi menjadi props, fokus 1px tinta, read-only dibedakan dari disabled.
 - [x] **Komponen 3 - Checkbox/Radio/Switch/SegmentedControl/QuantityStepper:** thumb switch terlihat di mode gelap, state hover dan disabled, label tombol stepper menjadi props.
-- [ ] **Gate komponen 1-3:** user meninjau Storybook (`Primitives/Button`, `TextField`, `SelectionControl`) pada light dan dark; verifikasi otomatis (lint, typecheck ui/storybook, format, 205 test) lulus, visual belum ditinjau.
-- [ ] **UI Foundation 8 - Komponen berikutnya satu per satu:** satu komponen per checkpoint, urutan Select/Combobox → input angka/tanggal → Badge/Alert/Toast → overlay → navigasi → DataTable dan tampilan data → komponen domain. Atas permintaan user, pekerjaan ini boleh didahulukan sebelum UI Foundation 2-7.
+- [x] **Komponen 4 - Select/Combobox:** menu menempel pada trigger (sebelumnya muncul di tengah layar), tertutup saat klik di luar, placeholder redup, fokus 1px tinta, label loading/coba lagi/kosong/cari menjadi props.
+- [x] **Komponen 5 - NumericInput/MoneyInput/DatePicker/DateRangePicker/MonthPicker/TimeInput:** perbaikan bug tanggal bergeser satu hari karena zona waktu dan hari pertama tidak sejajar dengan nama harinya; nama hari dan bulan dari `Intl` melalui props `locale`; penanda hari ini; kalender tertutup saat klik di luar atau Escape; label menjadi props.
+- [x] **Komponen 6 - Badge/Alert/Toast/StatusBar/Spinner/Progress/Skeleton/EmptyState/ErrorState:** perbaikan token latar status yang salah nama (badge dan alert sebelumnya tanpa latar), tone `neutral` sebagai bawaan Badge, toast di permukaan raised, penempatan `top-center` untuk POS/KDS, state kosong/error tanpa bingkai, label tutup menjadi props.
+- [ ] **Catatan label:** komponen 4-6 masih memakai bawaan Bahasa Indonesia pada props label baru; bawaan itu dihapus pada checkpoint i18n (UI Foundation 3).
+- [ ] **Gate komponen 1-6:** user meninjau Storybook (Button, TextField, SelectionControl, Select, NumericDate, Feedback) pada light dan dark; verifikasi otomatis (lint, typecheck ui/storybook, format, 208 test) lulus, visual belum ditinjau.
+- [ ] **UI Foundation 8 - Komponen berikutnya satu per satu:** satu komponen per checkpoint, urutan overlay → navigasi → DataTable dan tampilan data → komponen domain. Atas permintaan user, pekerjaan ini boleh didahulukan sebelum UI Foundation 2-7.
 
 ### Backend delta yang harus diaudit sebelum UI reslicing
 
