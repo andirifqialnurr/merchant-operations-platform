@@ -5,6 +5,8 @@
 **Status:** Source re-audit selesai; runtime visual/interaksi masih menunggu browser gate  
 **Requirement sources:** PRD v2.3, Module Tiers v1.2, Packages & Limits v1.2, `architecture.md`, `design-system.md`, `design-system-modules.md`
 
+> **Catatan 2 Oktober 2026:** target visual pada audit ini (Warm Operational, DM Sans, Fraunces, Lucide — baris "Visual identity" di bagian 2 dan seluruh bagian 8) sudah digantikan oleh `design-system.md` yang baru: Calm Neutral, Geist Sans, Tabler Icons, dan dua bahasa. Temuan status rute, gap arsitektur, kontrak responsive, dan gate redesign tetap berlaku.
+
 ## 1. Tujuan dan batas audit
 
 Dokumen ini memisahkan tiga hal:

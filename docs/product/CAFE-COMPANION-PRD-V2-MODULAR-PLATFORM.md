@@ -2109,6 +2109,8 @@ Aturan:
 
 ### 33.1 Visual foundation yang dipertahankan
 
+> **Digantikan 2 Oktober 2026.** Arah visual, font, dan ikon pada daftar di bawah digantikan keputusan D-01 sampai D-03 di [`prd.md`](./prd.md): tema Calm Neutral, Geist Sans, dan Tabler Icons. Bahasa UI juga menjadi Indonesia dan Inggris (D-05, menggantikan bagian 35.6). Light/dark, hierarki yang tenang, dan touch target besar tetap berlaku.
+
 - Light dan dark mode.
 - Warna dasar cream, espresso, amber, dan semantic state colors yang konsisten.
 - DM Sans sebagai typeface utama.
