@@ -6,6 +6,7 @@ import type { LucideIcon } from "lucide-react";
 
 import { AppIcon, type AppIconSize } from "./app-icon";
 
+/** `outline` is kept as an alias of `secondary` for existing call sites. */
 export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "destructive" | "link";
 export type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
 
@@ -34,7 +35,7 @@ const iconSizeByButtonSize: Record<ButtonSize, AppIconSize> = {
   sm: "sm",
   md: "md",
   lg: "lg",
-  xl: "xl",
+  xl: "lg",
 };
 
 function joinClasses(...values: Array<string | false | null | undefined>) {

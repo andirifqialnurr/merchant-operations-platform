@@ -30,13 +30,11 @@ export const AllVariants: Story = {
   },
   render: () => (
     <div className="story-contract-grid">
-      {(["primary", "secondary", "outline", "ghost", "destructive", "link"] as const).map(
-        (variant) => (
-          <Button key={variant} variant={variant}>
-            {variant}
-          </Button>
-        ),
-      )}
+      {(["primary", "secondary", "ghost", "destructive", "link"] as const).map((variant) => (
+        <Button key={variant} variant={variant}>
+          {variant}
+        </Button>
+      ))}
     </div>
   ),
 };

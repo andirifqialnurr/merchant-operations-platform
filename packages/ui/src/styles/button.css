@@ -26,10 +26,11 @@
 }
 
 .ui-button:disabled {
-  background: var(--color-bg-surface-subtle);
-  border-color: var(--color-border-subtle);
-  color: var(--color-text-disabled);
   cursor: not-allowed;
+}
+
+.ui-button[aria-busy="true"] {
+  cursor: progress;
 }
 
 .ui-button--xs {
@@ -49,7 +50,7 @@
 .ui-button--md {
   font-size: var(--text-label);
   min-height: var(--control-height-md);
-  padding: 0 calc(var(--space-3) + var(--space-1) / 2);
+  padding: 0 var(--space-3);
 }
 
 .ui-button--lg {
@@ -65,6 +66,7 @@
   padding: 0 calc(var(--space-5) + var(--space-1) / 2);
 }
 
+/* Primary: ink fill */
 .ui-button--primary {
   background: var(--color-action-primary);
   color: var(--color-action-on-primary);
@@ -78,32 +80,43 @@
   background: var(--color-action-primary-pressed);
 }
 
-.ui-button--secondary {
-  background: var(--color-bg-surface-subtle);
-  border-color: var(--color-border-subtle);
+/* Secondary (and its `outline` alias): surface with a border */
+.ui-button--secondary,
+.ui-button--outline {
+  background: var(--color-bg-surface);
+  border-color: var(--color-border-default);
   color: var(--color-text-primary);
 }
 
 .ui-button--secondary:hover:not(:disabled),
-.ui-button--outline:hover:not(:disabled),
-.ui-button--ghost:hover:not(:disabled) {
+.ui-button--outline:hover:not(:disabled) {
+  background: var(--color-bg-surface-subtle);
+  border-color: var(--color-border-control);
+}
+
+.ui-button--secondary:active:not(:disabled),
+.ui-button--outline:active:not(:disabled) {
   background: var(--color-action-primary-subtle);
 }
 
-.ui-button--outline {
+/* Ghost: no chrome until hovered */
+.ui-button--ghost {
   background: transparent;
-  border-color: var(--color-border-control);
   color: var(--color-text-primary);
 }
 
-.ui-button--ghost {
-  background: transparent;
-  color: var(--color-action-primary);
+.ui-button--ghost:hover:not(:disabled) {
+  background: var(--color-bg-surface-subtle);
 }
 
+.ui-button--ghost:active:not(:disabled) {
+  background: var(--color-action-primary-subtle);
+}
+
+/* Destructive */
 .ui-button--destructive {
   background: var(--color-status-danger-text);
-  color: var(--color-text-inverse);
+  color: var(--color-bg-surface);
 }
 
 .ui-button--destructive:hover:not(:disabled) {
@@ -122,20 +135,44 @@
   );
 }
 
+/* Link: inline text action, always underlined because there is no accent hue */
 .ui-button--link {
   background: transparent;
-  color: var(--color-action-primary);
+  color: var(--color-text-primary);
   min-height: auto;
   padding: 0;
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-control);
+  text-underline-offset: 0.2em;
 }
 
 .ui-button--link:hover:not(:disabled) {
-  text-decoration: underline;
+  text-decoration-color: currentColor;
 }
 
-.ui-button--link:disabled {
+/* Disabled keeps the shape of its variant */
+.ui-button--primary:disabled:not([aria-busy="true"]),
+.ui-button--destructive:disabled:not([aria-busy="true"]) {
+  background: var(--color-bg-surface-subtle);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-disabled);
+}
+
+.ui-button--secondary:disabled:not([aria-busy="true"]),
+.ui-button--outline:disabled:not([aria-busy="true"]) {
+  background: var(--color-bg-surface);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-disabled);
+}
+
+.ui-button--ghost:disabled:not([aria-busy="true"]),
+.ui-button--link:disabled:not([aria-busy="true"]) {
   background: transparent;
-  border-color: transparent;
+  color: var(--color-text-disabled);
+}
+
+.ui-button--link:disabled:not([aria-busy="true"]) {
+  text-decoration-color: currentColor;
 }
 
 .ui-button--full-width {
@@ -160,6 +197,7 @@
   border: 2px solid currentColor;
   border-radius: var(--foundation-radius-full);
   border-right-color: transparent;
+  flex: 0 0 auto;
   height: 1em;
   width: 1em;
 }
