@@ -10,7 +10,7 @@ import {
 
 import { AppIcon } from "./app-icon";
 import { Button } from "./button";
-import { CartItem, CartSummary } from "./pos-cart";
+import { CartItem, type CartItemLabels, CartSummary, type CartSummaryLabels } from "./pos-cart";
 import { CategoryRail, ProductTile, type ProductAvailability } from "./pos-catalog";
 import { Badge, type FeedbackTone } from "./feedback";
 
@@ -105,6 +105,32 @@ const allowedActionProps = new Set([
   "onSelectCategory",
   "onSubmitOrder",
 ]);
+
+function cartItemLabels(name: string): CartItemLabels {
+  return {
+    collapseDetails: "Tutup detail",
+    decrease: `Kurangi ${name}`,
+    expandDetails: (hiddenCount) => `Lihat detail (+${hiddenCount})`,
+    increase: `Tambah ${name}`,
+    lineTotal: "Total item",
+    modifiers: "Modifier",
+    note: "Catatan",
+    quantity: "Jumlah",
+    remove: `Hapus ${name}`,
+    unitPrice: "Harga satuan",
+  };
+}
+
+const cartSummaryLabels: CartSummaryLabels = {
+  amountDue: "Sisa tagihan",
+  discount: "Diskon",
+  paymentRecorded: "Pembayaran tercatat",
+  rounding: "Pembulatan",
+  serviceCharge: "Service charge",
+  subtotal: "Subtotal",
+  tax: "Pajak",
+  total: "Total",
+};
 
 function classes(...values: Array<string | false | null | undefined>) {
   return values.filter(Boolean).join(" ");
@@ -329,6 +355,7 @@ export function CustomerOrderSurface(props: CustomerOrderSurfaceProps) {
                     <CartItem
                       {...cartItemProps}
                       key={item.id}
+                      labels={cartItemLabels(item.name)}
                       lineTotalLabel={item.lineTotalLabel}
                       name={item.name}
                       quantity={item.quantity}
@@ -345,6 +372,8 @@ export function CustomerOrderSurface(props: CustomerOrderSurfaceProps) {
             <CartSummary
               {...(serviceChargeLabel !== undefined ? { serviceChargeLabel } : {})}
               {...(taxLabel !== undefined ? { taxLabel } : {})}
+              ariaLabel="Ringkasan keranjang"
+              labels={cartSummaryLabels}
               subtotalLabel={subtotalLabel}
               totalLabel={totalLabel}
             />

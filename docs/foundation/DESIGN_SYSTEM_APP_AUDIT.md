@@ -66,7 +66,7 @@ Komponen berikut sudah pernah tercatat tersedia/siap secara design/component ban
 
 | Area | Component/story yang pernah tercatat | Gap terbaru yang perlu dicek |
 |---|---|---|
-| POS | `PosCatalog`, `PosCart`, `PosModifierPicker`, `PosPayment`, `PosManualFlow`, `PosShift` | S/M/L + hold/resume + module/limit states |
+| POS | `PosCatalog`, `PosCart`, `PosShift`, `Receipt` | S/M/L + hold/resume + module/limit states |
 | KDS | `KdsTicket` + timer/SLA/reconnect/history | Standalone intake + 1/2–3/multi-column behavior |
 | Inventory | `InventoryItemUnit`, `InventoryStock`, `InventoryOperations`, `InventoryOrderFlow`, `RecipeBom` | Standalone + correction/limit states |
 | Floor/QR | `FloorSelector`, `TableTile`, `TableLayoutCanvas`, `TableLayoutTools`, `TableLayoutTray`, `TableQr`, `CustomerQrContext` | AreaSelector, 3 shapes, chairs, session/move, live view/list fallback, tier gating |

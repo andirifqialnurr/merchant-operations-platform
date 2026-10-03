@@ -1,7 +1,38 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 
-import { CartItem, CartSummary } from "@merchant/ui/pos-cart";
+import {
+  CartItem,
+  type CartItemLabels,
+  CartSummary,
+  type CartSummaryLabels,
+} from "@merchant/ui/pos-cart";
+
+function cartItemLabels(name: string): CartItemLabels {
+  return {
+    collapseDetails: "Tutup detail",
+    decrease: `Kurangi ${name}`,
+    expandDetails: (hiddenCount) => `Lihat detail (+${hiddenCount})`,
+    increase: `Tambah ${name}`,
+    lineTotal: "Total item",
+    modifiers: "Modifier",
+    note: "Catatan",
+    quantity: "Jumlah",
+    remove: `Hapus ${name}`,
+    unitPrice: "Harga satuan",
+  };
+}
+
+const cartSummaryLabels: CartSummaryLabels = {
+  amountDue: "Sisa tagihan",
+  discount: "Diskon",
+  paymentRecorded: "Pembayaran tercatat",
+  rounding: "Pembulatan",
+  serviceCharge: "Service charge",
+  subtotal: "Subtotal",
+  tax: "Pajak",
+  total: "Total",
+};
 
 import { storyContractParameters } from "./story-contract";
 
@@ -23,6 +54,7 @@ function InteractiveCartItem({ compact = false }: { compact?: boolean }) {
 
   return (
     <CartItem
+      labels={cartItemLabels("Es kopi susu gula aren signature dengan nama produk yang panjang")}
       lineTotalLabel={quantity === 2 ? "Rp70.000" : "Rp105.000"}
       modifiers={modifiers}
       name="Es kopi susu gula aren signature dengan nama produk yang panjang"
@@ -51,6 +83,7 @@ type Story = StoryObj<typeof meta>;
 
 export const ItemVariants: Story = {
   args: {
+    labels: cartItemLabels("Es kopi susu gula aren"),
     lineTotalLabel: "Rp70.000",
     name: "Es kopi susu gula aren",
     quantity: 2,
@@ -69,6 +102,7 @@ export const ItemVariants: Story = {
       <section>
         <h2 className="text-heading-sm">Receipt · read-only</h2>
         <CartItem
+          labels={cartItemLabels("Es kopi susu gula aren signature")}
           lineTotalLabel="Rp70.000"
           modifiers={modifiers.slice(0, 3)}
           name="Es kopi susu gula aren signature"
@@ -84,6 +118,7 @@ export const ItemVariants: Story = {
 
 export const SummaryBreakdown: Story = {
   args: {
+    labels: cartItemLabels("Es kopi susu gula aren"),
     lineTotalLabel: "Rp70.000",
     name: "Es kopi susu gula aren",
     quantity: 2,
@@ -94,6 +129,8 @@ export const SummaryBreakdown: Story = {
       <section>
         <h2 className="text-heading-sm">Checkout berjalan</h2>
         <CartSummary
+          ariaLabel="Ringkasan keranjang"
+          labels={cartSummaryLabels}
           amountDueLabel="Rp44.400"
           discountLabel="-Rp10.000"
           paymentRecordedLabel="Rp20.000"
@@ -105,7 +142,12 @@ export const SummaryBreakdown: Story = {
       </section>
       <section>
         <h2 className="text-heading-sm">Baris minimum</h2>
-        <CartSummary subtotalLabel="Rp35.000" totalLabel="Rp35.000" />
+        <CartSummary
+          ariaLabel="Ringkasan keranjang"
+          labels={cartSummaryLabels}
+          subtotalLabel="Rp35.000"
+          totalLabel="Rp35.000"
+        />
       </section>
     </div>
   ),
@@ -113,6 +155,7 @@ export const SummaryBreakdown: Story = {
 
 export const ThemeComparison: Story = {
   args: {
+    labels: cartItemLabels("Es kopi susu gula aren"),
     lineTotalLabel: "Rp70.000",
     name: "Es kopi susu gula aren",
     quantity: 2,
@@ -123,6 +166,7 @@ export const ThemeComparison: Story = {
       <section data-theme-preview="light">
         <h2 className="text-heading-sm">Light</h2>
         <CartItem
+          labels={cartItemLabels("Es kopi susu gula aren")}
           lineTotalLabel="Rp35.000"
           modifiers={modifiers.slice(0, 2)}
           name="Es kopi susu gula aren"
@@ -132,11 +176,17 @@ export const ThemeComparison: Story = {
           unitPriceLabel="Rp35.000"
           variant="compact"
         />
-        <CartSummary subtotalLabel="Rp35.000" totalLabel="Rp35.000" />
+        <CartSummary
+          ariaLabel="Ringkasan keranjang"
+          labels={cartSummaryLabels}
+          subtotalLabel="Rp35.000"
+          totalLabel="Rp35.000"
+        />
       </section>
       <section data-theme-preview="dark">
         <h2 className="text-heading-sm">Dark</h2>
         <CartItem
+          labels={cartItemLabels("Es kopi susu gula aren")}
           lineTotalLabel="Rp35.000"
           modifiers={modifiers.slice(0, 2)}
           name="Es kopi susu gula aren"
@@ -146,7 +196,12 @@ export const ThemeComparison: Story = {
           unitPriceLabel="Rp35.000"
           variant="compact"
         />
-        <CartSummary subtotalLabel="Rp35.000" totalLabel="Rp35.000" />
+        <CartSummary
+          ariaLabel="Ringkasan keranjang"
+          labels={cartSummaryLabels}
+          subtotalLabel="Rp35.000"
+          totalLabel="Rp35.000"
+        />
       </section>
     </div>
   ),
@@ -154,6 +209,7 @@ export const ThemeComparison: Story = {
 
 export const MobileReflow: Story = {
   args: {
+    labels: cartItemLabels("Es kopi susu gula aren"),
     lineTotalLabel: "Rp70.000",
     name: "Es kopi susu gula aren",
     quantity: 2,
@@ -166,6 +222,8 @@ export const MobileReflow: Story = {
     <div className="story-pos-cart-mobile">
       <InteractiveCartItem />
       <CartSummary
+        ariaLabel="Ringkasan keranjang"
+        labels={cartSummaryLabels}
         discountLabel="-Rp5.000"
         serviceChargeLabel="Rp4.000"
         subtotalLabel="Rp70.000"

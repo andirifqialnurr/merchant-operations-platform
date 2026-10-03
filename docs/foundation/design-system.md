@@ -641,10 +641,10 @@ Komponen domain dibangun dari primitive `packages/ui` dan tidak menggandakan But
 |---|---|
 | `ProductTile` | Nama (maks. 2 baris), harga, status habis berlabel; gambar opsional; harga tidak tertutup gambar |
 | `CategoryRail` | Vertikal pada Large, chip horizontal pada Small |
-| `ProductModifierPicker` | Grup wajib dulu; radio untuk satu pilihan, checkbox untuk banyak; batas min/maks terlihat |
+| `ProductModifierPicker` | Di `apps/web/src/features/pos/product-options-sheet.tsx`, bukan `packages/ui`. Grup wajib dulu; radio untuk satu pilihan, checkbox untuk banyak; batas min/maks terlihat |
 | `CartItem`, `CartSummary` | Baris yang tidak berlaku dihilangkan; total paling menonjol |
-| `PaymentMethodTile`, `CashKeypad` | Tombol keypad minimal 56px; nominal diterima dan kembalian jelas |
-| `PaymentConfirmationPanel` | `Lunas` hanya setelah server menyimpan `PAID` |
+| `PaymentMethodTile`, `CashKeypad` | Di `apps/web/src/features/pos/payment-view.tsx`, bukan `packages/ui`. Tombol keypad minimal 56px; nominal diterima dan kembalian jelas |
+| `PaymentConfirmationPanel` | Di `apps/web/src/features/pos/paid-view.tsx`, bukan `packages/ui`. `Lunas` hanya setelah server menyimpan `PAID` |
 | `OpenShiftForm`, `CloseShiftForm`, `ShiftSummary` | Nilai turunan tidak menjadi input; selisih mengikuti izin |
 | `OrderCard`, `Receipt`, `HeldOrderList` | **Gap** |
 

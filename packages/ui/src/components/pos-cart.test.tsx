@@ -3,7 +3,33 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
-import { CartItem, CartSummary } from "./pos-cart";
+import { CartItem, type CartItemLabels, CartSummary, type CartSummaryLabels } from "./pos-cart";
+
+function cartItemLabels(name: string): CartItemLabels {
+  return {
+    collapseDetails: "Tutup detail",
+    decrease: `Kurangi ${name}`,
+    expandDetails: (hiddenCount) => `Lihat detail (+${hiddenCount})`,
+    increase: `Tambah ${name}`,
+    lineTotal: "Total item",
+    modifiers: "Modifier",
+    note: "Catatan",
+    quantity: "Jumlah",
+    remove: `Hapus ${name}`,
+    unitPrice: "Harga satuan",
+  };
+}
+
+const cartSummaryLabels: CartSummaryLabels = {
+  amountDue: "Sisa tagihan",
+  discount: "Diskon",
+  paymentRecorded: "Pembayaran tercatat",
+  rounding: "Pembulatan",
+  serviceCharge: "Service charge",
+  subtotal: "Subtotal",
+  tax: "Pajak",
+  total: "Total",
+};
 
 describe("CartItem", () => {
   it("updates quantity, removes an item, and expands long modifier details", async () => {
@@ -13,6 +39,7 @@ describe("CartItem", () => {
 
     render(
       <CartItem
+        labels={cartItemLabels("Es kopi susu gula aren")}
         lineTotalLabel="Rp70.000"
         modifiers={["Large", "Gula sedikit", "Extra shot", "Coffee jelly"]}
         name="Es kopi susu gula aren"
@@ -42,6 +69,7 @@ describe("CartItem", () => {
   it("keeps the receipt variant read-only while preserving quantity and totals", () => {
     render(
       <CartItem
+        labels={cartItemLabels("Es kopi susu")}
         lineTotalLabel="Rp48.000"
         modifiers={["Regular", "Normal"]}
         name="Es kopi susu"
@@ -61,6 +89,8 @@ describe("CartSummary", () => {
   it("preserves the financial row order and omits rows that do not apply", () => {
     render(
       <CartSummary
+        ariaLabel="Ringkasan keranjang"
+        labels={cartSummaryLabels}
         amountDueLabel="Rp44.400"
         discountLabel="-Rp10.000"
         paymentRecordedLabel="Rp20.000"
@@ -91,6 +121,7 @@ describe("CartSummary", () => {
     const { container } = render(
       <main>
         <CartItem
+          labels={cartItemLabels("Es kopi susu gula aren")}
           lineTotalLabel="Rp35.000"
           modifiers={["Large", "Gula sedikit", "Extra shot", "Coffee jelly"]}
           name="Es kopi susu gula aren"
@@ -99,7 +130,12 @@ describe("CartSummary", () => {
           quantity={1}
           unitPriceLabel="Rp35.000"
         />
-        <CartSummary subtotalLabel="Rp35.000" totalLabel="Rp35.000" />
+        <CartSummary
+          ariaLabel="Ringkasan keranjang"
+          labels={cartSummaryLabels}
+          subtotalLabel="Rp35.000"
+          totalLabel="Rp35.000"
+        />
       </main>,
     );
 

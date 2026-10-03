@@ -8,9 +8,23 @@ import { QuantityStepper } from "./selection-control";
 
 export type CartItemVariant = "compact" | "default" | "receipt";
 
+export type CartItemLabels = {
+  collapseDetails: string;
+  decrease: string;
+  expandDetails: (hiddenCount: number) => string;
+  increase: string;
+  lineTotal: string;
+  modifiers: string;
+  note: string;
+  quantity: string;
+  remove: string;
+  unitPrice: string;
+};
+
 export type CartItemProps = {
   className?: string;
   disabled?: boolean;
+  labels: CartItemLabels;
   lineTotalLabel: ReactNode;
   maxQuantity?: number;
   modifierCollapseAfter?: number;
@@ -24,10 +38,22 @@ export type CartItemProps = {
   variant?: CartItemVariant;
 };
 
+export type CartSummaryLabels = {
+  amountDue: string;
+  discount: string;
+  paymentRecorded: string;
+  rounding: string;
+  serviceCharge: string;
+  subtotal: string;
+  tax: string;
+  total: string;
+};
+
 export type CartSummaryProps = {
   amountDueLabel?: ReactNode;
-  ariaLabel?: string;
+  ariaLabel: string;
   className?: string;
+  labels: CartSummaryLabels;
   discountLabel?: ReactNode;
   paymentRecordedLabel?: ReactNode;
   roundingLabel?: ReactNode;
@@ -50,6 +76,7 @@ function classes(...values: Array<string | false | null | undefined>) {
 export function CartItem({
   className,
   disabled = false,
+  labels,
   lineTotalLabel,
   maxQuantity = 99,
   modifierCollapseAfter = 3,
@@ -75,17 +102,19 @@ export function CartItem({
       <header className="ui-cart-item__header">
         <div>
           <h3>{name}</h3>
-          <span className="ui-cart-item__unit-price">Harga satuan {unitPriceLabel}</span>
+          <span className="ui-cart-item__unit-price">
+            {labels.unitPrice} {unitPriceLabel}
+          </span>
         </div>
         {!readOnly && onRemove ? (
           <IconButton
             className="ui-cart-item__remove"
             disabled={disabled}
             icon={IconTrash}
-            label={`Hapus ${name}`}
+            label={labels.remove}
             onClick={onRemove}
             size={variant === "compact" ? "sm" : "md"}
-            tooltip={`Hapus ${name}`}
+            tooltip={labels.remove}
             variant="ghost"
           />
         ) : null}
@@ -93,7 +122,7 @@ export function CartItem({
 
       {modifiers.length > 0 ? (
         <div className="ui-cart-item__modifiers">
-          <span>Modifier</span>
+          <span>{labels.modifiers}</span>
           <ul id={modifierListId}>
             {visibleModifiers.map((modifier, index) => (
               <li key={index}>{modifier}</li>
@@ -108,8 +137,8 @@ export function CartItem({
               type="button"
             >
               {detailsExpanded
-                ? "Tutup detail"
-                : `Lihat detail (+${modifiers.length - collapseLimit})`}
+                ? labels.collapseDetails
+                : labels.expandDetails(modifiers.length - collapseLimit)}
             </button>
           ) : null}
         </div>
@@ -117,21 +146,24 @@ export function CartItem({
 
       {note ? (
         <div className="ui-cart-item__note">
-          <span>Catatan</span>
+          <span>{labels.note}</span>
           <p>{note}</p>
         </div>
       ) : null}
 
       <footer className="ui-cart-item__footer">
         {readOnly ? (
-          <span aria-label={`Jumlah ${quantity}`} className="ui-cart-item__receipt-quantity">
+          <span
+            aria-label={`${labels.quantity} ${quantity}`}
+            className="ui-cart-item__receipt-quantity"
+          >
             {quantity}×
           </span>
         ) : (
           <QuantityStepper
-            decreaseLabel={`Kurangi ${name}`}
+            decreaseLabel={labels.decrease}
             disabled={disabled || !onQuantityChange}
-            increaseLabel={`Tambah ${name}`}
+            increaseLabel={labels.increase}
             label={name}
             max={maxQuantity}
             min={1}
@@ -141,7 +173,7 @@ export function CartItem({
           />
         )}
         <div className="ui-cart-item__line-total">
-          <span>Total item</span>
+          <span>{labels.lineTotal}</span>
           <strong>{lineTotalLabel}</strong>
         </div>
       </footer>
@@ -151,9 +183,10 @@ export function CartItem({
 
 export function CartSummary({
   amountDueLabel,
-  ariaLabel = "Ringkasan keranjang",
+  ariaLabel,
   className,
   discountLabel,
+  labels,
   paymentRecordedLabel,
   roundingLabel,
   serviceChargeLabel,
@@ -161,19 +194,19 @@ export function CartSummary({
   taxLabel,
   totalLabel,
 }: CartSummaryProps) {
-  const rows: SummaryRow[] = [{ label: "Subtotal", value: subtotalLabel }];
-  if (discountLabel !== undefined) rows.push({ label: "Diskon", value: discountLabel });
-  if (taxLabel !== undefined) rows.push({ label: "Pajak", value: taxLabel });
+  const rows: SummaryRow[] = [{ label: labels.subtotal, value: subtotalLabel }];
+  if (discountLabel !== undefined) rows.push({ label: labels.discount, value: discountLabel });
+  if (taxLabel !== undefined) rows.push({ label: labels.tax, value: taxLabel });
   if (serviceChargeLabel !== undefined) {
-    rows.push({ label: "Service charge", value: serviceChargeLabel });
+    rows.push({ label: labels.serviceCharge, value: serviceChargeLabel });
   }
-  if (roundingLabel !== undefined) rows.push({ label: "Pembulatan", value: roundingLabel });
-  rows.push({ emphasis: "total", label: "Total", value: totalLabel });
+  if (roundingLabel !== undefined) rows.push({ label: labels.rounding, value: roundingLabel });
+  rows.push({ emphasis: "total", label: labels.total, value: totalLabel });
   if (paymentRecordedLabel !== undefined) {
-    rows.push({ label: "Pembayaran tercatat", value: paymentRecordedLabel });
+    rows.push({ label: labels.paymentRecorded, value: paymentRecordedLabel });
   }
   if (amountDueLabel !== undefined) {
-    rows.push({ emphasis: "outstanding", label: "Sisa tagihan", value: amountDueLabel });
+    rows.push({ emphasis: "outstanding", label: labels.amountDue, value: amountDueLabel });
   }
 
   return (
