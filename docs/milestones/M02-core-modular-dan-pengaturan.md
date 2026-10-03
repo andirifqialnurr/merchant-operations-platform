@@ -1,6 +1,6 @@
 # M2 — Core modular dan pengaturan
 
-**Status:** Belum mulai
+**Status:** Berjalan
 **Tahap PRD:** B (Core modular)
 **Bergantung pada:** M1
 

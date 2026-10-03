@@ -66,7 +66,7 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: review pengguna M1 (`M1-DS-11`).** Semua task M1 selain review sudah selesai atau dipindah ke M2; lihat `docs/milestones/M01-fondasi-ui-dan-pos-inti.md`. M2 belum dimulai.
+> **NEXT: M2 (`docs/milestones/M02-core-modular-dan-pengaturan.md`).** M1 disetujui pengguna pada 3 Oktober 2026. M2 dimulai dari restrukturisasi backend (`M2-QA-01`, `M2-QA-03`, `M2-QA-04`).
 
 Urutan fondasi UI mengikuti `docs/foundation/frontend.md` bagian 14; setiap butir adalah checkpoint yang berdiri sendiri:
 
@@ -97,7 +97,7 @@ Urutan fondasi UI mengikuti `docs/foundation/frontend.md` bagian 14; setiap buti
 - [x] **Verifikasi browser dua bahasa:** browser berbahasa Inggris mendapat halaman login Inggris; error login salah tampil dalam bahasa aktif; berganti bahasa di login mempertahankan isian; berganti di menu akun mengubah judul, badge, dan format harga (`Rp25.000` menjadi `Rp25,000`) tanpa pindah rute; `<html lang>` ikut berubah.
 - [x] **Sisa dua bahasa:** halaman referensi dan placeholder KDS/Inventory kini hanya ada di mode development (12.25), jadi tidak diterjemahkan; layar POS sudah dua bahasa.
 - [x] **Catatan label:** komponen 4-9 masih memakai bawaan Bahasa Indonesia pada props label baru; bawaan itu dihapus pada checkpoint i18n (UI Foundation 3). Selesai di checkpoint 12.19.
-- [ ] **Gate review pengguna (`M1-DS-11`):** user meninjau Storybook (komponen 1-11, Brand, komponen POS) dan alur Catalog + POS di browser pada light dan dark. Verifikasi otomatis lulus; tinjauan visual oleh user belum dilakukan.
+- [x] **Gate review pengguna (`M1-DS-11`), disetujui 3 Oktober 2026:** user meninjau Storybook (komponen 1-11, Brand, komponen POS) dan alur Catalog + POS di browser pada light dan dark. Verifikasi otomatis lulus dan user menyatakan M1 selesai.
 - [x] **UI Foundation 8 - Komponen berikutnya satu per satu:** satu komponen per checkpoint, primitive selesai; berikutnya komponen domain (POS → Floor → KDS → Inventory → Finance → Customer → Platform) dan primitive yang masih gap (MultiSelect, FileUpload, ModuleAccessState, UsageLimitState, BottomNav). Atas permintaan user, pekerjaan ini boleh didahulukan sebelum UI Foundation 2-7. Ditutup: komponen POS selesai di M1; komponen domain lain dan primitive yang masih gap mengikuti task DS di milestone masing-masing (`docs/milestones/`).
 
 ### Backend delta yang harus diaudit sebelum UI reslicing

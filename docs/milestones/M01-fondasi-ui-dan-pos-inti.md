@@ -1,6 +1,6 @@
 # M1 — Fondasi UI dan POS inti
 
-**Status:** Menunggu review
+**Status:** Selesai (disetujui pengguna 3 Oktober 2026)
 **Tahap PRD:** A (Fondasi UI) dan C (Catalog + POS)
 **Bergantung pada:** —
 
@@ -22,7 +22,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] POS-only menyelesaikan siklus penuh: buka shift → jual → bayar (tunai, QRIS, transfer, EDC) → struk → refund → tutup shift dengan kas seharusnya yang benar.
 - [x] Pesanan dapat ditahan, dibayar nanti, dan dibatalkan dengan alasan; tidak ada pesanan yang bisa dibayar dua kali atau dibatalkan setelah dibayar.
 - [x] Tidak ada teks tertanam di surface yang dipakai M1 (Backoffice Catalog, POS, login) maupun di komponen `packages/ui` yang dipakainya.
-- [ ] Pengguna meninjau Storybook dan alur POS di browser pada terang dan gelap, lalu menyetujui.
+- [x] Pengguna meninjau Storybook dan alur POS di browser pada terang dan gelap, lalu menyetujui.
 
 ## 4. Task
 
@@ -78,7 +78,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-DS-08 `HeldOrderList` dan `PinInput`** `9cba9c0` — daftar pesanan tertahan ada di `apps/web/src/features/pos/held-carts.tsx` (komponen fitur, seperti komponen kasir lain); `PinInput` dipindah ke `M2-DS-06` bersama `M2-FT-08`.
 - [-] **M1-DS-09 `MultiSelect`** — filter Catalog cukup dengan `Select`; dipindah ke `M2-DS-07` dan baru dibuat bila ada layar yang membutuhkannya.
 - [x] **M1-DS-10 Penyesuaian 21.3** `8effc98` — hapus status `special`; tinggi kontrol `md` 36px; pastikan tidak ada kartu bersarang di komponen domain.
-- [ ] **M1-DS-11 Gate review Storybook** — pengguna meninjau komponen 1–11 dan komponen POS pada terang dan gelap.
+- [x] **M1-DS-11 Gate review Storybook** (disetujui pengguna 3 Oktober 2026) — pengguna meninjau komponen 1–11 dan komponen POS pada terang dan gelap.
 
 ### AS — Aset
 
