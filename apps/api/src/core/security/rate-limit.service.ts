@@ -8,7 +8,8 @@ export type RateLimitPolicy = {
 };
 
 export type RateLimitService = {
-  consume(key: string, policy: RateLimitPolicy): void;
+  /** Counts one attempt; throws RATE_LIMIT_EXCEEDED when the window is full. */
+  consume(key: string, policy: RateLimitPolicy): void | Promise<void>;
 };
 
 type RateLimitBucket = {
@@ -51,7 +52,7 @@ function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
 
-function rateLimitExceeded() {
+export function rateLimitExceeded() {
   return new HttpException(
     {
       code: "RATE_LIMIT_EXCEEDED",

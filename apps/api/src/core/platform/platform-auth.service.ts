@@ -125,7 +125,7 @@ export class PlatformAuthService {
   }
 
   async login(input: AuthLoginRequest, metadata: PlatformLoginMetadata = {}) {
-    this.rateLimit.consume(
+    await this.rateLimit.consume(
       buildPlatformLoginRateLimitKey({
         email: input.email,
         ...(metadata.ipAddress ? { ipAddress: metadata.ipAddress } : {}),

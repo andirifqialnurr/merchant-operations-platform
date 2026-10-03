@@ -8,3 +8,4 @@ export {
   buildPlatformLoginRateLimitKey,
 } from "./rate-limit.service.js";
 export type { RateLimitService } from "./rate-limit.service.js";
+export { SecurityModule } from "./security.module.js";

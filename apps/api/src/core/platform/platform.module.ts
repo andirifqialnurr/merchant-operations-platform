@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 
 import { EntitlementModule } from "../entitlements/public.js";
 import { OrganizationModule } from "../workspaces/public.js";
-import { InMemoryRateLimitService, RATE_LIMIT_SERVICE } from "../security/public.js";
+import { SecurityModule } from "../security/public.js";
 import { PlatformAuthController } from "./platform-auth.controller.js";
 import {
   PLATFORM_AUTH_REPOSITORY,
@@ -16,15 +16,13 @@ import { PlatformPermissionGuard } from "./platform-permission.guard.js";
 @Module({
   controllers: [PlatformAuthController, PlatformMasterController],
   exports: [PlatformAuthService, PlatformPermissionGuard],
-  imports: [EntitlementModule, OrganizationModule],
+  imports: [EntitlementModule, OrganizationModule, SecurityModule],
   providers: [
     PlatformAuthService,
     PlatformMasterService,
     PlatformPermissionGuard,
-    InMemoryRateLimitService,
     PrismaPlatformAuthRepository,
     { provide: PLATFORM_AUTH_REPOSITORY, useExisting: PrismaPlatformAuthRepository },
-    { provide: RATE_LIMIT_SERVICE, useExisting: InMemoryRateLimitService },
   ],
 })
 export class PlatformModule {}

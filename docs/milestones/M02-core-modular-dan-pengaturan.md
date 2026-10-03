@@ -104,7 +104,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 ### OP — Operasional dan dokumentasi
 
 - [x] **M2-OP-01 Compose lokal** `dccb19f` — PostgreSQL, Redis, object storage lokal (MinIO) untuk pengembangan.
-- [ ] **M2-OP-02 Redis dan BullMQ** — untuk worker dan rate limit lintas instance (`SEC-F3`).
+- [x] **M2-OP-02 Redis dan BullMQ** — untuk worker dan rate limit lintas instance (`SEC-F3`).
 - [ ] **M2-OP-03 Runbook** — provisioning workspace dan paket; binding gagal dan coba ulang event; antrean outbox menumpuk.
 - [ ] **M2-OP-04 Perbarui dokumen** — `schema.md` B.1–B.2 menjadi "berjalan"; `architecture.md` 6–7; `backend.md` 1.
 

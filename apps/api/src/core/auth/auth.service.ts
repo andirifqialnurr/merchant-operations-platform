@@ -77,7 +77,7 @@ export class AuthService {
   ) {}
 
   async login(input: AuthLoginRequest, metadata: LoginMetadata = {}) {
-    this.rateLimit.consume(
+    await this.rateLimit.consume(
       buildLoginRateLimitKey({
         email: input.email,
         ...(metadata.ipAddress ? { ipAddress: metadata.ipAddress } : {}),

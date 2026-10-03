@@ -17,7 +17,7 @@ Dokumen terkait: [`architecture.md`](./architecture.md), [`security.md`](./secur
 | API | `apps/api` | 3001 | `node dist/main.js` | REST `/api/v1` + WebSocket |
 | Worker | `apps/worker` | — | `node dist/index.js` | Dispatcher outbox dan job |
 | PostgreSQL | — | 5432 | — | Satu database |
-| Redis | — | 6379 | — | Ditunda sampai dibutuhkan |
+| Redis | — | 6379 | — | Dipakai worker (BullMQ) dan rate limit API bila `RATE_LIMIT_STORE=redis`; lokal lewat `pnpm infra:up` |
 | Object storage | S3-compatible | — | — | Gambar produk, lampiran |
 | Storybook | `apps/storybook` | 6006 | Statis | Hanya internal |
 
@@ -306,7 +306,7 @@ Log terstruktur (JSON) dikirim ke satu tempat dengan request ID, workspace, dan 
 
 ### 9.3 Skala
 
-- API tanpa state di memori selain rate limit; sebelum menambah instance, pindahkan rate limit ke Redis dan pasang adapter Redis untuk Socket.IO.
+- API tanpa state di memori selain rate limit bawaan; sebelum menambah instance, setel `RATE_LIMIT_STORE=redis` (sudah tersedia) dan pasang adapter Redis untuk Socket.IO.
 - Worker dapat diperbanyak karena klaim event memakai kunci baris (`SKIP LOCKED`).
 - Web dapat diperbanyak bebas.
 
@@ -341,7 +341,7 @@ Provisioning workspace dan paket; binding error dan coba ulang event; antrean ou
 - [ ] Header keamanan dan CSP pada web.
 - [ ] Backup dan uji restore berhasil.
 - [ ] Pemantauan dan peringatan aktif.
-- [ ] Rate limit di Redis bila lebih dari satu instance.
+- [ ] `RATE_LIMIT_STORE=redis` disetel bila lebih dari satu instance (kodenya sudah ada).
 - [ ] Runbook tersedia.
 - [ ] Platform user dibuat lewat CLI; tidak ada kredensial bawaan.
 - [ ] `API_DOCS_ENABLED` ditinjau.
