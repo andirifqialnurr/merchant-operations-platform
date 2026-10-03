@@ -84,14 +84,14 @@ test("keeps organization and access relations scoped by tenant composite keys", 
 });
 
 test("keeps current subscription and entitlement overrides isolated per tenant", () => {
-  assert.match(schema, /@@unique\(\[tenantId, moduleKey\]\)/);
+  // Module overrides now live in core_entitlement_overrides (see the test for that table).
   assert.match(
-    entitlementMigration,
-    /CREATE UNIQUE INDEX "subscriptions_current_tenant_key" ON "subscriptions"\("tenant_id"\) WHERE "superseded_at" IS NULL/,
+    schema,
+    /model CoreEntitlementOverride \{[\s\S]*@@map\("core_entitlement_overrides"\)/,
   );
   assert.match(
     entitlementMigration,
-    /CREATE UNIQUE INDEX "tenant_entitlements_tenant_id_module_key_key" ON "tenant_entitlements"\("tenant_id", "module_key"\)/,
+    /CREATE UNIQUE INDEX "subscriptions_current_tenant_key" ON "subscriptions"\("tenant_id"\) WHERE "superseded_at" IS NULL/,
   );
   assert.match(
     entitlementMigration,
@@ -438,4 +438,24 @@ test("keeps the effective entitlement projection per tenant and rebuildable", ()
   );
   assert.match(projection, /jsonb_typeof\("capabilities"\) = 'array'/);
   assert.match(projection, /jsonb_typeof\("limits"\) = 'array'/);
+});
+
+test("drops the legacy plan and entitlement tables only after checking nothing is lost", () => {
+  const cleanup = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261004020000_drop_legacy_plans_and_entitlements/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  // Every drop comes after the block that raises when a row has no copy.
+  const guards = cleanup.indexOf("DO $$");
+  assert.ok(guards >= 0);
+  for (const table of ["plan_modules", "plans", "tenant_entitlements"]) {
+    assert.ok(cleanup.includes(`refusing to drop "${table}"`), table);
+    assert.ok(cleanup.indexOf(`DROP TABLE "${table}"`) > guards, table);
+    assert.ok(!schema.includes(`@@map("${table}")`), table);
+  }
+  assert.ok(cleanup.includes('DROP COLUMN "plan_id"'));
+  assert.ok(!schema.includes("plan_id"));
 });

@@ -284,7 +284,6 @@ model Tenant {
   subscriptionAddons           CoreSubscriptionAddon[]
   entitlementOverrides         CoreEntitlementOverride[]
   effectiveEntitlements        CoreEffectiveEntitlement[]
-  entitlements                 TenantEntitlement[]
   catalogCategories            CatalogCategory[]
   catalogProducts              CatalogProduct[]
   catalogProductVariants       CatalogProductVariant[]
@@ -619,10 +618,8 @@ model ModuleDefinition {
   status                OrganizationUnitStatus     @default(ACTIVE)
   createdAt             DateTime                   @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt             DateTime                   @updatedAt @map("updated_at") @db.Timestamptz(6)
-  planLinks             PlanModule[]
   packageLinks          CorePackageModule[]
   effectiveEntitlements CoreEffectiveEntitlement[]
-  entitlements          TenantEntitlement[]
   dependencies          ModuleDependency[]         @relation("ModuleDependencies")
   dependents            ModuleDependency[]         @relation("ModuleDependents")
 
@@ -641,32 +638,7 @@ model ModuleDependency {
   @@map("module_dependencies")
 }
 
-model Plan {
-  id            String                 @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  code          String                 @unique @db.VarChar(80)
-  name          String                 @db.VarChar(160)
-  status        OrganizationUnitStatus @default(ACTIVE)
-  createdAt     DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
-  modules       PlanModule[]
-  subscriptions Subscription[]
-
-  @@index([status, createdAt])
-  @@map("plans")
-}
-
-model PlanModule {
-  planId    String           @map("plan_id") @db.Uuid
-  moduleKey String           @map("module_key") @db.VarChar(80)
-  plan      Plan             @relation(fields: [planId], references: [id], onDelete: Cascade)
-  module    ModuleDefinition @relation(fields: [moduleKey], references: [key], onDelete: Restrict)
-
-  @@id([planId, moduleKey])
-  @@index([moduleKey])
-  @@map("plan_modules")
-}
-
-/// What is sold. Replaces `plans`, which stays during the transition (SCH-03).
+/// What is sold.
 model CorePackage {
   id        String                 @id @default(dbgenerated("uuidv7()")) @db.Uuid
   key       String                 @unique @db.VarChar(80)
@@ -739,7 +711,6 @@ model CorePackageLimit {
 model Subscription {
   id               String                  @id @default(dbgenerated("uuidv7()")) @db.Uuid
   tenantId         String                  @map("tenant_id") @db.Uuid
-  planId           String                  @map("plan_id") @db.Uuid
   /// The exact version that was bought; never a draft (database trigger).
   packageVersionId String                  @map("package_version_id") @db.Uuid
   cycleStartsAt    DateTime                @map("cycle_starts_at") @db.Timestamptz(6)
@@ -752,14 +723,12 @@ model Subscription {
   createdAt        DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt        DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
   tenant           Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  plan             Plan                    @relation(fields: [planId], references: [id], onDelete: Restrict)
   packageVersion   CorePackageVersion      @relation(fields: [packageVersionId], references: [id], onDelete: Restrict)
   addons           CoreSubscriptionAddon[]
 
   @@unique([tenantId, id])
   @@index([tenantId, createdAt])
-  @@index([planId, status])
-  @@index([packageVersionId])
+  @@index([packageVersionId, status])
   @@map("subscriptions")
 }
 
@@ -783,7 +752,6 @@ model CoreSubscriptionAddon {
 
 /// One decision that changes what a tenant gets compared with its package.
 /// Rows are history: a newer decision closes the older one (sets `endsAt`).
-/// Replaces `tenant_entitlements`, which is no longer written (SCH-03).
 model CoreEntitlementOverride {
   id         String                       @id @default(dbgenerated("uuidv7()")) @db.Uuid
   tenantId   String                       @map("tenant_id") @db.Uuid
@@ -819,24 +787,6 @@ model CoreEffectiveEntitlement {
   @@id([tenantId, moduleKey])
   @@index([moduleKey])
   @@map("core_effective_entitlements")
-}
-
-model TenantEntitlement {
-  id          String           @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  tenantId    String           @map("tenant_id") @db.Uuid
-  moduleKey   String           @map("module_key") @db.VarChar(80)
-  enabled     Boolean
-  reason      String           @db.VarChar(500)
-  effectiveAt DateTime         @default(now()) @map("effective_at") @db.Timestamptz(6)
-  actorId     String?          @map("actor_id") @db.Uuid
-  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
-  tenant      Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  module      ModuleDefinition @relation(fields: [moduleKey], references: [key], onDelete: Restrict)
-
-  @@unique([tenantId, moduleKey])
-  @@index([moduleKey, enabled])
-  @@map("tenant_entitlements")
 }
 
 model AuditLog {

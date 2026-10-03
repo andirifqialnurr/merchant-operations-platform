@@ -27,6 +27,7 @@ export type ModuleRecord = {
   status: OrganizationUnitStatus;
 };
 
+/** A package as the subscription code sees it; `code` is the package key. */
 export type PlanRecord = {
   code: PlanCode;
   id: string;
@@ -50,7 +51,6 @@ export type SubscriptionRecord = {
   modules: Array<{ moduleKey: ModuleKey; tier: ModuleTier }>;
   packageVersion: number;
   planCode: PlanCode;
-  planId: string;
   planName: string;
   startsAt: Date;
   status: SubscriptionStatus;
@@ -83,7 +83,6 @@ export type ReplaceSubscriptionRecordInput = {
   endsAt: Date | null;
   graceEndsAt: Date | null;
   packageVersionId: string;
-  planId: string;
   startsAt: Date;
   status: SubscriptionStatus;
 };
@@ -123,14 +122,6 @@ const moduleSelect = {
   status: true,
 } as const;
 
-const planSelect = {
-  code: true,
-  id: true,
-  modules: { orderBy: { moduleKey: "asc" as const }, select: { moduleKey: true } },
-  name: true,
-  status: true,
-} as const;
-
 const subscriptionSelect = {
   createdAt: true,
   cycleEndsAt: true,
@@ -152,11 +143,10 @@ const subscriptionSelect = {
         orderBy: { moduleKey: "asc" as const },
         select: { moduleKey: true, tier: true },
       },
+      package: { select: { key: true, name: true } },
       version: true,
     },
   },
-  plan: { select: planSelect },
-  planId: true,
   startsAt: true,
   status: true,
   tenantId: true,
@@ -189,26 +179,6 @@ function mapModule(record: {
   };
 }
 
-function mapPlan(
-  record: {
-    code: string;
-    id: string;
-    modules: Array<{ moduleKey: string }>;
-    name: string;
-    status: OrganizationUnitStatus;
-  },
-  publishedVersion: PlanRecord["publishedVersion"],
-): PlanRecord {
-  return {
-    code: record.code as PlanCode,
-    id: record.id,
-    moduleKeys: record.modules.map((item) => item.moduleKey as ModuleKey),
-    name: record.name,
-    publishedVersion,
-    status: record.status,
-  };
-}
-
 function mapSubscription(record: {
   createdAt: Date;
   cycleEndsAt: Date | null;
@@ -220,15 +190,9 @@ function mapSubscription(record: {
     capabilities: PackageCapability[];
     limits: PackageLimit[];
     modules: Array<{ moduleKey: string; tier: ModuleTier }>;
+    package: { key: string; name: string };
     version: number;
   };
-  plan: {
-    code: string;
-    id: string;
-    modules: Array<{ moduleKey: string }>;
-    name: string;
-  };
-  planId: string;
   startsAt: Date;
   status: SubscriptionStatus;
   tenantId: string;
@@ -249,9 +213,9 @@ function mapSubscription(record: {
       tier: item.tier,
     })),
     packageVersion: record.packageVersion.version,
-    planCode: record.plan.code as PlanCode,
-    planId: record.planId,
-    planName: record.plan.name,
+    // The contract still calls the package a plan; the code is the package key.
+    planCode: record.packageVersion.package.key as PlanCode,
+    planName: record.packageVersion.package.name,
     startsAt: record.startsAt,
     status: record.status,
     tenantId: record.tenantId,
@@ -335,17 +299,37 @@ async function writeChange(
 
 @Injectable()
 export class PrismaEntitlementRepository implements EntitlementRepository {
-  async findPlanByCode(code: PlanCode) {
-    const [plan, publishedVersion] = await Promise.all([
-      getPrismaClient().plan.findUnique({ select: planSelect, where: { code } }),
-      // The package carries the plan's code as its key (SCH-03 transition).
-      getPrismaClient().corePackageVersion.findFirst({
-        orderBy: { version: "desc" },
-        select: { id: true, version: true },
-        where: { package: { key: code }, status: "PUBLISHED" },
-      }),
-    ]);
-    return plan ? mapPlan(plan, publishedVersion) : null;
+  async findPlanByCode(code: PlanCode): Promise<PlanRecord | null> {
+    const found = await getPrismaClient().corePackage.findUnique({
+      select: {
+        id: true,
+        key: true,
+        name: true,
+        status: true,
+        // Only the newest published version can be subscribed to.
+        versions: {
+          orderBy: { version: "desc" },
+          select: {
+            id: true,
+            modules: { orderBy: { moduleKey: "asc" }, select: { moduleKey: true } },
+            version: true,
+          },
+          take: 1,
+          where: { status: "PUBLISHED" },
+        },
+      },
+      where: { key: code },
+    });
+    if (!found) return null;
+    const published = found.versions[0];
+    return {
+      code: found.key as PlanCode,
+      id: found.id,
+      moduleKeys: published?.modules.map((item) => item.moduleKey as ModuleKey) ?? [],
+      name: found.name,
+      publishedVersion: published ? { id: published.id, version: published.version } : null,
+      status: found.status,
+    };
   }
 
   async getState(tenantId: string): Promise<EntitlementStateRecord> {

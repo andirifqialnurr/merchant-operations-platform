@@ -237,7 +237,6 @@ export class EntitlementService {
         cycleEndsAt: dates.endsAt,
         cycleStartsAt: dates.startsAt,
         packageVersionId: plan.publishedVersion.id,
-        planId: plan.id,
         status: parsed.status,
       },
       context,

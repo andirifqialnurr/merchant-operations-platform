@@ -126,7 +126,7 @@ class MemoryEntitlementRepository implements EntitlementRepository {
   }
 
   async replaceSubscription(tenantId: string, input: ReplaceSubscriptionRecordInput) {
-    const plan = plans.find((item) => item.id === input.planId);
+    const plan = plans.find((item) => item.publishedVersion?.id === input.packageVersionId);
     assert.ok(plan);
     const now = new Date("2026-07-20T00:00:00.000Z");
     const subscription: SubscriptionRecord = {
@@ -142,11 +142,8 @@ class MemoryEntitlementRepository implements EntitlementRepository {
         tenantId === TENANT_ID
           ? "019f7900-0000-7000-8000-000000000301"
           : "019f7900-0000-7000-8000-000000000302",
-      packageVersion:
-        plans.find((item) => item.publishedVersion?.id === input.packageVersionId)?.publishedVersion
-          ?.version ?? 0,
+      packageVersion: plan.publishedVersion?.version ?? 0,
       planCode: plan.code,
-      planId: plan.id,
       planName: plan.name,
       startsAt: input.startsAt,
       status: input.status,
