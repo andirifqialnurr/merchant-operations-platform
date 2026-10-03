@@ -97,7 +97,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [x] **M2-QA-01 Pindah ke `core/`, `kernels/`, `modules/`** `fba8446`..`a4f3eba` — satu folder per commit, perilaku tidak berubah (`backend.md` 2.2).
 - [ ] **M2-QA-02 Pecah Catalog** — `kernels/catalog` + `modules/catalog-profile`, satu use case per file; repository 1.226 baris dipecah.
 - [x] **M2-QA-03 Pecah `packages/contracts`** `8ffd658` — satu file per domain dengan indeks ekspor.
-- [x] **M2-QA-04 Lint batas modul** — aturan impor `backend.md` 3 dijalankan di lint dan CI.
+- [x] **M2-QA-04 Lint batas modul** `4380439` — aturan impor `backend.md` 3 dijalankan di lint dan CI.
 - [ ] **M2-QA-05 Integration test PostgreSQL sekali pakai** — database test terisolasi untuk repository dan constraint (gerbang TODO Tahap 9).
 - [ ] **M2-QA-06 Test kombinasi modul** — POS-only, POS dengan binding mati, POS dengan binding aktif tanpa penerima.
 
