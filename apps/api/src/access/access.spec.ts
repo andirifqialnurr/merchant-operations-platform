@@ -14,7 +14,7 @@ import type { ExecutionContext } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 
 import type { AuthService } from "../core/auth/auth.service.js";
-import type { EntitlementService } from "../entitlement/entitlement.service.js";
+import type { EntitlementService } from "../core/entitlements/entitlement.service.js";
 import type {
   AccessRepository,
   AuthorizationRecord,

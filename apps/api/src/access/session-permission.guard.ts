@@ -19,7 +19,7 @@ import { Reflector } from "@nestjs/core";
 
 import { AuthService } from "../core/auth/auth.service.js";
 import { readSessionToken } from "../core/auth/session-cookie.js";
-import { EntitlementService } from "../entitlement/entitlement.service.js";
+import { EntitlementService } from "../core/entitlements/entitlement.service.js";
 import { AccessService } from "./access.service.js";
 
 const REQUIRED_PERMISSION = "required-access-permission";
