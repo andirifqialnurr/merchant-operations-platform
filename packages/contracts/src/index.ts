@@ -1561,6 +1561,13 @@ export const registerSessionSchema = z.object({
   cashOutMinor: moneyMinorSchema,
   /** Cash payments taken during the shift. */
   cashSalesMinor: moneyMinorSchema,
+  /** Non-cash payments taken in the shift, per method; methods without payments are left out. */
+  nonCashPayments: z.array(
+    z.object({
+      amountMinor: positiveMoneyMinorSchema,
+      method: z.enum(["MERCHANT_QRIS", "TRANSFER", "EDC", "OTHER"]),
+    }),
+  ),
   closedAt: z.iso.datetime().nullable(),
   countedCashMinor: moneyMinorSchema.nullable(),
   expectedCashMinor: signedMoneyMinorSchema,
@@ -1816,13 +1823,17 @@ export const checkoutSchema = z.object({
  * The cashier states how the order was paid. The amount is always the full
  * amount due and is decided by the server.
  */
+const paymentReferenceSchema = z.string().trim().min(1).max(120);
+
 export const payOrderSchema = z.discriminatedUnion("method", [
   z.object({ method: z.literal("CASH"), tenderedMinor: positiveMoneyMinorSchema }),
   z.object({
     method: z.literal("MERCHANT_QRIS"),
     /** Optional trace number the cashier read from the payment notification. */
-    reference: z.string().trim().min(1).max(120).optional(),
+    reference: paymentReferenceSchema.optional(),
   }),
+  z.object({ method: z.literal("TRANSFER"), reference: paymentReferenceSchema.optional() }),
+  z.object({ method: z.literal("EDC"), reference: paymentReferenceSchema.optional() }),
 ]);
 
 export type Bill = z.infer<typeof billSchema>;

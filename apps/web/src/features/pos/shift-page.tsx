@@ -20,6 +20,12 @@ import { useCurrentShift, useShiftMutations } from "./api";
 import { CashMovementSheet } from "./cash-movement-sheet";
 
 const VARIANCE_REASON_MIN_LENGTH = 3;
+const NON_CASH_LABELS = {
+  EDC: "methodEdc",
+  MERCHANT_QRIS: "methodQris",
+  OTHER: "methodOther",
+  TRANSFER: "methodTransfer",
+} as const;
 
 type Mutations = ReturnType<typeof useShiftMutations>;
 
@@ -138,6 +144,11 @@ function OpenShiftView({
               cashInMinor={shift.cashInMinor}
               cashOutMinor={shift.cashOutMinor}
               cashSalesMinor={shift.cashSalesMinor}
+              nonCashBreakdown={shift.nonCashPayments.map((payment) => ({
+                amountMinor: payment.amountMinor,
+                id: payment.method,
+                label: t(NON_CASH_LABELS[payment.method]),
+              }))}
               expectedCashMinor={shift.expectedCashMinor}
               facts={[{ label: t("openedAt"), value: dateTime(shift.openedAt) }]}
               labels={{

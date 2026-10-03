@@ -84,8 +84,11 @@ export interface BillingRepository {
   ): Promise<(CheckoutRecord & { cashierName: string }) | null>;
   /** Paid orders among `orderIds`, with the number of the sale each became. */
   paidOrders(tenantId: string, orderIds: readonly string[]): Promise<Map<string, number>>;
-  /** Cash taken in a shift: paid cash payments attached to it. */
-  sumCashPayments(tenantId: string, registerSessionId: string): Promise<bigint>;
+  /** Paid payments attached to a shift, summed per method. */
+  sumPaymentsByMethod(
+    tenantId: string,
+    registerSessionId: string,
+  ): Promise<Map<PaymentMethod, bigint>>;
 }
 
 export const BILLING_REPOSITORY = Symbol("BILLING_REPOSITORY");

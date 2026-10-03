@@ -130,12 +130,13 @@ export class PrismaBillingRepository implements BillingRepository {
     );
   }
 
-  async sumCashPayments(tenantId: string, registerSessionId: string) {
-    const result = await getPrismaClient().billingPayment.aggregate({
+  async sumPaymentsByMethod(tenantId: string, registerSessionId: string) {
+    const groups = await getPrismaClient().billingPayment.groupBy({
       _sum: { amountMinor: true },
-      where: { method: "CASH", registerSessionId, status: "PAID", tenantId },
+      by: ["method"],
+      where: { registerSessionId, status: "PAID", tenantId },
     });
-    return result._sum.amountMinor ?? 0n;
+    return new Map(groups.map((group) => [group.method, group._sum.amountMinor ?? 0n] as const));
   }
 
   async recordFullPayment(

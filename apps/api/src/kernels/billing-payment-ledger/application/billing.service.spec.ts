@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import test from "node:test";
 
+import type { PaymentMethod } from "@merchant/contracts";
 import { ConflictException } from "@nestjs/common";
 
 import { billTotal, cashChange } from "../domain/bill-total.js";
@@ -40,10 +41,15 @@ class InMemoryBillingRepository implements BillingRepository {
     return this.checkouts.find((item) => item.key === key) ?? null;
   }
 
-  async sumCashPayments(_tenantId: string, registerSessionId: string) {
-    return this.checkouts
-      .filter((item) => item.shift === registerSessionId && item.method === "CASH")
-      .reduce((sum, item) => sum + item.payment.amountMinor, 0n);
+  async sumPaymentsByMethod(_tenantId: string, registerSessionId: string) {
+    const sums = new Map<PaymentMethod, bigint>();
+    for (const item of this.checkouts.filter((entry) => entry.shift === registerSessionId)) {
+      sums.set(
+        item.payment.method,
+        (sums.get(item.payment.method) ?? 0n) + item.payment.amountMinor,
+      );
+    }
+    return sums;
   }
 
   async recordFullPayment(payment: FullPayment): Promise<FullPaymentOutcome> {
@@ -263,4 +269,45 @@ test("returns the paid checkout of an order with its cashier", async () => {
   assert.equal(receipt?.cashierName, "Kasir Uji");
   assert.equal(receipt?.checkout.payment.changeMinor, "36000");
   assert.equal(receipt?.checkout.sale.saleNumber, 1);
+});
+
+test("takes transfer and EDC with a reference and keeps them out of the drawer", async () => {
+  const { service } = setup();
+  await service.payOrderInFull(
+    {
+      ...base,
+      idempotencyKey: "key-1",
+      order: order(),
+      pay: { method: "TRANSFER", reference: "BCA-771" },
+    },
+    context,
+  );
+  const edc = await service.payOrderInFull(
+    {
+      ...base,
+      idempotencyKey: "key-2",
+      order: order({ subtotalMinor: "30000" }),
+      pay: { method: "EDC" },
+    },
+    context,
+  );
+  await service.payOrderInFull(
+    {
+      ...base,
+      idempotencyKey: "key-3",
+      order: order({ subtotalMinor: "10000" }),
+      pay: cash("10000"),
+    },
+    context,
+  );
+  assert.equal(edc.payment.reference, null);
+  assert.equal(edc.payment.tenderedMinor, null);
+
+  const taken = await service.paymentsInSession(TENANT, SHIFT);
+  assert.equal(taken.cashMinor, 10_000n);
+  assert.deepEqual(taken.nonCash, [
+    { amountMinor: 64_000n, method: "TRANSFER" },
+    { amountMinor: 30_000n, method: "EDC" },
+  ]);
+  assert.equal(await service.cashReceivedInSession(TENANT, SHIFT), 10_000n);
 });

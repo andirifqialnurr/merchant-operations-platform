@@ -25,12 +25,17 @@ const notOpen = () => conflict("POS_SHIFT_NOT_OPEN", "This shift is already clos
 export function toRegisterSession(
   record: RegisterSessionRecord,
   cashSalesMinor: bigint,
+  nonCashPayments: readonly { amountMinor: bigint; method: string }[] = [],
 ): RegisterSession {
   const totals = totalCash(record.openingCashMinor, record.movements, cashSalesMinor);
   return registerSessionSchema.parse({
     cashInMinor: totals.cashInMinor.toString(),
     cashOutMinor: totals.cashOutMinor.toString(),
     cashSalesMinor: cashSalesMinor.toString(),
+    nonCashPayments: nonCashPayments.map((payment) => ({
+      amountMinor: payment.amountMinor.toString(),
+      method: payment.method,
+    })),
     closedAt: record.closedAt?.toISOString() ?? null,
     countedCashMinor: record.countedCashMinor?.toString() ?? null,
     // A closed shift reports the figure it was closed against.
@@ -65,10 +70,8 @@ export class ShiftService {
   ) {}
 
   private async present(record: RegisterSessionRecord) {
-    return toRegisterSession(
-      record,
-      await this.billing.cashReceivedInSession(record.tenantId, record.id),
-    );
+    const taken = await this.billing.paymentsInSession(record.tenantId, record.id);
+    return toRegisterSession(record, taken.cashMinor, taken.nonCash);
   }
 
   /** The cashier's open shift at the outlet, or null. Payments are taken in it. */

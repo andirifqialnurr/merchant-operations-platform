@@ -20,7 +20,7 @@ import { useToast } from "@/providers/toast-provider";
 
 import { menuKeys, orderKeys, shiftKeys } from "./api";
 
-type Method = "CASH" | "MERCHANT_QRIS";
+type Method = "CASH" | "EDC" | "MERCHANT_QRIS" | "TRANSFER";
 
 /** What is being paid: a cart that becomes an order on confirm, or an order taken earlier. */
 export type PaymentSource =
@@ -160,6 +160,8 @@ export function PaymentView({
         items={[
           { label: t("methodCash"), value: "CASH" },
           { label: t("methodQris"), value: "MERCHANT_QRIS" },
+          { label: t("methodTransfer"), value: "TRANSFER" },
+          { label: t("methodEdc"), value: "EDC" },
         ]}
         label={t("method")}
         onValueChange={(value) => setMethod(value as Method)}

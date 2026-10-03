@@ -15,6 +15,7 @@ import {
 } from "./billing.repository.js";
 
 const conflict = (code: string, message: string) => new ConflictException({ code, message });
+const NON_CASH_ORDER = ["MERCHANT_QRIS", "TRANSFER", "EDC", "OTHER"] as const;
 
 export type PayableOrder = {
   currency: string;
@@ -122,7 +123,7 @@ export class BillingService {
         method: pay.method,
         orderId: order.id,
         outletId,
-        reference: pay.method === "MERCHANT_QRIS" ? (pay.reference ?? null) : null,
+        reference: pay.method === "CASH" ? null : (pay.reference ?? null),
         registerSessionId: input.registerSessionId,
         subtotalMinor,
         tenantId,
@@ -159,7 +160,22 @@ export class BillingService {
   }
 
   /** Cash taken in a shift; the shift adds it to the cash it expects. */
-  cashReceivedInSession(tenantId: string, registerSessionId: string) {
-    return this.billing.sumCashPayments(tenantId, registerSessionId);
+  async cashReceivedInSession(tenantId: string, registerSessionId: string) {
+    return (await this.billing.sumPaymentsByMethod(tenantId, registerSessionId)).get("CASH") ?? 0n;
+  }
+
+  /**
+   * Money taken in a shift: cash, which belongs in the drawer, and non-cash
+   * per method in a fixed order, leaving out methods with nothing taken.
+   */
+  async paymentsInSession(tenantId: string, registerSessionId: string) {
+    const sums = await this.billing.sumPaymentsByMethod(tenantId, registerSessionId);
+    return {
+      cashMinor: sums.get("CASH") ?? 0n,
+      nonCash: NON_CASH_ORDER.flatMap((method) => {
+        const amountMinor = sums.get(method) ?? 0n;
+        return amountMinor > 0n ? [{ amountMinor, method }] : [];
+      }),
+    };
   }
 }
