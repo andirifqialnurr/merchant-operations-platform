@@ -21,7 +21,7 @@ export default function KdsPage() {
         </section>
 
         <nav aria-label="Navigasi surface" className="flex flex-wrap gap-3">
-          <Link className="ui-button ui-button--md ui-button--secondary" href="/">
+          <Link className="ui-button ui-button--md ui-button--secondary" href="/device-mode">
             <span className="ui-button__label">Kembali ke Device Mode</span>
           </Link>
           <Link className="ui-button ui-button--md ui-button--primary" href="/backoffice/catalog">

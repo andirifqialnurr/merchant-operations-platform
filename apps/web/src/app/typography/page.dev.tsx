@@ -188,7 +188,7 @@ export default function TypographyPage() {
     <main className="min-h-screen bg-canvas px-4 py-8 text-foreground sm:px-8 lg:px-12">
       <div className="mx-auto max-w-7xl">
         <header className="border-b border-line-default pb-6">
-          <Link className="text-label text-primary underline" href="/">
+          <Link className="text-label text-primary underline" href="/device-mode">
             Kembali ke workspace
           </Link>
           <p className="mt-6 text-caption-xs uppercase text-primary">Development preview</p>

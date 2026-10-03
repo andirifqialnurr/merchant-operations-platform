@@ -17,7 +17,7 @@ apps/web/src/
     page.tsx                   pemilih mode perangkat
     backoffice/catalog/page.tsx  satu-satunya halaman bisnis yang memakai API
     pos/ kds/ inventory/       placeholder
-    design-system/ color-bank/ typography/ foundation/   halaman referensi dev
+    design-system/ color-bank/ typography/ foundation/   halaman referensi dev (`page.dev.tsx`, tidak ikut build produksi)
     globals.css  backoffice-shell.css  catalog.css  device-mode.css
     manifest.ts
   components/

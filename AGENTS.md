@@ -22,7 +22,7 @@
 - No UI string is hardcoded; all text comes from the `id`/`en` dictionaries, and `packages/ui` components receive labels through props.
 - `docs/foundation/backend.md` and `docs/foundation/frontend.md` own folder structure, import boundaries, and code rules; `docs/foundation/schema.md` owns tables; `docs/foundation/security.md` and `docs/foundation/deploy.md` own security controls and release process; `docs/foundation/flowchart.md` owns user flows.
 - `docs/foundation/DESIGN_SYSTEM_APP_AUDIT.md` and `TODO.md` describe implementation progress; they may identify gaps but must not weaken product requirements.
-- `apps/web/src/app/foundation/page.tsx` is a development preview route, not the documentation foundation.
+- `apps/web/src/app/foundation/page.dev.tsx` is a development preview route, not the documentation foundation. Routes named `page.dev.tsx` are left out of production builds.
 - Do not recreate the superseded `docs/packages/`, `docs/versions/`, `docs/00-GLOBAL-PRODUCT-SCOPE.md`, or `docs/FEATURE_INVENTORY.md` structure unless a future checkpoint explicitly requires a historical archive or a new versioned contract.
 
 ## UI slicing data guard (mandatory)

@@ -11,7 +11,6 @@ import { IntlProvider } from "@/providers/intl-provider";
 import { QueryProvider } from "@/providers/query-provider";
 
 import "./globals.css";
-import "./device-mode.css";
 
 export const metadata: Metadata = {
   applicationName: "Cafe Companion",

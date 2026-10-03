@@ -6,7 +6,8 @@ import { fileURLToPath } from "node:url";
 
 const testDir = dirname(fileURLToPath(import.meta.url));
 const selectorPath = join(testDir, "device-mode-selector.tsx");
-const homePath = join(testDir, "..", "app", "page.tsx");
+const homePath = join(testDir, "..", "app", "device-mode", "page.dev.tsx");
+const rootPath = join(testDir, "..", "app", "page.tsx");
 const appRoot = join(testDir, "..", "app");
 
 test("device mode choices navigate to dedicated merchant surface routes", async () => {
@@ -24,12 +25,19 @@ test("home shell exposes clickable navigation for every visible device mode", as
   const source = await readFile(homePath, "utf8");
 
   assert.match(source, /device-home__frame/);
-  assert.match(source, /href: "\/"/);
+  assert.match(source, /href: "\/device-mode"/);
   assert.match(source, /href: "\/pos"/);
   assert.match(source, /href: "\/kds"/);
   assert.match(source, /href: "\/catalog"/);
   assert.match(source, /href: "\/inventory"/);
   assert.match(source, /href="\/design-system"/);
+});
+
+test("the root route only redirects to the backoffice", async () => {
+  const source = await readFile(rootPath, "utf8");
+
+  assert.match(source, /redirect\("\/catalog"\)/);
+  assert.doesNotMatch(source, /device-home/);
 });
 
 test("POS opens the cashier surface instead of a placeholder", async () => {
@@ -41,7 +49,7 @@ test("POS opens the cashier surface instead of a placeholder", async () => {
 
 test("KDS and Inventory landing routes exist without rendering internal payload fields", async () => {
   for (const route of ["kds", "inventory"]) {
-    const pagePath = join(appRoot, route, "page.tsx");
+    const pagePath = join(appRoot, route, "page.dev.tsx");
     await access(pagePath);
     const source = await readFile(pagePath, "utf8");
 
