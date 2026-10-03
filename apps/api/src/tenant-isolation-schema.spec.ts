@@ -352,3 +352,30 @@ test("extends the core tables for the modular platform without breaking old rows
   assert.match(schema, /model OutboxEvent \{[\s\S]*eventVersion\s+Int\s+@default\(1\)/);
   assert.match(schema, /model AuditLog \{[\s\S]*@@index\(\[tenantId, correlationId\]\)/);
 });
+
+test("keeps published package versions immutable at the database level", () => {
+  const packages = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261003233000_core_packages/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(schema, /model CorePackageVersion \{[\s\S]*@@unique\(\[packageId, version\]\)/);
+  // The version row and each of its three content tables are guarded by a trigger.
+  assert.match(packages, /BEFORE UPDATE OR DELETE ON "core_package_versions"/);
+  for (const table of [
+    "core_package_modules",
+    "core_package_capabilities",
+    "core_package_limits",
+  ]) {
+    assert.match(packages, new RegExp(`BEFORE INSERT OR UPDATE OR DELETE ON "${table}"`));
+  }
+  assert.match(packages, /OLD\."status" = 'PUBLISHED' AND NEW\."status" = 'RETIRED'/);
+  assert.match(packages, /\("status" = 'DRAFT'\) = \("published_at" IS NULL\)/);
+  // Unlimited is a flag, never a large number.
+  assert.match(packages, /"unlimited" AND "value" IS NULL/);
+  // Existing plans are carried over rather than dropped.
+  assert.match(packages, /INSERT INTO "core_packages"[\s\S]*FROM "plans"/);
+  assert.doesNotMatch(packages, /DROP TABLE/);
+});

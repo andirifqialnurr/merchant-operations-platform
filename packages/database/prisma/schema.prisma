@@ -57,6 +57,18 @@ enum ModuleKind {
   COMMERCIAL
 }
 
+enum PackageVersionStatus {
+  DRAFT
+  PUBLISHED
+  RETIRED
+}
+
+enum ModuleTier {
+  BASIC
+  PRO
+  ADVANCED
+}
+
 enum SubscriptionStatus {
   TRIAL
   ACTIVE
@@ -588,6 +600,7 @@ model ModuleDefinition {
   createdAt    DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
   planLinks    PlanModule[]
+  packageLinks CorePackageModule[]
   entitlements TenantEntitlement[]
   dependencies ModuleDependency[]     @relation("ModuleDependencies")
   dependents   ModuleDependency[]     @relation("ModuleDependents")
@@ -630,6 +643,75 @@ model PlanModule {
   @@id([planId, moduleKey])
   @@index([moduleKey])
   @@map("plan_modules")
+}
+
+/// What is sold. Replaces `plans`, which stays during the transition (SCH-03).
+model CorePackage {
+  id        String                 @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  key       String                 @unique @db.VarChar(80)
+  name      String                 @db.VarChar(160)
+  status    OrganizationUnitStatus @default(ACTIVE)
+  createdAt DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime               @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  versions  CorePackageVersion[]
+
+  @@map("core_packages")
+}
+
+/// One fixed definition of a package. Database triggers refuse any change to a
+/// version, or to its modules, capabilities, and limits, once it is published.
+model CorePackageVersion {
+  id           String                  @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  packageId    String                  @map("package_id") @db.Uuid
+  version      Int
+  status       PackageVersionStatus    @default(DRAFT)
+  template     BusinessTemplate?
+  publishedAt  DateTime?               @map("published_at") @db.Timestamptz(6)
+  createdAt    DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime                @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  package      CorePackage             @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  modules      CorePackageModule[]
+  capabilities CorePackageCapability[]
+  limits       CorePackageLimit[]
+
+  @@unique([packageId, version])
+  @@index([packageId, status])
+  @@map("core_package_versions")
+}
+
+model CorePackageModule {
+  packageVersionId String             @map("package_version_id") @db.Uuid
+  moduleKey        String             @map("module_key") @db.VarChar(80)
+  tier             ModuleTier         @default(BASIC)
+  packageVersion   CorePackageVersion @relation(fields: [packageVersionId], references: [id], onDelete: Cascade)
+  module           ModuleDefinition   @relation(fields: [moduleKey], references: [key], onDelete: Restrict)
+
+  @@id([packageVersionId, moduleKey])
+  @@index([moduleKey])
+  @@map("core_package_modules")
+}
+
+/// A capability added to, or taken away from, what the module tier gives by default.
+model CorePackageCapability {
+  packageVersionId String             @map("package_version_id") @db.Uuid
+  capabilityKey    String             @map("capability_key") @db.VarChar(160)
+  included         Boolean
+  packageVersion   CorePackageVersion @relation(fields: [packageVersionId], references: [id], onDelete: Cascade)
+
+  @@id([packageVersionId, capabilityKey])
+  @@map("core_package_capabilities")
+}
+
+/// `unlimited` is a flag; `value` is null exactly when it is set.
+model CorePackageLimit {
+  packageVersionId String             @map("package_version_id") @db.Uuid
+  dimensionKey     String             @map("dimension_key") @db.VarChar(120)
+  value            BigInt?            @db.BigInt
+  unlimited        Boolean            @default(false)
+  packageVersion   CorePackageVersion @relation(fields: [packageVersionId], references: [id], onDelete: Cascade)
+
+  @@id([packageVersionId, dimensionKey])
+  @@map("core_package_limits")
 }
 
 model Subscription {
