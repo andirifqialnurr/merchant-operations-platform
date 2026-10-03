@@ -35,12 +35,18 @@ export const planCodeSchema = z.enum(Object.values(PLAN_CODES));
 
 export const moduleKindSchema = z.enum(["CORE", "COMMERCIAL"]);
 
+/**
+ * DRAFT is prepared but not started and gives no access.
+ * CANCELED_AT_PERIOD_END stays usable until `endsAt`.
+ */
 export const subscriptionStatusSchema = z.enum([
   "TRIAL",
   "ACTIVE",
   "GRACE",
   "SUSPENDED",
   "TERMINATED",
+  "DRAFT",
+  "CANCELED_AT_PERIOD_END",
 ]);
 
 export const entitlementSourceSchema = z.enum(["CORE", "PLAN", "OVERRIDE", "DEPENDENCY", "NONE"]);
@@ -80,10 +86,14 @@ export const subscriptionSchema = organizationRecordTimestampsSchema.extend({
   tenantId: z.uuid(),
   planCode: planCodeSchema,
   planName: organizationNameSchema,
+  /** Version of the package this subscription bought; it never changes afterwards. */
+  packageVersion: z.number().int().min(1),
   status: subscriptionStatusSchema,
   startsAt: z.iso.datetime(),
   endsAt: z.iso.datetime().nullable(),
   graceEndsAt: z.iso.datetime().nullable(),
+  cycleStartsAt: z.iso.datetime(),
+  cycleEndsAt: z.iso.datetime().nullable(),
 });
 
 export const moduleEntitlementSchema = z.object({

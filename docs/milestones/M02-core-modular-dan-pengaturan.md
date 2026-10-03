@@ -45,7 +45,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 
 - [x] **M2-BE-01 Penyesuaian tabel lama (B.1)** `2c913ed` — `tenants.type/template/currency/timezone`, `outlets.address`, kolom tambahan `outbox_events` dan `audit_logs`, `idempotency_keys.outlet_id` nullable.
 - [x] **M2-BE-02 Paket berversi** `d5a29e6` — `core_packages`, `core_package_versions`, modul, capability, limit; versi `PUBLISHED` tidak dapat diubah; migrasi data dari `plans`.
-- [ ] **M2-BE-03 Langganan dan add-on** — `subscriptions` merujuk versi paket; `core_subscription_addons`; status `DRAFT` dan `CANCELED_AT_PERIOD_END`.
+- [x] **M2-BE-03 Langganan dan add-on** — `subscriptions` merujuk versi paket; `core_subscription_addons`; status `DRAFT` dan `CANCELED_AT_PERIOD_END`.
 - [ ] **M2-BE-04 Override entitlement** — `core_entitlement_overrides` menggantikan `tenant_entitlements`, dengan alasan, masa berlaku, dan pelaku.
 - [ ] **M2-BE-05 Evaluator akses efektif** — projection `core_effective_entitlements`; guard memeriksa urutan `architecture.md` 6.3 dan mengembalikan kode alasan berbeda.
 - [ ] **M2-BE-06 Instalasi modul** — `core_module_installations` dan `core_module_configs` dengan lifecycle `architecture.md` 6.1; event `module.installed.v1`.

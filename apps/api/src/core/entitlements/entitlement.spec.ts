@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { MODULES, PLAN_CODES, type ModuleKey, type PlanCode } from "@merchant/contracts";
-import { ConflictException, ForbiddenException } from "@nestjs/common";
+import { BadRequestException, ConflictException, ForbiddenException } from "@nestjs/common";
 
 import type {
   EntitlementMutationContext,
@@ -63,6 +63,7 @@ const plans: PlanRecord[] = [
     id: "019f7900-0000-7000-8000-000000000201",
     moduleKeys: [MODULES.cafeProfile],
     name: "Profile",
+    publishedVersion: { id: "019f7900-0000-7000-8000-000000000401", version: 2 },
     status: "ACTIVE",
   },
   {
@@ -70,6 +71,7 @@ const plans: PlanRecord[] = [
     id: "019f7900-0000-7000-8000-000000000202",
     moduleKeys: [],
     name: "Custom Modular",
+    publishedVersion: { id: "019f7900-0000-7000-8000-000000000402", version: 1 },
     status: "ACTIVE",
   },
 ];
@@ -115,12 +117,17 @@ class MemoryEntitlementRepository implements EntitlementRepository {
     const now = new Date("2026-07-20T00:00:00.000Z");
     const subscription: SubscriptionRecord = {
       createdAt: now,
+      cycleEndsAt: input.cycleEndsAt,
+      cycleStartsAt: input.cycleStartsAt,
       endsAt: input.endsAt,
       graceEndsAt: input.graceEndsAt,
       id:
         tenantId === TENANT_ID
           ? "019f7900-0000-7000-8000-000000000301"
           : "019f7900-0000-7000-8000-000000000302",
+      packageVersion:
+        plans.find((item) => item.publishedVersion?.id === input.packageVersionId)?.publishedVersion
+          ?.version ?? 0,
       planCode: plan.code,
       planId: plan.id,
       planModuleKeys: plan.moduleKeys,
@@ -221,6 +228,95 @@ test("denies every tenant route while subscription is suspended", async () => {
   assert.equal(
     snapshot.modules.every((item) => !item.enabled),
     true,
+  );
+});
+
+test("a subscription records the published package version and its first cycle", async () => {
+  const service = new EntitlementService(new MemoryEntitlementRepository());
+  const snapshot = await service.replaceSubscription(TENANT_ID, {
+    ...activeSubscription(PLAN_CODES.profile),
+    endsAt: "2026-08-20T00:00:00.000Z",
+  });
+
+  assert.equal(snapshot.subscription?.packageVersion, 2);
+  assert.equal(snapshot.subscription?.cycleStartsAt, snapshot.subscription?.startsAt);
+  assert.equal(snapshot.subscription?.cycleEndsAt, "2026-08-20T00:00:00.000Z");
+});
+
+test("a package without a published version cannot be subscribed to", async () => {
+  const repository = new MemoryEntitlementRepository();
+  repository.findPlanByCode = async (code) => {
+    const plan = plans.find((item) => item.code === code);
+    return plan ? { ...plan, publishedVersion: null } : null;
+  };
+  const service = new EntitlementService(repository);
+
+  await assert.rejects(
+    () => service.replaceSubscription(TENANT_ID, activeSubscription(PLAN_CODES.profile)),
+    (error: unknown) => {
+      assert.ok(error instanceof ConflictException);
+      assert.equal((error.getResponse() as { code: string }).code, "PACKAGE_VERSION_NOT_PUBLISHED");
+      return true;
+    },
+  );
+  assert.equal(repository.state.subscription, null);
+});
+
+test("a draft subscription gives no access", async () => {
+  const service = new EntitlementService(new MemoryEntitlementRepository());
+  await service.replaceSubscription(TENANT_ID, {
+    ...activeSubscription(PLAN_CODES.profile),
+    status: "DRAFT",
+  });
+
+  await assert.rejects(() => service.requireAccess(TENANT_ID), ForbiddenException);
+});
+
+test("a subscription canceled at period end works until the period ends", async () => {
+  const service = new EntitlementService(new MemoryEntitlementRepository());
+  const canceled = {
+    ...activeSubscription(PLAN_CODES.profile),
+    status: "CANCELED_AT_PERIOD_END" as const,
+  };
+
+  await assert.rejects(
+    () => service.replaceSubscription(TENANT_ID, { ...canceled, endsAt: null }),
+    BadRequestException,
+  );
+
+  await service.replaceSubscription(TENANT_ID, { ...canceled, endsAt: "2026-08-20T00:00:00.000Z" });
+  const before = await service.getSnapshot(TENANT_ID, new Date("2026-08-19T23:59:59.000Z"));
+  const after = await service.getSnapshot(TENANT_ID, new Date("2026-08-20T00:00:00.000Z"));
+  assert.equal(before.modules.find((item) => item.key === MODULES.cafeProfile)?.enabled, true);
+  assert.equal(
+    after.modules.every((item) => !item.enabled),
+    true,
+  );
+});
+
+test("subscription dates that contradict each other are refused", async () => {
+  const service = new EntitlementService(new MemoryEntitlementRepository());
+  const base = activeSubscription(PLAN_CODES.profile);
+
+  // Ends before it starts.
+  await assert.rejects(
+    () => service.replaceSubscription(TENANT_ID, { ...base, endsAt: "2026-07-19T00:00:00.000Z" }),
+    BadRequestException,
+  );
+  // Grace period without an end and a grace deadline.
+  await assert.rejects(
+    () => service.replaceSubscription(TENANT_ID, { ...base, endsAt: null, status: "GRACE" }),
+    BadRequestException,
+  );
+  // Grace deadline before the end.
+  await assert.rejects(
+    () =>
+      service.replaceSubscription(TENANT_ID, {
+        ...base,
+        endsAt: "2026-08-20T00:00:00.000Z",
+        graceEndsAt: "2026-08-19T00:00:00.000Z",
+      }),
+    BadRequestException,
   );
 });
 

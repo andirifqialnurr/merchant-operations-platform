@@ -379,3 +379,22 @@ test("keeps published package versions immutable at the database level", () => {
   assert.match(packages, /INSERT INTO "core_packages"[\s\S]*FROM "plans"/);
   assert.doesNotMatch(packages, /DROP TABLE/);
 });
+
+test("ties subscriptions to a published package version and add-ons to their tenant", () => {
+  const subscriptions = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261003235000_subscription_package_versions/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(subscriptions, /ALTER COLUMN "package_version_id" SET NOT NULL/);
+  assert.match(subscriptions, /BEFORE INSERT OR UPDATE OF "package_version_id" ON "subscriptions"/);
+  assert.match(subscriptions, /"cycle_ends_at" IS NULL OR "cycle_ends_at" > "cycle_starts_at"/);
+  assert.match(
+    subscriptions,
+    /FOREIGN KEY \("tenant_id", "subscription_id"\) REFERENCES "subscriptions"\("tenant_id", "id"\)/,
+  );
+  assert.match(subscriptions, /"quantity" > 0/);
+  assert.doesNotMatch(subscriptions, /DROP COLUMN "plan_id"/);
+});

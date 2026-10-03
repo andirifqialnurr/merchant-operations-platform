@@ -75,6 +75,10 @@ enum SubscriptionStatus {
   GRACE
   SUSPENDED
   TERMINATED
+  /// Prepared but not started; gives no access.
+  DRAFT
+  /// Canceled, still usable until the period ends.
+  CANCELED_AT_PERIOD_END
 }
 
 enum CatalogRecordStatus {
@@ -264,6 +268,7 @@ model Tenant {
   memberships                  TenantMembership[]
   roles                        Role[]
   subscriptions                Subscription[]
+  subscriptionAddons           CoreSubscriptionAddon[]
   entitlements                 TenantEntitlement[]
   catalogCategories            CatalogCategory[]
   catalogProducts              CatalogProduct[]
@@ -661,18 +666,19 @@ model CorePackage {
 /// One fixed definition of a package. Database triggers refuse any change to a
 /// version, or to its modules, capabilities, and limits, once it is published.
 model CorePackageVersion {
-  id           String                  @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  packageId    String                  @map("package_id") @db.Uuid
-  version      Int
-  status       PackageVersionStatus    @default(DRAFT)
-  template     BusinessTemplate?
-  publishedAt  DateTime?               @map("published_at") @db.Timestamptz(6)
-  createdAt    DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt    DateTime                @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  package      CorePackage             @relation(fields: [packageId], references: [id], onDelete: Restrict)
-  modules      CorePackageModule[]
-  capabilities CorePackageCapability[]
-  limits       CorePackageLimit[]
+  id            String                  @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  packageId     String                  @map("package_id") @db.Uuid
+  version       Int
+  status        PackageVersionStatus    @default(DRAFT)
+  template      BusinessTemplate?
+  publishedAt   DateTime?               @map("published_at") @db.Timestamptz(6)
+  createdAt     DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime                @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  package       CorePackage             @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  modules       CorePackageModule[]
+  capabilities  CorePackageCapability[]
+  limits        CorePackageLimit[]
+  subscriptions Subscription[]
 
   @@unique([packageId, version])
   @@index([packageId, status])
@@ -715,22 +721,48 @@ model CorePackageLimit {
 }
 
 model Subscription {
-  id           String             @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  tenantId     String             @map("tenant_id") @db.Uuid
-  planId       String             @map("plan_id") @db.Uuid
-  status       SubscriptionStatus
-  startsAt     DateTime           @map("starts_at") @db.Timestamptz(6)
-  endsAt       DateTime?          @map("ends_at") @db.Timestamptz(6)
-  graceEndsAt  DateTime?          @map("grace_ends_at") @db.Timestamptz(6)
-  supersededAt DateTime?          @map("superseded_at") @db.Timestamptz(6)
-  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt    DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
-  tenant       Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  plan         Plan               @relation(fields: [planId], references: [id], onDelete: Restrict)
+  id               String                  @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId         String                  @map("tenant_id") @db.Uuid
+  planId           String                  @map("plan_id") @db.Uuid
+  /// The exact version that was bought; never a draft (database trigger).
+  packageVersionId String                  @map("package_version_id") @db.Uuid
+  cycleStartsAt    DateTime                @map("cycle_starts_at") @db.Timestamptz(6)
+  cycleEndsAt      DateTime?               @map("cycle_ends_at") @db.Timestamptz(6)
+  status           SubscriptionStatus
+  startsAt         DateTime                @map("starts_at") @db.Timestamptz(6)
+  endsAt           DateTime?               @map("ends_at") @db.Timestamptz(6)
+  graceEndsAt      DateTime?               @map("grace_ends_at") @db.Timestamptz(6)
+  supersededAt     DateTime?               @map("superseded_at") @db.Timestamptz(6)
+  createdAt        DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant           Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  plan             Plan                    @relation(fields: [planId], references: [id], onDelete: Restrict)
+  packageVersion   CorePackageVersion      @relation(fields: [packageVersionId], references: [id], onDelete: Restrict)
+  addons           CoreSubscriptionAddon[]
 
+  @@unique([tenantId, id])
   @@index([tenantId, createdAt])
   @@index([planId, status])
+  @@index([packageVersionId])
   @@map("subscriptions")
+}
+
+/// Something bought on top of the package for a period, e.g. extra locations.
+model CoreSubscriptionAddon {
+  id             String       @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId       String       @map("tenant_id") @db.Uuid
+  subscriptionId String       @map("subscription_id") @db.Uuid
+  addonKey       String       @map("addon_key") @db.VarChar(120)
+  quantity       Int          @default(1)
+  startsAt       DateTime     @map("starts_at") @db.Timestamptz(6)
+  endsAt         DateTime?    @map("ends_at") @db.Timestamptz(6)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  subscription   Subscription @relation(fields: [tenantId, subscriptionId], references: [tenantId, id], onDelete: Cascade)
+
+  @@unique([subscriptionId, addonKey, startsAt])
+  @@index([tenantId, subscriptionId])
+  @@map("core_subscription_addons")
 }
 
 model TenantEntitlement {

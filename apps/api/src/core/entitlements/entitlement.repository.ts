@@ -25,14 +25,19 @@ export type PlanRecord = {
   id: string;
   moduleKeys: ModuleKey[];
   name: string;
+  /** Newest published version of the package with this code; null when none is published. */
+  publishedVersion: { id: string; version: number } | null;
   status: OrganizationUnitStatus;
 };
 
 export type SubscriptionRecord = {
   createdAt: Date;
+  cycleEndsAt: Date | null;
+  cycleStartsAt: Date;
   endsAt: Date | null;
   graceEndsAt: Date | null;
   id: string;
+  packageVersion: number;
   planCode: PlanCode;
   planId: string;
   planModuleKeys: ModuleKey[];
@@ -59,8 +64,11 @@ export type EntitlementStateRecord = {
 };
 
 export type ReplaceSubscriptionRecordInput = {
+  cycleEndsAt: Date | null;
+  cycleStartsAt: Date;
   endsAt: Date | null;
   graceEndsAt: Date | null;
+  packageVersionId: string;
   planId: string;
   startsAt: Date;
   status: SubscriptionStatus;
@@ -104,9 +112,12 @@ const planSelect = {
 
 const subscriptionSelect = {
   createdAt: true,
+  cycleEndsAt: true,
+  cycleStartsAt: true,
   endsAt: true,
   graceEndsAt: true,
   id: true,
+  packageVersion: { select: { version: true } },
   plan: { select: planSelect },
   planId: true,
   startsAt: true,
@@ -139,27 +150,34 @@ function mapModule(record: {
   };
 }
 
-function mapPlan(record: {
-  code: string;
-  id: string;
-  modules: Array<{ moduleKey: string }>;
-  name: string;
-  status: OrganizationUnitStatus;
-}): PlanRecord {
+function mapPlan(
+  record: {
+    code: string;
+    id: string;
+    modules: Array<{ moduleKey: string }>;
+    name: string;
+    status: OrganizationUnitStatus;
+  },
+  publishedVersion: PlanRecord["publishedVersion"],
+): PlanRecord {
   return {
     code: record.code as PlanCode,
     id: record.id,
     moduleKeys: record.modules.map((item) => item.moduleKey as ModuleKey),
     name: record.name,
+    publishedVersion,
     status: record.status,
   };
 }
 
 function mapSubscription(record: {
   createdAt: Date;
+  cycleEndsAt: Date | null;
+  cycleStartsAt: Date;
   endsAt: Date | null;
   graceEndsAt: Date | null;
   id: string;
+  packageVersion: { version: number };
   plan: {
     code: string;
     id: string;
@@ -174,9 +192,12 @@ function mapSubscription(record: {
 }): SubscriptionRecord {
   return {
     createdAt: record.createdAt,
+    cycleEndsAt: record.cycleEndsAt,
+    cycleStartsAt: record.cycleStartsAt,
     endsAt: record.endsAt,
     graceEndsAt: record.graceEndsAt,
     id: record.id,
+    packageVersion: record.packageVersion.version,
     planCode: record.plan.code as PlanCode,
     planId: record.planId,
     planModuleKeys: record.plan.modules.map((item) => item.moduleKey as ModuleKey),
@@ -249,11 +270,16 @@ async function writeChange(
 @Injectable()
 export class PrismaEntitlementRepository implements EntitlementRepository {
   async findPlanByCode(code: PlanCode) {
-    const plan = await getPrismaClient().plan.findUnique({
-      select: planSelect,
-      where: { code },
-    });
-    return plan ? mapPlan(plan) : null;
+    const [plan, publishedVersion] = await Promise.all([
+      getPrismaClient().plan.findUnique({ select: planSelect, where: { code } }),
+      // The package carries the plan's code as its key (SCH-03 transition).
+      getPrismaClient().corePackageVersion.findFirst({
+        orderBy: { version: "desc" },
+        select: { id: true, version: true },
+        where: { package: { key: code }, status: "PUBLISHED" },
+      }),
+    ]);
+    return plan ? mapPlan(plan, publishedVersion) : null;
   }
 
   async getState(tenantId: string): Promise<EntitlementStateRecord> {

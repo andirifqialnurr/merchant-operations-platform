@@ -35,8 +35,8 @@ function conflict(code: string, message: string) {
   return new ConflictException({ code, message });
 }
 
-function invalid(message: string) {
-  return new BadRequestException({ code: "SUBSCRIPTION_INVALID", message });
+function invalid(message: string): never {
+  throw new BadRequestException({ code: "SUBSCRIPTION_INVALID", message });
 }
 
 function denied(code: "MODULE_NOT_ENTITLED" | "SUBSCRIPTION_INACTIVE") {
@@ -52,9 +52,12 @@ function denied(code: "MODULE_NOT_ENTITLED" | "SUBSCRIPTION_INACTIVE") {
 function toSubscription(record: SubscriptionRecord): Subscription {
   return {
     createdAt: record.createdAt.toISOString(),
+    cycleEndsAt: record.cycleEndsAt?.toISOString() ?? null,
+    cycleStartsAt: record.cycleStartsAt.toISOString(),
     endsAt: record.endsAt?.toISOString() ?? null,
     graceEndsAt: record.graceEndsAt?.toISOString() ?? null,
     id: record.id,
+    packageVersion: record.packageVersion,
     planCode: record.planCode,
     planName: record.planName,
     startsAt: record.startsAt.toISOString(),
@@ -68,6 +71,10 @@ function isSubscriptionUsable(record: SubscriptionRecord | null, now: Date) {
   if (!record || record.startsAt > now) return false;
   if (record.status === "TRIAL" || record.status === "ACTIVE") {
     return record.endsAt === null || record.endsAt > now;
+  }
+  // Canceled subscriptions run out the period that was paid for.
+  if (record.status === "CANCELED_AT_PERIOD_END") {
+    return record.endsAt !== null && record.endsAt > now;
   }
   if (record.status === "GRACE") {
     return record.graceEndsAt !== null && record.graceEndsAt > now;
@@ -180,6 +187,8 @@ export class EntitlementService {
       invalid("Batas grace period tidak boleh sebelum waktu berakhir.");
     if (input.status === "GRACE" && (!endsAt || !graceEndsAt))
       invalid("Subscription berstatus GRACE wajib memiliki endsAt dan graceEndsAt.");
+    if (input.status === "CANCELED_AT_PERIOD_END" && !endsAt)
+      invalid("A subscription canceled at period end needs endsAt.");
     return { endsAt, graceEndsAt, startsAt };
   }
 
@@ -201,10 +210,21 @@ export class EntitlementService {
     const plan = await this.repository.findPlanByCode(parsed.planCode);
     if (!plan) throw notFound("PLAN_NOT_FOUND", "Paket subscription tidak ditemukan.");
     if (plan.status !== "ACTIVE") throw conflict("PLAN_INACTIVE", "Paket tidak aktif.");
+    if (!plan.publishedVersion) {
+      throw conflict("PACKAGE_VERSION_NOT_PUBLISHED", "This package has no published version.");
+    }
     const dates = this.validateDates(parsed);
     await this.repository.replaceSubscription(
       tenantId,
-      { ...dates, planId: plan.id, status: parsed.status },
+      {
+        ...dates,
+        // The first billing cycle is the subscription period itself.
+        cycleEndsAt: dates.endsAt,
+        cycleStartsAt: dates.startsAt,
+        packageVersionId: plan.publishedVersion.id,
+        planId: plan.id,
+        status: parsed.status,
+      },
       context,
     );
     return this.getSnapshot(tenantId);
