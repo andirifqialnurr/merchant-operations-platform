@@ -47,3 +47,6 @@ CREDENTIALS.local.md
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Saved browser sessions of the local e2e accounts
+apps/web/e2e/.auth/

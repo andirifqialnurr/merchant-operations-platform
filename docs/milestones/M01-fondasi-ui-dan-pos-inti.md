@@ -97,8 +97,8 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 ### QA — Kualitas kode dan test
 
 - [x] **M1-QA-01 Modul POS dengan struktur target** — `modules/pos-sales` dan `kernels/*` berisi domain/application/adapters.
-- [ ] **M1-QA-02 Test browser otomatis untuk POS** — skrip Playwright di repo (bukan scratch) untuk alur buka shift → jual → bayar → tutup shift, dijalankan terhadap database lokal.
-- [ ] **M1-QA-03 Test komponen web** — test unit untuk logika `features/pos` (keranjang sudah ada) dan helper format.
+- [x] **M1-QA-02 Test browser otomatis untuk POS** — skrip Playwright di repo (bukan scratch) untuk alur buka shift → jual → bayar → tutup shift, dijalankan terhadap database lokal.
+- [x] **M1-QA-03 Test komponen web** — test unit untuk logika `features/pos` (keranjang sudah ada) dan helper format.
 
 ### OP — Operasional dan dokumentasi
 

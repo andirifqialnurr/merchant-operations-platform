@@ -185,6 +185,9 @@ importers:
       '@merchant/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
+      '@playwright/test':
+        specifier: 1.61.1
+        version: 1.61.1
       '@types/react':
         specifier: 19.2.17
         version: 19.2.17

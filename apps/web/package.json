@@ -8,7 +8,8 @@
     "start": "next start --port 3000",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "node --test src/components/device-mode-selector.test.mjs src/components/device-mode-selector-navigation.test.mjs src/components/pwa/service-worker-registration.test.mjs && tsx --test src/components/pwa/menu-cart-cache.test.ts src/components/pwa/server-acknowledgement.test.ts src/i18n/locale.test.ts src/features/pos/cart.test.ts",
+    "test:e2e": "playwright test",
+    "test": "node --test src/components/device-mode-selector.test.mjs src/components/device-mode-selector-navigation.test.mjs src/components/pwa/service-worker-registration.test.mjs && tsx --test src/components/pwa/menu-cart-cache.test.ts src/components/pwa/server-acknowledgement.test.ts src/i18n/locale.test.ts src/lib/format.test.ts src/features/pos/cart.test.ts",
     "format:check": "prettier --check . --ignore-path ../../.gitignore"
   },
   "dependencies": {
@@ -34,6 +35,7 @@
   "devDependencies": {
     "@merchant/eslint-config": "workspace:*",
     "@merchant/typescript-config": "workspace:*",
+    "@playwright/test": "1.61.1",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3"
   }
