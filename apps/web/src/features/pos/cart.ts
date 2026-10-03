@@ -78,6 +78,35 @@ export function setLineQuantity(cart: readonly CartLine[], key: string, quantity
   );
 }
 
+/** The longest note an order line accepts. */
+export const MAX_NOTE_LENGTH = 300;
+
+/**
+ * Sets or clears a line's note. A line whose note now matches another line
+ * exactly is merged into it, so the cart never shows two identical lines.
+ */
+export function setLineNote(cart: readonly CartLine[], key: string, note: string) {
+  const target = cart.find((line) => lineKey(line) === key);
+  if (!target) return [...cart];
+  const trimmed = note.trim().slice(0, MAX_NOTE_LENGTH);
+  const updated: CartLine = {
+    modifierOptionIds: target.modifierOptionIds,
+    productId: target.productId,
+    quantity: target.quantity,
+    ...(trimmed ? { note: trimmed } : {}),
+    ...(target.variantId ? { variantId: target.variantId } : {}),
+  };
+  const twin = cart.find((line) => line !== target && lineKey(line) === lineKey(updated));
+  if (!twin) return cart.map((line) => (line === target ? updated : line));
+  return cart
+    .filter((line) => line !== target)
+    .map((line) =>
+      line === twin
+        ? { ...line, quantity: Math.min(line.quantity + target.quantity, MAX_LINE_QUANTITY) }
+        : line,
+    );
+}
+
 export function removeLine(cart: readonly CartLine[], key: string) {
   return cart.filter((line) => lineKey(line) !== key);
 }

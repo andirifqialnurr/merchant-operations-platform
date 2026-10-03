@@ -1,16 +1,23 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 import type { SellableMenuModifierGroup, SellableMenuProduct } from "@merchant/contracts";
 import { Button } from "@merchant/ui/button";
 import { Checkbox, QuantityStepper, Radio } from "@merchant/ui/selection-control";
+import { FormField, Input } from "@merchant/ui/input";
 import { Sheet } from "@merchant/ui/sheet";
 
 import { useFormat } from "@/lib/i18n";
 
-import { isLineComplete, MAX_LINE_QUANTITY, unitPrice, type CartLine } from "./cart";
+import {
+  isLineComplete,
+  MAX_LINE_QUANTITY,
+  MAX_NOTE_LENGTH,
+  unitPrice,
+  type CartLine,
+} from "./cart";
 
 /** Stretches the option label so its surcharge sits at the end of the row. */
 const OPTION_ROW = "flex w-full [&>span:last-child]:flex-1";
@@ -51,11 +58,14 @@ export function ProductOptionsSheet({
   );
   const [optionIds, setOptionIds] = useState<readonly string[]>([]);
   const [quantity, setQuantity] = useState(1);
+  const [note, setNote] = useState("");
+  const noteId = useId();
 
   const line: CartLine = {
     modifierOptionIds: optionIds,
     productId: product.id,
     quantity,
+    ...(note.trim() ? { note: note.trim() } : {}),
     ...(variantId ? { variantId } : {}),
   };
   const complete = isLineComplete(product, line);
@@ -180,6 +190,14 @@ export function ProductOptionsSheet({
             </fieldset>
           );
         })}
+        <FormField htmlFor={noteId} label={t("note")} optionalLabel={t("optional")}>
+          <Input
+            id={noteId}
+            maxLength={MAX_NOTE_LENGTH}
+            onChange={(event) => setNote(event.target.value)}
+            value={note}
+          />
+        </FormField>
       </div>
     </Sheet>
   );

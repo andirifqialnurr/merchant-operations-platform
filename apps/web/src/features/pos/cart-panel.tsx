@@ -1,15 +1,17 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { IconTrash } from "@tabler/icons-react";
+import { useState } from "react";
+import { IconNote, IconTrash } from "@tabler/icons-react";
 
 import { Button, IconButton } from "@merchant/ui/button";
 import { MoneyDisplay } from "@merchant/ui/money-display";
+import { Input } from "@merchant/ui/input";
 import { QuantityStepper } from "@merchant/ui/selection-control";
 
 import { useFormat } from "@/lib/i18n";
 
-import { MAX_LINE_QUANTITY, type CartLineView } from "./cart";
+import { MAX_LINE_QUANTITY, MAX_NOTE_LENGTH, type CartLineView } from "./cart";
 
 /**
  * The cart: what was chosen, how many, and the total. The total appears here
@@ -17,12 +19,14 @@ import { MAX_LINE_QUANTITY, type CartLineView } from "./cart";
  */
 export function CartPanel({
   lines,
+  onNoteChange,
   onPay,
   onQuantityChange,
   onRemove,
   totalMinor,
 }: Readonly<{
   lines: readonly CartLineView[];
+  onNoteChange: (key: string, note: string) => void;
   /** Omitted when the cashier may not take payments. */
   onPay?: (() => void) | undefined;
   onQuantityChange: (key: string, quantity: number) => void;
@@ -31,6 +35,13 @@ export function CartPanel({
 }>) {
   const t = useTranslations("pos");
   const { locale } = useFormat();
+  const [editing, setEditing] = useState<string | undefined>();
+  const [draft, setDraft] = useState("");
+
+  function saveNote(key: string) {
+    onNoteChange(key, draft);
+    setEditing(undefined);
+  }
 
   if (lines.length === 0) {
     return <p className="p-4 text-body-sm text-foreground-secondary">{t("cartEmpty")}</p>;
@@ -49,9 +60,27 @@ export function CartPanel({
                     {item.choices.join(" · ")}
                   </p>
                 ) : null}
+                {item.line.note && editing !== item.key ? (
+                  <p className="m-0 text-body-sm text-foreground-secondary">“{item.line.note}”</p>
+                ) : null}
               </div>
               <MoneyDisplay amountMinor={item.lineTotalMinor} locale={locale} />
             </div>
+            {editing === item.key ? (
+              <Input
+                aria-label={t("noteFor", { name: item.name })}
+                autoFocus
+                maxLength={MAX_NOTE_LENGTH}
+                onBlur={() => saveNote(item.key)}
+                onChange={(event) => setDraft(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") saveNote(item.key);
+                  if (event.key === "Escape") setEditing(undefined);
+                }}
+                size="sm"
+                value={draft}
+              />
+            ) : null}
             <div className="flex items-center justify-between gap-3">
               <QuantityStepper
                 decreaseLabel={t("decrease", { name: item.name })}
@@ -63,12 +92,23 @@ export function CartPanel({
                 size="sm"
                 value={item.line.quantity}
               />
-              <IconButton
-                icon={IconTrash}
-                label={t("remove", { name: item.name })}
-                onClick={() => onRemove(item.key)}
-                size="sm"
-              />
+              <div className="flex items-center gap-1">
+                <IconButton
+                  icon={IconNote}
+                  label={t("noteFor", { name: item.name })}
+                  onClick={() => {
+                    setDraft(item.line.note ?? "");
+                    setEditing(item.key);
+                  }}
+                  size="sm"
+                />
+                <IconButton
+                  icon={IconTrash}
+                  label={t("remove", { name: item.name })}
+                  onClick={() => onRemove(item.key)}
+                  size="sm"
+                />
+              </div>
             </div>
           </li>
         ))}

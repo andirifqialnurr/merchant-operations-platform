@@ -179,6 +179,7 @@
     "noOutlet": "Anda belum ditugaskan ke outlet mana pun.",
     "nonCash": "Non-tunai",
     "note": "Keterangan",
+    "noteFor": "Catatan {name}",
     "noteRequired": "Isi keterangan, minimal 3 huruf.",
     "open": "Buka shift",
     "openedAt": "Dibuka",

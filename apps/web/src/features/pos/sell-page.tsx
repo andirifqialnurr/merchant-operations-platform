@@ -23,6 +23,7 @@ import { useCurrentShift, useMenu } from "./api";
 import {
   addLine,
   removeLine,
+  setLineNote,
   setLineQuantity,
   toOrderItems,
   viewCart,
@@ -121,6 +122,7 @@ function SellScreen({
             }
           : undefined
       }
+      onNoteChange={(key, note) => changeCart(setLineNote(cart, key, note))}
       onQuantityChange={(key, quantity) => changeCart(setLineQuantity(cart, key, quantity))}
       onRemove={(key) => changeCart(removeLine(cart, key))}
       totalMinor={view.totalMinor}

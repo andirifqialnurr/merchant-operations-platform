@@ -173,6 +173,7 @@ function OrderSheet({
               const choices = [
                 ...(item.variantName ? [item.variantName] : []),
                 ...item.modifiers.map((modifier) => modifier.optionName),
+                ...(item.note ? [`“${item.note}”`] : []),
               ];
               return (
                 <li className="flex items-start justify-between gap-3 py-3" key={item.id}>

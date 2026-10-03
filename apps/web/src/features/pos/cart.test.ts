@@ -8,6 +8,7 @@ import {
   isLineComplete,
   lineKey,
   removeLine,
+  setLineNote,
   setLineQuantity,
   toOrderItems,
   unitPrice,
@@ -143,4 +144,25 @@ test("drops lines the menu no longer sells and builds the order payload", () => 
   ]);
   // Only what the cashier chose is sent; no name or price leaves the client.
   assert.equal(JSON.stringify(toOrderItems(view.lines)).includes("Minor"), false);
+});
+
+test("adds, clears, and merges notes on cart lines", () => {
+  const toast = { modifierOptionIds: [], productId: "toast", quantity: 1 };
+  let cart = addLine(addLine([], icedLarge), toast);
+  const key = lineKey(toast);
+
+  cart = setLineNote(cart, key, "  Tanpa gula  ");
+  assert.equal(cart[1]!.note, "Tanpa gula");
+  assert.equal(cart.length, 2);
+
+  // The same item with the same note becomes one line.
+  cart = addLine(cart, { ...toast, note: "Pedas" });
+  cart = setLineNote(cart, lineKey({ ...toast, note: "Pedas" }), "Tanpa gula");
+  assert.equal(cart.length, 2);
+  assert.equal(cart.find((line) => line.productId === "toast")!.quantity, 2);
+
+  // An empty note removes it; the line keeps its place.
+  cart = setLineNote(cart, lineKey({ ...toast, note: "Tanpa gula" }), "   ");
+  assert.equal(cart[1]!.note, undefined);
+  assert.equal(viewCart(cart, menu).lines[1]!.line.note, undefined);
 });

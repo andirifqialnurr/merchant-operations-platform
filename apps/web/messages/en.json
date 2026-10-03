@@ -179,6 +179,7 @@
     "noOutlet": "You are not assigned to any outlet yet.",
     "nonCash": "Non-cash",
     "note": "Note",
+    "noteFor": "Note for {name}",
     "noteRequired": "Enter a note of at least 3 letters.",
     "open": "Open shift",
     "openedAt": "Opened",
