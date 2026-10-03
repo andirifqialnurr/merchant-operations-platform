@@ -200,6 +200,9 @@ importers:
 
   apps/worker:
     dependencies:
+      '@merchant/api':
+        specifier: workspace:*
+        version: link:../api
       bullmq:
         specifier: ^5.81.5
         version: 5.81.5

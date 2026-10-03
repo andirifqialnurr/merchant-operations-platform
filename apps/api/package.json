@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    "./worker-runtime": "./src/worker-runtime.ts"
+  },
   "scripts": {
     "dev": "node --env-file=../../.env --import tsx --watch src/main.ts",
     "build": "tsc --project tsconfig.build.json",

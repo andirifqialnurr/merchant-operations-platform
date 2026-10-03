@@ -5,6 +5,8 @@ export const subscriptionManifest: ModuleManifest = {
   capabilities: [],
   capabilityTiers: {},
   displayName: "Subscription and Entitlement Core",
+  // Rebuilds the workspace's effective entitlements when a module is installed.
+  eventHandlers: [{ eventType: "module.installed.v1", handlerKey: "core.entitlement_projection" }],
   // Written by core/installations when a module finishes installing.
   eventsProduced: ["module.installed.v1"],
   internalDependencies: [MODULES.coreTenancy],
@@ -15,7 +17,6 @@ export const subscriptionManifest: ModuleManifest = {
   permissions: [],
   routes: [],
   configSchemaVersion: 1,
-  eventHandlers: [],
   installSteps: [],
   settings: [],
   supportedWorkspaceTypes: ["BUSINESS", "PERSONAL"],

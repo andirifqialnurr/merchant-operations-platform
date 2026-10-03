@@ -1,11 +1,13 @@
 import { Module } from "@nestjs/common";
 
 import { ENTITLEMENT_REPOSITORY, PrismaEntitlementRepository } from "./entitlement.repository.js";
+import { EntitlementProjectionHandler } from "./entitlement-projection.handler.js";
 import { EntitlementService } from "./entitlement.service.js";
 
 @Module({
   exports: [EntitlementService],
   providers: [
+    EntitlementProjectionHandler,
     EntitlementService,
     PrismaEntitlementRepository,
     { provide: ENTITLEMENT_REPOSITORY, useExisting: PrismaEntitlementRepository },

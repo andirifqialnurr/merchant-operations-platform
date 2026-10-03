@@ -32,6 +32,8 @@ apps/api/src/
     observability/            request ID, log terstruktur
     audit/                    audit aksi kritis
     manifest/                 registry manifest modul (kunci capability per tier, dimensi limit, izin, navigasi, event, ketergantungan)
+    installations/            instalasi modul per workspace dan menu dari manifest
+    events/                   registry handler event, dispatcher outbox, inbox
   catalog/                    kategori, produk, varian, modifier, gambar, produk per outlet (dipecah di M2-QA-02)
   kernels/
     order-intake/             pesanan dan item
@@ -39,10 +41,12 @@ apps/api/src/
   modules/
     pos-sales/                shift dan kas, pesanan kasir, keranjang tertahan
   module-manifests.ts         daftar manifest semua unit; satu-satunya tempat yang perlu diubah saat modul baru ditambahkan
+  worker-runtime.ts           modul API tanpa server HTTP, untuk proses worker (handler memanggil use case yang sama)
   reliability/                test isolasi tenant/outlet
 apps/worker/src/
-  index.ts                    worker BullMQ untuk antrean `system` + smoke check lewat Redis; belum ada dispatcher outbox
+  index.ts                    memuat `@merchant/api/worker-runtime`, menjalankan dispatcher outbox, dan worker BullMQ untuk antrean `system`; `--smoke` menguji Redis dan satu batch outbox
   queues.ts                   nama antrean, opsi job bawaan, koneksi dari REDIS_URL
+  outbox-loop.ts              putaran dispatcher: lanjut selama ada event, jeda saat kosong atau gagal, berhenti dengan rapi
   queue-retry.ts              helper coba ulang/dead-letter
 packages/contracts/src/           satu file per domain (http, money, auth, platform, organization, catalog, entitlement, access, module-manifest, packages-limits, events, support-access, table-qr, pos-shift, menu, orders, billing, held-carts, openapi); index.ts hanya mengekspor ulang
 packages/database/            skema Prisma, 9 migrasi, klien, drill backup/restore
@@ -70,7 +74,7 @@ Pola per modul saat ini: `*.controller.ts` → `*.service.ts` → `*.repository.
 | `packages/contracts/src/index.ts` satu file | Konflik merge, sulit dicari | Pecah per domain (bagian 7) |
 | Pesan error ditulis dalam Bahasa Indonesia di server | Tidak mendukung dua bahasa | Kode stabil + terjemahan di klien (bagian 9) |
 | Rate limit di memori proses | Tidak berlaku lintas instance | Pindah ke Redis saat lebih dari satu instance |
-| Belum ada dispatcher outbox, inbox, registry manifest, instalasi, binding, metering | Integrasi antarmodul belum dapat berjalan | Tahap B di `prd.md` |
+| Belum ada binding integrasi dan metering | Integrasi antarmodul belum bisa dinyalakan/dimatikan per workspace; limit belum ditegakkan | Tahap B di `prd.md` |
 | Entitlement berupa boolean per modul | Tidak mengenal tier, capability, limit | Diganti evaluator entitlement efektif |
 
 ---
@@ -429,7 +433,7 @@ markReady(@Param(...) params, @CurrentAccess() access, @Command() ctx) { … }
 | Pembangun projection | Saldo stok, rekap harian, counter pemakaian |
 | Job terjadwal | Kedaluwarsa sesi, pengingat limit, pembersihan kunci idempotency |
 
-Worker memakai modul yang sama dengan API (use case dan repository), bukan salinan logika. Shutdown harus bersih: berhenti mengklaim, menyelesaikan pekerjaan berjalan, lalu keluar. Redis/BullMQ baru ditambahkan bila dispatcher berbasis polling database tidak lagi memadai.
+Worker memakai modul yang sama dengan API (use case dan repository), bukan salinan logika: `apps/worker` mengimpor `@merchant/api/worker-runtime`, yang membuat konteks aplikasi NestJS tanpa server HTTP. Karena itu `apps/worker/tsconfig.json` ikut memuat sumber API (dekorator), dan worker dijalankan dari sumber TypeScript dengan `tsx`, tidak dari `dist`. Dispatcher mengklaim event dengan `FOR UPDATE SKIP LOCKED` dan masa sewa (`available_at`), jadi beberapa worker bisa berjalan bersamaan dan event kembali tersedia bila worker mati. Handler didaftarkan modul saat aplikasi mulai dan harus sama persis dengan `eventHandlers` di manifest; bila tidak, worker menolak mulai. Shutdown harus bersih: berhenti mengklaim, menyelesaikan pekerjaan berjalan, lalu keluar. Redis/BullMQ baru ditambahkan bila dispatcher berbasis polling database tidak lagi memadai.
 
 ---
 

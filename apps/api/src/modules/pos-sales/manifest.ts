@@ -42,8 +42,9 @@ export const posSalesManifest: ModuleManifest = {
     "pos.webhook.outbound": "PRO",
   },
   displayName: "POS and Sales",
-  // Orders, bills, and payments are produced by the kernels the cashier drives.
-  eventsProduced: [],
+  // Orders, bills, and payments are announced by the kernels the cashier drives;
+  // the shift is the cashier module's own.
+  eventsProduced: ["shift.opened.v1", "shift.closed.v1"],
   internalDependencies: [
     MODULES.coreCatalog,
     MODULES.coreOrder,

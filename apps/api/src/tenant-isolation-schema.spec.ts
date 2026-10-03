@@ -489,3 +489,26 @@ test("keeps module installations and their settings inside one tenant", () => {
   }
   assert.match(schema, /model CoreModuleInstallation \{[\s\S]*@@unique\(\[tenantId, moduleKey\]\)/);
 });
+
+test("delivers each event to each handler at most once per tenant", () => {
+  const delivery = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261004040000_outbox_dispatch_and_inbox/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(
+    delivery,
+    /UNIQUE INDEX "core_inbox_events_tenant_id_consumer_name_event_id_key"\s+ON "core_inbox_events"\("tenant_id", "consumer_name", "event_id"\)/,
+  );
+  assert.match(delivery, /FOREIGN KEY \("tenant_id"\) REFERENCES "tenants"\("id"\)/);
+  // An event is either delivered or set aside, never both.
+  assert.match(delivery, /"processed_at" IS NULL OR "failed_at" IS NULL/);
+  // Anything other than "processed" must say why.
+  assert.match(delivery, /"status" = 'PROCESSED' OR "last_error" IS NOT NULL/);
+  assert.match(
+    schema,
+    /model CoreInboxEvent \{[\s\S]*@@unique\(\[tenantId, consumerName, eventId\]\)/,
+  );
+});

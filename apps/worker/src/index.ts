@@ -1,9 +1,14 @@
+import { createWorkerRuntime } from "@merchant/api/worker-runtime";
 import { Queue, QueueEvents, Worker, type Job } from "bullmq";
 
+import { startOutboxLoop } from "./outbox-loop.js";
 import { DEFAULT_JOB_OPTIONS, queueConnection, QUEUES, retryDelayMs } from "./queues.js";
 
 const HEARTBEAT_JOB = "heartbeat";
 const SMOKE_TIMEOUT_MS = 15_000;
+/** How long the dispatcher rests when the outbox is empty, and after a failure. */
+const OUTBOX_IDLE_MS = 1_000;
+const OUTBOX_ERROR_MS = 5_000;
 const isSmokeCheck = process.argv.includes("--smoke");
 
 /** Jobs of the worker's own queue. Unknown names fail loudly instead of passing silently. */
@@ -35,7 +40,6 @@ async function runSmokeCheck(worker: Worker) {
     await Promise.all([worker.waitUntilReady(), events.waitUntilReady()]);
     const job = await queue.add(HEARTBEAT_JOB, {});
     await job.waitUntilFinished(events, SMOKE_TIMEOUT_MS);
-    console.info("Worker smoke check completed");
   } finally {
     await Promise.all([events.close(), queue.close()]);
   }
@@ -56,7 +60,11 @@ async function withDeadline<T>(work: Promise<T>, milliseconds: number, message: 
 
 async function main() {
   const worker = startSystemWorker();
-  console.info("Worker started");
+  // The API's own modules, so event handlers call the same use cases the API does.
+  const runtime = await createWorkerRuntime();
+  console.info(
+    `Worker started; event handlers: ${runtime.handlerNames.join(", ") || "none registered"}`,
+  );
 
   if (isSmokeCheck) {
     // On failure the catch below exits at once; closing would wait on a dead Redis.
@@ -65,15 +73,33 @@ async function main() {
       SMOKE_TIMEOUT_MS,
       "Worker smoke check failed: no answer from Redis in time.",
     );
-    await worker.close();
+    // One pass over the outbox proves the database side of the dispatcher too.
+    const taken = await runtime.dispatchBatch();
+    console.info(`Worker smoke check completed; outbox events delivered: ${taken}`);
+    await Promise.all([worker.close(), runtime.close()]);
     return;
   }
 
+  const outbox = startOutboxLoop({
+    dispatchBatch: runtime.dispatchBatch,
+    errorMs: OUTBOX_ERROR_MS,
+    idleMs: OUTBOX_IDLE_MS,
+    onError: (error) => {
+      console.error(
+        `Outbox dispatcher problem: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    },
+  });
+
   const shutdown = (signal: NodeJS.Signals) => {
-    // close() lets the job in progress finish before the connection goes away.
-    void worker.close().then(() => {
-      console.info(`Worker stopped after ${signal}`);
-    });
+    // Stop claiming first, let what is in progress finish, then let go of the connections.
+    void outbox
+      .stop()
+      .then(() => worker.close())
+      .then(() => runtime.close())
+      .then(() => {
+        console.info(`Worker stopped after ${signal}`);
+      });
   };
   process.once("SIGINT", shutdown);
   process.once("SIGTERM", shutdown);

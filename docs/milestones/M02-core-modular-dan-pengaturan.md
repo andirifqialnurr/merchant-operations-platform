@@ -51,8 +51,8 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [x] **M2-BE-06 Instalasi modul** `3fb7ced` — `core_module_installations` dan `core_module_configs` dengan lifecycle `architecture.md` 6.1; event `module.installed.v1`.
 - [x] **M2-BE-07 Registry manifest** `90f4afb` — tiap modul mendeklarasikan izin, capability, event yang dihasilkan dan dikonsumsi, ketergantungan; dipakai navigasi dan validasi paket.
 - [ ] **M2-BE-08 Binding integrasi** — `core_integration_bindings` dengan status dan health; handler hanya berjalan bila binding aktif.
-- [ ] **M2-BE-09 Dispatcher outbox** — worker mengambil `outbox_events`, mengirim ke handler, retry dengan backoff, tanda gagal permanen.
-- [ ] **M2-BE-10 Inbox** — `core_inbox_events`, unik per consumer dan event; handler idempotent.
+- [x] **M2-BE-09 Dispatcher outbox** — worker mengambil `outbox_events`, mengirim ke handler, retry dengan backoff, tanda gagal permanen.
+- [x] **M2-BE-10 Inbox** — `core_inbox_events`, unik per consumer dan event; handler idempotent.
 - [ ] **M2-BE-11 Metering dan limit** — `core_usage_dimensions` (25 dimensi), event pemakaian, counter, adjustment, notifikasi ambang; penegakan hard/soft/throttled sesuai `prd.md` 7.1.
 - [ ] **M2-BE-12 Perangkat** — `core_devices` dengan kredensial ber-hash; sesi perangkat untuk POS/KDS terpisah dari sesi pengguna.
 - [ ] **M2-BE-13 Feature flag** — `core_feature_flags` dan pemeriksaan di guard.

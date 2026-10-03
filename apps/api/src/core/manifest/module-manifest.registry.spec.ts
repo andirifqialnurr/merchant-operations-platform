@@ -180,6 +180,7 @@ test("every event a unit writes is declared in its manifest, and nothing else", 
     CORE_PAYMENT_LEDGER: "kernels/billing-payment-ledger",
     // The installation flow writes the event the subscription core declares.
     CORE_SUBSCRIPTION: "core/installations",
+    POS: "modules/pos-sales",
   };
   const written = (unit: string) => {
     const found = new Set<string>();
@@ -192,7 +193,9 @@ test("every event a unit writes is declared in its manifest, and nothing else", 
           !entry.name.endsWith(".spec.ts") &&
           entry.name !== "manifest.ts"
         ) {
-          for (const match of readFileSync(path, "utf8").matchAll(/type: "([a-z_.]+\.v[0-9]+)"/g)) {
+          for (const match of readFileSync(path, "utf8").matchAll(
+            /(?:type|eventType): "([a-z_.]+\.v[0-9]+)"/g,
+          )) {
             if (match[1]) found.add(match[1]);
           }
         }

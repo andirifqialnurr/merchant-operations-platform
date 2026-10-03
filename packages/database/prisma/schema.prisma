@@ -78,6 +78,13 @@ enum ModuleInstallationStatus {
   SUSPENDED
 }
 
+enum InboxEventStatus {
+  PROCESSED
+  RETRYING
+  BLOCKED
+  FAILED
+}
+
 enum EntitlementOverrideTarget {
   MODULE
   CAPABILITY
@@ -295,6 +302,7 @@ model Tenant {
   effectiveEntitlements        CoreEffectiveEntitlement[]
   moduleInstallations          CoreModuleInstallation[]
   moduleConfigs                CoreModuleConfig[]
+  inboxEvents                  CoreInboxEvent[]
   catalogCategories            CatalogCategory[]
   catalogProducts              CatalogProduct[]
   catalogProductVariants       CatalogProductVariant[]
@@ -845,6 +853,29 @@ model CoreModuleConfig {
   @@map("core_module_configs")
 }
 
+/// That one handler dealt with one event, so a repeated delivery has one effect.
+model CoreInboxEvent {
+  id              String           @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId        String           @map("tenant_id") @db.Uuid
+  consumerName    String           @map("consumer_name") @db.VarChar(120)
+  eventId         String           @map("event_id") @db.Uuid
+  eventType       String           @map("event_type") @db.VarChar(160)
+  status          InboxEventStatus
+  resultReference String?          @map("result_reference") @db.VarChar(200)
+  /// Safe to show: never the payload.
+  lastError       String?          @map("last_error") @db.VarChar(500)
+  attemptCount    Int              @default(1) @map("attempt_count")
+  processedAt     DateTime?        @map("processed_at") @db.Timestamptz(6)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
+  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, consumerName, eventId])
+  @@index([tenantId, status, updatedAt])
+  @@index([eventId])
+  @@map("core_inbox_events")
+}
+
 model AuditLog {
   id            String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
   tenantId      String   @map("tenant_id") @db.Uuid
@@ -909,6 +940,8 @@ model OutboxEvent {
   occurredAt    DateTime  @default(now()) @map("occurred_at") @db.Timestamptz(6)
   availableAt   DateTime  @default(now()) @map("available_at") @db.Timestamptz(6)
   processedAt   DateTime? @map("processed_at") @db.Timestamptz(6)
+  /// Set when the attempts ran out; the event is kept and not retried on its own.
+  failedAt      DateTime? @map("failed_at") @db.Timestamptz(6)
   attemptCount  Int       @default(0) @map("attempt_count")
   lastError     String?   @map("last_error") @db.Text
   tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)

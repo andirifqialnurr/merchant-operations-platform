@@ -15,7 +15,7 @@ Dokumen terkait: [`architecture.md`](./architecture.md), [`security.md`](./secur
 |---|---|---|---|---|
 | Web | `apps/web` | 3000 (prod), 4000 (dev) | `next start` | Meneruskan `/api/*` ke API |
 | API | `apps/api` | 3001 | `node dist/main.js` | REST `/api/v1` + WebSocket |
-| Worker | `apps/worker` | — | `node dist/index.js` | Dispatcher outbox dan job |
+| Worker | `apps/worker` | — | `node --import tsx src/index.ts` | Dispatcher outbox dan job; dijalankan dari sumber karena memuat modul API |
 | PostgreSQL | — | 5432 | — | Satu database |
 | Redis | — | 6379 | — | Dipakai worker (BullMQ) dan rate limit API bila `RATE_LIMIT_STORE=redis`; lokal lewat `pnpm infra:up` |
 | Object storage | S3-compatible | — | — | Gambar produk, lampiran |
