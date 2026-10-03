@@ -61,7 +61,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-UX-01 Shell Backoffice dan guard sesi** — AppShell, ContextSwitcher, UserMenu, rute `(auth)`/`(backoffice)`. `6c87c75`, `8754d5c`
 - [x] **M1-UX-02 Dua bahasa** — next-intl berbasis cookie, bawaan dari browser. `928b619`
 - [x] **M1-UX-03 Shell kasir** — rute `(pos)`, bar atas 56px, navigasi Jual/Pesanan/Shift. `432f10b`, `a1932b6`
-- [x] **M1-UX-04 Status shift dan koneksi di bar atas POS** — indikator shift terbuka dan offline (flowchart 15); tanpa mengulang data yang sudah ada di halaman.
+- [x] **M1-UX-04 Status shift dan koneksi di bar atas POS** `f375d46` — indikator shift terbuka dan offline (flowchart 15); tanpa mengulang data yang sudah ada di halaman.
 - [ ] **M1-UX-05 Uji browser Catalog lengkap** — tambah produk, kategori, modifier, varian, assignment outlet, dan pengguna outlet-scoped; semua dengan dua bahasa dan dua tema.
 - [x] **M1-UX-06 Bahasa dan tema tersimpan di profil** `766dca2` — UserMenu menyimpan ke `users.locale`/`users.theme` (setelah M1-BE-09).
 - [ ] **M1-UX-07 Halaman dev keluar dari rute aplikasi** — `/foundation`, `/design-system`, `/color-bank`, `/typography`, dan placeholder `/kds`, `/inventory` dipindah ke grup dev yang tidak ikut build produksi, atau dihapus bila sudah tercakup Storybook.
