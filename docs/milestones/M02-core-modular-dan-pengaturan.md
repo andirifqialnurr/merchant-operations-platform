@@ -89,7 +89,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [ ] **M2-SC-01 Masa sesi per surface** — Backoffice lebih pendek, POS/KDS terikat perangkat (`SEC-F5`).
 - [ ] **M2-SC-02 Validasi unggah berkas** — tipe raster saja untuk gambar, batas ukuran, tanpa path traversal, URL bertanda tangan berumur pendek.
 - [ ] **M2-SC-03 Pencabutan** — mencabut perangkat atau pengguna mematikan sesi aktifnya.
-- [x] **M2-SC-04 Test alasan akses** — satu test per alasan gagal di guard.
+- [x] **M2-SC-04 Test alasan akses** `0ff8a37` — satu test per alasan gagal di guard.
 - [ ] **M2-SC-05 Payload event aman** — tidak ada PII atau secret di outbox; diuji.
 
 ### QA — Kualitas kode dan test
