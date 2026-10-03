@@ -142,6 +142,10 @@ model User {
   status                 UserStatus           @default(ACTIVE)
   passwordChangedAt      DateTime             @default(now()) @map("password_changed_at") @db.Timestamptz(6)
   lastLoginAt            DateTime?            @map("last_login_at") @db.Timestamptz(6)
+  /// Chosen language; null follows the browser.
+  locale                 String?              @db.VarChar(2)
+  /// Chosen theme; null follows the system.
+  theme                  String?              @db.VarChar(6)
   createdAt              DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt              DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
   loginSessions          LoginSession[]

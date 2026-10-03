@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import type { AuthLoginRequest } from "@merchant/contracts";
+import type { AuthLoginRequest, UpdateUserPreferences } from "@merchant/contracts";
 
 import { merchantApi } from "@/lib/api-client";
 
@@ -20,6 +20,19 @@ export function useLogin() {
       queryClient.clear();
       queryClient.setQueryData(sessionKey, session);
     },
+  });
+}
+
+/**
+ * Saves a language or theme choice to the user's profile. The screen has
+ * already switched; a failed save only means the choice is not remembered on
+ * other devices, so it is not reported.
+ */
+export function useUpdatePreferences() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: UpdateUserPreferences) => merchantApi.updatePreferences(input),
+    onSuccess: (session) => queryClient.setQueryData(sessionKey, session),
   });
 }
 

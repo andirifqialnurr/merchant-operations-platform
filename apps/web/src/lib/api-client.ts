@@ -4,6 +4,7 @@ import {
   authLoginRequestSchema,
   authLogoutResponseSchema,
   authSessionSchema,
+  updateUserPreferencesSchema,
   catalogCategorySchema,
   catalogModifierGroupSchema,
   catalogModifierOptionSchema,
@@ -54,6 +55,7 @@ import {
   updateCatalogProductVariantSchema,
   workspaceContextsSchema,
   type AuthLoginRequest,
+  type UpdateUserPreferences,
   type CancelOrder,
   type CatalogRecordStatus,
   type CloseRegisterSession,
@@ -182,6 +184,15 @@ export const merchantApi = {
       method: "POST",
     }),
   logout: () => apiRequest("/auth/logout", authLogoutResponseSchema, { method: "POST" }),
+  updatePreferences: (input: UpdateUserPreferences) =>
+    jsonMutation(
+      "/auth/preferences",
+      "PATCH",
+      input,
+      updateUserPreferencesSchema,
+      authSessionSchema,
+      {},
+    ),
   workspaces: () => apiRequest("/access/workspaces", workspaceContextsSchema),
   catalog: (tenantId: string) =>
     apiRequest("/catalog", catalogSnapshotSchema, { headers: tenantHeaders(tenantId) }),

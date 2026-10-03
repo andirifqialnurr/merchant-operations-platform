@@ -1,4 +1,9 @@
-import { authSessionSchema, type AuthLoginRequest, type AuthSession } from "@merchant/contracts";
+import {
+  authSessionSchema,
+  type AuthLoginRequest,
+  type AuthSession,
+  type UpdateUserPreferences,
+} from "@merchant/contracts";
 import { Inject, Injectable, Optional, UnauthorizedException } from "@nestjs/common";
 
 import {
@@ -56,6 +61,8 @@ function toAuthSession(session: LoginSessionRecord): AuthSession {
       displayName: session.user.displayName,
       email: session.user.email,
       id: session.user.id,
+      locale: session.user.locale,
+      theme: session.user.theme,
     },
   });
 }
@@ -113,6 +120,16 @@ export class AuthService {
     }
 
     return toAuthSession(session);
+  }
+
+  /** Saves the signed-in user's language or theme and returns the updated session. */
+  async updatePreferences(token: string | undefined, input: UpdateUserPreferences) {
+    const session = await this.getSession(token);
+    await this.repository.updatePreferences(session.user.id, {
+      ...(input.locale ? { locale: input.locale } : {}),
+      ...(input.theme ? { theme: input.theme } : {}),
+    });
+    return this.getSession(token);
   }
 
   async logout(token: string | undefined) {

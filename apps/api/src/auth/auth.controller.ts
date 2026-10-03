@@ -2,11 +2,24 @@ import {
   authLoginRequestSchema,
   authLogoutResponseSchema,
   authSessionSchema,
+  updateUserPreferencesSchema,
   type AuthLoginRequest,
   type AuthLogoutResponse,
   type AuthSession,
+  type UpdateUserPreferences,
 } from "@merchant/contracts";
-import { Body, Controller, Get, Headers, HttpCode, Inject, Ip, Post, Res } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpCode,
+  Inject,
+  Ip,
+  Patch,
+  Post,
+  Res,
+} from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -73,6 +86,22 @@ export class AuthController {
   async session(@Headers("cookie") cookieHeader: string | undefined): Promise<AuthSession> {
     return authSessionSchema.parse(
       await this.authService.getSession(readSessionToken(cookieHeader)),
+    );
+  }
+
+  @ApiCookieAuth(SESSION_COOKIE_NAME)
+  @ApiOperation({ summary: "Save the signed-in user's language or theme" })
+  @ApiBody({ schema: { $ref: "#/components/schemas/UpdateUserPreferences" } })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/AuthSession" } })
+  @ApiBadRequestResponse({ schema: { $ref: "#/components/schemas/ValidationError" } })
+  @ApiUnauthorizedResponse({ schema: { $ref: "#/components/schemas/ApiError" } })
+  @Patch("preferences")
+  async updatePreferences(
+    @Headers("cookie") cookieHeader: string | undefined,
+    @Body(new ZodValidationPipe(updateUserPreferencesSchema)) input: UpdateUserPreferences,
+  ): Promise<AuthSession> {
+    return authSessionSchema.parse(
+      await this.authService.updatePreferences(readSessionToken(cookieHeader), input),
     );
   }
 

@@ -13,6 +13,7 @@ import { ApiClientError } from "@/lib/api-client";
 import { useErrorMessage } from "@/lib/i18n";
 import { ToastProvider } from "@/providers/toast-provider";
 
+import { PreferenceSync } from "./preference-sync";
 import type { ShellUser } from "./shell-controls";
 
 function Centered({ children }: Readonly<{ children: ReactNode }>) {
@@ -102,6 +103,7 @@ export function SessionGate({
         dismissLabel={t("dismissToast")}
         {...(toastPlacement ? { placement: toastPlacement } : {})}
       >
+        <PreferenceSync user={session.data.user} />
         {children({ signOut, user: session.data.user })}
       </ToastProvider>
     </WorkspaceProvider>

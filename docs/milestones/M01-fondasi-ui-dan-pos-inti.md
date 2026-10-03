@@ -39,7 +39,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-FT-09 Refund sederhana** `241efa6` — refund penuh atau sebagian atas penjualan dengan alasan wajib, izin `payment.refund`; penjualan asli tetap ada. Selesai bila: refund tunai mengurangi kas seharusnya shift yang sedang terbuka; refund melebihi sisa ditolak; event `sale.refunded.v1`.
 - [ ] **M1-FT-10 Persetujuan manager untuk refund** — kasir tanpa izin refund meminta persetujuan manager dengan PIN (flowchart 5.4). Selesai bila: PIN tersimpan ber-hash; persetujuan diaudit dengan nama penyetuju. Boleh dipindah ke M2 bila PIN butuh pengaturan pengguna.
 - [x] **M1-FT-11 Catatan per item** `d5a3561` — catatan bebas pada baris keranjang, ikut ke snapshot pesanan.
-- [x] **M1-FT-12 Tahan pesanan** — simpan keranjang sebagai pesanan `DRAFT` beri label, lanjutkan atau buang dari daftar. Selesai bila: pesanan yang ditahan tidak bernomor penjualan dan tidak memengaruhi kas.
+- [x] **M1-FT-12 Tahan pesanan** `9cba9c0` — simpan keranjang dengan label sebagai keranjang tertahan (lihat M1-BE-07), lanjutkan atau buang dari daftar. Selesai bila: pesanan yang ditahan tidak bernomor penjualan dan tidak memengaruhi kas.
 - [x] **M1-FT-13 Ringkasan shift tertutup** `ee5b054` — ringkasan per metode bayar (tunai, QRIS, transfer, EDC), refund, kas masuk/keluar, dan selisih; bisa dicetak. Selisih hanya untuk yang berizin.
 - [ ] **M1-FT-14 Pengaturan pajak dan service charge per outlet** — pola "harga sudah termasuk" atau "ditambahkan di struk", tarif per outlet. Menunggu keputusan `M1-OD-01`; sampai diputuskan total = subtotal.
 
@@ -51,9 +51,9 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-BE-04 Batal pesanan** — kolom pembatalan, penguncian baris pesanan antara batal dan bayar. `e68e655`
 - [x] **M1-BE-05 Refund** `241efa6` — tabel `sales_refunds` dan alokasi refund ke pembayaran; status penjualan `PARTIALLY_REFUNDED`/`REFUNDED`; kas seharusnya shift dikurangi refund tunai di bawah kunci shift yang sama.
 - [x] **M1-BE-06 Metode transfer dan EDC** `f8a2922` — perluas `payOrderSchema`; ringkasan shift per metode dari billing.
-- [x] **M1-BE-07 Keranjang tertahan** — diwujudkan sebagai `pos_held_carts` (bukan pesanan `DRAFT`): hanya pilihan dan label, tanpa nomor dan harga; nomor pesanan diberikan saat dibayar seperti biasa.
+- [x] **M1-BE-07 Keranjang tertahan** `9cba9c0` — diwujudkan sebagai `pos_held_carts` (bukan pesanan `DRAFT`): hanya pilihan dan label, tanpa nomor dan harga; nomor pesanan diberikan saat dibayar seperti biasa.
 - [x] **M1-BE-08 Data struk** `928e049` — endpoint baca struk per penjualan (snapshot, tanpa ID internal selain nomor).
-- [ ] **M1-BE-09 Preferensi pengguna** — kolom `users.locale` dan `users.theme` (schema B.1); endpoint ubah preferensi; bahasa tersimpan menang atas bahasa browser (D-09).
+- [x] **M1-BE-09 Preferensi pengguna** — kolom `users.locale` dan `users.theme` (schema B.1); endpoint ubah preferensi; bahasa tersimpan menang atas bahasa browser (D-09).
 - [ ] **M1-BE-10 Pesan error katalog berbahasa netral** — ganti pesan server Indonesia di modul catalog dengan pesan Inggris + kode stabil, terjemahan di kamus web (`SEC-F6`).
 
 ### UX — Alur dan interaksi
@@ -63,7 +63,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-UX-03 Shell kasir** — rute `(pos)`, bar atas 56px, navigasi Jual/Pesanan/Shift. `432f10b`, `a1932b6`
 - [ ] **M1-UX-04 Status shift dan koneksi di bar atas POS** — indikator shift terbuka dan offline (flowchart 15); tanpa mengulang data yang sudah ada di halaman.
 - [ ] **M1-UX-05 Uji browser Catalog lengkap** — tambah produk, kategori, modifier, varian, assignment outlet, dan pengguna outlet-scoped; semua dengan dua bahasa dan dua tema.
-- [ ] **M1-UX-06 Bahasa dan tema tersimpan di profil** — UserMenu menyimpan ke `users.locale`/`users.theme` (setelah M1-BE-09).
+- [x] **M1-UX-06 Bahasa dan tema tersimpan di profil** — UserMenu menyimpan ke `users.locale`/`users.theme` (setelah M1-BE-09).
 - [ ] **M1-UX-07 Halaman dev keluar dari rute aplikasi** — `/foundation`, `/design-system`, `/color-bank`, `/typography`, dan placeholder `/kds`, `/inventory` dipindah ke grup dev yang tidak ikut build produksi, atau dihapus bila sudah tercakup Storybook.
 
 ### DS — Design system dan komponen

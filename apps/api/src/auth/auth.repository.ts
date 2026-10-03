@@ -5,8 +5,10 @@ export type AuthUserRecord = {
   displayName: string;
   email: string;
   id: string;
+  locale: string | null;
   passwordHash: string;
   status: "ACTIVE" | "DISABLED";
+  theme: string | null;
 };
 
 export type SessionUserRecord = Omit<AuthUserRecord, "passwordHash">;
@@ -30,9 +32,22 @@ export interface AuthRepository {
   findActiveSession(tokenHash: string, now: Date): Promise<LoginSessionRecord | null>;
   findUserByEmail(email: string): Promise<AuthUserRecord | null>;
   revokeSession(tokenHash: string, revokedAt: Date): Promise<void>;
+  updatePreferences(
+    userId: string,
+    preferences: { locale?: string; theme?: string },
+  ): Promise<void>;
 }
 
 export const AUTH_REPOSITORY = Symbol("AUTH_REPOSITORY");
+
+const sessionUserSelect = {
+  displayName: true,
+  email: true,
+  id: true,
+  locale: true,
+  status: true,
+  theme: true,
+} as const;
 
 @Injectable()
 export class PrismaAuthRepository implements AuthRepository {
@@ -42,8 +57,10 @@ export class PrismaAuthRepository implements AuthRepository {
         displayName: true,
         email: true,
         id: true,
+        locale: true,
         passwordHash: true,
         status: true,
+        theme: true,
       },
       where: { email },
     });
@@ -64,7 +81,7 @@ export class PrismaAuthRepository implements AuthRepository {
           expiresAt: true,
           id: true,
           user: {
-            select: { displayName: true, email: true, id: true, status: true },
+            select: sessionUserSelect,
           },
         },
       }),
@@ -84,7 +101,7 @@ export class PrismaAuthRepository implements AuthRepository {
         expiresAt: true,
         id: true,
         user: {
-          select: { displayName: true, email: true, id: true, status: true },
+          select: sessionUserSelect,
         },
       },
       where: {
@@ -93,6 +110,14 @@ export class PrismaAuthRepository implements AuthRepository {
         tokenHash,
         user: { status: "ACTIVE" },
       },
+    });
+  }
+
+  async updatePreferences(userId: string, preferences: { locale?: string; theme?: string }) {
+    await getPrismaClient().user.update({
+      data: preferences,
+      select: { id: true },
+      where: { id: userId },
     });
   }
 

@@ -4,12 +4,20 @@ import { useTranslations } from "next-intl";
 import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 
+import type { UserLocale, UserTheme } from "@merchant/contracts";
+
 import { ContextSwitcher, UserMenu } from "@merchant/ui/app-shell";
 
+import { useUpdatePreferences } from "@/features/auth";
 import { useWorkspace } from "@/features/workspace";
 import { localeOptions, useLocaleSwitch } from "@/i18n/use-locale-switch";
 
-export type ShellUser = { displayName: string; email: string };
+export type ShellUser = {
+  displayName: string;
+  email: string;
+  locale: UserLocale | null;
+  theme: UserTheme | null;
+};
 
 function subscribeToHydration() {
   return () => undefined;
@@ -23,6 +31,7 @@ export function ShellAccount({
   const t = useTranslations("shell");
   const { setTheme, theme } = useTheme();
   const { locale, setLocale } = useLocaleSwitch();
+  const savePreferences = useUpdatePreferences();
   const mounted = useSyncExternalStore(
     subscribeToHydration,
     () => true,
@@ -35,7 +44,10 @@ export function ShellAccount({
       label={t("accountMenu")}
       language={{
         label: t("language"),
-        onChange: setLocale,
+        onChange: (next) => {
+          setLocale(next);
+          if (next === "id" || next === "en") savePreferences.mutate({ locale: next });
+        },
         options: localeOptions,
         value: locale,
       }}
@@ -44,7 +56,12 @@ export function ShellAccount({
       signOutLabel={t("signOut")}
       theme={{
         label: t("theme"),
-        onChange: setTheme,
+        onChange: (next) => {
+          setTheme(next);
+          if (next === "light" || next === "dark" || next === "system") {
+            savePreferences.mutate({ theme: next });
+          }
+        },
         options: [
           { label: t("themeLight"), value: "light" },
           { label: t("themeDark"), value: "dark" },

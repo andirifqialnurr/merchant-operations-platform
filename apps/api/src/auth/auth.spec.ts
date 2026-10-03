@@ -30,6 +30,23 @@ class InMemoryAuthRepository implements AuthRepository {
 
   constructor(private readonly user: AuthUserRecord) {}
 
+  /** Built on every read, so saved preferences show up in later sessions. */
+  private sessionUser() {
+    return {
+      displayName: this.user.displayName,
+      email: this.user.email,
+      id: this.user.id,
+      locale: this.user.locale,
+      status: this.user.status,
+      theme: this.user.theme,
+    };
+  }
+
+  async updatePreferences(_userId: string, preferences: { locale?: string; theme?: string }) {
+    Object.assign(this.user, preferences);
+    for (const session of this.sessions.values()) session.user = this.sessionUser();
+  }
+
   async findUserByEmail(email: string) {
     this.findUserByEmailCalls += 1;
     return email === this.user.email ? this.user : null;
@@ -41,12 +58,7 @@ class InMemoryAuthRepository implements AuthRepository {
       id: "019f738d-e61f-7d46-92de-17b35f970b92",
       revokedAt: null,
       tokenHash: input.tokenHash,
-      user: {
-        displayName: this.user.displayName,
-        email: this.user.email,
-        id: this.user.id,
-        status: this.user.status,
-      },
+      user: this.sessionUser(),
     } satisfies LoginSessionRecord & { revokedAt: Date | null; tokenHash: string };
 
     this.sessions.set(input.tokenHash, session);
@@ -83,6 +95,8 @@ test("creates, resolves, and revokes an opaque login session", async () => {
     id: USER_ID,
     passwordHash,
     status: "ACTIVE",
+    theme: null,
+    locale: null,
   });
   const service = new AuthService(repository);
   const login = await service.login({ email: "owner@example.com", password: "rahasia-kuat" });
@@ -103,6 +117,8 @@ test("returns one generic error for invalid credentials", async () => {
     id: USER_ID,
     passwordHash: await hashPassword("rahasia-kuat"),
     status: "ACTIVE",
+    theme: null,
+    locale: null,
   });
   const service = new AuthService(repository);
 
@@ -132,6 +148,8 @@ test("rate limits repeated merchant login attempts before credential lookup", as
     id: USER_ID,
     passwordHash: await hashPassword("rahasia-kuat"),
     status: "ACTIVE",
+    theme: null,
+    locale: null,
   });
   const rateLimit = new InMemoryRateLimitService(() => 1_000);
   const service = new AuthService(repository, rateLimit);
@@ -187,4 +205,32 @@ test("bounds session lifetime configuration", () => {
   assert.equal(readSessionTtlHours("24"), 24);
   assert.equal(readSessionTtlHours("0"), 720);
   assert.equal(readSessionTtlHours("9999"), 720);
+});
+
+test("saves the signed-in user's language and theme and returns them in the session", async () => {
+  const repository = new InMemoryAuthRepository({
+    displayName: "Pemilik Merchant",
+    email: "owner@example.com",
+    id: USER_ID,
+    locale: null,
+    passwordHash: await hashPassword("rahasia-kuat"),
+    status: "ACTIVE",
+    theme: null,
+  });
+  const service = new AuthService(repository);
+  const login = await service.login({ email: "owner@example.com", password: "rahasia-kuat" });
+  assert.equal(login.session.user.locale, null);
+  assert.equal(login.session.user.theme, null);
+
+  const english = await service.updatePreferences(login.token, { locale: "en" });
+  assert.equal(english.user.locale, "en");
+  assert.equal(english.user.theme, null);
+  const dark = await service.updatePreferences(login.token, { theme: "dark" });
+  assert.equal(dark.user.locale, "en");
+  assert.equal(dark.user.theme, "dark");
+
+  await assert.rejects(
+    () => service.updatePreferences(undefined, { locale: "id" }),
+    UnauthorizedException,
+  );
 });

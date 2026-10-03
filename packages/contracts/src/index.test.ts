@@ -91,9 +91,25 @@ test("normalizes login input and validates session output", () => {
         displayName: "Pemilik Merchant",
         email: "owner@example.com",
         id: "019f738d-e61f-7d46-92de-17b35f970b91",
+        locale: null,
+        theme: null,
       },
     }).success,
     true,
+  );
+  // A saved language must be one the app speaks.
+  assert.equal(
+    authSessionSchema.safeParse({
+      expiresAt: "2026-08-17T10:00:00.000Z",
+      user: {
+        displayName: "Pemilik Merchant",
+        email: "owner@example.com",
+        id: "019f738d-e61f-7d46-92de-17b35f970b91",
+        locale: "fr",
+        theme: null,
+      },
+    }).success,
+    false,
   );
 });
 
