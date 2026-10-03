@@ -38,9 +38,12 @@ import {
   RequireModule,
   RequirePermission,
   SessionPermissionGuard,
-} from "../../../core/memberships/session-permission.guard.js";
-import { SESSION_COOKIE_NAME } from "../../../core/auth/session-cookie.js";
-import { RequestHeaders, ZodValidationPipe } from "../../../bootstrap/zod-validation.pipe.js";
+} from "../../../core/memberships/public.js";
+import { SESSION_COOKIE_NAME } from "../../../core/auth/public.js";
+import {
+  RequestHeaders,
+  ZodValidationPipe,
+} from "../../../shared/validation/zod-validation.pipe.js";
 import { ShiftService } from "../application/shift.service.js";
 
 /**

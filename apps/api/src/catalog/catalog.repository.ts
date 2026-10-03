@@ -23,7 +23,7 @@ import type {
 import { getPrismaClient, type DatabaseClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
-import { buildAuditMetadata } from "../core/audit/critical-action-audit.js";
+import { buildAuditMetadata } from "../core/audit/public.js";
 
 export type CatalogMutationContext = { actorId?: string; requestId?: string };
 

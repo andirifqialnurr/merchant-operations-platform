@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 
-import { CatalogModule } from "../../catalog/catalog.module.js";
+import { CatalogModule } from "../../catalog/public.js";
 import { PrismaOrderRepository } from "./adapters/prisma-order.repository.js";
 import { OrderIntakeService } from "./application/order-intake.service.js";
 import { ORDER_REPOSITORY } from "./application/order.repository.js";

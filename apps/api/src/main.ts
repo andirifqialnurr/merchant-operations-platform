@@ -4,12 +4,12 @@ import { NestFactory } from "@nestjs/core";
 
 import { ApiExceptionFilter } from "./bootstrap/api-exception.filter.js";
 import { AppModule } from "./app.module.js";
-import { createRequestObservabilityMiddleware } from "./core/observability/request-observability.js";
+import { createRequestObservabilityMiddleware } from "./core/observability/public.js";
 import { configureOpenApi } from "./bootstrap/openapi.js";
 import {
   createCsrfProtectionMiddleware,
   createSecurityHeadersMiddleware,
-} from "./core/security/http-security.js";
+} from "./bootstrap/http-security.js";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

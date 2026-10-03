@@ -36,7 +36,7 @@ import {
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
-import { RequestHeaders, ZodValidationPipe } from "../../bootstrap/zod-validation.pipe.js";
+import { RequestHeaders, ZodValidationPipe } from "../../shared/validation/zod-validation.pipe.js";
 import { PlatformMasterService } from "./platform-master.service.js";
 import {
   CurrentPlatformUser,

@@ -1,7 +1,7 @@
 import { orderSchema, type CreatePosOrder, type Order } from "@merchant/contracts";
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
-import { CatalogService } from "../../../catalog/catalog.service.js";
+import { CatalogService } from "../../../catalog/public.js";
 import { priceOrderLines } from "../domain/price-order.js";
 import {
   ORDER_REPOSITORY,

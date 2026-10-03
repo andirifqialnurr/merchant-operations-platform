@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
 
-import { AccessModule } from "../../core/memberships/access.module.js";
-import { AuthModule } from "../../core/auth/auth.module.js";
-import { CatalogModule } from "../../catalog/catalog.module.js";
-import { BillingPaymentLedgerModule } from "../../kernels/billing-payment-ledger/billing-payment-ledger.module.js";
-import { OrderIntakeModule } from "../../kernels/order-intake/order-intake.module.js";
+import { AccessModule } from "../../core/memberships/public.js";
+import { AuthModule } from "../../core/auth/public.js";
+import { CatalogModule } from "../../catalog/public.js";
+import { BillingPaymentLedgerModule } from "../../kernels/billing-payment-ledger/public.js";
+import { OrderIntakeModule } from "../../kernels/order-intake/public.js";
 import { HeldCartController } from "./adapters/held-cart.controller.js";
 import { MenuController } from "./adapters/menu.controller.js";
 import { OrderController } from "./adapters/order.controller.js";

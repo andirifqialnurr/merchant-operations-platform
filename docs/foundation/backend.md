@@ -17,15 +17,18 @@ apps/api/src/
   health.controller.ts
   bootstrap/
     api-exception.filter.ts   pemetaan error -> { code, message, requestId, details? }
-    zod-validation.pipe.ts    validasi Zod untuk header/params/body
+    http-security.ts          header keamanan dan CSRF (middleware global)
     openapi.ts                Swagger di /api/docs
+  shared/
+    validation/               ZodValidationPipe untuk header/params/body
+  cli/                        skrip provisioning (akun platform, akun lokal); boleh merangkai seluruh aplikasi
   core/                       dipindah 3 Oktober 2026 tanpa perubahan perilaku (M2-QA-01)
     auth/                     login, sesi, cookie, hash password (argon2id)
     memberships/              (dulu access) role, membership, konteks workspace, SessionPermissionGuard
     entitlements/             (dulu entitlement) langganan + entitlement boolean per modul
     workspaces/               (dulu organization) tenant, brand, outlet
     platform/                 sesi platform, master tenant/langganan/entitlement, CLI provisioning
-    security/                 header keamanan, CSRF, rate limit
+    security/                 rate limit
     observability/            request ID, log terstruktur
     audit/                    audit aksi kritis
   catalog/                    kategori, produk, varian, modifier, gambar, produk per outlet (dipecah di M2-QA-02)
@@ -174,7 +177,16 @@ Larangan keras:
 - Ketergantungan melingkar antarmodul.
 - Menaruh logika domain di `shared/` untuk menghindari batas.
 
-Aturan ini dijaga lint batas modul di CI (ESLint `no-restricted-imports` per zona atau `eslint-plugin-boundaries`). Kontrak aturannya sudah tersedia sebagai `moduleBoundaryRuleSchema` di `packages/contracts`.
+Aturan ini dijaga `apps/api/scripts/check-boundaries.mjs`, yang berjalan sebagai bagian dari `pnpm lint` (dan karena itu di CI). Skrip itu membaca impor yang sebenarnya, bukan pola nama, dan punya test sendiri (`check-boundaries.test.mjs`). Yang diperiksa:
+
+- Unit lain (`core/x`, `kernels/x`, `modules/x`, `catalog`) hanya boleh diimpor lewat `public.ts`-nya.
+- Arah ketergantungan sesuai tabel di atas; `bootstrap/` boleh memakai `core` dan `shared`; `cli/` dan berkas akar (`main.ts`, `app.module.ts`) merangkai semuanya.
+- Di dalam unit berlapis: `domain/` tidak mengimpor NestJS, database, `application/`, atau `adapters/`; `application/` tidak mengimpor database atau `adapters/`.
+- Berkas `*.spec.ts` dikecualikan: test boleh menjangkau isi unit.
+
+Pengecualian yang masih ada, tercatat di skrip: `kernels/order-intake` membaca `catalog` (lewat `public.ts`) sampai Catalog menjadi kernel dengan port sendiri (`M2-QA-02`). Izin antarmodul berdasarkan manifest belum ada; sampai registry manifest dibuat (`M2-BE-07`), modul tidak boleh mengimpor modul lain sama sekali.
+
+Kontrak aturannya juga tersedia sebagai `moduleBoundaryRuleSchema` di `packages/contracts`.
 
 ---
 

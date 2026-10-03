@@ -23,10 +23,13 @@ import {
   RequireModule,
   RequirePermission,
   SessionPermissionGuard,
-} from "../../../core/memberships/session-permission.guard.js";
-import { SESSION_COOKIE_NAME } from "../../../core/auth/session-cookie.js";
-import { CatalogService } from "../../../catalog/catalog.service.js";
-import { RequestHeaders, ZodValidationPipe } from "../../../bootstrap/zod-validation.pipe.js";
+} from "../../../core/memberships/public.js";
+import { SESSION_COOKIE_NAME } from "../../../core/auth/public.js";
+import { CatalogService } from "../../../catalog/public.js";
+import {
+  RequestHeaders,
+  ZodValidationPipe,
+} from "../../../shared/validation/zod-validation.pipe.js";
 
 /**
  * The menu a cashier sells from. Unlike the backoffice catalog it needs no

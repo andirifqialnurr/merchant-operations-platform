@@ -1,7 +1,7 @@
 import { getPrismaClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
-import { buildAuditMetadata } from "../../../core/audit/critical-action-audit.js";
+import { buildAuditMetadata } from "../../../core/audit/public.js";
 import type {
   NewSubmittedOrder,
   OrderMutationContext,

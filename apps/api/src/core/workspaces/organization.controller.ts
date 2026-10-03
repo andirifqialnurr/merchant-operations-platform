@@ -41,9 +41,9 @@ import {
   RequireAllOutlets,
   RequirePermission,
   SessionPermissionGuard,
-} from "../memberships/session-permission.guard.js";
-import { SESSION_COOKIE_NAME } from "../auth/session-cookie.js";
-import { RequestHeaders, ZodValidationPipe } from "../../bootstrap/zod-validation.pipe.js";
+} from "../memberships/public.js";
+import { SESSION_COOKIE_NAME } from "../auth/public.js";
+import { RequestHeaders, ZodValidationPipe } from "../../shared/validation/zod-validation.pipe.js";
 import { OrganizationService } from "./organization.service.js";
 
 @ApiTags("organization")

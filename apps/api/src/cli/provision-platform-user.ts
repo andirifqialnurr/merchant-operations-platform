@@ -3,8 +3,8 @@ import "reflect-metadata";
 import { provisionPlatformUserSchema } from "@merchant/contracts";
 import { NestFactory } from "@nestjs/core";
 
-import { AppModule } from "../../app.module.js";
-import { PlatformAuthService } from "./platform-auth.service.js";
+import { AppModule } from "../app.module.js";
+import { PlatformAuthService } from "../core/platform/public.js";
 
 async function provisionPlatformUser() {
   const input = provisionPlatformUserSchema.parse({

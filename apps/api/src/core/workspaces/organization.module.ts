@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 
-import { AccessModule } from "../memberships/access.module.js";
-import { AuthModule } from "../auth/auth.module.js";
+import { AccessModule } from "../memberships/public.js";
+import { AuthModule } from "../auth/public.js";
 import { OrganizationController } from "./organization.controller.js";
 import {
   ORGANIZATION_REPOSITORY,

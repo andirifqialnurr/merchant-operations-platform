@@ -7,8 +7,8 @@ import {
 } from "@merchant/contracts";
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
-import { BillingService } from "../../../kernels/billing-payment-ledger/application/billing.service.js";
-import { OrderIntakeService } from "../../../kernels/order-intake/application/order-intake.service.js";
+import { BillingService } from "../../../kernels/billing-payment-ledger/public.js";
+import { OrderIntakeService } from "../../../kernels/order-intake/public.js";
 import type { ShiftMutationContext } from "./register-session.repository.js";
 import { ShiftService } from "./shift.service.js";
 

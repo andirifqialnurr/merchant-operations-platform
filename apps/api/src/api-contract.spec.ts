@@ -23,7 +23,7 @@ import {
   isOpenApiPlatformAuthRequired,
 } from "./bootstrap/openapi.js";
 import { PlatformAuthService } from "./core/platform/platform-auth.service.js";
-import { ZodValidationPipe } from "./bootstrap/zod-validation.pipe.js";
+import { ZodValidationPipe } from "./shared/validation/zod-validation.pipe.js";
 
 test("maps known and unknown exceptions to the stable error contract", () => {
   const known = mapExceptionToApiError(

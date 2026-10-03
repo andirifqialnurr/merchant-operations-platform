@@ -1,12 +1,12 @@
 import { Module } from "@nestjs/common";
 
-import { AccessModule } from "./core/memberships/access.module.js";
-import { AuthModule } from "./core/auth/auth.module.js";
-import { CatalogModule } from "./catalog/catalog.module.js";
+import { AccessModule } from "./core/memberships/public.js";
+import { AuthModule } from "./core/auth/public.js";
+import { CatalogModule } from "./catalog/public.js";
 import { HealthController } from "./health.controller.js";
-import { PosSalesModule } from "./modules/pos-sales/pos-sales.module.js";
-import { OrganizationModule } from "./core/workspaces/organization.module.js";
-import { PlatformModule } from "./core/platform/platform.module.js";
+import { PosSalesModule } from "./modules/pos-sales/public.js";
+import { OrganizationModule } from "./core/workspaces/public.js";
+import { PlatformModule } from "./core/platform/public.js";
 
 @Module({
   controllers: [HealthController],

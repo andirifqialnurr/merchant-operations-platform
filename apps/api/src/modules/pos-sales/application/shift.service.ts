@@ -7,7 +7,7 @@ import {
 } from "@merchant/contracts";
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
-import { BillingService } from "../../../kernels/billing-payment-ledger/application/billing.service.js";
+import { BillingService } from "../../../kernels/billing-payment-ledger/public.js";
 import { decideClose, totalCash } from "../domain/register-session.js";
 import {
   REGISTER_SESSION_REPOSITORY,

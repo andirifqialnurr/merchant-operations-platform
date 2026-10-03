@@ -12,7 +12,7 @@ import {
   RATE_LIMIT_POLICIES,
   RATE_LIMIT_SERVICE,
   type RateLimitService,
-} from "../security/rate-limit.service.js";
+} from "../security/public.js";
 import {
   AUTH_REPOSITORY,
   type AuthRepository,

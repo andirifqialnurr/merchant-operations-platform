@@ -17,12 +17,12 @@ import { fileURLToPath } from "node:url";
 import { createPrismaClient } from "@merchant/database";
 import { NestFactory } from "@nestjs/core";
 
-import { AppModule } from "../../app.module.js";
-import { hashPassword } from "../auth/password.js";
-import { AccessService } from "./access.service.js";
+import { AppModule } from "../app.module.js";
+import { hashPassword } from "../core/auth/public.js";
+import { AccessService } from "../core/memberships/public.js";
 
 const CREDENTIALS_PATH = fileURLToPath(
-  new URL("../../../../../CREDENTIALS.local.md", import.meta.url),
+  new URL("../../../../CREDENTIALS.local.md", import.meta.url),
 );
 const LOGIN_URL = "http://localhost:4000/login";
 

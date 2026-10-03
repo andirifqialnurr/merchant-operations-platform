@@ -17,7 +17,7 @@ import {
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
-import { ZodValidationPipe } from "../../bootstrap/zod-validation.pipe.js";
+import { ZodValidationPipe } from "../../shared/validation/zod-validation.pipe.js";
 import { PlatformAuthService } from "./platform-auth.service.js";
 import {
   PLATFORM_SESSION_COOKIE_NAME,

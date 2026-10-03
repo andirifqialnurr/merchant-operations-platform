@@ -7,11 +7,11 @@
     "dev": "node --env-file=../../.env --import tsx --watch src/main.ts",
     "build": "tsc --project tsconfig.build.json",
     "start": "node dist/main.js",
-    "lint": "eslint . --max-warnings=0",
-    "platform:user:provision": "tsx src/core/platform/provision-platform-user.ts",
-    "local:users:provision": "node --env-file=../../.env --import tsx src/core/memberships/provision-local-users.ts",
+    "lint": "eslint . --max-warnings=0 && node scripts/check-boundaries.mjs",
+    "platform:user:provision": "tsx src/cli/provision-platform-user.ts",
+    "local:users:provision": "node --env-file=../../.env --import tsx src/cli/provision-local-users.ts",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/*.spec.ts src/**/*.spec.ts",
+    "test": "node --test scripts/*.test.mjs && tsx --test src/*.spec.ts src/**/*.spec.ts",
     "format:check": "prettier --check . --ignore-path ../../.gitignore"
   },
   "dependencies": {

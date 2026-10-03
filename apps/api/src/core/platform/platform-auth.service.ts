@@ -21,14 +21,14 @@ import {
   hashPassword,
   hashSessionToken,
   verifyPassword,
-} from "../auth/password.js";
+} from "../auth/public.js";
 import {
   buildPlatformLoginRateLimitKey,
   InMemoryRateLimitService,
   RATE_LIMIT_POLICIES,
   RATE_LIMIT_SERVICE,
   type RateLimitService,
-} from "../security/rate-limit.service.js";
+} from "../security/public.js";
 import {
   PLATFORM_AUTH_REPOSITORY,
   type PlatformAuthRepository,
