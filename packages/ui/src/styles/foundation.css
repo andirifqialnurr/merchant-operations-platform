@@ -19,6 +19,11 @@
   --control-height-md: 2.25rem;
   --control-height-lg: 3rem;
   --control-height-xl: 3.5rem;
+  /* Stacking order of layers that sit above the page. Menus are portaled to
+     the body, so they must outrank the dialog or sheet they were opened from. */
+  --layer-overlay: 100;
+  --layer-menu: 120;
+  --layer-toast: 130;
 
   --foundation-radius-none: 0;
   --foundation-radius-xs: 0.25rem;

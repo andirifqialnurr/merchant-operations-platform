@@ -93,7 +93,7 @@
   padding: var(--space-1);
   position: fixed;
   top: var(--space-4);
-  z-index: 50;
+  z-index: var(--layer-menu);
 }
 .ui-select__option {
   align-items: center;

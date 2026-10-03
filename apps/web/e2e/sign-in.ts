@@ -21,7 +21,7 @@ export async function openAs(page: Page, email: string, path: string) {
 
   await page.goto(path);
   const password = page.locator('input[type="password"]');
-  const signedIn = page.getByRole("navigation", { name: "Navigasi kasir" });
+  const signedIn = page.getByRole("button", { name: /^(Menu akun|Account menu)$/ });
   await expect(password.or(signedIn)).toBeVisible();
   if (await password.isVisible()) {
     const account = localAccount(email);
