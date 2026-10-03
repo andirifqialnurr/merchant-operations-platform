@@ -38,7 +38,7 @@ apps/api/src/
 apps/worker/src/
   index.ts                    proses hidup + smoke check; belum ada dispatcher
   queue-retry.ts              helper coba ulang/dead-letter
-packages/contracts/src/index.ts   satu file 1.537 baris: semua skema Zod
+packages/contracts/src/           satu file per domain (http, money, auth, platform, organization, catalog, entitlement, access, module-manifest, packages-limits, events, support-access, table-qr, pos-shift, menu, orders, billing, held-carts, openapi); index.ts hanya mengekspor ulang
 packages/database/            skema Prisma, 9 migrasi, klien, drill backup/restore
 ```
 

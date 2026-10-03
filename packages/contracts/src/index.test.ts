@@ -55,7 +55,7 @@ import {
   usageAdjustmentSchema,
   usageCounterSchema,
   usageEventSchema,
-} from "./index.js";
+} from "./index.ts";
 
 test("normalizes cursor pagination input", () => {
   assert.deepEqual(cursorPaginationQuerySchema.parse({ limit: "40" }), { limit: 40 });

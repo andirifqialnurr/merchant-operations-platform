@@ -1,5 +1,9 @@
 {
   "extends": "@merchant/typescript-config/node.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
 }
