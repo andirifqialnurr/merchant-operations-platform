@@ -14,6 +14,7 @@ import { ConflictException, ForbiddenException, NotFoundException } from "@nestj
 
 import { MODULE_MANIFESTS } from "../../module-manifests.js";
 import type { EntitlementService } from "../entitlements/entitlement.service.js";
+import type { BindingService } from "../integrations/binding.service.js";
 import { ModuleManifestRegistry } from "../manifest/module-manifest.registry.js";
 import { canMove, isInstalled } from "./installation-lifecycle.js";
 import type {
@@ -88,12 +89,24 @@ function setup({
   const entitlements = {
     getSnapshot: async () => ({ modules, subscription: null }) as unknown as EntitlementSnapshot,
   } as unknown as EntitlementService;
+  const bindingCalls: string[] = [];
+  const bindings = {
+    disableForModule: async (_tenant: string, moduleKey: ModuleKey) => {
+      bindingCalls.push(`disable:${moduleKey}`);
+    },
+    ensureForModule: async (_tenant: string, moduleKey: ModuleKey) => {
+      bindingCalls.push(`ensure:${moduleKey}`);
+      return [];
+    },
+  } as unknown as BindingService;
   return {
     repository,
+    bindingCalls,
     service: new InstallationService(
       repository,
       entitlements,
       new ModuleManifestRegistry(manifests),
+      bindings,
     ),
   };
 }
@@ -339,4 +352,15 @@ test("the menu lists what is entitled, installed, and permitted, and nothing els
   // A suspended module leaves the menu until it is resumed.
   await service.suspend(TENANT, MODULES.pos, "Unpaid invoice");
   assert.deepEqual(await paths(owner), ["/catalog"]);
+});
+
+test("a module's integrations follow its installation", async () => {
+  const { bindingCalls, service } = setup();
+  await service.install(TENANT, MODULES.pos);
+  // Installing again is a no-op, also for the bindings.
+  await service.install(TENANT, MODULES.pos);
+  await service.uninstall(TENANT, MODULES.pos);
+  await service.install(TENANT, MODULES.pos);
+
+  assert.deepEqual(bindingCalls, ["ensure:POS", "disable:POS", "ensure:POS"]);
 });

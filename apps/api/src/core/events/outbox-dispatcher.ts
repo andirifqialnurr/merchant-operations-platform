@@ -40,6 +40,30 @@ export interface InboxStore {
 /** Whether a module can react for a workspace: entitled and, if commercial, installed and active. */
 export type ModuleAvailability = (workspaceId: string, moduleKey: ModuleKey) => Promise<boolean>;
 
+/**
+ * What the workspace's integration binding says about calling a handler:
+ * run it, leave it out (no binding, switched off, or the event is older than
+ * the binding), or hold it with a reason a person can act on.
+ */
+export type BindingDecision =
+  { action: "block"; reason: string } | { action: "run" } | { action: "skip" };
+
+export interface BindingGate {
+  decide(handler: EventHandler, event: EventEnvelope): Promise<BindingDecision>;
+  /** Tells the binding how its last delivery went, so its health can be shown. */
+  report(
+    handler: EventHandler,
+    event: EventEnvelope,
+    result: { blockedReason?: string; ok: boolean },
+  ): Promise<void>;
+}
+
+/** No bindings: every handler is called. For tests and for reactions inside one module. */
+export const ALWAYS_RUN: BindingGate = {
+  decide: async () => ({ action: "run" }),
+  report: async () => undefined,
+};
+
 export type DispatcherOptions = {
   baseDelayMs: number;
   batchSize: number;
@@ -79,6 +103,7 @@ export class OutboxDispatcher {
     private readonly isModuleAvailable: ModuleAvailability,
     private readonly options: DispatcherOptions = DEFAULT_DISPATCHER_OPTIONS,
     private readonly now: () => Date = () => new Date(),
+    private readonly bindings: BindingGate = ALWAYS_RUN,
   ) {}
 
   /** Claims and delivers one batch. Returns how many events were taken. */
@@ -146,6 +171,14 @@ export class OutboxDispatcher {
       eventType: envelope.eventType,
       workspaceId: envelope.workspaceId,
     };
+    // The workspace decides, per binding, whether this module reacts at all.
+    const binding = await this.bindings.decide(handler, envelope);
+    if (binding.action === "skip") return { outcome: "done" };
+    if (binding.action === "block") {
+      await this.inbox.record({ ...entry, error: binding.reason, status: "BLOCKED" });
+      return { error: binding.reason, outcome: "blocked" };
+    }
+
     // A module that is not installed or not active does not get the event
     // marked as handled; it waits (backend.md 6.2 rule 3).
     if (!(await this.isModuleAvailable(envelope.workspaceId, handler.moduleKey))) {
@@ -161,11 +194,13 @@ export class OutboxDispatcher {
         ...(reference ? { resultReference: reference } : {}),
         status: "PROCESSED",
       });
+      await this.bindings.report(handler, envelope, { ok: true });
       return { outcome: "done" };
     } catch (error) {
       const message = safeMessage(error);
       if (error instanceof BlockedEventError) {
         await this.inbox.record({ ...entry, error: message, status: "BLOCKED" });
+        await this.bindings.report(handler, envelope, { blockedReason: message, ok: false });
         return { error: message, outcome: "blocked" };
       }
       await this.inbox.record({ ...entry, error: message, status: "RETRYING" });

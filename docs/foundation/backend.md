@@ -56,26 +56,26 @@ Pola per modul saat ini: `*.controller.ts` → `*.service.ts` → `*.repository.
 
 ### 1.1 Endpoint yang berjalan (prefix `/api/v1`)
 
-| Area | Endpoint |
-|---|---|
-| Health | `GET /health` |
-| Auth | `POST /auth/login`, `GET /auth/session`, `POST /auth/logout` |
-| Access | `GET /access/context`, `GET /access/workspaces`, `GET/POST /access/roles`, `PATCH /access/roles/:id`, `GET/POST /access/memberships`, `PATCH /access/memberships/:id` |
-| Organization | `GET /organization`, `PATCH /organization/tenant`, `POST /organization/brands`, `PATCH /organization/brands/:id`, `POST /organization/outlets`, `PATCH /organization/outlets/:id` |
-| Catalog | `GET /catalog`; `POST` + `PATCH /:id` untuk `categories`, `products`, `variants`, `modifier-groups`, `modifier-options`, `product-modifier-groups`, `product-images`; `GET /catalog/outlets/:outletId`, `POST /catalog/outlets/:outletId/products`, `PATCH /catalog/outlets/:outletId/products/:id` |
-| Platform | `POST /platform/auth/login`, `GET /platform/auth/session`, `POST /platform/auth/logout`, `GET /platform/context`, `POST /platform/tenants`, `GET/PATCH /platform/tenants/:id`, `POST /platform/tenants/:id/subscriptions`, `PUT /platform/tenants/:id/entitlements/:moduleKey` |
+| Area         | Endpoint                                                                                                                                                                                                                                                                                            |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Health       | `GET /health`                                                                                                                                                                                                                                                                                       |
+| Auth         | `POST /auth/login`, `GET /auth/session`, `POST /auth/logout`                                                                                                                                                                                                                                        |
+| Access       | `GET /access/context`, `GET /access/workspaces`, `GET/POST /access/roles`, `PATCH /access/roles/:id`, `GET/POST /access/memberships`, `PATCH /access/memberships/:id`                                                                                                                               |
+| Organization | `GET /organization`, `PATCH /organization/tenant`, `POST /organization/brands`, `PATCH /organization/brands/:id`, `POST /organization/outlets`, `PATCH /organization/outlets/:id`                                                                                                                   |
+| Catalog      | `GET /catalog`; `POST` + `PATCH /:id` untuk `categories`, `products`, `variants`, `modifier-groups`, `modifier-options`, `product-modifier-groups`, `product-images`; `GET /catalog/outlets/:outletId`, `POST /catalog/outlets/:outletId/products`, `PATCH /catalog/outlets/:outletId/products/:id` |
+| Platform     | `POST /platform/auth/login`, `GET /platform/auth/session`, `POST /platform/auth/logout`, `GET /platform/context`, `POST /platform/tenants`, `GET/PATCH /platform/tenants/:id`, `POST /platform/tenants/:id/subscriptions`, `PUT /platform/tenants/:id/entitlements/:moduleKey`                      |
 
 ### 1.2 Yang perlu dibenahi
 
-| Temuan | Dampak | Perbaikan |
-|---|---|---|
-| Semua folder sejajar di `src/`; tidak ada pemisahan core, kernel, modul | Batas modul tidak terlihat dan tidak dapat di-lint | Struktur target bagian 2 |
-| `catalog.repository.ts` 1.226 baris, `catalog.service.ts` 667 baris, `catalog.controller.ts` 546 baris | Sulit diuji dan ditinjau | Pecah per use case (bagian 4) |
-| `packages/contracts/src/index.ts` satu file | Konflik merge, sulit dicari | Pecah per domain (bagian 7) |
-| Pesan error ditulis dalam Bahasa Indonesia di server | Tidak mendukung dua bahasa | Kode stabil + terjemahan di klien (bagian 9) |
-| Rate limit di memori proses | Tidak berlaku lintas instance | Pindah ke Redis saat lebih dari satu instance |
-| Belum ada binding integrasi dan metering | Integrasi antarmodul belum bisa dinyalakan/dimatikan per workspace; limit belum ditegakkan | Tahap B di `prd.md` |
-| Entitlement berupa boolean per modul | Tidak mengenal tier, capability, limit | Diganti evaluator entitlement efektif |
+| Temuan                                                                                                 | Dampak                                             | Perbaikan                                     |
+| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------- | --------------------------------------------- |
+| Semua folder sejajar di `src/`; tidak ada pemisahan core, kernel, modul                                | Batas modul tidak terlihat dan tidak dapat di-lint | Struktur target bagian 2                      |
+| `catalog.repository.ts` 1.226 baris, `catalog.service.ts` 667 baris, `catalog.controller.ts` 546 baris | Sulit diuji dan ditinjau                           | Pecah per use case (bagian 4)                 |
+| `packages/contracts/src/index.ts` satu file                                                            | Konflik merge, sulit dicari                        | Pecah per domain (bagian 7)                   |
+| Pesan error ditulis dalam Bahasa Indonesia di server                                                   | Tidak mendukung dua bahasa                         | Kode stabil + terjemahan di klien (bagian 9)  |
+| Rate limit di memori proses                                                                            | Tidak berlaku lintas instance                      | Pindah ke Redis saat lebih dari satu instance |
+| Belum ada metering                                                                                     | Limit paket belum ditegakkan dari pemakaian nyata  | Tahap B di `prd.md`                           |
+| Entitlement berupa boolean per modul                                                                   | Tidak mengenal tier, capability, limit             | Diganti evaluator entitlement efektif         |
 
 ---
 
@@ -167,15 +167,15 @@ Struktur dipindahkan bertahap; tidak ada "pindah besar" dalam satu commit.
 
 ## 3. Aturan impor
 
-| Dari | Boleh mengimpor |
-|---|---|
-| `modules/x` | `core/*` (hanya `public.ts`), `kernels/*` (hanya `public.ts`), `shared/*`, `modules/y/public.ts` yang diizinkan manifest |
-| `kernels/x` | `core/*/public.ts`, `shared/*` |
-| `core/x` | `core/y/public.ts`, `shared/*` |
-| `shared/*` | Tidak mengimpor apa pun dari `core`, `kernels`, `modules` |
-| `domain/` dalam modul | Tidak mengimpor NestJS, Prisma, atau `adapters/` |
-| `application/` | `domain/`, `ports/`; tidak mengimpor Prisma atau HTTP |
-| `adapters/` | `application/`, `domain/` |
+| Dari                  | Boleh mengimpor                                                                                                          |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `modules/x`           | `core/*` (hanya `public.ts`), `kernels/*` (hanya `public.ts`), `shared/*`, `modules/y/public.ts` yang diizinkan manifest |
+| `kernels/x`           | `core/*/public.ts`, `shared/*`                                                                                           |
+| `core/x`              | `core/y/public.ts`, `shared/*`                                                                                           |
+| `shared/*`            | Tidak mengimpor apa pun dari `core`, `kernels`, `modules`                                                                |
+| `domain/` dalam modul | Tidak mengimpor NestJS, Prisma, atau `adapters/`                                                                         |
+| `application/`        | `domain/`, `ports/`; tidak mengimpor Prisma atau HTTP                                                                    |
+| `adapters/`           | `application/`, `domain/`                                                                                                |
 
 Larangan keras:
 
@@ -212,7 +212,11 @@ export class CreateKitchenTicket {
   ) {}
 
   async execute(input: CreateKitchenTicketInput, ctx: CommandContext): Promise<KitchenTicketDto> {
-    const existing = await this.tickets.findBySource(ctx.workspaceId, input.source, input.sourceReference);
+    const existing = await this.tickets.findBySource(
+      ctx.workspaceId,
+      input.source,
+      input.sourceReference,
+    );
     if (existing) return toDto(existing); // idempotent
 
     const ticket = KitchenTicket.create(input, ctx);
@@ -261,13 +265,13 @@ Skemanya sudah ada (`commandContextSchema`). Konteks dibentuk oleh adapter dari 
 
 ## 5. SOLID dalam praktik
 
-| Prinsip | Aturan di repo ini |
-|---|---|
-| **S** — satu tanggung jawab | Satu use case per file. Controller tidak berisi aturan bisnis. Repository tidak berisi aturan bisnis. File di atas ±300 baris adalah tanda harus dipecah |
-| **O** — terbuka untuk perluasan | Menambah sumber input berarti menambah adapter, bukan mengubah use case. Menambah reaksi antarmodul berarti menambah handler dan binding, bukan mengubah modul sumber |
-| **L** — dapat disubstitusi | Implementasi repository (Prisma, in-memory untuk test) mematuhi kontrak port yang sama; test use case berjalan dengan keduanya |
-| **I** — antarmuka kecil | Port dipecah per kebutuhan (`TicketReader`, `TicketWriter`) bila konsumen hanya butuh sebagian. `public.ts` hanya mengekspor yang benar-benar dipakai modul lain |
-| **D** — bergantung pada abstraksi | Use case bergantung pada port (interface + token injeksi), bukan pada Prisma. Pola ini sudah dipakai (`CATALOG_REPOSITORY`) dan dilanjutkan |
+| Prinsip                           | Aturan di repo ini                                                                                                                                                    |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **S** — satu tanggung jawab       | Satu use case per file. Controller tidak berisi aturan bisnis. Repository tidak berisi aturan bisnis. File di atas ±300 baris adalah tanda harus dipecah              |
+| **O** — terbuka untuk perluasan   | Menambah sumber input berarti menambah adapter, bukan mengubah use case. Menambah reaksi antarmodul berarti menambah handler dan binding, bukan mengubah modul sumber |
+| **L** — dapat disubstitusi        | Implementasi repository (Prisma, in-memory untuk test) mematuhi kontrak port yang sama; test use case berjalan dengan keduanya                                        |
+| **I** — antarmuka kecil           | Port dipecah per kebutuhan (`TicketReader`, `TicketWriter`) bila konsumen hanya butuh sebagian. `public.ts` hanya mengekspor yang benar-benar dipakai modul lain      |
+| **D** — bergantung pada abstraksi | Use case bergantung pada port (interface + token injeksi), bukan pada Prisma. Pola ini sudah dipakai (`CATALOG_REPOSITORY`) dan dilanjutkan                           |
 
 Aturan tambahan:
 
@@ -285,7 +289,11 @@ Aturan tambahan:
 ```ts
 // kernels/catalog/public.ts
 export interface CatalogFacade {
-  getSellableProduct(workspaceId: string, locationId: string, productId: string): Promise<SellableProductDto | null>;
+  getSellableProduct(
+    workspaceId: string,
+    locationId: string,
+    productId: string,
+  ): Promise<SellableProductDto | null>;
 }
 export const CATALOG_FACADE = Symbol("CATALOG_FACADE");
 ```
@@ -316,6 +324,14 @@ Aturan handler:
 4. Error sementara → coba ulang dengan jeda bertahap. Error konfigurasi/validasi → `BLOCKED` dengan alasan aman.
 5. Kegagalan handler tidak pernah membatalkan transaksi sumber.
 6. Hanya event setelah `effective_from` binding yang diproses; data lama tidak diproses otomatis.
+
+Binding dalam kode (`core/integrations`, berjalan sejak 3 Oktober 2026):
+
+- Binding hanya diperlukan bila modul penerima berbeda dari modul yang mengumumkan event. Reaksi di dalam satu modul berjalan tanpa binding.
+- Binding dibuat `ACTIVE` saat instalasi modul penerima selesai, dengan `effective_from` = waktu instalasi. Saat modul dilepas, binding menjadi `DISABLED` (tidak dihapus); saat dipasang lagi, binding aktif kembali dengan `effective_from` baru.
+- Keputusan dispatcher per handler: tanpa binding, `DISABLED`, `DRAFT`, atau event di luar masa berlaku → handler dilewati dan event selesai; `PAUSED`, `SETUP_REQUIRED`, `ERROR` → inbox `BLOCKED` dengan alasan aman, bisa diulang nanti; `ACTIVE` → lanjut ke cek instalasi dan handler.
+- Hasil pengiriman terakhir dicatat di `health` dan `last_error` binding.
+- Endpoint: `GET /modules/bindings`, `POST /modules/bindings/:id/pause` (wajib alasan), `POST /modules/bindings/:id/resume`. Perubahan status masuk audit (`integration_binding.*`).
 
 ### 6.3 Manifest modul
 
@@ -382,23 +398,23 @@ Aturan baru untuk dua bahasa:
 
 Kode akses minimum:
 
-| Kode | HTTP | Kondisi |
-|---|---|---|
-| `AUTH_SESSION_INVALID` | 401 | Sesi tidak ada atau kedaluwarsa |
-| `WORKSPACE_ACCESS_DENIED` | 403 | Bukan anggota aktif workspace; dikembalikan sebelum data langganan dibaca |
-| `CSRF_TOKEN_REQUIRED` | 403 | Header CSRF tidak ada |
-| `PERMISSION_DENIED` | 403 | Pengguna tidak punya izin |
-| `LOCATION_SCOPE_DENIED` | 403 | Lokasi di luar cakupan |
-| `ENTITLEMENT_REQUIRED` | 403 | Modul/capability tidak dibeli |
-| `TIER_UPGRADE_REQUIRED` | 403 | Butuh tier lebih tinggi |
-| `INSTALLATION_SETUP_REQUIRED` | 409 | Setup modul belum lengkap |
-| `FEATURE_DISABLED` | 403 | Feature flag belum membuka fitur |
-| `SUBSCRIPTION_SUSPENDED` | 403 | Langganan tidak dapat dipakai |
-| `LIMIT_REACHED` | 409 | Batas hard tercapai |
-| `RATE_LIMIT_EXCEEDED` | 429 | Batas laju |
-| `VALIDATION_ERROR` | 400 | Input tidak valid; `details.issues` berisi field |
-| `IDEMPOTENCY_KEY_REUSED` | 409 | Kunci sama dengan payload berbeda |
-| `NOT_FOUND` | 404 | Termasuk record milik workspace lain (tanpa membocorkan keberadaannya) |
+| Kode                          | HTTP | Kondisi                                                                   |
+| ----------------------------- | ---- | ------------------------------------------------------------------------- |
+| `AUTH_SESSION_INVALID`        | 401  | Sesi tidak ada atau kedaluwarsa                                           |
+| `WORKSPACE_ACCESS_DENIED`     | 403  | Bukan anggota aktif workspace; dikembalikan sebelum data langganan dibaca |
+| `CSRF_TOKEN_REQUIRED`         | 403  | Header CSRF tidak ada                                                     |
+| `PERMISSION_DENIED`           | 403  | Pengguna tidak punya izin                                                 |
+| `LOCATION_SCOPE_DENIED`       | 403  | Lokasi di luar cakupan                                                    |
+| `ENTITLEMENT_REQUIRED`        | 403  | Modul/capability tidak dibeli                                             |
+| `TIER_UPGRADE_REQUIRED`       | 403  | Butuh tier lebih tinggi                                                   |
+| `INSTALLATION_SETUP_REQUIRED` | 409  | Setup modul belum lengkap                                                 |
+| `FEATURE_DISABLED`            | 403  | Feature flag belum membuka fitur                                          |
+| `SUBSCRIPTION_SUSPENDED`      | 403  | Langganan tidak dapat dipakai                                             |
+| `LIMIT_REACHED`               | 409  | Batas hard tercapai                                                       |
+| `RATE_LIMIT_EXCEEDED`         | 429  | Batas laju                                                                |
+| `VALIDATION_ERROR`            | 400  | Input tidak valid; `details.issues` berisi field                          |
+| `IDEMPOTENCY_KEY_REUSED`      | 409  | Kunci sama dengan payload berbeda                                         |
+| `NOT_FOUND`                   | 404  | Termasuk record milik workspace lain (tanpa membocorkan keberadaannya)    |
 
 ---
 
@@ -427,11 +443,11 @@ markReady(@Param(...) params, @CurrentAccess() access, @Command() ctx) { … }
 
 `apps/worker` menjadi proses kedua dari codebase yang sama:
 
-| Tugas | Keterangan |
-|---|---|
-| Outbox dispatcher | Mengklaim event, memanggil handler terdaftar, mencatat inbox, coba ulang, dead-letter |
-| Pembangun projection | Saldo stok, rekap harian, counter pemakaian |
-| Job terjadwal | Kedaluwarsa sesi, pengingat limit, pembersihan kunci idempotency |
+| Tugas                | Keterangan                                                                            |
+| -------------------- | ------------------------------------------------------------------------------------- |
+| Outbox dispatcher    | Mengklaim event, memanggil handler terdaftar, mencatat inbox, coba ulang, dead-letter |
+| Pembangun projection | Saldo stok, rekap harian, counter pemakaian                                           |
+| Job terjadwal        | Kedaluwarsa sesi, pengingat limit, pembersihan kunci idempotency                      |
 
 Worker memakai modul yang sama dengan API (use case dan repository), bukan salinan logika: `apps/worker` mengimpor `@merchant/api/worker-runtime`, yang membuat konteks aplikasi NestJS tanpa server HTTP. Karena itu `apps/worker/tsconfig.json` ikut memuat sumber API (dekorator), dan worker dijalankan dari sumber TypeScript dengan `tsx`, tidak dari `dist`. Dispatcher mengklaim event dengan `FOR UPDATE SKIP LOCKED` dan masa sewa (`available_at`), jadi beberapa worker bisa berjalan bersamaan dan event kembali tersedia bila worker mati. Handler didaftarkan modul saat aplikasi mulai dan harus sama persis dengan `eventHandlers` di manifest; bila tidak, worker menolak mulai. Shutdown harus bersih: berhenti mengklaim, menyelesaikan pekerjaan berjalan, lalu keluar. Redis/BullMQ baru ditambahkan bila dispatcher berbasis polling database tidak lagi memadai.
 
@@ -439,14 +455,14 @@ Worker memakai modul yang sama dengan API (use case dan repository), bukan salin
 
 ## 12. Test
 
-| Jenis | Lokasi | Yang diuji |
-|---|---|---|
-| Unit domain | `domain/*.spec.ts` | Transisi status, perhitungan |
-| Unit use case | `application/**/*.spec.ts` | Alur dengan repository in-memory; idempotency |
-| Kontrak API | `*.controller.spec.ts`, `api-contract.spec.ts` | Skema request/response, kode error |
-| Isolasi | `reliability/*.spec.ts`, `tenant-isolation-schema.spec.ts` | Substitusi ID lintas workspace; constraint skema |
-| Integrasi database | (belum ada) | PostgreSQL sekali pakai; constraint, transaksi, outbox |
-| Kontrak event | `packages/contracts` | Envelope dan payload per versi |
+| Jenis              | Lokasi                                                     | Yang diuji                                             |
+| ------------------ | ---------------------------------------------------------- | ------------------------------------------------------ |
+| Unit domain        | `domain/*.spec.ts`                                         | Transisi status, perhitungan                           |
+| Unit use case      | `application/**/*.spec.ts`                                 | Alur dengan repository in-memory; idempotency          |
+| Kontrak API        | `*.controller.spec.ts`, `api-contract.spec.ts`             | Skema request/response, kode error                     |
+| Isolasi            | `reliability/*.spec.ts`, `tenant-isolation-schema.spec.ts` | Substitusi ID lintas workspace; constraint skema       |
+| Integrasi database | (belum ada)                                                | PostgreSQL sekali pakai; constraint, transaksi, outbox |
+| Kontrak event      | `packages/contracts`                                       | Envelope dan payload per versi                         |
 
 Setiap checkpoint backend minimal lulus: lint, typecheck, unit dan kontrak terkait, test API, test skema/migrasi bila ada, dan regresi keamanan sesuai cakupan. Perintah: `pnpm lint`, `pnpm typecheck`, `pnpm test`.
 

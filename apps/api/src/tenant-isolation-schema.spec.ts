@@ -512,3 +512,26 @@ test("delivers each event to each handler at most once per tenant", () => {
     /model CoreInboxEvent \{[\s\S]*@@unique\(\[tenantId, consumerName, eventId\]\)/,
   );
 });
+
+test("keeps one integration binding per route in a tenant", () => {
+  const bindings = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261004050000_core_integration_bindings/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(
+    bindings,
+    /UNIQUE INDEX "core_integration_bindings_route_key"\s+ON "core_integration_bindings"\s+\("tenant_id", "source_module_key", "event_type", "target_module_key", "handler_key"\)/,
+  );
+  assert.match(bindings, /FOREIGN KEY \("tenant_id"\) REFERENCES "tenants"\("id"\)/);
+  // A binding connects two different modules.
+  assert.match(bindings, /"source_module_key" <> "target_module_key"/);
+  // An error state always says why.
+  assert.match(bindings, /"status" <> 'ERROR' OR "last_error" IS NOT NULL/);
+  assert.match(
+    schema,
+    /model CoreIntegrationBinding \{[\s\S]*@@unique\(\[tenantId, sourceModuleKey, eventType, targetModuleKey, handlerKey\]/,
+  );
+});

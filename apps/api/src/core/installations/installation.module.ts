@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 
 import { AuthModule } from "../auth/public.js";
 import { EntitlementModule } from "../entitlements/public.js";
+import { IntegrationModule } from "../integrations/public.js";
 import { AccessModule } from "../memberships/public.js";
 import { InstallationController } from "./installation.controller.js";
 import {
@@ -14,7 +15,7 @@ import { NavigationController } from "./navigation.controller.js";
 @Module({
   controllers: [InstallationController, NavigationController],
   exports: [InstallationService],
-  imports: [AccessModule, AuthModule, EntitlementModule],
+  imports: [AccessModule, AuthModule, EntitlementModule, IntegrationModule],
   providers: [
     InstallationService,
     PrismaInstallationRepository,

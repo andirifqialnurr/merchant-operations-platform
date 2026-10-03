@@ -10,6 +10,7 @@ import {
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
 import { accessDenied, EntitlementService } from "../entitlements/public.js";
+import { BindingService } from "../integrations/public.js";
 import { MODULE_MANIFEST_REGISTRY, type ModuleManifestRegistry } from "../manifest/public.js";
 import { canMove, isInstalled } from "./installation-lifecycle.js";
 import {
@@ -66,6 +67,7 @@ export class InstallationService {
     @Inject(INSTALLATION_REPOSITORY) private readonly repository: InstallationRepository,
     @Inject(EntitlementService) private readonly entitlements: EntitlementService,
     @Inject(MODULE_MANIFEST_REGISTRY) private readonly manifests: ModuleManifestRegistry,
+    @Inject(BindingService) private readonly bindings: BindingService,
   ) {}
 
   /** Every commercial module the workspace is entitled to or has installed, with its status. */
@@ -171,7 +173,10 @@ export class InstallationService {
       ...(context ? { context } : {}),
       event: { type: "module.installed.v1" },
     });
-    return done ? toInstallation(done) : this.current(tenantId, moduleKey);
+    if (!done) return this.current(tenantId, moduleKey);
+    // The module starts reacting to other modules' events from now on.
+    await this.bindings.ensureForModule(tenantId, moduleKey, context);
+    return toInstallation(done);
   }
 
   /** Installs every entitled module that can be installed; safe to repeat. */
@@ -233,13 +238,22 @@ export class InstallationService {
   }
 
   /** Takes the module out of use. Its data and its installation row stay. */
-  uninstall(tenantId: string, moduleKey: ModuleKey, context?: InstallationMutationContext) {
-    return this.move(tenantId, moduleKey, "module_installation.uninstall", context, () => ({
-      errorMessage: null,
-      setupRequiredReason: null,
-      status: "NOT_INSTALLED",
-      suspendedReason: null,
-    }));
+  async uninstall(tenantId: string, moduleKey: ModuleKey, context?: InstallationMutationContext) {
+    const removed = await this.move(
+      tenantId,
+      moduleKey,
+      "module_installation.uninstall",
+      context,
+      () => ({
+        errorMessage: null,
+        setupRequiredReason: null,
+        status: "NOT_INSTALLED",
+        suspendedReason: null,
+      }),
+    );
+    // A module that is not in use reacts to nothing.
+    await this.bindings.disableForModule(tenantId, moduleKey, context);
+    return removed;
   }
 
   private async move(

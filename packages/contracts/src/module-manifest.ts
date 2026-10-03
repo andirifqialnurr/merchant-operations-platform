@@ -217,6 +217,15 @@ export const integrationBindingSchema = z
     path: ["lastError"],
   });
 
+export const integrationBindingListSchema = z.object({
+  bindings: z.array(integrationBindingSchema),
+});
+
+/** Why the integration is being stopped; kept in the audit trail. */
+export const pauseIntegrationBindingSchema = z.object({
+  reason: z.string().trim().min(3).max(500),
+});
+
 export const moduleBoundaryAccessTypeSchema = z.enum([
   "EVENT_REACTION",
   "INTERNAL_DEPENDENCY",
@@ -268,6 +277,10 @@ export type ModuleInstallationStatus = z.infer<typeof moduleInstallationStatusSc
 export type IntegrationBinding = z.infer<typeof integrationBindingSchema>;
 
 export type IntegrationBindingHealth = z.infer<typeof integrationBindingHealthSchema>;
+
+export type IntegrationBindingList = z.infer<typeof integrationBindingListSchema>;
+
+export type PauseIntegrationBinding = z.infer<typeof pauseIntegrationBindingSchema>;
 
 export type IntegrationBindingStatus = z.infer<typeof integrationBindingStatusSchema>;
 

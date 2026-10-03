@@ -18,6 +18,7 @@ import {
   type DispatcherOptions,
   type EventHandlerRegistry,
 } from "./core/events/public.js";
+import { BindingService } from "./core/integrations/public.js";
 import { MODULE_MANIFEST_REGISTRY, type ModuleManifestRegistry } from "./core/manifest/public.js";
 
 export type WorkerRuntime = {
@@ -80,6 +81,8 @@ export async function createWorkerRuntime(
     handlers,
     isModuleAvailable,
     options,
+    undefined,
+    app.get(BindingService),
   );
 
   return {
