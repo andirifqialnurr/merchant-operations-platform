@@ -102,6 +102,7 @@ export class SessionPermissionGuard implements CanActivate {
         {
           allLocations: access.context.allOutlets,
           capabilities: entitlement.capabilities,
+          ...(entitlement.installation ? { installation: entitlement.installation } : {}),
           ...(access.location ? { location: access.location } : {}),
           membershipActive: access.membershipActive,
           ...(entitlement.module ? { module: entitlement.module } : {}),

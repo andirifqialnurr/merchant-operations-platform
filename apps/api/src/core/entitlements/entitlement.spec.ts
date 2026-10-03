@@ -83,6 +83,7 @@ class MemoryEntitlementRepository implements EntitlementRepository {
   readonly states: Record<string, EntitlementStateRecord> = {
     [TENANT_ID]: {
       modules: moduleDefinitions,
+      installations: [{ moduleKey: MODULES.cafeProfile, status: "ACTIVE" }],
       overrides: [],
       subscription: null,
       targetOverrides: [],
@@ -90,6 +91,7 @@ class MemoryEntitlementRepository implements EntitlementRepository {
     },
     [TENANT_B_ID]: {
       modules: moduleDefinitions,
+      installations: [{ moduleKey: MODULES.cafeProfile, status: "ACTIVE" }],
       overrides: [],
       subscription: null,
       targetOverrides: [],
@@ -119,6 +121,7 @@ class MemoryEntitlementRepository implements EntitlementRepository {
     return (
       this.states[tenantId] ?? {
         modules: moduleDefinitions,
+        installations: [],
         overrides: [],
         subscription: null,
         targetOverrides: [],

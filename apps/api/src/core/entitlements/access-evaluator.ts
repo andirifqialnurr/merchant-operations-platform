@@ -87,7 +87,12 @@ export function evaluateAccess(facts: AccessFacts, requirement: AccessRequiremen
   if (!facts.subscriptionUsable) return deny("SUBSCRIPTION_SUSPENDED");
 
   if (requirement.moduleKey) {
-    // 4. The module is installed and set up.
+    // 4. The module is part of what the workspace bought, and it is installed
+    // and set up. Ownership is checked first: a module nobody bought cannot be
+    // installed, so "not installed" would be the wrong thing to say.
+    if (!facts.module?.entitled) {
+      return deny("ENTITLEMENT_REQUIRED", { moduleKey: requirement.moduleKey });
+    }
     if (facts.installation && facts.installation !== "ACTIVE") {
       return deny("INSTALLATION_SETUP_REQUIRED", {
         installation: facts.installation,
@@ -95,10 +100,7 @@ export function evaluateAccess(facts: AccessFacts, requirement: AccessRequiremen
       });
     }
 
-    // 5. The module, its tier, and the capability are entitled.
-    if (!facts.module?.entitled) {
-      return deny("ENTITLEMENT_REQUIRED", { moduleKey: requirement.moduleKey });
-    }
+    // 5. The tier and the capability are entitled.
     if (requirement.minimumTier) {
       const tier = facts.module.tier;
       if (!tier || TIER_RANK[tier] < TIER_RANK[requirement.minimumTier]) {

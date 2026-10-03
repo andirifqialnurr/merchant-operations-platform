@@ -5,7 +5,8 @@ export const subscriptionManifest: ModuleManifest = {
   capabilities: [],
   capabilityTiers: {},
   displayName: "Subscription and Entitlement Core",
-  eventsProduced: [],
+  // Written by core/installations when a module finishes installing.
+  eventsProduced: ["module.installed.v1"],
   internalDependencies: [MODULES.coreTenancy],
   key: MODULES.coreSubscription,
   limitDimensions: [],

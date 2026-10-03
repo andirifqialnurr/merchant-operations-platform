@@ -9,6 +9,7 @@ import {
 import { Inject, Injectable } from "@nestjs/common";
 
 import { EntitlementService } from "../entitlements/public.js";
+import { InstallationService } from "../installations/public.js";
 import { OrganizationService } from "../workspaces/public.js";
 
 export type PlatformMutationContext = { actorId: string; requestId?: string };
@@ -18,6 +19,7 @@ export class PlatformMasterService {
   constructor(
     @Inject(OrganizationService) private readonly organizationService: OrganizationService,
     @Inject(EntitlementService) private readonly entitlementService: EntitlementService,
+    @Inject(InstallationService) private readonly installationService: InstallationService,
   ) {}
 
   createTenant(input: CreateTenant, context: PlatformMutationContext) {
@@ -36,20 +38,30 @@ export class PlatformMasterService {
     return platformTenantMasterSchema.parse({ entitlement, organization });
   }
 
-  replaceSubscription(
+  /** A new subscription comes with its modules installed, so the workspace can start working. */
+  async replaceSubscription(
     tenantId: string,
     input: ReplaceSubscription,
     context: PlatformMutationContext,
   ) {
-    return this.entitlementService.replaceSubscription(tenantId, input, context);
+    const snapshot = await this.entitlementService.replaceSubscription(tenantId, input, context);
+    await this.installationService.provisionEntitled(tenantId, context);
+    return snapshot;
   }
 
-  setEntitlement(
+  /** A module switched on for a tenant is installed in the same step. */
+  async setEntitlement(
     tenantId: string,
     moduleKey: ModuleKey,
     input: PlatformSetTenantEntitlement,
     context: PlatformMutationContext,
   ) {
-    return this.entitlementService.setEntitlement(tenantId, { ...input, moduleKey }, context);
+    const snapshot = await this.entitlementService.setEntitlement(
+      tenantId,
+      { ...input, moduleKey },
+      context,
+    );
+    if (input.enabled) await this.installationService.provisionEntitled(tenantId, context);
+    return snapshot;
   }
 }

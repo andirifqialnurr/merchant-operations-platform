@@ -69,6 +69,15 @@ enum ModuleTier {
   ADVANCED
 }
 
+enum ModuleInstallationStatus {
+  NOT_INSTALLED
+  PROVISIONING
+  SETUP_REQUIRED
+  ACTIVE
+  ERROR
+  SUSPENDED
+}
+
 enum EntitlementOverrideTarget {
   MODULE
   CAPABILITY
@@ -284,6 +293,8 @@ model Tenant {
   subscriptionAddons           CoreSubscriptionAddon[]
   entitlementOverrides         CoreEntitlementOverride[]
   effectiveEntitlements        CoreEffectiveEntitlement[]
+  moduleInstallations          CoreModuleInstallation[]
+  moduleConfigs                CoreModuleConfig[]
   catalogCategories            CatalogCategory[]
   catalogProducts              CatalogProduct[]
   catalogProductVariants       CatalogProductVariant[]
@@ -620,6 +631,7 @@ model ModuleDefinition {
   updatedAt             DateTime                   @updatedAt @map("updated_at") @db.Timestamptz(6)
   packageLinks          CorePackageModule[]
   effectiveEntitlements CoreEffectiveEntitlement[]
+  installations         CoreModuleInstallation[]
   dependencies          ModuleDependency[]         @relation("ModuleDependencies")
   dependents            ModuleDependency[]         @relation("ModuleDependents")
 
@@ -787,6 +799,50 @@ model CoreEffectiveEntitlement {
   @@id([tenantId, moduleKey])
   @@index([moduleKey])
   @@map("core_effective_entitlements")
+}
+
+/// A commercial module set up for a tenant (architecture.md 6.1). The row stays
+/// when the module is suspended or uninstalled, so its data and settings are reused.
+model CoreModuleInstallation {
+  id                  String                   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId            String                   @map("tenant_id") @db.Uuid
+  moduleKey           String                   @map("module_key") @db.VarChar(80)
+  status              ModuleInstallationStatus
+  configSchemaVersion Int                      @default(1) @map("config_schema_version")
+  provisionedAt       DateTime?                @map("provisioned_at") @db.Timestamptz(6)
+  activatedAt         DateTime?                @map("activated_at") @db.Timestamptz(6)
+  setupRequiredReason String?                  @map("setup_required_reason") @db.VarChar(500)
+  errorMessage        String?                  @map("error_message") @db.VarChar(500)
+  suspendedReason     String?                  @map("suspended_reason") @db.VarChar(500)
+  /// A merchant user or a platform user.
+  actorId             String?                  @map("actor_id") @db.Uuid
+  createdAt           DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime                 @default(now()) @map("updated_at") @db.Timestamptz(6)
+  tenant              Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  module              ModuleDefinition         @relation(fields: [moduleKey], references: [key], onDelete: Restrict)
+  configs             CoreModuleConfig[]
+
+  @@unique([tenantId, moduleKey])
+  @@unique([tenantId, id])
+  @@index([moduleKey, status])
+  @@map("core_module_installations")
+}
+
+/// The module's settings for a tenant, one row per settings schema version.
+model CoreModuleConfig {
+  id             String                 @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId       String                 @map("tenant_id") @db.Uuid
+  installationId String                 @map("installation_id") @db.Uuid
+  schemaVersion  Int                    @map("schema_version")
+  config         Json                   @default("{}")
+  createdAt      DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime               @default(now()) @map("updated_at") @db.Timestamptz(6)
+  tenant         Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  installation   CoreModuleInstallation @relation(fields: [tenantId, installationId], references: [tenantId, id], onDelete: Cascade)
+
+  @@unique([installationId, schemaVersion])
+  @@index([tenantId, installationId])
+  @@map("core_module_configs")
 }
 
 model AuditLog {

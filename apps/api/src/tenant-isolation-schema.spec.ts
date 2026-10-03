@@ -459,3 +459,33 @@ test("drops the legacy plan and entitlement tables only after checking nothing i
   assert.ok(cleanup.includes('DROP COLUMN "plan_id"'));
   assert.ok(!schema.includes("plan_id"));
 });
+
+test("keeps module installations and their settings inside one tenant", () => {
+  const installations = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261004030000_core_module_installations/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  // One installation per tenant and module; provisioning twice cannot create two.
+  assert.match(
+    installations,
+    /UNIQUE INDEX "core_module_installations_tenant_id_module_key_key"\s+ON "core_module_installations"\("tenant_id", "module_key"\)/,
+  );
+  // Settings can only hang off an installation of the same tenant.
+  assert.match(
+    installations,
+    /FOREIGN KEY \("tenant_id", "installation_id"\)\s+REFERENCES "core_module_installations"\("tenant_id", "id"\)/,
+  );
+  // Every status that needs an explanation has one.
+  for (const column of [
+    "activated_at",
+    "setup_required_reason",
+    "error_message",
+    "suspended_reason",
+  ]) {
+    assert.ok(installations.includes(`"${column}" IS NOT NULL`), column);
+  }
+  assert.match(schema, /model CoreModuleInstallation \{[\s\S]*@@unique\(\[tenantId, moduleKey\]\)/);
+});

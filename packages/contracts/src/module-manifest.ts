@@ -159,6 +159,13 @@ export const moduleInstallationSchema = z
     path: ["setupRequiredReason"],
   });
 
+export const moduleInstallationParamsSchema = z.object({ moduleKey: moduleKeySchema });
+
+/** Every commercial module a workspace is entitled to or has installed. */
+export const moduleInstallationListSchema = z.object({
+  installations: z.array(moduleInstallationSchema),
+});
+
 export const integrationBindingStatusSchema = z.enum([
   "ACTIVE",
   "DISABLED",
@@ -238,6 +245,8 @@ export type ModuleEventType = z.infer<typeof moduleEventTypeSchema>;
 export type ModuleInstallStep = z.infer<typeof moduleInstallStepSchema>;
 
 export type ModuleInstallation = z.infer<typeof moduleInstallationSchema>;
+
+export type ModuleInstallationList = z.infer<typeof moduleInstallationListSchema>;
 
 export type ModuleInstallationStatus = z.infer<typeof moduleInstallationStatusSchema>;
 

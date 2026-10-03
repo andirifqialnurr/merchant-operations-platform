@@ -178,6 +178,8 @@ test("every event a unit writes is declared in its manifest, and nothing else", 
     CORE_BILL: "kernels/billing-payment-ledger",
     CORE_ORDER: "kernels/order-intake",
     CORE_PAYMENT_LEDGER: "kernels/billing-payment-ledger",
+    // The installation flow writes the event the subscription core declares.
+    CORE_SUBSCRIPTION: "core/installations",
   };
   const written = (unit: string) => {
     const found = new Set<string>();

@@ -332,6 +332,14 @@ export class EntitlementService {
             )
           : [],
       ),
+      // Core modules are part of every workspace; only commercial ones are installed.
+      ...(decision?.kind === "COMMERCIAL"
+        ? {
+            installation:
+              state.installations.find((item) => item.moduleKey === decision.key)?.status ??
+              ("NOT_INSTALLED" as const),
+          }
+        : {}),
       ...(moduleKey
         ? { module: { entitled: decision?.enabled === true, tier: decision?.tier ?? null } }
         : {}),

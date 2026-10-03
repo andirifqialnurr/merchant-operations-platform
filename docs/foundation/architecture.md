@@ -190,8 +190,8 @@ Provisioning idempotent. Suspend dan uninstall tidak menghapus data. Aktivasi ul
 1. Sesi valid
 2. Keanggotaan aktif pada workspace
 3. Langganan workspace dapat dipakai
-4. Instalasi modul aktif
-5. Capability ter-entitle
+4. Modul termasuk langganan, lalu instalasinya aktif (kepemilikan diperiksa lebih dulu: modul yang tidak dibeli tidak mungkin dipasang, jadi alasannya `ENTITLEMENT_REQUIRED`, bukan `INSTALLATION_SETUP_REQUIRED`)
+5. Tier dan capability ter-entitle
 6. Pengguna punya izin
 7. Lokasi dalam cakupan pengguna
 8. Feature flag membuka fitur

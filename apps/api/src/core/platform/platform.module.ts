@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 
 import { EntitlementModule } from "../entitlements/public.js";
+import { InstallationModule } from "../installations/public.js";
 import { OrganizationModule } from "../workspaces/public.js";
 import { SecurityModule } from "../security/public.js";
 import { PlatformAuthController } from "./platform-auth.controller.js";
@@ -16,7 +17,7 @@ import { PlatformPermissionGuard } from "./platform-permission.guard.js";
 @Module({
   controllers: [PlatformAuthController, PlatformMasterController],
   exports: [PlatformAuthService, PlatformPermissionGuard],
-  imports: [EntitlementModule, OrganizationModule, SecurityModule],
+  imports: [EntitlementModule, InstallationModule, OrganizationModule, SecurityModule],
   providers: [
     PlatformAuthService,
     PlatformMasterService,

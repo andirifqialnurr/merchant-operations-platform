@@ -148,3 +148,45 @@ test("a location outside the assignment is refused with LOCATION_SCOPE_DENIED", 
     status: 403,
   });
 });
+
+test("an entitled module that is not installed is reported as needing setup", async () => {
+  const guard = new SessionPermissionGuard(
+    {
+      getSession: async () => ({ expiresAt: "2026-12-01T00:00:00.000Z", user: { id: IDS.user } }),
+    } as unknown as AuthService,
+    {
+      describeAccess: async () => ({
+        context: member,
+        location: { active: true, inScope: true },
+        membershipActive: true,
+      }),
+    } as unknown as AccessService,
+    {
+      describeAccess: async () => ({
+        capabilities: new Set<string>(),
+        installation: "NOT_INSTALLED",
+        module: { entitled: true, tier: "BASIC" },
+        subscriptionUsable: true,
+      }),
+    } as unknown as EntitlementService,
+    new Reflector(),
+  );
+  const context = {
+    getClass: () => Routes,
+    getHandler: () => Routes.prototype.sell,
+    switchToHttp: () => ({
+      getRequest: () => ({
+        headers: {
+          cookie: `${SESSION_COOKIE_NAME}=${"a".repeat(43)}`,
+          [API_HEADERS.outletId]: IDS.outlet,
+          [API_HEADERS.tenantId]: IDS.tenant,
+        },
+      }),
+    }),
+  } as unknown as ExecutionContext;
+
+  assert.deepEqual(await refusal(guard.canActivate(context)), {
+    code: "INSTALLATION_SETUP_REQUIRED",
+    status: 409,
+  });
+});

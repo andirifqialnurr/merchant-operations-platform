@@ -125,8 +125,8 @@ test("when several things fail, the most fundamental reason is reported", () => 
   const order: Array<[Partial<AccessFacts>, AccessDenialCode]> = [
     [{ membershipActive: false }, "WORKSPACE_ACCESS_DENIED"],
     [{ subscriptionUsable: false }, "SUBSCRIPTION_SUSPENDED"],
-    [{ installation: "NOT_INSTALLED" }, "INSTALLATION_SETUP_REQUIRED"],
     [{ module: { entitled: false, tier: null } }, "ENTITLEMENT_REQUIRED"],
+    [{ installation: "NOT_INSTALLED" }, "INSTALLATION_SETUP_REQUIRED"],
     [{ permissionKeys: [] }, "PERMISSION_DENIED"],
     [{ location: { active: true, inScope: false } }, "LOCATION_SCOPE_DENIED"],
     [{ featureFlags: new Map() }, "FEATURE_DISABLED"],

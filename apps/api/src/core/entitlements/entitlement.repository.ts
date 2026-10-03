@@ -1,4 +1,5 @@
 import type {
+  ModuleInstallationStatus,
   ModuleKey,
   ModuleKind,
   ModuleTier,
@@ -69,6 +70,8 @@ export type EntitlementOverrideRecord = {
 };
 
 export type EntitlementStateRecord = {
+  /** Status of each module the tenant has an installation row for (read only here). */
+  installations: Array<{ moduleKey: ModuleKey; status: ModuleInstallationStatus }>;
   modules: ModuleRecord[];
   overrides: EntitlementOverrideRecord[];
   /** Capability and limit overrides that have not ended yet. */
@@ -334,39 +337,48 @@ export class PrismaEntitlementRepository implements EntitlementRepository {
 
   async getState(tenantId: string): Promise<EntitlementStateRecord> {
     const notEnded = { OR: [{ endsAt: null }, { endsAt: { gt: new Date() } }] };
-    const [tenant, modules, subscription, overrides, targetOverrides] = await Promise.all([
-      getPrismaClient().tenant.findUnique({
-        select: { id: true, status: true },
-        where: { id: tenantId },
-      }),
-      getPrismaClient().moduleDefinition.findMany({
-        orderBy: { key: "asc" },
-        select: moduleSelect,
-      }),
-      getPrismaClient().subscription.findFirst({
-        select: subscriptionSelect,
-        where: { supersededAt: null, tenantId },
-      }),
-      // Every module override that has not ended yet; the service picks what applies at a given time.
-      getPrismaClient().coreEntitlementOverride.findMany({
-        orderBy: [{ targetKey: "asc" }, { startsAt: "asc" }],
-        select: overrideSelect,
-        where: { ...notEnded, targetType: "MODULE", tenantId },
-      }),
-      getPrismaClient().coreEntitlementOverride.findMany({
-        orderBy: { startsAt: "asc" },
-        select: {
-          endsAt: true,
-          operation: true,
-          startsAt: true,
-          targetKey: true,
-          targetType: true,
-          value: true,
-        },
-        where: { ...notEnded, targetType: { in: ["CAPABILITY", "LIMIT"] }, tenantId },
-      }),
-    ]);
+    const [tenant, modules, subscription, overrides, targetOverrides, installations] =
+      await Promise.all([
+        getPrismaClient().tenant.findUnique({
+          select: { id: true, status: true },
+          where: { id: tenantId },
+        }),
+        getPrismaClient().moduleDefinition.findMany({
+          orderBy: { key: "asc" },
+          select: moduleSelect,
+        }),
+        getPrismaClient().subscription.findFirst({
+          select: subscriptionSelect,
+          where: { supersededAt: null, tenantId },
+        }),
+        // Every module override that has not ended yet; the service picks what applies at a given time.
+        getPrismaClient().coreEntitlementOverride.findMany({
+          orderBy: [{ targetKey: "asc" }, { startsAt: "asc" }],
+          select: overrideSelect,
+          where: { ...notEnded, targetType: "MODULE", tenantId },
+        }),
+        getPrismaClient().coreEntitlementOverride.findMany({
+          orderBy: { startsAt: "asc" },
+          select: {
+            endsAt: true,
+            operation: true,
+            startsAt: true,
+            targetKey: true,
+            targetType: true,
+            value: true,
+          },
+          where: { ...notEnded, targetType: { in: ["CAPABILITY", "LIMIT"] }, tenantId },
+        }),
+        getPrismaClient().coreModuleInstallation.findMany({
+          select: { moduleKey: true, status: true },
+          where: { tenantId },
+        }),
+      ]);
     return {
+      installations: installations.map((item) => ({
+        moduleKey: item.moduleKey as ModuleKey,
+        status: item.status,
+      })),
       modules: modules.map(mapModule),
       overrides: overrides.map(mapOverride),
       subscription: subscription ? mapSubscription(subscription) : null,
