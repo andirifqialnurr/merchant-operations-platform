@@ -44,7 +44,6 @@
   --color-status-danger-text: var(--primitive-color-red-700);
   --color-status-danger-bg: var(--primitive-color-red-50);
   /* Deprecated: kept neutral until components stop using it. */
-textbg
   /* Chart series */
   --color-chart-series-1: var(--primitive-color-chart-light-1);
   --color-chart-series-2: var(--primitive-color-chart-light-2);
@@ -96,7 +95,6 @@ textbg
   --color-status-warning-bg: var(--primitive-color-amber-950);
   --color-status-danger-text: var(--primitive-color-red-300);
   --color-status-danger-bg: var(--primitive-color-red-950);
-textbg
   /* Chart series */
   --color-chart-series-1: var(--primitive-color-chart-dark-1);
   --color-chart-series-2: var(--primitive-color-chart-dark-2);

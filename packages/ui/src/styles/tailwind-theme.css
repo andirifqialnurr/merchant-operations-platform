@@ -43,7 +43,6 @@
   --color-warning-surface: var(--color-status-warning-bg);
   --color-danger: var(--color-status-danger-text);
   --color-danger-surface: var(--color-status-danger-bg);
--surface
   /* Chart series */
   --color-chart-1: var(--color-chart-series-1);
   --color-chart-2: var(--color-chart-series-2);
