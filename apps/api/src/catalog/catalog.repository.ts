@@ -24,8 +24,9 @@ import { getPrismaClient, type DatabaseClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
 import { buildAuditMetadata } from "../core/audit/public.js";
+import { eventOrigin, type CommandOrigin } from "../shared/command/command-origin.js";
 
-export type CatalogMutationContext = { actorId?: string; requestId?: string };
+export type CatalogMutationContext = CommandOrigin;
 
 type RecordTimestamps = { createdAt: Date; updatedAt: Date };
 
@@ -491,6 +492,7 @@ async function writeCatalogChange(
   });
   await transaction.outboxEvent.create({
     data: {
+      ...eventOrigin(options.context, "CORE_CATALOG"),
       aggregateId: options.after.id,
       aggregateType: options.entityType,
       payload,

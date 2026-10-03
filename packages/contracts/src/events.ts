@@ -1,6 +1,11 @@
 import * as z from "zod";
 
-import { idempotencyKeySchema, requestIdSchema } from "./http.ts";
+import {
+  clientVersionSchema,
+  commandChannelSchema,
+  idempotencyKeySchema,
+  requestIdSchema,
+} from "./http.ts";
 import { moduleKeySchema } from "./entitlement.ts";
 import { moduleEventTypeSchema } from "./module-manifest.ts";
 
@@ -17,7 +22,11 @@ export const domainEventEnvelopeSchema = z.object({
   actor: eventActorSchema.nullable(),
   businessUnitId: z.uuid().nullable(),
   causationId: z.uuid().nullable(),
+  /** Where the command that announced the event came from. */
+  channel: commandChannelSchema.nullable().optional(),
+  clientVersion: clientVersionSchema.nullable().optional(),
   correlationId: requestIdSchema,
+  deviceId: z.uuid().nullable().optional(),
   eventId: z.uuid(),
   eventType: moduleEventTypeSchema,
   eventVersion: z.number().int().min(1),
@@ -47,15 +56,13 @@ export const inboxConsumerReceiptSchema = z.object({
 
 export const commandActorTypeSchema = z.enum(["DEVICE", "INTEGRATION", "SYSTEM", "USER"]);
 
-export const commandChannelSchema = z.enum(["API", "IMPORT", "KDS", "MOBILE", "POS", "WEB"]);
-
 export const commandContextSchema = z
   .object({
     actorId: z.uuid().nullable(),
     actorType: commandActorTypeSchema,
     causationId: z.uuid().nullable(),
     channel: commandChannelSchema,
-    clientVersion: z.string().trim().min(1).max(80).nullable(),
+    clientVersion: clientVersionSchema.nullable(),
     correlationId: requestIdSchema,
     deviceId: z.uuid().nullable(),
     idempotencyKey: idempotencyKeySchema,

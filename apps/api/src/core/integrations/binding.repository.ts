@@ -7,8 +7,9 @@ import { getPrismaClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
 import { buildAuditMetadata, buildAuditPayload } from "../audit/public.js";
+import { type CommandOrigin } from "../../shared/command/command-origin.js";
 
-export type BindingMutationContext = { actorId?: string; requestId?: string };
+export type BindingMutationContext = CommandOrigin;
 
 export type BindingRecord = {
   auditReason: string | null;

@@ -8,6 +8,7 @@ import type {
   RegisterSessionRepository,
   ShiftMutationContext,
 } from "../application/register-session.repository.js";
+import { eventOrigin } from "../../../shared/command/command-origin.js";
 
 type TransactionClient = Pick<
   DatabaseClient,
@@ -80,6 +81,7 @@ async function recordChange(
   if (options.eventType) {
     await transaction.outboxEvent.create({
       data: {
+        ...eventOrigin(options.context, "POS"),
         aggregateId: options.session.id,
         aggregateType: "pos_register_session",
         outletId: options.session.outletId,

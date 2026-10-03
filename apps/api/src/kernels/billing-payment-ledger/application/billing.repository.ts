@@ -1,6 +1,7 @@
 import type { BillStatus, PaymentMethod, PaymentStatus, SaleStatus } from "@merchant/contracts";
+import { type ActorCommandOrigin } from "../../../shared/command/command-origin.js";
 
-export type BillingMutationContext = { actorId: string; requestId?: string };
+export type BillingMutationContext = ActorCommandOrigin;
 
 export type BillRecord = {
   currency: string;

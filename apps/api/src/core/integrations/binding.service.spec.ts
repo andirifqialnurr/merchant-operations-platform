@@ -128,6 +128,9 @@ function event(occurredAt: Date, eventId = "event-1"): EventEnvelope {
   return {
     actor: null,
     causationId: null,
+    channel: null,
+    clientVersion: null,
+    deviceId: null,
     correlationId: null,
     eventId,
     eventType: "order.submitted.v1",

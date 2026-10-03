@@ -45,6 +45,7 @@ import {
 import { SESSION_COOKIE_NAME } from "../auth/public.js";
 import { RequestHeaders, ZodValidationPipe } from "../../shared/validation/zod-validation.pipe.js";
 import { OrganizationService } from "./organization.service.js";
+import { commandOriginFromRequest } from "../../shared/command/command-origin.js";
 
 @ApiTags("organization")
 @ApiCookieAuth(SESSION_COOKIE_NAME)
@@ -65,11 +66,7 @@ export class OrganizationController {
   constructor(@Inject(OrganizationService) private readonly service: OrganizationService) {}
 
   private mutationContext(access: AuthorizationContext, headers: TenantRequestHeaders) {
-    const requestId = headers[API_HEADERS.requestId];
-    return {
-      actorId: access.userId,
-      ...(requestId ? { requestId } : {}),
-    };
+    return commandOriginFromRequest(access.userId, headers);
   }
 
   @ApiOperation({ summary: "Read the tenant, brand, and outlet registry for the active tenant" })

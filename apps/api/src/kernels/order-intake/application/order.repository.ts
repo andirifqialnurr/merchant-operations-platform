@@ -1,8 +1,9 @@
 import type { OrderSource, OrderStatus, OrderType } from "@merchant/contracts";
 
 import type { PricedLine } from "../domain/price-order.js";
+import { type ActorCommandOrigin } from "../../../shared/command/command-origin.js";
 
-export type OrderMutationContext = { actorId: string; requestId?: string };
+export type OrderMutationContext = ActorCommandOrigin;
 
 export type OrderItemRecord = {
   id: string;

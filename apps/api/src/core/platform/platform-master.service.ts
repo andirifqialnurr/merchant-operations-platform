@@ -11,8 +11,9 @@ import { Inject, Injectable } from "@nestjs/common";
 import { EntitlementService } from "../entitlements/public.js";
 import { InstallationService } from "../installations/public.js";
 import { OrganizationService } from "../workspaces/public.js";
+import { type ActorCommandOrigin } from "../../shared/command/command-origin.js";
 
-export type PlatformMutationContext = { actorId: string; requestId?: string };
+export type PlatformMutationContext = ActorCommandOrigin;
 
 @Injectable()
 export class PlatformMasterService {

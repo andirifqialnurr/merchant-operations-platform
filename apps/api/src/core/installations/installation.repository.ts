@@ -3,8 +3,9 @@ import { getPrismaClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
 import { buildAuditMetadata, buildAuditPayload } from "../audit/public.js";
+import { eventOrigin, type CommandOrigin } from "../../shared/command/command-origin.js";
 
-export type InstallationMutationContext = { actorId?: string; requestId?: string };
+export type InstallationMutationContext = CommandOrigin;
 
 export type InstallationRecord = {
   activatedAt: Date | null;
@@ -155,14 +156,10 @@ export class PrismaInstallationRepository implements InstallationRepository {
       if (options.event) {
         await transaction.outboxEvent.create({
           data: {
-            ...(options.context?.actorId
-              ? { actorId: options.context.actorId, actorType: "USER" }
-              : { actorType: "SYSTEM" }),
+            ...eventOrigin(options.context, "CORE_SUBSCRIPTION"),
             aggregateId: id,
             aggregateType: "module_installation",
-            ...(options.context?.requestId ? { correlationId: options.context.requestId } : {}),
             payload: { moduleKey, status: row.status },
-            producer: "CORE_SUBSCRIPTION",
             tenantId,
             type: options.event.type,
           },

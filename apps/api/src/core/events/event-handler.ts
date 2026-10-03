@@ -3,12 +3,16 @@ import type { ModuleKey } from "@merchant/contracts";
 /**
  * An event as a handler receives it: the contract, not the database row.
  * Events written before the envelope columns existed have no producer,
- * correlation, or actor.
+ * correlation, actor, or channel.
  */
 export type EventEnvelope = {
   actor: { id: string | null; type: "DEVICE" | "INTEGRATION" | "SYSTEM" | "USER" } | null;
   causationId: string | null;
+  /** Where the command that announced the event came from. */
+  channel: string | null;
+  clientVersion: string | null;
   correlationId: string | null;
+  deviceId: string | null;
   eventId: string;
   eventType: string;
   eventVersion: number;

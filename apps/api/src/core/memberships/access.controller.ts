@@ -52,6 +52,7 @@ import {
   RequirePermission,
   SessionPermissionGuard,
 } from "./session-permission.guard.js";
+import { commandOriginFromRequest } from "../../shared/command/command-origin.js";
 
 @ApiTags("identity-access")
 @ApiCookieAuth(SESSION_COOKIE_NAME)
@@ -69,8 +70,7 @@ export class AccessController {
   constructor(@Inject(AccessService) private readonly accessService: AccessService) {}
 
   private mutationContext(access: AuthorizationContext, headers: TenantRequestHeaders) {
-    const requestId = headers[API_HEADERS.requestId];
-    return { actorId: access.userId, ...(requestId ? { requestId } : {}) };
+    return commandOriginFromRequest(access.userId, headers);
   }
 
   @ApiOperation({ summary: "Resolve the active membership and effective access scope" })

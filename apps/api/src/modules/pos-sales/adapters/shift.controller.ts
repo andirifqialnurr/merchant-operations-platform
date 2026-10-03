@@ -45,6 +45,7 @@ import {
   ZodValidationPipe,
 } from "../../../shared/validation/zod-validation.pipe.js";
 import { ShiftService } from "../application/shift.service.js";
+import { commandOriginFromRequest } from "../../../shared/command/command-origin.js";
 
 /**
  * HTTP adapter for POS shifts. It only parses and maps; the rules live in
@@ -75,8 +76,7 @@ export class ShiftController {
   constructor(@Inject(ShiftService) private readonly service: ShiftService) {}
 
   private context(access: AuthorizationContext, headers: RequestContextHeaders) {
-    const requestId = headers[API_HEADERS.requestId];
-    return { actorId: access.userId, ...(requestId ? { requestId } : {}) };
+    return commandOriginFromRequest(access.userId, headers);
   }
 
   @ApiOperation({ summary: "Read the caller's open shift at the outlet, if any" })

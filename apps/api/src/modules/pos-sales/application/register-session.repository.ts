@@ -1,6 +1,7 @@
 import type { CashMovementDirection, RegisterSessionStatus } from "@merchant/contracts";
+import { type ActorCommandOrigin } from "../../../shared/command/command-origin.js";
 
-export type ShiftMutationContext = { actorId: string; requestId?: string };
+export type ShiftMutationContext = ActorCommandOrigin;
 
 export type CashMovementRecord = {
   amountMinor: bigint;

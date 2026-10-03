@@ -535,3 +535,24 @@ test("keeps one integration binding per route in a tenant", () => {
     /model CoreIntegrationBinding \{[\s\S]*@@unique\(\[tenantId, sourceModuleKey, eventType, targetModuleKey, handlerKey\]/,
   );
 });
+
+test("records where the command behind an event came from", () => {
+  const origin = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261004060000_outbox_command_origin/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(origin, /ADD COLUMN "channel" VARCHAR\(20\)/);
+  assert.match(origin, /ADD COLUMN "device_id" UUID/);
+  assert.match(origin, /ADD COLUMN "client_version" VARCHAR\(80\)/);
+  // Only the channels the contract knows.
+  assert.match(origin, /"channel" IN \('API', 'IMPORT', 'KDS', 'MOBILE', 'POS', 'WEB'\)/);
+  // A device actor always names its device.
+  assert.match(origin, /"actor_type" IS DISTINCT FROM 'DEVICE' OR "device_id" IS NOT NULL/);
+  assert.match(
+    schema,
+    /model OutboxEvent \{[\s\S]*clientVersion\s+String\?\s+@map\("client_version"\)/,
+  );
+});

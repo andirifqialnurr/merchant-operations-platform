@@ -986,6 +986,10 @@ model OutboxEvent {
   actorId       String?   @map("actor_id") @db.Uuid
   /// Module key of the code that produced the event.
   producer      String?   @db.VarChar(80)
+  /// Where the command that announced the event came from.
+  channel       String?   @db.VarChar(20)
+  deviceId      String?   @map("device_id") @db.Uuid
+  clientVersion String?   @map("client_version") @db.VarChar(80)
   recordedAt    DateTime  @default(now()) @map("recorded_at") @db.Timestamptz(6)
   occurredAt    DateTime  @default(now()) @map("occurred_at") @db.Timestamptz(6)
   availableAt   DateTime  @default(now()) @map("available_at") @db.Timestamptz(6)

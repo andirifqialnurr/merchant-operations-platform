@@ -261,6 +261,15 @@ interface CommandContext {
 
 Skemanya sudah ada (`commandContextSchema`). Konteks dibentuk oleh adapter dari sesi, header yang sudah divalidasi, dan request ID.
 
+**Yang berjalan sejak 4 Oktober 2026** (`shared/command/command-origin.ts`):
+
+- Tipe `CommandOrigin` membawa bagian konteks yang menjelaskan asal perintah: `actorId`, `channel`, `clientVersion`, `deviceId`, `requestId` (menjadi `correlationId` event), dan `causationId`. Semua `*MutationContext` di API adalah tipe ini.
+- `commandOriginFromRequest` dipakai semua controller. Channel dibaca dari header `x-client-channel` (nilai di luar daftar ditolak `400`), versi klien dari `x-client-version`. Klien yang tidak menyebut channel dihitung `API`. Klien web mengirim `WEB` dan versinya.
+- `commandOriginFromEvent` dipakai handler event: perintah yang dikeluarkan handler memakai `causationId` = ID event dan `correlationId` yang sama, dengan aktor `SYSTEM`.
+- `eventOrigin` mengisi kolom envelope di `outbox_events`. Sebuah test menolak penulisan outbox tanpa `eventOrigin` dan controller yang merakit konteks sendiri.
+- `deviceId` hanya diisi dari perangkat yang terautentikasi, tidak dari header; kolomnya sudah ada, pengisinya datang bersama provisioning perangkat.
+- Belum dikerjakan: `idempotencyKey`, `occurredAt`, dan `receivedAt` masih dibawa sebagai argumen use case masing-masing, belum di dalam konteks; `audit_logs.channel` dan `audit_logs.correlation_id` belum diisi.
+
 ---
 
 ## 5. SOLID dalam praktik

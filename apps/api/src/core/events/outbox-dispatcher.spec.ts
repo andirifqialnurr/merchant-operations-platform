@@ -47,6 +47,9 @@ class MemoryOutbox implements OutboxStore {
       envelope: {
         actor: null,
         causationId: null,
+        channel: null,
+        clientVersion: null,
+        deviceId: null,
         correlationId: null,
         eventId,
         eventType,

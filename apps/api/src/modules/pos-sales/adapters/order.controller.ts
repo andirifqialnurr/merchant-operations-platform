@@ -52,6 +52,7 @@ import {
 } from "../../../shared/validation/zod-validation.pipe.js";
 import { CheckoutService } from "../application/checkout.service.js";
 import { PosOrdersService } from "../application/pos-orders.service.js";
+import { commandOriginFromRequest } from "../../../shared/command/command-origin.js";
 
 /** Orders taken at the cashier. Pricing and storage belong to order intake. */
 @ApiTags("pos")
@@ -93,14 +94,13 @@ export class OrderController {
     @Body(new ZodValidationPipe(createPosOrderSchema)) input: CreatePosOrder,
     @CurrentAccess() access: AuthorizationContext,
   ) {
-    const requestId = headers[API_HEADERS.requestId];
     return orderSchema.parse(
       await this.orders.submitPosOrder(
         headers[API_HEADERS.tenantId],
         headers[API_HEADERS.outletId],
         input,
         headers[API_HEADERS.idempotencyKey],
-        { actorId: access.userId, ...(requestId ? { requestId } : {}) },
+        commandOriginFromRequest(access.userId, headers),
       ),
     );
   }
@@ -131,14 +131,13 @@ export class OrderController {
     @Body(new ZodValidationPipe(cancelOrderSchema)) input: CancelOrder,
     @CurrentAccess() access: AuthorizationContext,
   ) {
-    const requestId = headers[API_HEADERS.requestId];
     return orderSchema.parse(
       await this.posOrders.cancel(
         headers[API_HEADERS.tenantId],
         headers[API_HEADERS.outletId],
         params.id,
         input,
-        { actorId: access.userId, ...(requestId ? { requestId } : {}) },
+        commandOriginFromRequest(access.userId, headers),
       ),
     );
   }
@@ -157,7 +156,6 @@ export class OrderController {
     @Body(new ZodValidationPipe(refundOrderSchema)) input: RefundOrder,
     @CurrentAccess() access: AuthorizationContext,
   ) {
-    const requestId = headers[API_HEADERS.requestId];
     return saleRefundsSchema.parse(
       await this.posOrders.refund(
         headers[API_HEADERS.tenantId],
@@ -165,7 +163,7 @@ export class OrderController {
         params.id,
         input,
         headers[API_HEADERS.idempotencyKey],
-        { actorId: access.userId, ...(requestId ? { requestId } : {}) },
+        commandOriginFromRequest(access.userId, headers),
       ),
     );
   }
@@ -220,7 +218,6 @@ export class OrderController {
     @Body(new ZodValidationPipe(payOrderSchema)) input: PayOrder,
     @CurrentAccess() access: AuthorizationContext,
   ) {
-    const requestId = headers[API_HEADERS.requestId];
     return checkoutSchema.parse(
       await this.checkout.payOrder(
         headers[API_HEADERS.tenantId],
@@ -228,7 +225,7 @@ export class OrderController {
         params.id,
         input,
         headers[API_HEADERS.idempotencyKey],
-        { actorId: access.userId, ...(requestId ? { requestId } : {}) },
+        commandOriginFromRequest(access.userId, headers),
       ),
     );
   }

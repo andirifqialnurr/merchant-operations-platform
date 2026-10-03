@@ -8,6 +8,7 @@ import type {
   OrderRecord,
   OrderRepository,
 } from "../application/order.repository.js";
+import { eventOrigin } from "../../../shared/command/command-origin.js";
 
 const orderSelect = {
   cancelReason: true,
@@ -113,6 +114,7 @@ export class PrismaOrderRepository implements OrderRepository {
       });
       await transaction.outboxEvent.create({
         data: {
+          ...eventOrigin(context, "CORE_ORDER"),
           aggregateId: orderId,
           aggregateType: "order_order",
           outletId,
@@ -227,6 +229,7 @@ export class PrismaOrderRepository implements OrderRepository {
         });
         await transaction.outboxEvent.create({
           data: {
+            ...eventOrigin(context, "CORE_ORDER"),
             aggregateId: created.id,
             aggregateType: "order_order",
             outletId,

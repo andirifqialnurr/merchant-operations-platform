@@ -1,6 +1,8 @@
 import * as z from "zod";
 
 export const API_HEADERS = {
+  clientChannel: "x-client-channel",
+  clientVersion: "x-client-version",
   idempotencyKey: "idempotency-key",
   outletId: "x-outlet-id",
   requestId: "x-request-id",
@@ -20,7 +22,19 @@ export const idempotencyKeySchema = z
   .regex(/^[A-Za-z0-9._:-]+$/)
   .meta({ description: "Stable key for retry-safe write operations" });
 
+/** The kind of client a command comes through (backend.md 4.1). */
+export const commandChannelSchema = z.enum(["API", "IMPORT", "KDS", "MOBILE", "POS", "WEB"]);
+
+export const clientVersionSchema = z.string().trim().min(1).max(80);
+
+/** What a client says about itself. Optional: a client that says nothing counts as `API`. */
+const clientHeaderFields = {
+  [API_HEADERS.clientChannel]: commandChannelSchema.optional(),
+  [API_HEADERS.clientVersion]: clientVersionSchema.optional(),
+};
+
 export const requestContextHeadersSchema = z.object({
+  ...clientHeaderFields,
   [API_HEADERS.outletId]: z.uuid(),
   [API_HEADERS.tenantId]: z.uuid(),
   [API_HEADERS.requestId]: requestIdSchema.optional(),
@@ -28,12 +42,14 @@ export const requestContextHeadersSchema = z.object({
 });
 
 export const tenantRequestHeadersSchema = z.object({
+  ...clientHeaderFields,
   [API_HEADERS.tenantId]: z.uuid(),
   [API_HEADERS.outletId]: z.uuid().optional(),
   [API_HEADERS.requestId]: requestIdSchema.optional(),
 });
 
 export const platformRequestHeadersSchema = z.object({
+  ...clientHeaderFields,
   [API_HEADERS.requestId]: requestIdSchema.optional(),
 });
 

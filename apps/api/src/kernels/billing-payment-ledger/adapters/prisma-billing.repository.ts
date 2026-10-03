@@ -12,6 +12,7 @@ import type {
   FullPayment,
   FullPaymentOutcome,
 } from "../application/billing.repository.js";
+import { eventOrigin } from "../../../shared/command/command-origin.js";
 
 const billSelect = {
   currency: true,
@@ -258,6 +259,7 @@ export class PrismaBillingRepository implements BillingRepository {
         });
         await transaction.outboxEvent.create({
           data: {
+            ...eventOrigin(context, "CORE_BILL"),
             aggregateId: refund.saleId,
             aggregateType: "sales_sale",
             outletId,
@@ -415,6 +417,7 @@ export class PrismaBillingRepository implements BillingRepository {
         await transaction.outboxEvent.createMany({
           data: [
             {
+              ...eventOrigin(context, "CORE_PAYMENT_LEDGER"),
               aggregateId: paid.id,
               aggregateType: "billing_payment",
               outletId,
@@ -423,6 +426,7 @@ export class PrismaBillingRepository implements BillingRepository {
               type: "payment.recorded.v1",
             },
             {
+              ...eventOrigin(context, "CORE_BILL"),
               aggregateId: sale.id,
               aggregateType: "sales_sale",
               outletId,

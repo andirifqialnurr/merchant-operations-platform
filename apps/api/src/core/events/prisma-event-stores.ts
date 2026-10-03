@@ -8,7 +8,10 @@ type OutboxRow = {
   actor_type: string | null;
   attempt_count: number;
   causation_id: string | null;
+  channel: string | null;
+  client_version: string | null;
   correlation_id: string | null;
+  device_id: string | null;
   event_version: number;
   id: string;
   occurred_at: Date;
@@ -29,7 +32,10 @@ function toEnvelope(row: OutboxRow): EventEnvelope {
         ? { id: row.actor_id, type: row.actor_type as NonNullable<EventEnvelope["actor"]>["type"] }
         : null,
     causationId: row.causation_id,
+    channel: row.channel,
+    clientVersion: row.client_version,
     correlationId: row.correlation_id,
+    deviceId: row.device_id,
     eventId: row.id,
     eventType: row.type,
     eventVersion: row.event_version,
@@ -63,7 +69,8 @@ export class PrismaOutboxStore implements OutboxStore {
       )
       RETURNING e."id", e."tenant_id", e."outlet_id", e."type", e."payload", e."event_version",
         e."correlation_id", e."causation_id", e."actor_type", e."actor_id", e."producer",
-        e."recorded_at", e."occurred_at", e."attempt_count"
+        e."recorded_at", e."occurred_at", e."attempt_count", e."channel", e."client_version",
+        e."device_id"
     `;
     return rows
       .sort((left, right) => left.occurred_at.getTime() - right.occurred_at.getTime())

@@ -28,6 +28,7 @@ import {
   SessionPermissionGuard,
 } from "../memberships/public.js";
 import { InstallationService } from "./installation.service.js";
+import { commandOriginFromRequest } from "../../shared/command/command-origin.js";
 
 @ApiTags("Modules")
 @ApiCookieAuth()
@@ -42,8 +43,7 @@ export class InstallationController {
   constructor(@Inject(InstallationService) private readonly service: InstallationService) {}
 
   private mutationContext(access: AuthorizationContext, headers: TenantRequestHeaders) {
-    const requestId = headers[API_HEADERS.requestId];
-    return { actorId: access.userId, ...(requestId ? { requestId } : {}) };
+    return commandOriginFromRequest(access.userId, headers);
   }
 
   @ApiOperation({ summary: "List the commercial modules of the workspace with their status" })

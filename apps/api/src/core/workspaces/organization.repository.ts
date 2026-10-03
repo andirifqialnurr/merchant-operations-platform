@@ -11,11 +11,9 @@ import { getPrismaClient, type DatabaseClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
 import { buildAuditMetadata } from "../audit/public.js";
+import { eventOrigin, type CommandOrigin } from "../../shared/command/command-origin.js";
 
-export type MutationContext = {
-  actorId?: string;
-  requestId?: string;
-};
+export type MutationContext = CommandOrigin;
 
 type RecordTimestamps = {
   createdAt: Date;
@@ -166,6 +164,7 @@ async function writeChange(
   });
   await transaction.outboxEvent.create({
     data: {
+      ...eventOrigin(options.context, "CORE_TENANCY"),
       aggregateId: options.after.id,
       aggregateType: options.entityType,
       ...(options.outletId ? { outletId: options.outletId } : {}),

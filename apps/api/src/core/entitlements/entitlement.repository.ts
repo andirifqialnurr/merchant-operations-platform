@@ -17,8 +17,9 @@ import type {
   PackageLimit,
   TargetOverride,
 } from "./effective-entitlements.js";
+import { eventOrigin, type CommandOrigin } from "../../shared/command/command-origin.js";
 
-export type EntitlementMutationContext = { actorId?: string; requestId?: string };
+export type EntitlementMutationContext = CommandOrigin;
 
 export type ModuleRecord = {
   dependencyKeys: ModuleKey[];
@@ -270,6 +271,7 @@ async function writeChange(
   options: {
     action: string;
     actorId?: string;
+    context?: CommandOrigin;
     entityId: string;
     entityType: "entitlement" | "subscription";
     payload: Record<string, unknown>;
@@ -291,6 +293,7 @@ async function writeChange(
   });
   await transaction.outboxEvent.create({
     data: {
+      ...eventOrigin(options.context, "CORE_SUBSCRIPTION"),
       aggregateId: options.entityId,
       aggregateType: options.entityType,
       payload,
@@ -454,6 +457,7 @@ export class PrismaEntitlementRepository implements EntitlementRepository {
       await writeChange(transaction, {
         action: "subscription.replace",
         ...(context?.actorId ? { actorId: context.actorId } : {}),
+        ...(context ? { context } : {}),
         entityId: subscription.id,
         entityType: "subscription",
         payload: {
@@ -493,6 +497,7 @@ export class PrismaEntitlementRepository implements EntitlementRepository {
         data: {
           ...target,
           ...(context?.actorId ? { actorId: context.actorId } : {}),
+          ...(context ? { context } : {}),
           endsAt: input.endsAt,
           operation: input.enabled ? "GRANT" : "REVOKE",
           reason: input.reason,
@@ -507,6 +512,7 @@ export class PrismaEntitlementRepository implements EntitlementRepository {
       await writeChange(transaction, {
         action: "entitlement.override",
         ...(context?.actorId ? { actorId: context.actorId } : {}),
+        ...(context ? { context } : {}),
         entityId: created.id,
         entityType: "entitlement",
         payload: {

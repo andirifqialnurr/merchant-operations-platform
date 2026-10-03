@@ -31,6 +31,7 @@ import {
   SessionPermissionGuard,
 } from "../memberships/public.js";
 import { BindingService } from "./binding.service.js";
+import { commandOriginFromRequest } from "../../shared/command/command-origin.js";
 
 @ApiTags("Modules")
 @ApiCookieAuth()
@@ -45,8 +46,7 @@ export class BindingController {
   constructor(@Inject(BindingService) private readonly service: BindingService) {}
 
   private mutationContext(access: AuthorizationContext, headers: TenantRequestHeaders) {
-    const requestId = headers[API_HEADERS.requestId];
-    return { actorId: access.userId, ...(requestId ? { requestId } : {}) };
+    return commandOriginFromRequest(access.userId, headers);
   }
 
   @ApiOperation({ summary: "List the integrations between modules of the workspace" })

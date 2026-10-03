@@ -44,6 +44,7 @@ import {
   RequirePlatformPermission,
 } from "./platform-permission.guard.js";
 import { PLATFORM_SESSION_COOKIE_NAME } from "./platform-session-cookie.js";
+import { commandOriginFromRequest } from "../../shared/command/command-origin.js";
 
 @ApiTags("platform-master")
 @ApiCookieAuth(PLATFORM_SESSION_COOKIE_NAME)
@@ -59,8 +60,7 @@ export class PlatformMasterController {
   constructor(@Inject(PlatformMasterService) private readonly service: PlatformMasterService) {}
 
   private mutationContext(user: PlatformUser, headers: PlatformRequestHeaders) {
-    const requestId = headers[API_HEADERS.requestId];
-    return { actorId: user.id, ...(requestId ? { requestId } : {}) };
+    return commandOriginFromRequest(user.id, headers);
   }
 
   @ApiOperation({ summary: "Return the authenticated platform identity and permissions" })

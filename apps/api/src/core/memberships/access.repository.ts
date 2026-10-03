@@ -11,8 +11,9 @@ import { getPrismaClient, type DatabaseClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
 import { buildAuditMetadata, buildAuditPayload } from "../audit/public.js";
+import { eventOrigin, type CommandOrigin } from "../../shared/command/command-origin.js";
 
-export type AccessMutationContext = { actorId?: string; requestId?: string };
+export type AccessMutationContext = CommandOrigin;
 
 export type RoleRecord = {
   code: string;
@@ -182,6 +183,7 @@ async function writeAccessChange(
   options: {
     action: string;
     actorId?: string;
+    context?: CommandOrigin;
     entityId: string;
     entityType: "membership" | "role";
     payload: Record<string, unknown>;
@@ -203,6 +205,7 @@ async function writeAccessChange(
   });
   await transaction.outboxEvent.create({
     data: {
+      ...eventOrigin(options.context, "CORE_IDENTITY"),
       aggregateId: options.entityId,
       aggregateType: options.entityType,
       payload,
@@ -374,6 +377,7 @@ export class PrismaAccessRepository implements AccessRepository {
       await writeAccessChange(transaction, {
         action: "role.create",
         ...(context?.actorId ? { actorId: context.actorId } : {}),
+        ...(context ? { context } : {}),
         entityId: role.id,
         entityType: "role",
         payload: { after: mapRole(role) },
@@ -416,6 +420,7 @@ export class PrismaAccessRepository implements AccessRepository {
       await writeAccessChange(transaction, {
         action: "role.update",
         ...(context?.actorId ? { actorId: context.actorId } : {}),
+        ...(context ? { context } : {}),
         entityId: role.id,
         entityType: "role",
         payload: { after: mapRole(role), before: mapRole(before) },
@@ -445,6 +450,7 @@ export class PrismaAccessRepository implements AccessRepository {
       await writeAccessChange(transaction, {
         action: "membership.create",
         ...(context?.actorId ? { actorId: context.actorId } : {}),
+        ...(context ? { context } : {}),
         entityId: membership.id,
         entityType: "membership",
         payload: { after: mapMembership(membership) },
@@ -491,6 +497,7 @@ export class PrismaAccessRepository implements AccessRepository {
       await writeAccessChange(transaction, {
         action: "membership.update",
         ...(context?.actorId ? { actorId: context.actorId } : {}),
+        ...(context ? { context } : {}),
         entityId: membership.id,
         entityType: "membership",
         payload: { before: mapMembership(before), after: mapMembership(membership) },
@@ -571,6 +578,7 @@ export class PrismaAccessRepository implements AccessRepository {
       await writeAccessChange(transaction, {
         action: "membership.provision_owner",
         ...(context?.actorId ? { actorId: context.actorId } : {}),
+        ...(context ? { context } : {}),
         entityId: membership.id,
         entityType: "membership",
         payload: { after: mapMembership(membership) },

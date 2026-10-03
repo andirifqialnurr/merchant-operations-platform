@@ -115,6 +115,14 @@ function getCsrfToken() {
   return csrfToken;
 }
 
+/** Tells the API which client sent the command, so events and support can trace it. */
+const CLIENT_HEADERS = {
+  [API_HEADERS.clientChannel]: "WEB",
+  ...(process.env.NEXT_PUBLIC_APP_VERSION
+    ? { [API_HEADERS.clientVersion]: process.env.NEXT_PUBLIC_APP_VERSION }
+    : {}),
+};
+
 async function apiRequest<T>(path: string, schema: Schema<T>, init: RequestInit = {}): Promise<T> {
   const method = (init.method ?? "GET").toUpperCase();
   const response = await fetch(`/api/v1${path}`, {
@@ -122,6 +130,7 @@ async function apiRequest<T>(path: string, schema: Schema<T>, init: RequestInit 
     credentials: "include",
     headers: {
       Accept: "application/json",
+      ...CLIENT_HEADERS,
       ...(UNSAFE_METHODS.has(method) ? { [CSRF_HEADER]: getCsrfToken() } : {}),
       ...init.headers,
     },

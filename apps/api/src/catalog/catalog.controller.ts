@@ -91,6 +91,7 @@ import {
 import { SESSION_COOKIE_NAME } from "../core/auth/public.js";
 import { RequestHeaders, ZodValidationPipe } from "../shared/validation/zod-validation.pipe.js";
 import { CatalogService } from "./catalog.service.js";
+import { commandOriginFromRequest } from "../shared/command/command-origin.js";
 
 type MutationHeaders = RequestContextHeaders | TenantRequestHeaders;
 
@@ -118,8 +119,7 @@ export class CatalogController {
   constructor(@Inject(CatalogService) private readonly service: CatalogService) {}
 
   private mutationContext(access: AuthorizationContext, headers: MutationHeaders) {
-    const requestId = headers[API_HEADERS.requestId];
-    return { actorId: access.userId, ...(requestId ? { requestId } : {}) };
+    return commandOriginFromRequest(access.userId, headers);
   }
 
   private assertOutletScope(headers: RequestContextHeaders, outletId: string) {

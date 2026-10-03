@@ -182,7 +182,7 @@ apiRequest(path, {
 });
 ```
 
-Klien API bertanggung jawab atas: `credentials: "include"`; header konteks; header `x-request-id`; header `x-csrf-token` untuk metode tidak aman; `Idempotency-Key`; validasi response; dan pemetaan error menjadi `ApiClientError { code, status, details, requestId }`.
+Klien API bertanggung jawab atas: `credentials: "include"`; header konteks; header `x-request-id`; header `x-client-channel` (`WEB`) dan `x-client-version`; header `x-csrf-token` untuk metode tidak aman; `Idempotency-Key`; validasi response; dan pemetaan error menjadi `ApiClientError { code, status, details, requestId }`.
 
 Halaman dan komponen tidak pernah memanggil `fetch` langsung.
 
