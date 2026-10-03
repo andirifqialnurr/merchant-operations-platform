@@ -91,8 +91,8 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-SC-01 Header CSRF di klien web.** `e2b007d`
 - [x] **M1-SC-02 Idempotency di mutasi POS** — shift, kas, pesanan, pembayaran. `34b484c` … `76e0a57`
 - [ ] **M1-SC-03 Data guard POS** — pastikan respons POS tidak memuat HPP, laba, atau data pelanggan yang tidak perlu (`security.md` 10.1).
-- [ ] **M1-SC-04 Izin refund dan batal** — test bahwa kasir tanpa `payment.refund`/`order.cancel` ditolak API dan tombolnya tidak tampil.
-- [ ] **M1-SC-05 Akun lokal per peran** — buat akun pengembangan Manager dan Cashier outlet-scoped (dicatat di `CREDENTIALS.local.md`) untuk menguji izin dan cakupan lokasi.
+- [x] **M1-SC-04 Izin refund dan batal** — test bahwa kasir tanpa `payment.refund`/`order.cancel` ditolak API dan tombolnya tidak tampil.
+- [x] **M1-SC-05 Akun lokal per peran** — buat akun pengembangan Manager dan Cashier outlet-scoped (dicatat di `CREDENTIALS.local.md`) untuk menguji izin dan cakupan lokasi.
 
 ### QA — Kualitas kode dan test
 
