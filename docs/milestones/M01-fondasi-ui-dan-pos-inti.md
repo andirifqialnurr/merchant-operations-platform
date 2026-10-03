@@ -72,7 +72,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-DS-02 Komponen dasar 1–11** — Button sampai DataTable/Panel/Chart dibenahi satu per satu. `e218d59` … `3efa190`, `0ef2ed7`
 - [x] **M1-DS-03 Ikon Tabler lewat AppIcon** — larangan impor `lucide-react`. `03cc2eb`
 - [x] **M1-DS-04 Label kartu produk dan rel kategori lewat props.** `1b3a7fc`, `a3c3645`
-- [x] **M1-DS-05 Hapus bawaan Bahasa Indonesia di komponen 4–9** — semua label menjadi props wajib; perbarui story dan test.
+- [x] **M1-DS-05 Hapus bawaan Bahasa Indonesia di komponen 4–9** `696bdff` — semua label menjadi props wajib; perbarui story dan test.
 - [ ] **M1-DS-06 Komponen POS lama** — putuskan nasib `ProductModifierPicker`, `CartItem`, `CartSummary`, `PaymentMethodTile`, `CashKeypad`, `PaymentConfirmationPanel`: dirapikan (label lewat props, tanpa deskripsi) atau dihapus beserta story. Layar pelanggan (M4) memakai hasilnya.
 - [x] **M1-DS-07 `Receipt`** `928e049` — komponen struk layar dan cetak (design-system 21.2, P1).
 - [ ] **M1-DS-08 `HeldOrderList` dan `PinInput`** — untuk tahan pesanan dan persetujuan manager.
