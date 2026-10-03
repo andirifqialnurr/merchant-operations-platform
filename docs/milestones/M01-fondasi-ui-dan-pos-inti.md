@@ -54,7 +54,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-BE-07 Keranjang tertahan** `9cba9c0` — diwujudkan sebagai `pos_held_carts` (bukan pesanan `DRAFT`): hanya pilihan dan label, tanpa nomor dan harga; nomor pesanan diberikan saat dibayar seperti biasa.
 - [x] **M1-BE-08 Data struk** `928e049` — endpoint baca struk per penjualan (snapshot, tanpa ID internal selain nomor).
 - [x] **M1-BE-09 Preferensi pengguna** `766dca2` — kolom `users.locale` dan `users.theme` (schema B.1); endpoint ubah preferensi; bahasa tersimpan menang atas bahasa browser (D-09).
-- [x] **M1-BE-10 Pesan error katalog berbahasa netral** — ganti pesan server Indonesia di modul catalog dengan pesan Inggris + kode stabil, terjemahan di kamus web (`SEC-F6`).
+- [x] **M1-BE-10 Pesan error katalog berbahasa netral** `42be991` — ganti pesan server Indonesia di modul catalog dengan pesan Inggris + kode stabil, terjemahan di kamus web (`SEC-F6`).
 
 ### UX — Alur dan interaksi
 
