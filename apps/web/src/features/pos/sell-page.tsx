@@ -13,11 +13,13 @@ import {
 import { Button } from "@merchant/ui/button";
 import { Panel } from "@merchant/ui/data-display";
 import { EmptyState, ErrorState, Skeleton } from "@merchant/ui/feedback";
+import { ModuleAccessState } from "@merchant/ui/module-access-state";
 import { CategoryRail, ProductTile } from "@merchant/ui/pos-catalog";
 import { Sheet } from "@merchant/ui/sheet";
 
 import { useWorkspace } from "@/features/workspace";
-import { useErrorMessage, useFormat } from "@/lib/i18n";
+import { RequestErrorState } from "@/shell/request-error-state";
+import { useFormat } from "@/lib/i18n";
 import { useToast } from "@/providers/toast-provider";
 
 import { useCurrentShift, useHeldCarts, useMenu } from "./api";
@@ -256,7 +258,6 @@ function SellForOutlet({
   tenantId,
 }: Readonly<{ canPay: boolean; outletId: string; tenantId: string }>) {
   const t = useTranslations("pos");
-  const errorMessage = useErrorMessage();
   const shift = useCurrentShift(tenantId, outletId, true);
   const menu = useMenu(tenantId, outletId);
 
@@ -274,19 +275,12 @@ function SellForOutlet({
   const failure = shift.error ?? menu.error;
   if (failure || !shift.data || !menu.data) {
     return (
-      <ErrorState
-        action={
-          <Button
-            onClick={() => {
-              void shift.refetch();
-              void menu.refetch();
-            }}
-            variant="secondary"
-          >
-            {t("retry")}
-          </Button>
-        }
-        description={errorMessage(failure)}
+      <RequestErrorState
+        error={failure}
+        onRetry={() => {
+          void shift.refetch();
+          void menu.refetch();
+        }}
         title={t("menuLoadFailed")}
       />
     );
@@ -316,7 +310,13 @@ export function SellPage() {
   const { can, outlet, workspace } = useWorkspace();
 
   if (!can(PERMISSIONS.orderCreate)) {
-    return <ErrorState description={t("accessDenied")} title={t("accessDeniedTitle")} />;
+    return (
+      <ModuleAccessState
+        description={t("accessDenied")}
+        reason="permission-denied"
+        title={t("accessDeniedTitle")}
+      />
+    );
   }
   if (!outlet) {
     return <ErrorState description={t("noOutlet")} title={t("accessDeniedTitle")} />;

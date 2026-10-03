@@ -55,6 +55,7 @@
     "./pos-payment": "./src/components/pos-payment.tsx",
     "./pos-shift": "./src/components/pos-shift.tsx",
     "./receipt": "./src/components/receipt.tsx",
+    "./module-access-state": "./src/components/module-access-state.tsx",
     "./brand": "./src/components/brand.tsx",
     "./table-layout-canvas": "./src/components/table-layout-canvas.tsx",
     "./table-layout-tray": "./src/components/table-layout-tray.tsx",

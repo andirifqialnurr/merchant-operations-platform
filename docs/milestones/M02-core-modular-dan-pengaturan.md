@@ -64,14 +64,14 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 ### UX — Alur dan interaksi
 
 - [x] **M2-UX-01 Navigasi dari manifest** `dc02f64` — menu Backoffice disusun dari modul terpasang, entitlement, dan izin.
-- [ ] **M2-UX-02 State akses modul** — membuka modul yang tidak dimiliki, belum dipasang, belum diatur, tanpa izin, atau kena limit menampilkan state yang tepat (`design-system.md` 16.1–16.2).
+- [~] **M2-UX-02 State akses modul** — membuka modul yang tidak dimiliki, belum dipasang, belum diatur, tanpa izin, atau kena limit menampilkan state yang tepat (`design-system.md` 16.1–16.2). Selesai (13.16): tidak dimiliki, belum dipasang/diatur, sedang disiapkan, dijeda, tanpa izin, langganan ditangguhkan. Sisa: state kena limit (menunggu `M2-DS-02` dan metering) dan aksi per state (menunggu halaman Pengaturan, `M2-UX-03`).
 - [ ] **M2-UX-03 Halaman Pengaturan** — Organisasi, Pengguna, Peran, Perangkat, Langganan, Integrasi sesuai `flowchart.md` 12, satu halaman per bagian.
 - [ ] **M2-UX-04 Alur undangan** — email undangan → halaman terima undangan → set kata sandi → masuk.
 - [ ] **M2-UX-05 Aktivasi perangkat POS** — layar aktivasi di perangkat dengan kode; sesudahnya POS terbuka di outlet perangkat.
 
 ### DS — Design system dan komponen
 
-- [ ] **M2-DS-01 `ModuleAccessState`** — varian per alasan; satu aksi relevan per varian.
+- [x] **M2-DS-01 `ModuleAccessState`** — varian per alasan; satu aksi relevan per varian.
 - [ ] **M2-DS-02 `UsageLimitState` dan meter pemakaian.**
 - [ ] **M2-DS-03 `FileUpload`** — pilih, pratinjau, progres, error, ganti; label lewat props.
 - [ ] **M2-DS-04 Komponen perangkat** — `DeviceStatusBadge`, `NetworkSyncIndicator`, `StaleDataBanner`.

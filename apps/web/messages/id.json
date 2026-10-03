@@ -33,6 +33,18 @@
     "themeSystem": "Sistem",
     "workspace": "Bisnis"
   },
+  "access": {
+    "retry": "Coba lagi",
+    "title": {
+      "not-entitled": "Tidak termasuk langganan",
+      "paused": "Modul sedang dijeda",
+      "permission-denied": "Anda tidak punya akses",
+      "provisioning": "Modul sedang disiapkan",
+      "setup-required": "Modul belum siap dipakai",
+      "subscription-suspended": "Langganan ditangguhkan",
+      "tier-required": "Butuh tingkat lebih tinggi"
+    }
+  },
   "auth": {
     "email": "Email",
     "failed": "Tidak dapat masuk",
@@ -311,6 +323,12 @@
     "INSTALLATION_SETUP_REQUIRED": "Modul ini belum dipasang atau belum selesai diatur.",
     "LIMIT_REACHED": "Batas untuk fitur ini sudah tercapai.",
     "LOCATION_SCOPE_DENIED": "Anda tidak ditugaskan ke lokasi ini.",
+    "MODULE_ALWAYS_INSTALLED": "Modul inti selalu terpasang.",
+    "MODULE_INSTALLATION_CHANGED": "Status modul berubah. Muat ulang lalu coba lagi.",
+    "MODULE_INSTALLATION_INVALID_TRANSITION": "Modul tidak bisa diubah dari status sekarang.",
+    "MODULE_INSTALLATION_NOT_FOUND": "Modul ini belum dipasang.",
+    "MODULE_NOT_AVAILABLE": "Modul ini belum tersedia untuk dipasang.",
+    "MODULE_NOT_FOUND": "Modul tidak ditemukan.",
     "ORDER_ALREADY_PAID": "Pesanan yang sudah dibayar tidak bisa dibatalkan.",
     "ORDER_CANCELED": "Pesanan yang dibatalkan tidak bisa dibayar.",
     "ORDER_CURRENCY_MIXED": "Pesanan tidak boleh memakai lebih dari satu mata uang.",

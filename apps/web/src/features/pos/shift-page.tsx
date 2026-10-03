@@ -7,13 +7,15 @@ import { PERMISSIONS, type RegisterSession } from "@merchant/contracts";
 import { Button } from "@merchant/ui/button";
 import { DataTable, Panel } from "@merchant/ui/data-display";
 import { ErrorState, Skeleton } from "@merchant/ui/feedback";
+import { ModuleAccessState } from "@merchant/ui/module-access-state";
 import { MoneyDisplay } from "@merchant/ui/money-display";
 import { PageHeader } from "@merchant/ui/page";
 import { CloseShiftForm, OpenShiftForm, ShiftSummary } from "@merchant/ui/pos-shift";
 import { Sheet } from "@merchant/ui/sheet";
 
 import { useWorkspace } from "@/features/workspace";
-import { useErrorMessage, useFormat } from "@/lib/i18n";
+import { RequestErrorState } from "@/shell/request-error-state";
+import { useFormat } from "@/lib/i18n";
 import { useToast } from "@/providers/toast-provider";
 
 import { useCurrentShift, useShiftMutations } from "./api";
@@ -225,7 +227,6 @@ function ShiftForOutlet({
   tenantId,
 }: Readonly<{ canClose: boolean; outletId: string; tenantId: string }>) {
   const t = useTranslations("pos");
-  const errorMessage = useErrorMessage();
   const current = useCurrentShift(tenantId, outletId, true);
   const mutations = useShiftMutations(tenantId, outletId);
 
@@ -253,13 +254,9 @@ function ShiftForOutlet({
     return (
       <>
         <PageHeader title={t("title")} />
-        <ErrorState
-          action={
-            <Button onClick={() => void current.refetch()} variant="secondary">
-              {t("retry")}
-            </Button>
-          }
-          description={errorMessage(current.error)}
+        <RequestErrorState
+          error={current.error}
+          onRetry={() => void current.refetch()}
           title={t("loadFailed")}
         />
       </>
@@ -284,7 +281,13 @@ export function ShiftPage() {
   const { can, outlet, workspace } = useWorkspace();
 
   if (!can(PERMISSIONS.shiftOpen)) {
-    return <ErrorState description={t("accessDenied")} title={t("accessDeniedTitle")} />;
+    return (
+      <ModuleAccessState
+        description={t("accessDenied")}
+        reason="permission-denied"
+        title={t("accessDeniedTitle")}
+      />
+    );
   }
   if (!outlet) {
     return <ErrorState description={t("noOutlet")} title={t("accessDeniedTitle")} />;

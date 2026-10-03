@@ -235,3 +235,42 @@
     transition: none;
   }
 }
+
+/* Module access state: why a module or feature cannot be used right now. */
+.ui-module-access--provisioning > svg {
+  animation: ui-spin 1s linear infinite;
+}
+.ui-module-access--not-entitled > svg,
+.ui-module-access--tier-required > svg {
+  color: var(--color-status-info-text);
+}
+.ui-module-access--setup-required > svg,
+.ui-module-access--paused > svg,
+.ui-module-access--subscription-suspended > svg {
+  color: var(--color-status-warning-text);
+}
+.ui-module-access__steps {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  text-align: start;
+}
+.ui-module-access__steps li {
+  align-items: center;
+  display: flex;
+  gap: var(--space-2);
+}
+.ui-module-access__steps li[data-done="true"] {
+  color: var(--color-text-primary);
+}
+.ui-module-access__steps li[data-done="true"] svg {
+  color: var(--color-status-success-text);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-module-access--provisioning > svg {
+    animation: none;
+  }
+}

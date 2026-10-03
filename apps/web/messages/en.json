@@ -33,6 +33,18 @@
     "themeSystem": "System",
     "workspace": "Business"
   },
+  "access": {
+    "retry": "Try again",
+    "title": {
+      "not-entitled": "Not part of the subscription",
+      "paused": "This module is paused",
+      "permission-denied": "You do not have access",
+      "provisioning": "This module is being prepared",
+      "setup-required": "This module is not ready yet",
+      "subscription-suspended": "Subscription suspended",
+      "tier-required": "A higher tier is needed"
+    }
+  },
   "auth": {
     "email": "Email",
     "failed": "Could not sign in",
@@ -311,6 +323,12 @@
     "INSTALLATION_SETUP_REQUIRED": "This module is not installed or not fully set up yet.",
     "LIMIT_REACHED": "The limit for this feature has been reached.",
     "LOCATION_SCOPE_DENIED": "You are not assigned to this location.",
+    "MODULE_ALWAYS_INSTALLED": "Core modules are always installed.",
+    "MODULE_INSTALLATION_CHANGED": "The module's status changed. Reload and try again.",
+    "MODULE_INSTALLATION_INVALID_TRANSITION": "The module cannot be changed from its current status.",
+    "MODULE_INSTALLATION_NOT_FOUND": "This module is not installed.",
+    "MODULE_NOT_AVAILABLE": "This module is not available to install yet.",
+    "MODULE_NOT_FOUND": "Module not found.",
     "ORDER_ALREADY_PAID": "A paid order cannot be canceled.",
     "ORDER_CANCELED": "A canceled order cannot be paid.",
     "ORDER_CURRENCY_MIXED": "An order cannot use more than one currency.",

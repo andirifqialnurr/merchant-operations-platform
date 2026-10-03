@@ -94,6 +94,8 @@ export class ApiClientError extends Error {
     readonly code: string,
     readonly status: number,
     readonly requestId?: string,
+    /** Parameters of the error, e.g. which module or which installation status. */
+    readonly details?: Record<string, unknown>,
   ) {
     super(message);
     this.name = "ApiClientError";
@@ -132,6 +134,7 @@ async function apiRequest<T>(path: string, schema: Schema<T>, init: RequestInit 
       parsed.success ? parsed.data.code : "API_REQUEST_FAILED",
       response.status,
       parsed.success ? parsed.data.requestId : undefined,
+      parsed.success ? parsed.data.details : undefined,
     );
   }
   return schema.parse(payload);

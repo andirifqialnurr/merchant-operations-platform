@@ -7,11 +7,12 @@ import { IconPlus } from "@tabler/icons-react";
 import { PERMISSIONS } from "@merchant/contracts";
 import { Button } from "@merchant/ui/button";
 import { ErrorState, Skeleton } from "@merchant/ui/feedback";
+import { ModuleAccessState } from "@merchant/ui/module-access-state";
 import { Tabs } from "@merchant/ui/navigation";
 import { PageHeader } from "@merchant/ui/page";
 
 import { useWorkspace } from "@/features/workspace";
-import { useErrorMessage } from "@/lib/i18n";
+import { RequestErrorState } from "@/shell/request-error-state";
 
 import { useCatalog, useCatalogMutation, useOutletCatalog } from "./api";
 import { CategoriesView } from "./categories-view";
@@ -39,7 +40,6 @@ function TableSkeleton() {
 
 export function CatalogPage() {
   const t = useTranslations("catalog");
-  const errorMessage = useErrorMessage();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -73,7 +73,13 @@ export function CatalogPage() {
   const select = (id: string | undefined) => navigate({ id });
 
   if (!canRead) {
-    return <ErrorState description={t("accessDenied")} title={t("accessDeniedTitle")} />;
+    return (
+      <ModuleAccessState
+        description={t("accessDenied")}
+        reason="permission-denied"
+        title={t("accessDeniedTitle")}
+      />
+    );
   }
 
   const query = fullCatalog ? master : outletCatalog;
@@ -130,13 +136,9 @@ export function CatalogPage() {
     return (
       <>
         {header}
-        <ErrorState
-          action={
-            <Button onClick={() => void query.refetch()} variant="secondary">
-              {t("retry")}
-            </Button>
-          }
-          description={errorMessage(query.error)}
+        <RequestErrorState
+          error={query.error}
+          onRetry={() => void query.refetch()}
           title={t("loadFailed")}
         />
       </>

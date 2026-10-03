@@ -551,7 +551,7 @@ Satu pola untuk menjelaskan mengapa modul/fitur belum dapat dipakai. State tidak
 | Perlu setup | `INSTALLATION_SETUP_REQUIRED` | Checklist setup + aksi lanjutkan |
 | Aktif | — | Normal sesuai izin |
 | Dijeda/error | — | Banner dengan alasan aman, data terakhir, aksi coba lagi |
-| Izin ditolak | `HTTP_403` | Akses ditolak tanpa ajakan upgrade |
+| Izin ditolak | `PERMISSION_DENIED`, `LOCATION_SCOPE_DENIED`, `WORKSPACE_ACCESS_DENIED` | Akses ditolak tanpa ajakan upgrade |
 | Langganan ditangguhkan | `SUBSCRIPTION_SUSPENDED` | Read-only + ajakan penagihan |
 
 ### 16.2 Usage dan Limit State
@@ -633,7 +633,8 @@ Komponen domain dibangun dari primitive `packages/ui` dan tidak menggandakan But
 | `FilterBar` | **Gap** — cari + maksimal 3 filter + chip aktif + reset; state di URL |
 | `EntityHeader` | **Gap** — judul entitas + status + aksi di dalam Sheet/halaman detail |
 | `NetworkIndicator` | Online, menyambung ulang, offline, data usang, sinkron gagal |
-| `ModuleAccessState`, `UsageLimitState` | **Gap** — lihat bagian 16 |
+| `ModuleAccessState` | Tersedia: tujuh alasan (`not-entitled`, `tier-required`, `provisioning`, `setup-required`, `paused`, `permission-denied`, `subscription-suspended`), paling banyak satu aksi, checklist setup opsional; lihat bagian 16.1 |
+| `UsageLimitState` | **Gap** — lihat bagian 16.2 |
 
 ### 19.2 POS
 
