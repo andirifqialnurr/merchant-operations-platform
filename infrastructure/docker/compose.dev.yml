@@ -1,0 +1,79 @@
+# Local services for development. The apps themselves run on the host with
+# `pnpm dev`; this file only provides what they connect to.
+#
+#   pnpm infra:up        Redis and object storage
+#   pnpm infra:up:all    the same plus PostgreSQL (for machines without a local one)
+#   pnpm infra:down      stop everything; data stays in named volumes
+#
+# Values come from the repository's .env (see .env.example). Nothing here is
+# meant for staging or production.
+name: merchant-dev
+
+services:
+  # Only started with the "postgres" profile, so it never competes with a
+  # PostgreSQL that is already installed on the host.
+  postgres:
+    profiles: ["postgres"]
+    image: postgres:18.2-alpine
+    restart: unless-stopped
+    environment:
+      # Not marked required: Compose would then demand them even when this
+      # profile is off. Without a password the container refuses to start.
+      POSTGRES_USER: ${POSTGRES_USER:-merchant}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+      POSTGRES_DB: ${POSTGRES_DB:-merchant_operations}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  redis:
+    image: redis:8.2-alpine
+    restart: unless-stopped
+    # Queues must survive a restart, and BullMQ must never lose jobs to eviction.
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  # S3-compatible storage backed by a plain folder. The bucket is that folder,
+  # so it is created before the gateway starts. (MinIO no longer publishes
+  # images on Docker Hub; the apps only speak the S3 API, so any S3-compatible
+  # server works here.)
+  object-storage:
+    image: versity/versitygw:v1.8.0
+    restart: unless-stopped
+    entrypoint:
+      - sh
+      - -c
+      - mkdir -p "/data/$$OBJECT_STORAGE_BUCKET" && exec versitygw --port :9000 posix /data
+    environment:
+      ROOT_ACCESS_KEY: ${OBJECT_STORAGE_ACCESS_KEY:?Set OBJECT_STORAGE_ACCESS_KEY in .env}
+      ROOT_SECRET_KEY: ${OBJECT_STORAGE_SECRET_KEY:?Set OBJECT_STORAGE_SECRET_KEY in .env}
+      VGW_REGION: ${OBJECT_STORAGE_REGION:-us-east-1}
+      OBJECT_STORAGE_BUCKET: ${OBJECT_STORAGE_BUCKET:?Set OBJECT_STORAGE_BUCKET in .env}
+    ports:
+      - "127.0.0.1:${OBJECT_STORAGE_PORT:-9000}:9000"
+    volumes:
+      - object-storage-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 9000"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+volumes:
+  postgres-data:
+  redis-data:
+  object-storage-data:

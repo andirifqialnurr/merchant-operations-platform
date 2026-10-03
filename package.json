@@ -8,8 +8,8 @@
     "pnpm": "11.13.0"
   },
   "scripts": {
-    "dev": "turbo run dev",
     "build": "turbo run build",
+    "build:storybook": "turbo run build --filter=@merchant/storybook",
     "db:deploy": "pnpm --filter @merchant/database db:deploy",
     "db:format": "pnpm --filter @merchant/database db:format",
     "db:generate": "pnpm --filter @merchant/database db:generate",
@@ -20,14 +20,18 @@
     "db:status": "pnpm --filter @merchant/database db:status",
     "db:studio": "pnpm --filter @merchant/database db:studio",
     "db:validate": "pnpm --filter @merchant/database db:validate",
+    "dev": "turbo run dev",
+    "format:check": "turbo run format:check",
+    "infra:down": "docker compose --env-file .env -f infrastructure/docker/compose.dev.yml --profile postgres down",
+    "infra:status": "docker compose --env-file .env -f infrastructure/docker/compose.dev.yml --profile postgres ps",
+    "infra:up": "docker compose --env-file .env -f infrastructure/docker/compose.dev.yml up -d --wait",
+    "infra:up:all": "docker compose --env-file .env -f infrastructure/docker/compose.dev.yml --profile postgres up -d --wait",
     "lint": "turbo run lint && node scripts/check-color-guardrails.mjs",
     "lint:colors": "node scripts/check-color-guardrails.mjs",
-    "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:components": "turbo run test --filter=@merchant/ui",
     "test:e2e": "turbo run test:e2e --filter=@merchant/storybook",
-    "build:storybook": "turbo run build --filter=@merchant/storybook",
-    "format:check": "turbo run format:check"
+    "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
     "@types/node": "26.1.1",

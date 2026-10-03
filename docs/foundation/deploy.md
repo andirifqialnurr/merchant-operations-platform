@@ -3,7 +3,7 @@
 **Status:** Kontrak lingkungan, build, rilis, dan operasi
 **Tanggal:** 2 Oktober 2026
 
-Kondisi saat ini: aplikasi hanya berjalan lokal. Folder `infrastructure/docker` dan `infrastructure/deployment` masih kosong, belum ada Dockerfile, compose, maupun pipeline CI. Dokumen ini menetapkan cara menjalankan yang sudah ada dan rancangan yang harus dibangun.
+Kondisi saat ini: aplikasi hanya berjalan lokal. `infrastructure/docker` baru berisi compose untuk pengembangan lokal (2.5); `infrastructure/deployment` masih kosong, dan belum ada Dockerfile, compose produksi, maupun pipeline CI. Dokumen ini menetapkan cara menjalankan yang sudah ada dan rancangan yang harus dibangun.
 
 Dokumen terkait: [`architecture.md`](./architecture.md), [`security.md`](./security.md), [`schema.md`](./schema.md).
 
@@ -78,9 +78,23 @@ Kredensial lokal dicatat di `CREDENTIALS.local.md` (tidak masuk repositori).
 - `next dev` dapat gagal bila kunci `.next/dev` masih dipegang proses lama. Hentikan proses `node` yang tertinggal, lalu hapus `apps/web/.next/dev`.
 - Catatan lama menyebut `bun run dev`; pengelola paket resmi repo ini adalah pnpm. Gunakan `pnpm dev`.
 
-### 2.5 Compose lokal (akan dibuat)
+### 2.5 Compose lokal
 
-`infrastructure/docker/compose.dev.yml` menyediakan PostgreSQL, Redis, dan object storage lokal agar lingkungan pengembang seragam. Aplikasi tetap dijalankan dengan `pnpm dev` di host.
+`infrastructure/docker/compose.dev.yml` menyediakan Redis, object storage, dan (opsional) PostgreSQL agar lingkungan pengembang seragam. Aplikasi tetap dijalankan dengan `pnpm dev` di host. Nilai diambil dari `.env` di akar repo.
+
+| Perintah | Yang dijalankan |
+|---|---|
+| `pnpm infra:up` | Redis 8.2 (port 6379) dan object storage S3-compatible (port 9000); menunggu sampai keduanya sehat |
+| `pnpm infra:up:all` | Sama, ditambah PostgreSQL 18.2 untuk mesin yang belum punya PostgreSQL; butuh `POSTGRES_USER` dan `POSTGRES_PASSWORD` di `.env` |
+| `pnpm infra:status` | Status container |
+| `pnpm infra:down` | Menghentikan semuanya; data tetap di volume Docker |
+
+Catatan:
+
+- PostgreSQL berada di profile `postgres` supaya tidak berebut port 5432 dengan PostgreSQL yang terpasang di host. Port tiap layanan bisa diganti lewat `POSTGRES_PORT`, `REDIS_PORT`, dan `OBJECT_STORAGE_PORT`.
+- Redis memakai `appendonly yes` dan `maxmemory-policy noeviction`; antrean BullMQ tidak boleh kehilangan job.
+- Object storage memakai Versity S3 Gateway dengan folder sebagai penyimpanan, bukan MinIO: image MinIO tidak lagi diterbitkan di Docker Hub. Aplikasi hanya memakai API S3, jadi penggantinya bebas selama S3-compatible. Bucket `OBJECT_STORAGE_BUCKET` dibuat saat container mulai.
+- Semua port hanya dibuka di `127.0.0.1`.
 
 ---
 
