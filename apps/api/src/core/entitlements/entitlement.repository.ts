@@ -1,6 +1,7 @@
 import type {
   ModuleKey,
   ModuleKind,
+  ModuleTier,
   OrganizationUnitStatus,
   PlanCode,
   SubscriptionStatus,
@@ -9,6 +10,12 @@ import { getPrismaClient, type DatabaseClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
 import { buildAuditMetadata, buildAuditPayload } from "../audit/public.js";
+import type {
+  EffectiveEntitlementRow,
+  PackageCapability,
+  PackageLimit,
+  TargetOverride,
+} from "./effective-entitlements.js";
 
 export type EntitlementMutationContext = { actorId?: string; requestId?: string };
 
@@ -37,10 +44,13 @@ export type SubscriptionRecord = {
   endsAt: Date | null;
   graceEndsAt: Date | null;
   id: string;
+  /** What the bought package version contains. */
+  capabilities: PackageCapability[];
+  limits: PackageLimit[];
+  modules: Array<{ moduleKey: ModuleKey; tier: ModuleTier }>;
   packageVersion: number;
   planCode: PlanCode;
   planId: string;
-  planModuleKeys: ModuleKey[];
   planName: string;
   startsAt: Date;
   status: SubscriptionStatus;
@@ -61,6 +71,8 @@ export type EntitlementOverrideRecord = {
 export type EntitlementStateRecord = {
   modules: ModuleRecord[];
   overrides: EntitlementOverrideRecord[];
+  /** Capability and limit overrides that have not ended yet. */
+  targetOverrides: TargetOverride[];
   subscription: SubscriptionRecord | null;
   tenant: { id: string; status: OrganizationUnitStatus } | null;
 };
@@ -79,11 +91,18 @@ export type ReplaceSubscriptionRecordInput = {
 export interface EntitlementRepository {
   findPlanByCode(code: PlanCode): Promise<PlanRecord | null>;
   getState(tenantId: string): Promise<EntitlementStateRecord>;
+  listTenantIds(): Promise<string[]>;
   replaceSubscription(
     tenantId: string,
     input: ReplaceSubscriptionRecordInput,
     context?: EntitlementMutationContext,
   ): Promise<SubscriptionRecord>;
+  /** Replaces the tenant's projection rows with `rows`. */
+  saveEffectiveEntitlements(
+    tenantId: string,
+    rows: readonly EffectiveEntitlementRow[],
+    computedAt: Date,
+  ): Promise<void>;
   upsertEntitlement(
     tenantId: string,
     input: { enabled: boolean; endsAt: Date | null; moduleKey: ModuleKey; reason: string },
@@ -119,7 +138,23 @@ const subscriptionSelect = {
   endsAt: true,
   graceEndsAt: true,
   id: true,
-  packageVersion: { select: { version: true } },
+  packageVersion: {
+    select: {
+      capabilities: {
+        orderBy: { capabilityKey: "asc" as const },
+        select: { capabilityKey: true, included: true },
+      },
+      limits: {
+        orderBy: { dimensionKey: "asc" as const },
+        select: { dimensionKey: true, unlimited: true, value: true },
+      },
+      modules: {
+        orderBy: { moduleKey: "asc" as const },
+        select: { moduleKey: true, tier: true },
+      },
+      version: true,
+    },
+  },
   plan: { select: planSelect },
   planId: true,
   startsAt: true,
@@ -181,7 +216,12 @@ function mapSubscription(record: {
   endsAt: Date | null;
   graceEndsAt: Date | null;
   id: string;
-  packageVersion: { version: number };
+  packageVersion: {
+    capabilities: PackageCapability[];
+    limits: PackageLimit[];
+    modules: Array<{ moduleKey: string; tier: ModuleTier }>;
+    version: number;
+  };
   plan: {
     code: string;
     id: string;
@@ -201,10 +241,16 @@ function mapSubscription(record: {
     endsAt: record.endsAt,
     graceEndsAt: record.graceEndsAt,
     id: record.id,
+    capabilities: record.packageVersion.capabilities,
+    limits: record.packageVersion.limits,
+    // Modules and tiers come from the package version that was bought, not from the plan.
+    modules: record.packageVersion.modules.map((item) => ({
+      moduleKey: item.moduleKey as ModuleKey,
+      tier: item.tier,
+    })),
     packageVersion: record.packageVersion.version,
     planCode: record.plan.code as PlanCode,
     planId: record.planId,
-    planModuleKeys: record.plan.modules.map((item) => item.moduleKey as ModuleKey),
     planName: record.plan.name,
     startsAt: record.startsAt,
     status: record.status,
@@ -303,7 +349,8 @@ export class PrismaEntitlementRepository implements EntitlementRepository {
   }
 
   async getState(tenantId: string): Promise<EntitlementStateRecord> {
-    const [tenant, modules, subscription, overrides] = await Promise.all([
+    const notEnded = { OR: [{ endsAt: null }, { endsAt: { gt: new Date() } }] };
+    const [tenant, modules, subscription, overrides, targetOverrides] = await Promise.all([
       getPrismaClient().tenant.findUnique({
         select: { id: true, status: true },
         where: { id: tenantId },
@@ -320,19 +367,70 @@ export class PrismaEntitlementRepository implements EntitlementRepository {
       getPrismaClient().coreEntitlementOverride.findMany({
         orderBy: [{ targetKey: "asc" }, { startsAt: "asc" }],
         select: overrideSelect,
-        where: {
-          OR: [{ endsAt: null }, { endsAt: { gt: new Date() } }],
-          targetType: "MODULE",
-          tenantId,
+        where: { ...notEnded, targetType: "MODULE", tenantId },
+      }),
+      getPrismaClient().coreEntitlementOverride.findMany({
+        orderBy: { startsAt: "asc" },
+        select: {
+          endsAt: true,
+          operation: true,
+          startsAt: true,
+          targetKey: true,
+          targetType: true,
+          value: true,
         },
+        where: { ...notEnded, targetType: { in: ["CAPABILITY", "LIMIT"] }, tenantId },
       }),
     ]);
     return {
       modules: modules.map(mapModule),
       overrides: overrides.map(mapOverride),
       subscription: subscription ? mapSubscription(subscription) : null,
+      targetOverrides: targetOverrides.map((item) => ({
+        effectiveAt: item.startsAt,
+        endsAt: item.endsAt,
+        operation: item.operation,
+        targetKey: item.targetKey,
+        targetType: item.targetType as "CAPABILITY" | "LIMIT",
+        value: item.value,
+      })),
       tenant,
     };
+  }
+
+  async listTenantIds() {
+    const tenants = await getPrismaClient().tenant.findMany({
+      orderBy: { createdAt: "asc" },
+      select: { id: true },
+    });
+    return tenants.map((tenant) => tenant.id);
+  }
+
+  async saveEffectiveEntitlements(
+    tenantId: string,
+    rows: readonly EffectiveEntitlementRow[],
+    computedAt: Date,
+  ) {
+    await getPrismaClient().$transaction(async (transaction) => {
+      await transaction.coreEffectiveEntitlement.deleteMany({ where: { tenantId } });
+      if (rows.length === 0) return;
+      await transaction.coreEffectiveEntitlement.createMany({
+        data: rows.map((row) => ({
+          capabilities: row.capabilities,
+          computedAt,
+          // BigInt has no JSON form; limits are stored as decimal strings.
+          limits: row.limits.map((limit) => ({
+            dimensionKey: limit.dimensionKey,
+            source: limit.source,
+            unlimited: limit.unlimited,
+            value: limit.value?.toString() ?? null,
+          })),
+          moduleKey: row.moduleKey,
+          tenantId,
+          tier: row.tier,
+        })),
+      });
+    });
   }
 
   async replaceSubscription(

@@ -9,6 +9,7 @@
     "start": "node dist/main.js",
     "lint": "eslint . --max-warnings=0 && node scripts/check-boundaries.mjs",
     "platform:user:provision": "tsx src/cli/provision-platform-user.ts",
+    "entitlements:rebuild": "node --env-file=../../.env --import tsx src/cli/rebuild-effective-entitlements.ts",
     "local:users:provision": "node --env-file=../../.env --import tsx src/cli/provision-local-users.ts",
     "typecheck": "tsc --noEmit",
     "test": "node --test scripts/*.test.mjs && tsx --test src/*.spec.ts src/**/*.spec.ts",

@@ -19,6 +19,11 @@ import {
 
 import { assertAccess, evaluateAccess } from "./access-evaluator.js";
 import {
+  buildEffectiveEntitlementRows,
+  effectiveCapabilities,
+  effectiveLimits,
+} from "./effective-entitlements.js";
+import {
   ENTITLEMENT_REPOSITORY,
   type EntitlementMutationContext,
   type EntitlementOverrideRecord,
@@ -108,12 +113,14 @@ export class EntitlementService {
   private resolveState(state: EntitlementStateRecord, now: Date): EntitlementSnapshot {
     const subscriptionUsable =
       state.tenant?.status === "ACTIVE" && isSubscriptionUsable(state.subscription, now);
-    const planModules = new Set(state.subscription?.planModuleKeys ?? []);
+    const planTiers = new Map(
+      (state.subscription?.modules ?? []).map((item) => [item.moduleKey, item.tier]),
+    );
     const overrides = overridesInForce(state.overrides, now);
     const decisions = new Map<ModuleKey, ModuleEntitlement>();
 
     for (const module of state.modules) {
-      const planDefault = planModules.has(module.key);
+      const planDefault = planTiers.has(module.key);
       const override = overrides.get(module.key);
       let enabled = false;
       let source: ModuleEntitlement["source"] = "NONE";
@@ -147,6 +154,8 @@ export class EntitlementService {
         reason,
         requiredBy: [],
         source,
+        // The package sets the tier; a module switched on some other way gets Basic.
+        tier: enabled ? (planTiers.get(module.key) ?? "BASIC") : null,
       });
     }
 
@@ -162,6 +171,7 @@ export class EntitlementService {
           if (!dependency) continue;
           if (!dependency.enabled) {
             dependency.enabled = true;
+            dependency.tier = planTiers.get(dependencyKey) ?? "BASIC";
             dependency.source = "DEPENDENCY";
             dependency.reason = `Dibutuhkan oleh ${module.name}.`;
           }
@@ -232,6 +242,7 @@ export class EntitlementService {
       },
       context,
     );
+    await this.rebuildProjection(tenantId);
     return this.getSnapshot(tenantId);
   }
 
@@ -289,6 +300,7 @@ export class EntitlementService {
       { enabled: parsed.enabled, endsAt, moduleKey: parsed.moduleKey, reason: parsed.reason },
       context,
     );
+    await this.rebuildProjection(tenantId);
     return this.getSnapshot(tenantId);
   }
 
@@ -301,15 +313,51 @@ export class EntitlementService {
     const subscriptionUsable =
       state.tenant?.status === "ACTIVE" && isSubscriptionUsable(state.subscription, now);
     const snapshot = this.resolveState(state, now);
-    const entitled = moduleKey
-      ? snapshot.modules.find((item) => item.key === moduleKey)?.enabled === true
+    const decision = moduleKey
+      ? snapshot.modules.find((item) => item.key === moduleKey)
       : undefined;
     return {
-      // Tiers come from the package version once modules are read from it.
-      ...(entitled === undefined ? {} : { module: { entitled, tier: null } }),
+      capabilities: new Set(
+        subscriptionUsable && state.subscription
+          ? effectiveCapabilities(state.subscription.capabilities, state.targetOverrides, now)
+          : [],
+      ),
+      ...(moduleKey
+        ? { module: { entitled: decision?.enabled === true, tier: decision?.tier ?? null } }
+        : {}),
       snapshot,
       subscriptionUsable,
     };
+  }
+
+  /**
+   * Rewrites the tenant's rows in `core_effective_entitlements` from the
+   * subscription, its package version, and the overrides in force at `now`.
+   */
+  async rebuildProjection(tenantId: string, now = new Date()) {
+    const state = await this.repository.getState(tenantId);
+    const snapshot = this.resolveState(state, now);
+    const usable =
+      state.tenant?.status === "ACTIVE" && isSubscriptionUsable(state.subscription, now);
+    const rows =
+      usable && state.subscription
+        ? buildEffectiveEntitlementRows(
+            snapshot.modules
+              .filter((item) => item.enabled && item.tier !== null)
+              .map((item) => ({ moduleKey: item.key, tier: item.tier ?? "BASIC" })),
+            effectiveCapabilities(state.subscription.capabilities, state.targetOverrides, now),
+            effectiveLimits(state.subscription.limits, state.targetOverrides, now),
+          )
+        : [];
+    await this.repository.saveEffectiveEntitlements(tenantId, rows, now);
+    return rows;
+  }
+
+  /** Rebuilds the projection for every tenant; safe to run at any time. */
+  async rebuildAllProjections(now = new Date()) {
+    const tenantIds = await this.repository.listTenantIds();
+    for (const tenantId of tenantIds) await this.rebuildProjection(tenantId, now);
+    return tenantIds.length;
   }
 
   /** Subscription and module check on its own, for callers outside a request guard. */

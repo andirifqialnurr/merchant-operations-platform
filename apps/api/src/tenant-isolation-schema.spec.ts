@@ -421,3 +421,21 @@ test("keeps entitlement overrides as tenant-owned history with one current decis
   );
   assert.doesNotMatch(overrides, /DROP TABLE/);
 });
+
+test("keeps the effective entitlement projection per tenant and rebuildable", () => {
+  const projection = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261004010000_core_effective_entitlements/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(projection, /PRIMARY KEY \("tenant_id", "module_key"\)/);
+  // Deleting a tenant may drop its projection: nothing is lost that cannot be rebuilt.
+  assert.match(
+    projection,
+    /FOREIGN KEY \("tenant_id"\) REFERENCES "tenants"\("id"\) ON DELETE CASCADE/,
+  );
+  assert.match(projection, /jsonb_typeof\("capabilities"\) = 'array'/);
+  assert.match(projection, /jsonb_typeof\("limits"\) = 'array'/);
+});

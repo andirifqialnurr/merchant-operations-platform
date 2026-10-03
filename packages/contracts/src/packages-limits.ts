@@ -2,10 +2,8 @@ import * as z from "zod";
 
 import { uniqueStrings } from "./internal.ts";
 import { idempotencyKeySchema } from "./http.ts";
-import { moduleKeySchema } from "./entitlement.ts";
+import { moduleKeySchema, moduleTierSchema } from "./entitlement.ts";
 import { capabilityKeySchema } from "./module-manifest.ts";
-
-export const moduleTierSchema = z.enum(["ADVANCED", "BASIC", "PRO"]);
 
 export const packageKeySchema = z
   .string()
@@ -132,8 +130,6 @@ export type LimitEnforcementType = z.infer<typeof limitEnforcementTypeSchema>;
 export type LimitErrorCode = z.infer<typeof limitErrorCodeSchema>;
 
 export type LimitErrorDetails = z.infer<typeof limitErrorDetailsSchema>;
-
-export type ModuleTier = z.infer<typeof moduleTierSchema>;
 
 export type PackageKey = z.infer<typeof packageKeySchema>;
 

@@ -283,6 +283,7 @@ model Tenant {
   subscriptions                Subscription[]
   subscriptionAddons           CoreSubscriptionAddon[]
   entitlementOverrides         CoreEntitlementOverride[]
+  effectiveEntitlements        CoreEffectiveEntitlement[]
   entitlements                 TenantEntitlement[]
   catalogCategories            CatalogCategory[]
   catalogProducts              CatalogProduct[]
@@ -612,17 +613,18 @@ model OutletAssignment {
 }
 
 model ModuleDefinition {
-  key          String                 @id @db.VarChar(80)
-  name         String                 @db.VarChar(160)
-  kind         ModuleKind
-  status       OrganizationUnitStatus @default(ACTIVE)
-  createdAt    DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt    DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
-  planLinks    PlanModule[]
-  packageLinks CorePackageModule[]
-  entitlements TenantEntitlement[]
-  dependencies ModuleDependency[]     @relation("ModuleDependencies")
-  dependents   ModuleDependency[]     @relation("ModuleDependents")
+  key                   String                     @id @db.VarChar(80)
+  name                  String                     @db.VarChar(160)
+  kind                  ModuleKind
+  status                OrganizationUnitStatus     @default(ACTIVE)
+  createdAt             DateTime                   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime                   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  planLinks             PlanModule[]
+  packageLinks          CorePackageModule[]
+  effectiveEntitlements CoreEffectiveEntitlement[]
+  entitlements          TenantEntitlement[]
+  dependencies          ModuleDependency[]         @relation("ModuleDependencies")
+  dependents            ModuleDependency[]         @relation("ModuleDependents")
 
   @@index([kind, status])
   @@map("modules")
@@ -800,6 +802,23 @@ model CoreEntitlementOverride {
 
   @@index([tenantId, targetType, targetKey, startsAt])
   @@map("core_entitlement_overrides")
+}
+
+/// Projection of what a tenant can use right now, one row per enabled module.
+/// Rebuilt from the subscription, its package version, and the overrides.
+model CoreEffectiveEntitlement {
+  tenantId     String           @map("tenant_id") @db.Uuid
+  moduleKey    String           @map("module_key") @db.VarChar(80)
+  tier         ModuleTier
+  capabilities Json             @default("[]")
+  limits       Json             @default("[]")
+  computedAt   DateTime         @map("computed_at") @db.Timestamptz(6)
+  tenant       Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  module       ModuleDefinition @relation(fields: [moduleKey], references: [key], onDelete: Restrict)
+
+  @@id([tenantId, moduleKey])
+  @@index([moduleKey])
+  @@map("core_effective_entitlements")
 }
 
 model TenantEntitlement {

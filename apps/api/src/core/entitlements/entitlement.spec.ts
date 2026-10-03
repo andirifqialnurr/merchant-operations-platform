@@ -14,6 +14,7 @@ import type {
   SubscriptionRecord,
 } from "./entitlement.repository.js";
 import { EntitlementService } from "./entitlement.service.js";
+import type { EffectiveEntitlementRow } from "./effective-entitlements.js";
 
 const TENANT_ID = "019f7900-0000-7000-8000-000000000101";
 const TENANT_B_ID = "019f7900-0000-7000-8000-000000000103";
@@ -82,18 +83,30 @@ class MemoryEntitlementRepository implements EntitlementRepository {
       modules: moduleDefinitions,
       overrides: [],
       subscription: null,
+      targetOverrides: [],
       tenant: { id: TENANT_ID, status: "ACTIVE" },
     },
     [TENANT_B_ID]: {
       modules: moduleDefinitions,
       overrides: [],
       subscription: null,
+      targetOverrides: [],
       tenant: { id: TENANT_B_ID, status: "ACTIVE" },
     },
   };
 
   get state() {
     return this.states[TENANT_ID]!;
+  }
+
+  readonly projections = new Map<string, EffectiveEntitlementRow[]>();
+
+  async listTenantIds() {
+    return Object.keys(this.states);
+  }
+
+  async saveEffectiveEntitlements(tenantId: string, rows: readonly EffectiveEntitlementRow[]) {
+    this.projections.set(tenantId, [...rows]);
   }
 
   async findPlanByCode(code: PlanCode) {
@@ -106,6 +119,7 @@ class MemoryEntitlementRepository implements EntitlementRepository {
         modules: moduleDefinitions,
         overrides: [],
         subscription: null,
+        targetOverrides: [],
         tenant: null,
       }
     );
@@ -116,11 +130,14 @@ class MemoryEntitlementRepository implements EntitlementRepository {
     assert.ok(plan);
     const now = new Date("2026-07-20T00:00:00.000Z");
     const subscription: SubscriptionRecord = {
+      capabilities: [{ capabilityKey: "profile.custom_domain", included: true }],
       createdAt: now,
       cycleEndsAt: input.cycleEndsAt,
       cycleStartsAt: input.cycleStartsAt,
       endsAt: input.endsAt,
       graceEndsAt: input.graceEndsAt,
+      limits: [{ dimensionKey: "core.locations.active", unlimited: false, value: 1n }],
+      modules: plan.moduleKeys.map((moduleKey) => ({ moduleKey, tier: "PRO" as const })),
       id:
         tenantId === TENANT_ID
           ? "019f7900-0000-7000-8000-000000000301"
@@ -130,7 +147,6 @@ class MemoryEntitlementRepository implements EntitlementRepository {
           ?.version ?? 0,
       planCode: plan.code,
       planId: plan.id,
-      planModuleKeys: plan.moduleKeys,
       planName: plan.name,
       startsAt: input.startsAt,
       status: input.status,
@@ -385,6 +401,62 @@ test("an override that would already be over is refused", async () => {
     BadRequestException,
   );
   assert.deepEqual(repository.state.overrides, []);
+});
+
+test("modules take their tier from the package version that was bought", async () => {
+  const service = new EntitlementService(new MemoryEntitlementRepository());
+  const snapshot = await service.replaceSubscription(
+    TENANT_ID,
+    activeSubscription(PLAN_CODES.profile),
+  );
+  const tierOf = (key: string) => snapshot.modules.find((item) => item.key === key)?.tier;
+
+  assert.equal(tierOf(MODULES.cafeProfile), "PRO");
+  // Not in the package and switched off: no tier at all.
+  assert.equal(tierOf(MODULES.inventoryBasic), null);
+
+  const facts = await service.describeAccess(TENANT_ID, MODULES.cafeProfile);
+  assert.deepEqual(facts.module, { entitled: true, tier: "PRO" });
+  assert.deepEqual([...facts.capabilities], ["profile.custom_domain"]);
+});
+
+test("the projection is rewritten whenever the subscription or an override changes", async () => {
+  const repository = new MemoryEntitlementRepository();
+  const service = new EntitlementService(repository);
+  await service.replaceSubscription(TENANT_ID, activeSubscription(PLAN_CODES.profile));
+
+  const rowOf = (key: string) =>
+    repository.projections.get(TENANT_ID)?.find((row) => row.moduleKey === key);
+  assert.deepEqual(rowOf(MODULES.cafeProfile), {
+    capabilities: ["profile.custom_domain"],
+    limits: [],
+    moduleKey: MODULES.cafeProfile,
+    tier: "PRO",
+  });
+  // The location limit belongs to the tenancy module, which is always on.
+  assert.deepEqual(rowOf(MODULES.coreTenancy)?.limits, [
+    { dimensionKey: "core.locations.active", source: "PACKAGE", unlimited: false, value: 1n },
+  ]);
+  assert.equal(rowOf(MODULES.inventoryBasic), undefined);
+
+  await service.setEntitlement(TENANT_ID, {
+    enabled: true,
+    moduleKey: MODULES.inventoryBasic,
+    reason: "Inventory pilot",
+  });
+  assert.equal(rowOf(MODULES.inventoryBasic)?.tier, "BASIC");
+});
+
+test("a suspended subscription leaves no projection rows", async () => {
+  const repository = new MemoryEntitlementRepository();
+  const service = new EntitlementService(repository);
+  await service.replaceSubscription(TENANT_ID, {
+    ...activeSubscription(PLAN_CODES.profile),
+    status: "SUSPENDED",
+  });
+
+  assert.deepEqual(repository.projections.get(TENANT_ID), []);
+  assert.equal(await service.rebuildAllProjections(), 2);
 });
 
 test("keeps subscription plans and entitlement overrides isolated per tenant", async () => {

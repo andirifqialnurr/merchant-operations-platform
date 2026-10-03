@@ -35,6 +35,8 @@ export const planCodeSchema = z.enum(Object.values(PLAN_CODES));
 
 export const moduleKindSchema = z.enum(["CORE", "COMMERCIAL"]);
 
+export const moduleTierSchema = z.enum(["ADVANCED", "BASIC", "PRO"]);
+
 /**
  * DRAFT is prepared but not started and gives no access.
  * CANCELED_AT_PERIOD_END stays usable until `endsAt`.
@@ -104,6 +106,8 @@ export const moduleEntitlementSchema = z.object({
   name: organizationNameSchema,
   kind: moduleKindSchema,
   enabled: z.boolean(),
+  /** Tier the tenant has for this module; null while the module is off. */
+  tier: moduleTierSchema.nullable(),
   source: entitlementSourceSchema,
   reason: z.string().min(1),
   planDefault: z.boolean(),
@@ -126,6 +130,8 @@ export type ModuleEntitlement = z.infer<typeof moduleEntitlementSchema>;
 export type ModuleKey = z.infer<typeof moduleKeySchema>;
 
 export type ModuleKind = z.infer<typeof moduleKindSchema>;
+
+export type ModuleTier = z.infer<typeof moduleTierSchema>;
 
 export type PlanCode = z.infer<typeof planCodeSchema>;
 
