@@ -1,6 +1,6 @@
 # M1 — Fondasi UI dan POS inti
 
-**Status:** Berjalan
+**Status:** Menunggu review
 **Tahap PRD:** A (Fondasi UI) dan C (Catalog + POS)
 **Bergantung pada:** —
 
@@ -19,9 +19,9 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 ## 3. Kriteria selesai
 
 - [x] Catalog Backoffice memakai AppShell dan aturan halaman baru di S/M/L, terang/gelap, `id`/`en`.
-- [~] POS-only menyelesaikan siklus penuh: buka shift → jual → bayar (tunai, QRIS, transfer, EDC) → struk → refund → tutup shift dengan kas seharusnya yang benar.
-- [~] Pesanan dapat ditahan, dibayar nanti, dan dibatalkan dengan alasan; tidak ada pesanan yang bisa dibayar dua kali atau dibatalkan setelah dibayar.
-- [ ] Tidak ada teks tertanam di surface yang dipakai M1 (Backoffice Catalog, POS, login) maupun di komponen `packages/ui` yang dipakainya.
+- [x] POS-only menyelesaikan siklus penuh: buka shift → jual → bayar (tunai, QRIS, transfer, EDC) → struk → refund → tutup shift dengan kas seharusnya yang benar.
+- [x] Pesanan dapat ditahan, dibayar nanti, dan dibatalkan dengan alasan; tidak ada pesanan yang bisa dibayar dua kali atau dibatalkan setelah dibayar.
+- [x] Tidak ada teks tertanam di surface yang dipakai M1 (Backoffice Catalog, POS, login) maupun di komponen `packages/ui` yang dipakainya.
 - [ ] Pengguna meninjau Storybook dan alur POS di browser pada terang dan gelap, lalu menyetujui.
 
 ## 4. Task
@@ -37,11 +37,11 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-FT-07 Struk** `928e049` — tampilan struk setelah lunas dan dari daftar pesanan, bisa dicetak dari browser (cetak ulang ditandai "salinan"). Selesai bila: struk memuat nama outlet, nomor penjualan, waktu, baris item, total, metode, uang diterima, dan kembalian; tidak memuat ID internal.
 - [x] **M1-FT-08 Transfer dan EDC manual** `f8a2922` — dua metode tambahan dengan nomor referensi opsional, tercatat terpisah dari tunai. Selesai bila: tidak menambah kas seharusnya; muncul di ringkasan shift per metode.
 - [x] **M1-FT-09 Refund sederhana** `241efa6` — refund penuh atau sebagian atas penjualan dengan alasan wajib, izin `payment.refund`; penjualan asli tetap ada. Selesai bila: refund tunai mengurangi kas seharusnya shift yang sedang terbuka; refund melebihi sisa ditolak; event `sale.refunded.v1`.
-- [ ] **M1-FT-10 Persetujuan manager untuk refund** — kasir tanpa izin refund meminta persetujuan manager dengan PIN (flowchart 5.4). Selesai bila: PIN tersimpan ber-hash; persetujuan diaudit dengan nama penyetuju. Boleh dipindah ke M2 bila PIN butuh pengaturan pengguna.
+- [-] **M1-FT-10 Persetujuan manager untuk refund** — dipindah ke `M2-FT-08`: PIN manager harus bisa diatur dan direset, dan itu bagian dari pengaturan pengguna (`M2-FT-02`). Sampai saat itu refund hanya untuk peran dengan izin `payment.refund`.
 - [x] **M1-FT-11 Catatan per item** `d5a3561` — catatan bebas pada baris keranjang, ikut ke snapshot pesanan.
 - [x] **M1-FT-12 Tahan pesanan** `9cba9c0` — simpan keranjang dengan label sebagai keranjang tertahan (lihat M1-BE-07), lanjutkan atau buang dari daftar. Selesai bila: pesanan yang ditahan tidak bernomor penjualan dan tidak memengaruhi kas.
 - [x] **M1-FT-13 Ringkasan shift tertutup** `ee5b054` — ringkasan per metode bayar (tunai, QRIS, transfer, EDC), refund, kas masuk/keluar, dan selisih; bisa dicetak. Selisih hanya untuk yang berizin.
-- [ ] **M1-FT-14 Pengaturan pajak dan service charge per outlet** — pola "harga sudah termasuk" atau "ditambahkan di struk", tarif per outlet. Menunggu keputusan `M1-OD-01`; sampai diputuskan total = subtotal.
+- [-] **M1-FT-14 Pengaturan pajak dan service charge per outlet** — dipindah ke `M2-FT-09` bersama pengaturan outlet (`M2-FT-01`). Keputusan `M1-OD-01`: di M1 harga menu adalah harga akhir (sudah termasuk pajak), total = subtotal, dan struk tidak memuat baris pajak.
 
 ### BE — Backend dan data
 
@@ -75,8 +75,8 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-DS-05 Hapus bawaan Bahasa Indonesia di komponen 4–9** `696bdff` — semua label menjadi props wajib; perbarui story dan test.
 - [x] **M1-DS-06 Komponen POS lama** `2c07647` — putuskan nasib `ProductModifierPicker`, `CartItem`, `CartSummary`, `PaymentMethodTile`, `CashKeypad`, `PaymentConfirmationPanel`: dirapikan (label lewat props, tanpa deskripsi) atau dihapus beserta story. Layar pelanggan (M4) memakai hasilnya.
 - [x] **M1-DS-07 `Receipt`** `928e049` — komponen struk layar dan cetak (design-system 21.2, P1).
-- [ ] **M1-DS-08 `HeldOrderList` dan `PinInput`** — untuk tahan pesanan dan persetujuan manager.
-- [ ] **M1-DS-09 `MultiSelect`** — hanya bila filter Catalog membutuhkannya; bila tidak, pindahkan ke milestone yang pertama memakainya.
+- [x] **M1-DS-08 `HeldOrderList` dan `PinInput`** `9cba9c0` — daftar pesanan tertahan ada di `apps/web/src/features/pos/held-carts.tsx` (komponen fitur, seperti komponen kasir lain); `PinInput` dipindah ke `M2-DS-06` bersama `M2-FT-08`.
+- [-] **M1-DS-09 `MultiSelect`** — filter Catalog cukup dengan `Select`; dipindah ke `M2-DS-07` dan baru dibuat bila ada layar yang membutuhkannya.
 - [x] **M1-DS-10 Penyesuaian 21.3** `8effc98` — hapus status `special`; tinggi kontrol `md` 36px; pastikan tidak ada kartu bersarang di komponen domain.
 - [ ] **M1-DS-11 Gate review Storybook** — pengguna meninjau komponen 1–11 dan komponen POS pada terang dan gelap.
 
@@ -104,8 +104,8 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 
 - [x] **M1-OP-01 Seed menu kafe** — `pnpm db:seed:menu`. `2b7095d`
 - [x] **M1-OP-02 Folder milestone** — dokumen ini.
-- [ ] **M1-OP-03 Rapikan `TODO.md`** — item lama yang sudah tidak relevan (gate UI Foundation lama, catatan typecheck `.next`) ditutup atau dipindah ke milestone.
-- [ ] **M1-OP-04 Perbarui `prd.md` 11.1 dan `docs/README.md`** — posisi implementasi terbaru.
+- [x] **M1-OP-03 Rapikan `TODO.md`** — item lama yang sudah tidak relevan (gate UI Foundation lama, catatan typecheck `.next`) ditutup atau dipindah ke milestone.
+- [x] **M1-OP-04 Perbarui `prd.md` 11.1 dan `docs/README.md`** — posisi implementasi terbaru.
 
 ## 5. Urutan checkpoint yang disarankan
 
@@ -120,7 +120,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 9. M1-UX-04, M1-UX-05, M1-UX-07, M1-SC-03, M1-SC-05, M1-QA-02, M1-QA-03, M1-BE-10.
 10. M1-OP-03, M1-OP-04, lalu review pengguna (M1-DS-11).
 
-M1-FT-10 dan M1-FT-14 menunggu keputusan; keduanya boleh dipindah ke M2 tanpa menghambat penutupan M1.
+M1-FT-10, M1-FT-14, dan M1-DS-09 sudah dipindah ke M2 (3 Oktober 2026). Yang tersisa di M1 hanya review pengguna (M1-DS-11).
 
 ## 6. Referensi
 

@@ -50,7 +50,7 @@ Aturan pengerjaan:
 - [x] Source route web diaudit ulang: `/backoffice/catalog` sudah memakai API, sedangkan `/pos`, `/kds`, dan `/inventory` masih placeholder; beberapa surface R1 belum mempunyai route aktif.
 - [x] Fondasi backend/API/isolation/security/reliability dikonfirmasi lebih maju daripada implementasi UI route, tetapi belum selesai terhadap kontrak modular baru di `docs/product/` dan `docs/foundation/`.
 - [x] Build produksi yang tersedia berhasil di-smoke melalui HTTP: route aktif utama merespons 200 dan `/finance`, `/hc`, `/platform` merespons 404 sesuai source route yang belum ada.
-- [ ] Runtime visual/interaksi belum terverifikasi: start dev masih tertahan lock `.next/dev` dan browser dalam aplikasi tidak tersedia.
+- [x] Runtime visual/interaksi terverifikasi lewat Playwright sejak Tahap 12 (skrip di `apps/web/e2e` dan smoke test Storybook); catatan lock `.next/dev` tidak berlaku lagi.
 - [x] `CREDENTIALS.local.md` diperiksa; tidak ada perubahan akun, password, atau aturan pemeliharaan yang diperlukan.
 
 ### Checkpoint 2 Oktober 2026 - documentation remap (tanpa perubahan kode)
@@ -66,18 +66,18 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: STOP setelah UI Foundation 1.** User meninjau `/color-bank` (light dan dark) sebelum komponen dibenahi satu per satu, dimulai dari Button.
+> **NEXT: review pengguna M1 (`M1-DS-11`).** Semua task M1 selain review sudah selesai atau dipindah ke M2; lihat `docs/milestones/M01-fondasi-ui-dan-pos-inti.md`. M2 belum dimulai.
 
 Urutan fondasi UI mengikuti `docs/foundation/frontend.md` bagian 14; setiap butir adalah checkpoint yang berdiri sendiri:
 
 - [x] **UI Foundation 1 - Bank warna Calm Neutral:** `primitives.css` diganti menjadi ramp netral 16 langkah + status + chart + preset storefront (skala Teal, Slate, Violet, Indigo lama dihapus); `tokens.css` light/dark monokrom tanpa aksen; token `--color-chart-series-1..6` dan utility `bg-chart-*`; preset storefront `ink/blue/teal/green/rose/orange`; `/color-bank` ditulis ulang; warna PWA diselaraskan; status `special` dipetakan ke netral. Verifikasi: kontras WCAG dihitung, penjaga warna, lint, typecheck `ui`/`storybook`, dan 204 test komponen lulus.
-- [ ] **Gate UI Foundation 1:** user meninjau `/color-bank` di browser pada light dan dark. Typecheck `apps/web` masih gagal hanya pada berkas hasil generate `.next/dev/types/routes.d.ts` yang rusak (bukan kode sumber); hapus `apps/web/.next/dev` setelah proses dev lama dihentikan.
+- [x] **Gate UI Foundation 1:** dilebur ke review pengguna `M1-DS-11`. Catatan typecheck `.next/dev/types/routes.d.ts` tidak berlaku lagi; typecheck `apps/web` lulus.
 - [x] **UI Foundation 2 - Tabler Icons:** `AppIcon` memakai `@tabler/icons-react` (garis 1,75px); 49 berkas dimigrasikan lewat codemod berbasis AST; `lucide-react` dihapus dari ketiga paket dan dilarang lewat lint. Lint, typecheck, 231 test komponen, build dan 22 smoke test Storybook lulus; ikon terverifikasi di halaman Katalog pada browser.
-- [ ] **UI Foundation 3 - i18n:** pasang `next-intl` berbasis cookie, kamus `id`/`en`, `LanguageSwitcher`, keluarkan string dari `packages/ui`.
-- [ ] **UI Foundation 4 - API client dan server state:** header CSRF (temuan `SEC-F1`), idempotency, error bertipe, TanStack Query.
-- [ ] **UI Foundation 5 - Shell dan pattern:** `AppShell`, `ContextSwitcher`, `UserMenu`, `PageHeader`, `FilterBar`, `Chip`, `ModuleAccessState`, `UsageLimitState`.
-- [ ] **UI Foundation 6 - Route group dan guard:** `(auth)`, `(backoffice)`, `(pos)`, `(kds)`, `(customer)`, `(platform)`.
-- [ ] **UI Foundation 7 - Reslice Catalog:** pecah `catalog-backoffice.tsx` menjadi `features/catalog` sesuai pola halaman baru.
+- [x] **UI Foundation 3 - i18n:** pasang `next-intl` berbasis cookie, kamus `id`/`en`, `LanguageSwitcher`, keluarkan string dari `packages/ui`. Selesai (butir "Dua bahasa" dan checkpoint 12.19).
+- [x] **UI Foundation 4 - API client dan server state:** header CSRF (temuan `SEC-F1`), idempotency, error bertipe, TanStack Query. Selesai (butir "Reslice Catalog").
+- [x] **UI Foundation 5 - Shell dan pattern:** `AppShell`, `ContextSwitcher`, `UserMenu`, `PageHeader`, `FilterBar`, `Chip`, `ModuleAccessState`, `UsageLimitState`. Selesai kecuali `ModuleAccessState` dan `UsageLimitState`, yang menjadi `M2-DS-01` dan `M2-DS-02`.
+- [x] **UI Foundation 6 - Route group dan guard:** `(auth)`, `(backoffice)`, `(pos)`, `(kds)`, `(customer)`, `(platform)`. `(auth)`, `(backoffice)`, dan `(pos)` selesai; `(kds)`, `(customer)`, dan `(platform)` dibuat di M3, M4, dan M8.
+- [x] **UI Foundation 7 - Reslice Catalog:** pecah `catalog-backoffice.tsx` menjadi `features/catalog` sesuai pola halaman baru. Selesai (butir "Reslice Catalog").
 - [x] **Komponen 1 - Button/IconButton:** tinggi kontrol bawaan 36px, secondary bergaris (outline menjadi alias), ghost dan link netral, link selalu bergaris bawah, state tekan, disabled mengikuti bentuk variant, loading mempertahankan tampilan variant, ikon xl dibatasi 24px.
 - [x] **Komponen 2 - FormField/Input/Textarea:** penanda `optionalLabel` menggantikan `required`, label aksi cari/kata sandi menjadi props, fokus 1px tinta, read-only dibedakan dari disabled.
 - [x] **Komponen 3 - Checkbox/Radio/Switch/SegmentedControl/QuantityStepper:** thumb switch terlihat di mode gelap, state hover dan disabled, label tombol stepper menjadi props.
@@ -95,10 +95,10 @@ Urutan fondasi UI mengikuti `docs/foundation/frontend.md` bagian 14; setiap buti
 - [x] **Verifikasi browser reslice Catalog:** login lalu `/catalog` dengan database lokal pada Chromium headless: daftar produk tampil, sheet produk terbuka dari baris, saklar habis tersimpan dan dikembalikan (badge ikut berubah), tab Kategori dan Modifier, 390px gelap tanpa overflow, tanpa error API. Belum diuji: membuat produk/kategori/modifier baru, pengguna berbatas outlet, dan berganti bisnis.
 - [x] **Dua bahasa (UI Foundation 3):** `next-intl` tanpa plugin build; kamus `apps/web/messages/id.json` dan `en.json` (namespace shell, auth, catalog, errors); bawaan mengikuti bahasa browser dan pilihan manual tersimpan di cookie; pemilih bahasa di menu akun dan halaman login; pesan error diterjemahkan dari kode API, bukan dari teks server; format uang mengikuti bahasa; kunci terjemahan diperiksa tipe; test kesamaan kunci dan placeholder kedua kamus. `messages.ts` per fitur dihapus.
 - [x] **Verifikasi browser dua bahasa:** browser berbahasa Inggris mendapat halaman login Inggris; error login salah tampil dalam bahasa aktif; berganti bahasa di login mempertahankan isian; berganti di menu akun mengubah judul, badge, dan format harga (`Rp25.000` menjadi `Rp25,000`) tanpa pindah rute; `<html lang>` ikut berubah.
-- [ ] **Sisa dua bahasa:** halaman referensi dev dan placeholder POS/KDS/Inventory belum diterjemahkan.
-- [ ] **Catatan label:** komponen 4-9 masih memakai bawaan Bahasa Indonesia pada props label baru; bawaan itu dihapus pada checkpoint i18n (UI Foundation 3).
-- [ ] **Gate komponen 1-11:** user meninjau Storybook pada light dan dark; verifikasi otomatis (lint, typecheck ui/storybook, format, 231 test, 22 smoke test) lulus, visual belum ditinjau.
-- [ ] **UI Foundation 8 - Komponen berikutnya satu per satu:** satu komponen per checkpoint, primitive selesai; berikutnya komponen domain (POS → Floor → KDS → Inventory → Finance → Customer → Platform) dan primitive yang masih gap (MultiSelect, FileUpload, ModuleAccessState, UsageLimitState, BottomNav). Atas permintaan user, pekerjaan ini boleh didahulukan sebelum UI Foundation 2-7.
+- [x] **Sisa dua bahasa:** halaman referensi dan placeholder KDS/Inventory kini hanya ada di mode development (12.25), jadi tidak diterjemahkan; layar POS sudah dua bahasa.
+- [x] **Catatan label:** komponen 4-9 masih memakai bawaan Bahasa Indonesia pada props label baru; bawaan itu dihapus pada checkpoint i18n (UI Foundation 3). Selesai di checkpoint 12.19.
+- [ ] **Gate review pengguna (`M1-DS-11`):** user meninjau Storybook (komponen 1-11, Brand, komponen POS) dan alur Catalog + POS di browser pada light dan dark. Verifikasi otomatis lulus; tinjauan visual oleh user belum dilakukan.
+- [x] **UI Foundation 8 - Komponen berikutnya satu per satu:** satu komponen per checkpoint, primitive selesai; berikutnya komponen domain (POS → Floor → KDS → Inventory → Finance → Customer → Platform) dan primitive yang masih gap (MultiSelect, FileUpload, ModuleAccessState, UsageLimitState, BottomNav). Atas permintaan user, pekerjaan ini boleh didahulukan sebelum UI Foundation 2-7. Ditutup: komponen POS selesai di M1; komponen domain lain dan primitive yang masih gap mengikuti task DS di milestone masing-masing (`docs/milestones/`).
 
 ### Backend delta yang harus diaudit sebelum UI reslicing
 
@@ -637,7 +637,7 @@ Setiap sub-tahap P1 dipush terpisah. Jangan membuat seluruh component dalam satu
 
 - [x] Custom Select sm/md/lg.
 - [x] Searchable Combobox single select.
-- [ ] Multi-select hanya jika sudah ada use case.
+- [x] Multi-select hanya jika sudah ada use case. Dipindah ke `M2-DS-07`.
 - [x] Loading, no-result, error, disabled option, dan async search state.
 - [x] Keyboard navigation, portal, focus, mobile sheet behavior.
 
@@ -849,7 +849,8 @@ Catatan alignment 5 Agustus 2026: urutan historis P2 dimulai setelah primitive U
 - [x] **12.27 Test browser POS dan test unit web (M1-QA-02, M1-QA-03):** `apps/web/e2e/pos-shift-sale.spec.ts` (Playwright, `pnpm --filter @merchant/web test:e2e`) menjalankan buka shift → jual tunai → bayar → tutup shift sebagai `pos.cashier@local.test` terhadap stack lokal yang sudah berjalan; tidak ikut `pnpm test` karena butuh web, API, dan database. Sesi login disimpan di `apps/web/e2e/.auth/` (diabaikan Git) karena API membatasi 5 login per akun per 15 menit. `src/lib/format.test.ts` menguji `formatMoney` dan `slugify`; logika keranjang sudah diuji di `cart.test.ts`.
 - [x] **12.28 Pesan error katalog netral (M1-BE-10):** 46 pesan server berbahasa Indonesia di `apps/api/src/catalog` diganti pesan Inggris; kodenya tidak berubah. 13 kode katalog/tenant yang belum punya terjemahan ditambahkan ke kamus `id`/`en`. `apps/web/src/i18n/error-codes.test.ts` memindai kode error di `catalog`, `modules`, dan `kernels` dan gagal bila ada yang belum diterjemahkan di kedua bahasa. Modul API lain (access, entitlement, organization, guard sesi) masih berpesan Indonesia; layar tetap menampilkan terjemahan berdasarkan kode.
 - [x] **12.29 Uji browser Catalog (M1-UX-05):** `apps/web/e2e/catalog.spec.ts` — Owner menambah kategori, modifier dengan dua pilihan, produk dengan varian, memasang modifier, dan menjualnya di outlet; halaman yang sama dibaca dalam bahasa Inggris dan tema gelap; Manager outlet-scoped hanya melihat produk outletnya tanpa tab dan tanpa tombol tambah. Setiap run menambah data uji bernama `Uji … <kode>` di database lokal. **Bug yang ditemukan dan diperbaiki:** menu `Select`/`Combobox` (z-index 50) tampil di belakang Sheet/Dialog (100), sehingga kategori tidak bisa dipilih saat membuat produk; toast (60) juga tertutup. Sekarang urutan lapisan memakai token `--layer-overlay` 100, `--layer-menu` 120, `--layer-toast` 130 di `foundation.css`.
-- [ ] **12.10d-4 Lanjutan layar jual:** catatan per item, tahan pesanan, makan di tempat, gambar produk, dan status shift/koneksi di bar atas.
+- [x] **12.30 Penutupan M1 (M1-OP-03, M1-OP-04, M1-DS-08, M1-DS-09):** atas arahan user "lanjutkan dengan rekomendasi": PIN manager untuk refund (`M1-FT-10`) dan `PinInput` pindah ke `M2-FT-08`/`M2-DS-06`; pajak per outlet (`M1-FT-14`) pindah ke `M2-FT-09` dengan keputusan `M1-OD-01` bahwa harga menu di M1 adalah harga akhir; `MultiSelect` pindah ke `M2-DS-07`. Bawaan label terakhir di komponen yang dipakai M1 dihapus (`QuantityStepper` wajib menerima label tombol, pencarian `Combobox` dinamai dari `label`-nya, `MoneyDisplay` tanpa teks bawaan). Butir TODO lama ditutup atau diarahkan ke milestone; `prd.md` 11.1 diperbarui. Status M1: **Menunggu review**.
+- [x] **12.10d-4 Lanjutan layar jual:** catatan per item (12.16), tahan pesanan (12.17), dan status shift/koneksi (12.23) selesai; makan di tempat menjadi bagian M4 dan gambar produk `M2-FT-07`.
 
 **Checkpoint 12.1:** `feat(ui): add POS product tile and category rail`
 
@@ -916,6 +917,8 @@ Catatan alignment 5 Agustus 2026: urutan historis P2 dimulai setelah primitive U
 **Checkpoint 12.28:** `refactor(api): use English catalog error messages`
 
 **Checkpoint 12.29:** `fix(ui): show select menus above sheets and add the catalog browser test`
+
+**Checkpoint 12.30:** `docs: close out M1 and move deferred tasks to M2`
 
 **POS catalog component gate:** Product Tile menyediakan variant `compact/default/touch/customer`, size `sm/md/lg/customer`, state selected, low stock, sold out, scheduled/unavailable, image loading, dan image fallback tanpa menyembunyikan harga/status. Category Rail menyediakan mode vertical untuk POS desktop dan horizontal-scroll untuk customer/mobile dengan active indicator yang eksplisit. Component tests mencakup interaksi, disabled state, semantics, dan axe smoke; Storybook production build serta review Chrome pada 1440/390 px, light/dark, focus ring, minimum size, long status, dan overflow sudah lulus.
 

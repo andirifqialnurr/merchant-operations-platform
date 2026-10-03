@@ -34,11 +34,11 @@ export type SegmentedControlProps = {
 };
 export type QuantityStepperProps = {
   /** Accessible name of the decrease button. */
-  decreaseLabel?: string;
+  decreaseLabel: string;
   defaultValue?: number;
   disabled?: boolean;
   /** Accessible name of the increase button. */
-  increaseLabel?: string;
+  increaseLabel: string;
   label: string;
   max?: number;
   min?: number;
@@ -242,7 +242,7 @@ export function QuantityStepper({
       role="group"
     >
       <button
-        aria-label={decreaseLabel ?? `Decrease ${label}`}
+        aria-label={decreaseLabel}
         disabled={disabled || currentValue <= min}
         onClick={() => update(currentValue - step)}
         type="button"
@@ -253,7 +253,7 @@ export function QuantityStepper({
         {currentValue}
       </output>
       <button
-        aria-label={increaseLabel ?? `Increase ${label}`}
+        aria-label={increaseLabel}
         disabled={disabled || currentValue >= max}
         onClick={() => update(currentValue + step)}
         type="button"

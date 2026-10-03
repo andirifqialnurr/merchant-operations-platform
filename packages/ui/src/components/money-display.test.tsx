@@ -29,7 +29,11 @@ describe("MoneyDisplay", () => {
     render(
       <main>
         <MoneyDisplay amountMinor={0} data-testid="zero" />
-        <MoneyDisplay amountMinor={null} data-testid="unavailable" />
+        <MoneyDisplay
+          amountMinor={null}
+          data-testid="unavailable"
+          unavailableLabel="Nominal tidak tersedia"
+        />
       </main>,
     );
 

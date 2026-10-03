@@ -274,12 +274,13 @@ Inventory, Finance, HC, Customer, dan Reports berada di Backoffice. Alur per lay
 | Area | Status |
 |---|---|
 | Login, sesi, organisasi, peran/izin, langganan/entitlement, audit, outbox | Berjalan (API + database) |
-| Catalog | Berjalan dari database sampai halaman Backoffice |
+| Catalog | Berjalan dari database sampai halaman Backoffice, dengan AppShell, dua bahasa, dan terang/gelap |
 | Kontrak modular (manifest, instalasi, binding, limit, event, command context, QR token, support access, batas modul) | Tersedia sebagai kontrak tipe; belum ada tabel dan API |
-| POS, KDS, Inventory | Komponen UI ada; halaman masih placeholder; belum ada API dan tabel |
+| POS | Berjalan dari database sampai layar kasir: shift dan kas, jual, bayar (tunai, QRIS, transfer, EDC), struk, refund, batal, catatan item, tahan pesanan. Belum: pajak per outlet, persetujuan PIN manager, makan di tempat, gambar produk |
+| KDS, Inventory | Komponen UI ada; halaman hanya placeholder di mode development; belum ada API dan tabel |
 | Floor, Finance, HC, Customer, Reports, Platform Admin | Sebagian komponen UI ada; belum ada halaman, API, dan tabel |
 | Bank warna | Sudah mengikuti D-01 |
-| Komponen UI, ikon, dua bahasa | Belum sesuai keputusan D-03 sampai D-07 |
+| Komponen UI, ikon, dua bahasa | Komponen dasar, shell, dan komponen POS mengikuti D-03 sampai D-07; label lewat props dan kamus `id`/`en`. Komponen domain lain (Floor, KDS, Inventory, Finance, Customer, Platform) dibenahi di milestone masing-masing |
 
 ### 11.2 Urutan pengerjaan
 

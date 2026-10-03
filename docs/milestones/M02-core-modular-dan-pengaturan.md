@@ -38,6 +38,8 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [ ] **M2-FT-05 Langganan dan pemakaian** — paket aktif, modul dan tier, pemakaian vs batas per dimensi; saat batas tercapai tombol tetap tampil dengan penjelasan dan ajakan upgrade.
 - [ ] **M2-FT-06 Integrasi antarmodul** — daftar binding (misalnya POS → Keuangan) dengan status `Aktif`/`Perlu setup`/`Gagal` dan tombol coba ulang.
 - [ ] **M2-FT-07 Gambar produk** — unggah gambar produk di Catalog dan tampilkan di kartu produk POS.
+- [ ] **M2-FT-08 Persetujuan manager untuk refund** (dari `M1-FT-10`) — kasir tanpa izin refund meminta persetujuan manager dengan PIN (`flowchart.md` 5.4). PIN diatur dan direset di pengaturan pengguna (`M2-FT-02`). Selesai bila: PIN tersimpan ber-hash; salah PIN dibatasi; persetujuan diaudit dengan nama penyetuju.
+- [ ] **M2-FT-09 Pajak dan service charge per outlet** (dari `M1-FT-14`) — pola "harga sudah termasuk" atau "ditambahkan di struk" dan tarif per outlet, diatur di pengaturan outlet (`M2-FT-01`). Bawaan tetap mengikuti keputusan `M1-OD-01`: harga menu adalah harga akhir. Selesai bila: total pesanan, struk, dan ringkasan shift konsisten untuk kedua pola.
 
 ### BE — Backend dan data
 
@@ -74,6 +76,8 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [ ] **M2-DS-03 `FileUpload`** — pilih, pratinjau, progres, error, ganti; label lewat props.
 - [ ] **M2-DS-04 Komponen perangkat** — `DeviceStatusBadge`, `NetworkSyncIndicator`, `StaleDataBanner`.
 - [ ] **M2-DS-05 Matriks izin** — tampilan izin per peran yang mudah dipindai.
+- [ ] **M2-DS-06 `PinInput`** (dari `M1-DS-08`) — isian PIN bertopeng untuk persetujuan manager; label lewat props.
+- [ ] **M2-DS-07 `MultiSelect`** (dari `M1-DS-09`) — hanya bila ada layar yang membutuhkannya.
 
 ### AS — Aset
 

@@ -94,7 +94,7 @@ export function MoneyDisplay({
   locale = "id-ID",
   negativeFormat = "minus",
   size,
-  unavailableLabel = "Nominal tidak tersedia",
+  unavailableLabel,
   variant = "inline",
   ...props
 }: MoneyDisplayProps) {

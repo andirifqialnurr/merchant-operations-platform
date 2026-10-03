@@ -54,7 +54,7 @@ Alur kerja:
 
 | #   | Milestone                                                           | Tahap PRD | Tujuan                                                                                                           | Bergantung pada          | Status      |
 | --- | ------------------------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------ | ----------- |
-| M1  | [Fondasi UI dan POS inti](./M01-fondasi-ui-dan-pos-inti.md)         | A, C      | Backoffice Catalog dan POS-only menyelesaikan transaksi dari buka shift sampai tutup shift dengan UI baru        | —                        | Berjalan    |
+| M1  | [Fondasi UI dan POS inti](./M01-fondasi-ui-dan-pos-inti.md)         | A, C      | Backoffice Catalog dan POS-only menyelesaikan transaksi dari buka shift sampai tutup shift dengan UI baru        | —                        | Menunggu review |
 | M2  | [Core modular dan pengaturan](./M02-core-modular-dan-pengaturan.md) | B         | Paket berversi, instalasi modul, entitlement efektif, limit, event antarmodul, perangkat, dan halaman Pengaturan | M1                       | Belum mulai |
 | M3  | [Kitchen Display System](./M03-kds.md)                              | D         | KDS-only dan POS + KDS memakai use case yang sama                                                                | M2                       | Belum mulai |
 | M4  | [Meja, Self-Order, dan Customer](./M04-meja-self-order-customer.md) | E         | Tata letak meja, sesi meja, QR, pesan dari meja, makan di tempat di POS, data pelanggan                          | M3                       | Belum mulai |
@@ -138,7 +138,7 @@ Diambil dari `architecture.md` bagian 17. Masing-masing dipetakan ke milestone y
 
 | ID       | Pertanyaan                                                                                                        | Harus diputuskan sebelum                                            |
 | -------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| M1-OD-01 | Pajak dan service charge: harga menu sudah termasuk pajak, atau ditambahkan di struk? Berapa tarifnya per outlet? | M1 task pengaturan pajak (boleh ditunda; saat ini total = subtotal) |
+| M1-OD-01 | **Diputuskan 3 Oktober 2026:** di M1 harga menu adalah harga akhir (sudah termasuk pajak), total = subtotal. Pola "ditambahkan di struk" dan tarif per outlet dikerjakan di `M2-FT-09`. | — |
 | OD-04    | KDS-only bawaan memakai input manual atau API?                                                                    | M3                                                                  |
 | OD-05    | Titik potong stok bawaan per template                                                                             | M5                                                                  |
 | OD-06    | Pengakuan pendapatan saat penjualan selesai atau saat pembayaran dikonfirmasi                                     | M6                                                                  |

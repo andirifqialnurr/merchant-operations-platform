@@ -369,7 +369,7 @@ export function Combobox({
         <div className="ui-select__search">
           <AppIcon icon={IconSearch} size="sm" />
           <input
-            aria-label={searchLabel ?? `Cari ${label}`}
+            aria-label={searchLabel ?? label}
             autoFocus
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={(event) => {
