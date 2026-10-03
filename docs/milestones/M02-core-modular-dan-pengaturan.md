@@ -50,7 +50,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [x] **M2-BE-05 Evaluator akses efektif** `3dec964` — projection `core_effective_entitlements`; guard memeriksa urutan `architecture.md` 6.3 dan mengembalikan kode alasan berbeda. Dikerjakan dalam tiga checkpoint: evaluator dan kode alasan (13.10), modul/tier dari versi paket dan projection (13.11), penghapusan tabel lama (13.12).
 - [x] **M2-BE-06 Instalasi modul** `3fb7ced` — `core_module_installations` dan `core_module_configs` dengan lifecycle `architecture.md` 6.1; event `module.installed.v1`.
 - [x] **M2-BE-07 Registry manifest** `90f4afb` — tiap modul mendeklarasikan izin, capability, event yang dihasilkan dan dikonsumsi, ketergantungan; dipakai navigasi dan validasi paket.
-- [ ] **M2-BE-08 Binding integrasi** — `core_integration_bindings` dengan status dan health; handler hanya berjalan bila binding aktif.
+- [x] **M2-BE-08 Binding integrasi** `67ad6c3` — `core_integration_bindings` dengan status dan health; handler hanya berjalan bila binding aktif.
 - [x] **M2-BE-09 Dispatcher outbox** `cc2e4e6` — worker mengambil `outbox_events`, mengirim ke handler, retry dengan backoff, tanda gagal permanen.
 - [x] **M2-BE-10 Inbox** `cc2e4e6` — `core_inbox_events`, unik per consumer dan event; handler idempotent.
 - [ ] **M2-BE-11 Metering dan limit** — `core_usage_dimensions` (25 dimensi), event pemakaian, counter, adjustment, notifikasi ambang; penegakan hard/soft/throttled sesuai `prd.md` 7.1.
@@ -99,7 +99,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [x] **M2-QA-03 Pecah `packages/contracts`** `8ffd658` — satu file per domain dengan indeks ekspor.
 - [x] **M2-QA-04 Lint batas modul** `4380439` — aturan impor `backend.md` 3 dijalankan di lint dan CI.
 - [ ] **M2-QA-05 Integration test PostgreSQL sekali pakai** — database test terisolasi untuk repository dan constraint (gerbang TODO Tahap 9).
-- [ ] **M2-QA-06 Test kombinasi modul** — POS-only, POS dengan binding mati, POS dengan binding aktif tanpa penerima.
+- [x] **M2-QA-06 Test kombinasi modul** `67ad6c3` — POS-only, POS dengan binding mati, POS dengan binding aktif tanpa penerima.
 
 ### OP — Operasional dan dokumentasi
 
