@@ -59,7 +59,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [ ] **M2-BE-14 Idempotency generik** — interceptor yang memakai tabel `idempotency_keys` dengan hash permintaan, untuk endpoint yang belum punya kunci domain sendiri.
 - [ ] **M2-BE-15 Penyimpanan berkas** — URL unggah bertanda tangan ke object storage, validasi tipe dan ukuran, kunci objek per workspace.
 - [ ] **M2-BE-16 Undangan pengguna** — token undangan ber-hash dengan masa berlaku; penerimaan undangan membuat keanggotaan.
-- [x] **M2-BE-17 CommandContext** — channel, perangkat, correlation, causation, client version pada setiap perintah dan event (`backend.md` 4.1).
+- [x] **M2-BE-17 CommandContext** `b815343` — channel, perangkat, correlation, causation, client version pada setiap perintah dan event (`backend.md` 4.1).
 
 ### UX — Alur dan interaksi
 
