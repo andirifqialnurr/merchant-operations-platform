@@ -77,7 +77,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-DS-07 `Receipt`** `928e049` — komponen struk layar dan cetak (design-system 21.2, P1).
 - [ ] **M1-DS-08 `HeldOrderList` dan `PinInput`** — untuk tahan pesanan dan persetujuan manager.
 - [ ] **M1-DS-09 `MultiSelect`** — hanya bila filter Catalog membutuhkannya; bila tidak, pindahkan ke milestone yang pertama memakainya.
-- [ ] **M1-DS-10 Penyesuaian 21.3** — hapus status `special`; tinggi kontrol `md` 36px; pastikan tidak ada kartu bersarang di komponen domain.
+- [x] **M1-DS-10 Penyesuaian 21.3** — hapus status `special`; tinggi kontrol `md` 36px; pastikan tidak ada kartu bersarang di komponen domain.
 - [ ] **M1-DS-11 Gate review Storybook** — pengguna meninjau komponen 1–11 dan komponen POS pada terang dan gelap.
 
 ### AS — Aset

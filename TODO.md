@@ -840,6 +840,7 @@ Catatan alignment 5 Agustus 2026: urutan historis P2 dimulai setelah primitive U
 - [x] **12.18 Preferensi bahasa dan tema (M1-BE-09, M1-UX-06):** kolom `users.locale`/`users.theme` (CHECK, nullable), `PATCH /auth/preferences`, sesi memuat keduanya; pilihan di menu akun langsung mengganti layar dan disimpan ke profil; `PreferenceSync` menerapkan pilihan tersimpan sekali setelah masuk, sehingga pilihan mengikuti pengguna ke perangkat lain. Nilai kosong tetap mengikuti bahasa browser dan tema sistem (D-09).
 - [x] **12.19 Label komponen tanpa bawaan (M1-DS-05):** Select, Combobox, DatePicker, DateRangePicker, TimeInput, Dialog, Sheet, AlertDialog, navigasi, Pagination, Chart, Spinner, dan FilterBar tidak lagi punya teks bawaan Bahasa Indonesia; label wajib dikirim lewat props dari kamus `id`/`en`. DateRangePicker memakai `label` sebagai nama grup. Komponen domain lama (pos-modifier, floor-selector, finance-validated-report) memegang teksnya sendiri sampai dibersihkan di M1-DS-06.
 - [x] **12.20 Komponen POS lama (M1-DS-06):** `ProductModifierPicker`, `PaymentMethodTile`, `CashKeypad`, dan `PaymentConfirmationPanel` dihapus dari `packages/ui` beserta CSS, story (`PosModifierPicker`, `PosPayment`, `PosManualFlow`), test, dan smoke test; kasir memakai versi di `apps/web/src/features/pos`. `pos-payment` hanya menyisakan `buildCashPresets`. `CartItem` dan `CartSummary` dipertahankan untuk layar pelanggan (M4) dengan semua teks lewat props `labels`; `customer-order-surface` masih memegang teks Indonesianya sampai dibangun ulang di M4.
+- [x] **12.21 Penyesuaian 21.3 (M1-DS-10):** token `--color-status-special-*` dan utility `special` dihapus, status meja `reserved` memakai `info`; tinggi kontrol `md` sudah 36px di `foundation.css` dan pratinjau `/design-system` dikoreksi dari 40 ke 36; komponen POS di `packages/ui` (`ProductTile`, `CategoryRail`, `CartItem`, `CartSummary`, `ShiftSummary`, `Receipt`) masing-masing satu permukaan tanpa kartu bersarang. Sisa: `customer-order-surface` masih menaruh `CartItem` berbingkai di dalam bagian berbingkai; dibereskan saat layar pelanggan dibangun ulang (M4).
 - [ ] **12.10d-4 Lanjutan layar jual:** catatan per item, tahan pesanan, makan di tempat, gambar produk, dan status shift/koneksi di bar atas.
 
 **Checkpoint 12.1:** `feat(ui): add POS product tile and category rail`
@@ -889,6 +890,8 @@ Catatan alignment 5 Agustus 2026: urutan historis P2 dimulai setelah primitive U
 **Checkpoint 12.19:** `refactor(ui): require labels instead of Indonesian defaults`
 
 **Checkpoint 12.20:** `refactor(ui): remove unused legacy POS components`
+
+**Checkpoint 12.21:** `refactor(ui): remove the special status tokens`
 
 **POS catalog component gate:** Product Tile menyediakan variant `compact/default/touch/customer`, size `sm/md/lg/customer`, state selected, low stock, sold out, scheduled/unavailable, image loading, dan image fallback tanpa menyembunyikan harga/status. Category Rail menyediakan mode vertical untuk POS desktop dan horizontal-scroll untuk customer/mobile dengan active indicator yang eksplisit. Component tests mencakup interaksi, disabled state, semantics, dan axe smoke; Storybook production build serta review Chrome pada 1440/390 px, light/dark, focus ring, minimum size, long status, dan overflow sudah lulus.
 

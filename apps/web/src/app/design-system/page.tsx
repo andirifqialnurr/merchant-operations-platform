@@ -47,13 +47,12 @@ const statusTokens = [
   { className: "bg-success-surface text-success", label: "Success" },
   { className: "bg-warning-surface text-warning", label: "Warning" },
   { className: "bg-danger-surface text-danger", label: "Danger" },
-  { className: "bg-special-surface text-special", label: "Special" },
 ] as const;
 
 const controlSizes = [
   { className: "h-control-xs", label: "xs", value: "28" },
   { className: "h-control-sm", label: "sm", value: "32" },
-  { className: "h-control-md", label: "md", value: "40" },
+  { className: "h-control-md", label: "md", value: "36" },
   { className: "h-control-lg", label: "lg", value: "48" },
   { className: "h-control-xl", label: "xl", value: "56" },
 ] as const;

@@ -105,9 +105,9 @@
 }
 
 .ui-table-tile--reserved {
-  --ui-table-tile-accent: var(--color-status-special-text);
-  --ui-table-tile-status-bg: var(--color-status-special-bg);
-  --ui-table-tile-status-text: var(--color-status-special-text);
+  --ui-table-tile-accent: var(--color-status-info-text);
+  --ui-table-tile-status-bg: var(--color-status-info-bg);
+  --ui-table-tile-status-text: var(--color-status-info-text);
 }
 
 .ui-table-tile--disabled {

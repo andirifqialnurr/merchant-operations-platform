@@ -264,7 +264,7 @@ Beberapa nilai pada tabel bagian 6.2 berbeda tipis dari ramp ini (teks dark `#F0
 | `packages/ui/src/styles/tailwind-theme.css` | Utility Tailwind (`bg-surface`, `text-foreground`, `bg-chart-1`, …) |
 | `apps/web/src/app/color-bank/page.tsx` | Pratinjau di `/color-bank` |
 
-Yang dihapus dari bank lama: skala Teal 11 langkah, skala Slate, serta Violet, Indigo, Rose, dan Orange versi lama. Token `--color-status-special-*` masih ada tetapi dipetakan ke netral sampai komponen yang memakainya dibenahi.
+Yang dihapus dari bank lama: skala Teal 11 langkah, skala Slate, serta Violet, Indigo, Rose, dan Orange versi lama. Token `--color-status-special-*` sudah dihapus; status meja `reserved` memakai `info`.
 
 ### 6.7 Merchant branding
 
