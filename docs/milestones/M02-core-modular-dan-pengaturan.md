@@ -49,7 +49,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [x] **M2-BE-04 Override entitlement** `ff07cd5` — `core_entitlement_overrides` menggantikan `tenant_entitlements`, dengan alasan, masa berlaku, dan pelaku.
 - [x] **M2-BE-05 Evaluator akses efektif** `3dec964` — projection `core_effective_entitlements`; guard memeriksa urutan `architecture.md` 6.3 dan mengembalikan kode alasan berbeda. Dikerjakan dalam tiga checkpoint: evaluator dan kode alasan (13.10), modul/tier dari versi paket dan projection (13.11), penghapusan tabel lama (13.12).
 - [ ] **M2-BE-06 Instalasi modul** — `core_module_installations` dan `core_module_configs` dengan lifecycle `architecture.md` 6.1; event `module.installed.v1`.
-- [x] **M2-BE-07 Registry manifest** — tiap modul mendeklarasikan izin, capability, event yang dihasilkan dan dikonsumsi, ketergantungan; dipakai navigasi dan validasi paket.
+- [x] **M2-BE-07 Registry manifest** `90f4afb` — tiap modul mendeklarasikan izin, capability, event yang dihasilkan dan dikonsumsi, ketergantungan; dipakai navigasi dan validasi paket.
 - [ ] **M2-BE-08 Binding integrasi** — `core_integration_bindings` dengan status dan health; handler hanya berjalan bila binding aktif.
 - [ ] **M2-BE-09 Dispatcher outbox** — worker mengambil `outbox_events`, mengirim ke handler, retry dengan backoff, tanda gagal permanen.
 - [ ] **M2-BE-10 Inbox** — `core_inbox_events`, unik per consumer dan event; handler idempotent.
