@@ -17,8 +17,8 @@ import {
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 
-import { AuthService } from "../auth/auth.service.js";
-import { readSessionToken } from "../auth/session-cookie.js";
+import { AuthService } from "../core/auth/auth.service.js";
+import { readSessionToken } from "../core/auth/session-cookie.js";
 import { EntitlementService } from "../entitlement/entitlement.service.js";
 import { AccessService } from "./access.service.js";
 

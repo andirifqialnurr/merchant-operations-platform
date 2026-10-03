@@ -24,7 +24,7 @@ import {
   RequirePermission,
   SessionPermissionGuard,
 } from "../../../access/session-permission.guard.js";
-import { SESSION_COOKIE_NAME } from "../../../auth/session-cookie.js";
+import { SESSION_COOKIE_NAME } from "../../../core/auth/session-cookie.js";
 import { CatalogService } from "../../../catalog/catalog.service.js";
 import { RequestHeaders, ZodValidationPipe } from "../../../zod-validation.pipe.js";
 

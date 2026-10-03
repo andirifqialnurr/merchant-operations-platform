@@ -11,7 +11,7 @@ import {
 } from "@nestjs/common";
 import type { Reflector } from "@nestjs/core";
 
-import { hashPassword } from "../auth/password.js";
+import { hashPassword } from "../core/auth/password.js";
 import {
   InMemoryRateLimitService,
   RATE_LIMIT_POLICIES,

@@ -8,8 +8,8 @@ import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import type { ExecutionContext } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 
-import type { AuthService } from "../auth/auth.service.js";
-import { SESSION_COOKIE_NAME } from "../auth/session-cookie.js";
+import type { AuthService } from "../core/auth/auth.service.js";
+import { SESSION_COOKIE_NAME } from "../core/auth/session-cookie.js";
 import { CatalogController } from "../catalog/catalog.controller.js";
 import type { CatalogService } from "../catalog/catalog.service.js";
 import type { EntitlementService } from "../entitlement/entitlement.service.js";

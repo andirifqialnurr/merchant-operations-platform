@@ -13,7 +13,7 @@ import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import type { ExecutionContext } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 
-import type { AuthService } from "../auth/auth.service.js";
+import type { AuthService } from "../core/auth/auth.service.js";
 import type { EntitlementService } from "../entitlement/entitlement.service.js";
 import type {
   AccessRepository,

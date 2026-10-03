@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 
 import { AccessModule } from "../access/access.module.js";
-import { AuthModule } from "../auth/auth.module.js";
+import { AuthModule } from "../core/auth/auth.module.js";
 import { OrganizationController } from "./organization.controller.js";
 import {
   ORGANIZATION_REPOSITORY,

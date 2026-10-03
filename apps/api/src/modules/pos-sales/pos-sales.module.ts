@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 
 import { AccessModule } from "../../access/access.module.js";
-import { AuthModule } from "../../auth/auth.module.js";
+import { AuthModule } from "../../core/auth/auth.module.js";
 import { CatalogModule } from "../../catalog/catalog.module.js";
 import { BillingPaymentLedgerModule } from "../../kernels/billing-payment-ledger/billing-payment-ledger.module.js";
 import { OrderIntakeModule } from "../../kernels/order-intake/order-intake.module.js";

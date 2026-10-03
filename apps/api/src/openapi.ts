@@ -9,7 +9,7 @@ import { BadRequestException, ForbiddenException, type INestApplication } from "
 import { DocumentBuilder, SwaggerModule, type OpenAPIObject } from "@nestjs/swagger";
 
 import { mapExceptionToApiError } from "./api-exception.filter.js";
-import { SESSION_COOKIE_NAME } from "./auth/session-cookie.js";
+import { SESSION_COOKIE_NAME } from "./core/auth/session-cookie.js";
 import { getRequestId } from "./core/observability/request-observability.js";
 import { PlatformAuthService } from "./platform/platform-auth.service.js";
 import {

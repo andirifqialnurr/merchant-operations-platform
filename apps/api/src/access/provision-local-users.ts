@@ -18,7 +18,7 @@ import { createPrismaClient } from "@merchant/database";
 import { NestFactory } from "@nestjs/core";
 
 import { AppModule } from "../app.module.js";
-import { hashPassword } from "../auth/password.js";
+import { hashPassword } from "../core/auth/password.js";
 import { AccessService } from "./access.service.js";
 
 const CREDENTIALS_PATH = fileURLToPath(

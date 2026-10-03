@@ -21,7 +21,7 @@ import {
   hashPassword,
   hashSessionToken,
   verifyPassword,
-} from "../auth/password.js";
+} from "../core/auth/password.js";
 import {
   buildPlatformLoginRateLimitKey,
   InMemoryRateLimitService,
