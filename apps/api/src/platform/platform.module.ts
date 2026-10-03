@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 
 import { EntitlementModule } from "../core/entitlements/entitlement.module.js";
-import { OrganizationModule } from "../organization/organization.module.js";
+import { OrganizationModule } from "../core/workspaces/organization.module.js";
 import {
   InMemoryRateLimitService,
   RATE_LIMIT_SERVICE,

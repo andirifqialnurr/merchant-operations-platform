@@ -5,7 +5,7 @@ import { AuthModule } from "./core/auth/auth.module.js";
 import { CatalogModule } from "./catalog/catalog.module.js";
 import { HealthController } from "./health.controller.js";
 import { PosSalesModule } from "./modules/pos-sales/pos-sales.module.js";
-import { OrganizationModule } from "./organization/organization.module.js";
+import { OrganizationModule } from "./core/workspaces/organization.module.js";
 import { PlatformModule } from "./platform/platform.module.js";
 
 @Module({

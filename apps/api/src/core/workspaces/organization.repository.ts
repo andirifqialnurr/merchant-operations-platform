@@ -10,7 +10,7 @@ import type {
 import { getPrismaClient, type DatabaseClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
-import { buildAuditMetadata } from "../core/audit/critical-action-audit.js";
+import { buildAuditMetadata } from "../audit/critical-action-audit.js";
 
 export type MutationContext = {
   actorId?: string;
