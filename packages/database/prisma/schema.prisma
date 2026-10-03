@@ -69,6 +69,19 @@ enum ModuleTier {
   ADVANCED
 }
 
+enum EntitlementOverrideTarget {
+  MODULE
+  CAPABILITY
+  LIMIT
+}
+
+enum EntitlementOverrideOperation {
+  GRANT
+  REVOKE
+  ADD
+  REPLACE
+}
+
 enum SubscriptionStatus {
   TRIAL
   ACTIVE
@@ -269,6 +282,7 @@ model Tenant {
   roles                        Role[]
   subscriptions                Subscription[]
   subscriptionAddons           CoreSubscriptionAddon[]
+  entitlementOverrides         CoreEntitlementOverride[]
   entitlements                 TenantEntitlement[]
   catalogCategories            CatalogCategory[]
   catalogProducts              CatalogProduct[]
@@ -763,6 +777,29 @@ model CoreSubscriptionAddon {
   @@unique([subscriptionId, addonKey, startsAt])
   @@index([tenantId, subscriptionId])
   @@map("core_subscription_addons")
+}
+
+/// One decision that changes what a tenant gets compared with its package.
+/// Rows are history: a newer decision closes the older one (sets `endsAt`).
+/// Replaces `tenant_entitlements`, which is no longer written (SCH-03).
+model CoreEntitlementOverride {
+  id         String                       @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId   String                       @map("tenant_id") @db.Uuid
+  targetType EntitlementOverrideTarget    @map("target_type")
+  targetKey  String                       @map("target_key") @db.VarChar(160)
+  operation  EntitlementOverrideOperation
+  /// Only for LIMIT targets.
+  value      BigInt?                      @db.BigInt
+  reason     String                       @db.VarChar(500)
+  startsAt   DateTime                     @default(now()) @map("starts_at") @db.Timestamptz(6)
+  endsAt     DateTime?                    @map("ends_at") @db.Timestamptz(6)
+  /// A merchant user or a platform user.
+  actorId    String?                      @map("actor_id") @db.Uuid
+  createdAt  DateTime                     @default(now()) @map("created_at") @db.Timestamptz(6)
+  tenant     Tenant                       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+
+  @@index([tenantId, targetType, targetKey, startsAt])
+  @@map("core_entitlement_overrides")
 }
 
 model TenantEntitlement {

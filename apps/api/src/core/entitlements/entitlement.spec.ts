@@ -145,7 +145,7 @@ class MemoryEntitlementRepository implements EntitlementRepository {
 
   async upsertEntitlement(
     tenantId: string,
-    input: { enabled: boolean; moduleKey: ModuleKey; reason: string },
+    input: { enabled: boolean; endsAt: Date | null; moduleKey: ModuleKey; reason: string },
     context?: EntitlementMutationContext,
   ) {
     const override: EntitlementOverrideRecord = {
@@ -318,6 +318,73 @@ test("subscription dates that contradict each other are refused", async () => {
       }),
     BadRequestException,
   );
+});
+
+test("an override applies only inside its period", async () => {
+  const repository = new MemoryEntitlementRepository();
+  const service = new EntitlementService(repository);
+  await service.replaceSubscription(TENANT_ID, activeSubscription(PLAN_CODES.customModular));
+  repository.state.overrides = [
+    {
+      actorId: null,
+      effectiveAt: new Date("2026-08-01T00:00:00.000Z"),
+      enabled: true,
+      endsAt: new Date("2026-09-01T00:00:00.000Z"),
+      moduleKey: MODULES.cafeProfile,
+      reason: "Trial of the profile module",
+    },
+  ];
+  const profileAt = async (iso: string) =>
+    (await service.getSnapshot(TENANT_ID, new Date(iso))).modules.find(
+      (item) => item.key === MODULES.cafeProfile,
+    );
+
+  assert.equal((await profileAt("2026-07-31T23:59:59.000Z"))?.enabled, false);
+  const during = await profileAt("2026-08-15T00:00:00.000Z");
+  assert.equal(during?.enabled, true);
+  assert.equal(during?.source, "OVERRIDE");
+  assert.equal(during?.override?.endsAt, "2026-09-01T00:00:00.000Z");
+  assert.equal((await profileAt("2026-09-01T00:00:00.000Z"))?.enabled, false);
+});
+
+test("the newest override in force wins over an older one", async () => {
+  const repository = new MemoryEntitlementRepository();
+  const service = new EntitlementService(repository);
+  await service.replaceSubscription(TENANT_ID, activeSubscription(PLAN_CODES.customModular));
+  const base = { actorId: null, endsAt: null, moduleKey: MODULES.cafeProfile };
+  repository.state.overrides = [
+    {
+      ...base,
+      effectiveAt: new Date("2026-08-10T00:00:00.000Z"),
+      enabled: false,
+      reason: "Unpaid",
+    },
+    { ...base, effectiveAt: new Date("2026-08-01T00:00:00.000Z"), enabled: true, reason: "Promo" },
+  ];
+
+  const profile = (
+    await service.getSnapshot(TENANT_ID, new Date("2026-08-15T00:00:00.000Z"))
+  ).modules.find((item) => item.key === MODULES.cafeProfile);
+  assert.equal(profile?.enabled, false);
+  assert.equal(profile?.override?.reason, "Unpaid");
+});
+
+test("an override that would already be over is refused", async () => {
+  const repository = new MemoryEntitlementRepository();
+  const service = new EntitlementService(repository);
+  await service.replaceSubscription(TENANT_ID, activeSubscription(PLAN_CODES.customModular));
+
+  await assert.rejects(
+    () =>
+      service.setEntitlement(TENANT_ID, {
+        enabled: true,
+        endsAt: "2020-01-01T00:00:00.000Z",
+        moduleKey: MODULES.cafeProfile,
+        reason: "Too late",
+      }),
+    BadRequestException,
+  );
+  assert.deepEqual(repository.state.overrides, []);
 });
 
 test("keeps subscription plans and entitlement overrides isolated per tenant", async () => {

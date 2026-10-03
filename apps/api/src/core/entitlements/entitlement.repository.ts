@@ -48,10 +48,12 @@ export type SubscriptionRecord = {
   updatedAt: Date;
 };
 
+/** A module override. It applies from `effectiveAt` until `endsAt` (null: until changed). */
 export type EntitlementOverrideRecord = {
   actorId: string | null;
   effectiveAt: Date;
   enabled: boolean;
+  endsAt: Date | null;
   moduleKey: ModuleKey;
   reason: string;
 };
@@ -84,7 +86,7 @@ export interface EntitlementRepository {
   ): Promise<SubscriptionRecord>;
   upsertEntitlement(
     tenantId: string,
-    input: { enabled: boolean; moduleKey: ModuleKey; reason: string },
+    input: { enabled: boolean; endsAt: Date | null; moduleKey: ModuleKey; reason: string },
     context?: EntitlementMutationContext,
   ): Promise<EntitlementOverrideRecord>;
 }
@@ -128,10 +130,12 @@ const subscriptionSelect = {
 
 const overrideSelect = {
   actorId: true,
-  effectiveAt: true,
-  enabled: true,
-  moduleKey: true,
+  endsAt: true,
+  id: true,
+  operation: true,
   reason: true,
+  startsAt: true,
+  targetKey: true,
 } as const;
 
 function mapModule(record: {
@@ -211,12 +215,28 @@ function mapSubscription(record: {
 
 function mapOverride(record: {
   actorId: string | null;
-  effectiveAt: Date;
-  enabled: boolean;
-  moduleKey: string;
+  endsAt: Date | null;
+  operation: string;
   reason: string;
+  startsAt: Date;
+  targetKey: string;
 }): EntitlementOverrideRecord {
-  return { ...record, moduleKey: record.moduleKey as ModuleKey };
+  return {
+    actorId: record.actorId,
+    effectiveAt: record.startsAt,
+    enabled: record.operation === "GRANT",
+    endsAt: record.endsAt,
+    moduleKey: record.targetKey as ModuleKey,
+    reason: record.reason,
+  };
+}
+
+function serializeOverride(record: EntitlementOverrideRecord) {
+  return {
+    ...record,
+    effectiveAt: record.effectiveAt.toISOString(),
+    endsAt: record.endsAt?.toISOString() ?? null,
+  };
 }
 
 function serializeSubscription(record: SubscriptionRecord) {
@@ -296,10 +316,15 @@ export class PrismaEntitlementRepository implements EntitlementRepository {
         select: subscriptionSelect,
         where: { supersededAt: null, tenantId },
       }),
-      getPrismaClient().tenantEntitlement.findMany({
-        orderBy: { moduleKey: "asc" },
+      // Every module override that has not ended yet; the service picks what applies at a given time.
+      getPrismaClient().coreEntitlementOverride.findMany({
+        orderBy: [{ targetKey: "asc" }, { startsAt: "asc" }],
         select: overrideSelect,
-        where: { tenantId },
+        where: {
+          OR: [{ endsAt: null }, { endsAt: { gt: new Date() } }],
+          targetType: "MODULE",
+          tenantId,
+        },
       }),
     ]);
     return {
@@ -350,49 +375,49 @@ export class PrismaEntitlementRepository implements EntitlementRepository {
 
   async upsertEntitlement(
     tenantId: string,
-    input: { enabled: boolean; moduleKey: ModuleKey; reason: string },
+    input: { enabled: boolean; endsAt: Date | null; moduleKey: ModuleKey; reason: string },
     context?: EntitlementMutationContext,
   ) {
     return getPrismaClient().$transaction(async (transaction) => {
-      const before = await transaction.tenantEntitlement.findUnique({
+      const now = new Date();
+      const target = { targetKey: input.moduleKey, targetType: "MODULE" as const, tenantId };
+      // The decisions still in force are closed, not overwritten: they stay as history.
+      const current = await transaction.coreEntitlementOverride.findMany({
+        orderBy: { startsAt: "asc" },
         select: overrideSelect,
-        where: { tenantId_moduleKey: { moduleKey: input.moduleKey, tenantId } },
+        where: { ...target, OR: [{ endsAt: null }, { endsAt: { gt: now } }] },
       });
-      const effectiveAt = new Date();
-      const entitlement = await transaction.tenantEntitlement.upsert({
-        create: {
+      for (const previous of current) {
+        // `endsAt` must stay after `startsAt`, also for a decision made this very millisecond.
+        const closedAt = new Date(Math.max(now.getTime(), previous.startsAt.getTime() + 1));
+        await transaction.coreEntitlementOverride.update({
+          data: { endsAt: closedAt },
+          where: { id: previous.id },
+        });
+      }
+      const created = await transaction.coreEntitlementOverride.create({
+        data: {
+          ...target,
           ...(context?.actorId ? { actorId: context.actorId } : {}),
-          effectiveAt,
-          enabled: input.enabled,
-          moduleKey: input.moduleKey,
+          endsAt: input.endsAt,
+          operation: input.enabled ? "GRANT" : "REVOKE",
           reason: input.reason,
-          tenantId,
-        },
-        update: {
-          actorId: context?.actorId ?? null,
-          effectiveAt,
-          enabled: input.enabled,
-          reason: input.reason,
+          startsAt: new Date(
+            Math.max(now.getTime(), ...current.map((item) => item.startsAt.getTime() + 1)),
+          ),
         },
         select: overrideSelect,
-        where: { tenantId_moduleKey: { moduleKey: input.moduleKey, tenantId } },
       });
-      const mapped = mapOverride(entitlement);
+      const mapped = mapOverride(created);
+      const before = current.at(-1);
       await writeChange(transaction, {
         action: "entitlement.override",
         ...(context?.actorId ? { actorId: context.actorId } : {}),
-        entityId: (
-          await transaction.tenantEntitlement.findUniqueOrThrow({
-            select: { id: true },
-            where: { tenantId_moduleKey: { moduleKey: input.moduleKey, tenantId } },
-          })
-        ).id,
+        entityId: created.id,
         entityType: "entitlement",
         payload: {
-          after: { ...mapped, effectiveAt: mapped.effectiveAt.toISOString() },
-          ...(before
-            ? { before: { ...mapOverride(before), effectiveAt: before.effectiveAt.toISOString() } }
-            : {}),
+          after: serializeOverride(mapped),
+          ...(before ? { before: serializeOverride(mapOverride(before)) } : {}),
         },
         ...(context?.requestId ? { requestId: context.requestId } : {}),
         tenantId,

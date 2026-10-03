@@ -63,6 +63,8 @@ export const setTenantEntitlementSchema = z.object({
   moduleKey: moduleKeySchema,
   enabled: z.boolean(),
   reason: z.string().trim().min(3).max(500),
+  /** When the override stops applying; omitted or null keeps it until changed. */
+  endsAt: z.iso.datetime().nullable().optional(),
 });
 
 export const platformEntitlementParamsSchema = z.object({
@@ -78,6 +80,7 @@ const entitlementOverrideSchema = z.object({
   actorId: z.uuid().nullable(),
   effectiveAt: z.iso.datetime(),
   enabled: z.boolean(),
+  endsAt: z.iso.datetime().nullable(),
   reason: z.string().min(1).max(500),
 });
 

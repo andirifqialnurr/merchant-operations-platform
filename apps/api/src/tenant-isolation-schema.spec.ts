@@ -398,3 +398,26 @@ test("ties subscriptions to a published package version and add-ons to their ten
   assert.match(subscriptions, /"quantity" > 0/);
   assert.doesNotMatch(subscriptions, /DROP COLUMN "plan_id"/);
 });
+
+test("keeps entitlement overrides as tenant-owned history with one current decision", () => {
+  const overrides = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261004000000_core_entitlement_overrides/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(overrides, /FOREIGN KEY \("tenant_id"\) REFERENCES "tenants"\("id"\)/);
+  assert.match(
+    overrides,
+    /UNIQUE INDEX[\s\S]*\("tenant_id", "target_type", "target_key"\)\s+WHERE "ends_at" IS NULL/,
+  );
+  assert.match(overrides, /"ends_at" IS NULL OR "ends_at" > "starts_at"/);
+  assert.match(overrides, /"target_type" = 'LIMIT' AND "operation" IN \('ADD', 'REPLACE'\)/);
+  assert.match(overrides, /char_length\(btrim\("reason"\)\) >= 3/);
+  assert.match(
+    overrides,
+    /INSERT INTO "core_entitlement_overrides"[\s\S]*FROM "tenant_entitlements"/,
+  );
+  assert.doesNotMatch(overrides, /DROP TABLE/);
+});

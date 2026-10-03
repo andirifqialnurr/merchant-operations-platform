@@ -82,12 +82,27 @@ function isSubscriptionUsable(record: SubscriptionRecord | null, now: Date) {
   return false;
 }
 
+/** The override in force for each module at `now`: started, not ended, newest wins. */
+function overridesInForce(overrides: readonly EntitlementOverrideRecord[], now: Date) {
+  const inForce = new Map<ModuleKey, EntitlementOverrideRecord>();
+  for (const override of overrides) {
+    if (override.effectiveAt > now) continue;
+    if (override.endsAt !== null && override.endsAt <= now) continue;
+    const known = inForce.get(override.moduleKey);
+    if (!known || known.effectiveAt <= override.effectiveAt) {
+      inForce.set(override.moduleKey, override);
+    }
+  }
+  return inForce;
+}
+
 function toOverride(record: EntitlementOverrideRecord | undefined) {
   return record
     ? {
         actorId: record.actorId,
         effectiveAt: record.effectiveAt.toISOString(),
         enabled: record.enabled,
+        endsAt: record.endsAt?.toISOString() ?? null,
         reason: record.reason,
       }
     : null;
@@ -104,7 +119,7 @@ export class EntitlementService {
     const subscriptionUsable =
       state.tenant?.status === "ACTIVE" && isSubscriptionUsable(state.subscription, now);
     const planModules = new Set(state.subscription?.planModuleKeys ?? []);
-    const overrides = new Map(state.overrides.map((item) => [item.moduleKey, item]));
+    const overrides = overridesInForce(state.overrides, now);
     const decisions = new Map<ModuleKey, ModuleEntitlement>();
 
     for (const module of state.modules) {
@@ -246,10 +261,19 @@ export class EntitlementService {
     if (module.kind === "CORE")
       throw conflict("CORE_MODULE_IMMUTABLE", "Core module tidak dapat dioverride.");
 
+    const now = new Date();
+    const endsAt = parsed.endsAt ? new Date(parsed.endsAt) : null;
+    if (endsAt && endsAt <= now) {
+      throw new BadRequestException({
+        code: "ENTITLEMENT_OVERRIDE_INVALID",
+        message: "An override must end in the future.",
+      });
+    }
     const pending: EntitlementOverrideRecord = {
       actorId: context?.actorId ?? null,
-      effectiveAt: new Date(),
+      effectiveAt: now,
       enabled: parsed.enabled,
+      endsAt,
       moduleKey: parsed.moduleKey,
       reason: parsed.reason,
     };
@@ -260,7 +284,7 @@ export class EntitlementService {
         pending,
       ],
     };
-    const pendingDecision = this.resolveState(pendingState, new Date()).modules.find(
+    const pendingDecision = this.resolveState(pendingState, now).modules.find(
       (item) => item.key === parsed.moduleKey,
     );
     if (!parsed.enabled && pendingDecision?.enabled) {
@@ -270,7 +294,11 @@ export class EntitlementService {
       );
     }
 
-    await this.repository.upsertEntitlement(tenantId, parsed, context);
+    await this.repository.upsertEntitlement(
+      tenantId,
+      { enabled: parsed.enabled, endsAt, moduleKey: parsed.moduleKey, reason: parsed.reason },
+      context,
+    );
     return this.getSnapshot(tenantId);
   }
 
