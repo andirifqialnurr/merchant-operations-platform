@@ -63,7 +63,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 
 ### UX — Alur dan interaksi
 
-- [x] **M2-UX-01 Navigasi dari manifest** — menu Backoffice disusun dari modul terpasang, entitlement, dan izin.
+- [x] **M2-UX-01 Navigasi dari manifest** `dc02f64` — menu Backoffice disusun dari modul terpasang, entitlement, dan izin.
 - [ ] **M2-UX-02 State akses modul** — membuka modul yang tidak dimiliki, belum dipasang, belum diatur, tanpa izin, atau kena limit menampilkan state yang tepat (`design-system.md` 16.1–16.2).
 - [ ] **M2-UX-03 Halaman Pengaturan** — Organisasi, Pengguna, Peran, Perangkat, Langganan, Integrasi sesuai `flowchart.md` 12, satu halaman per bagian.
 - [ ] **M2-UX-04 Alur undangan** — email undangan → halaman terima undangan → set kata sandi → masuk.
