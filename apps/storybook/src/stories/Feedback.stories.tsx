@@ -36,7 +36,7 @@ export const Variants: Story = {
         Perubahan akan disinkronkan saat terhubung.
       </StatusBar>
       <Progress label="Unggah menu" value={64} />
-      <Spinner />
+      <Spinner label="Memuat" />
       <Skeleton variant="product-card" />
     </div>
   ),

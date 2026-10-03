@@ -148,6 +148,7 @@ export function ProductModifierPicker({
 
   return (
     <Dialog
+      closeLabel="Tutup"
       description="Pilih varian dan tambahan sebelum memasukkan produk ke keranjang."
       footer={
         <div className="ui-modifier-picker__footer">

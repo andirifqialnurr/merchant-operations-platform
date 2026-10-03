@@ -13,6 +13,7 @@ type Story = StoryObj<typeof meta>;
 export const Navigation: Story = {
   args: {
     items: [{ label: "Ringkasan", value: "summary" }],
+    label: "Tab",
     onValueChange: () => undefined,
     value: "summary",
   },
@@ -22,8 +23,12 @@ export const Navigation: Story = {
     return (
       <div className="story-contract-page">
         <TopBar>Outlet Sudirman · Online</TopBar>
-        <Sidebar items={[{ active: true, label: "Ringkasan" }, { label: "Pesanan" }]} />
+        <Sidebar
+          label="Navigasi utama"
+          items={[{ active: true, label: "Ringkasan" }, { label: "Pesanan" }]}
+        />
         <Tabs
+          label="Tab"
           items={[
             { label: "Ringkasan", value: "summary" },
             { label: "Pesanan", value: "orders" },
@@ -31,8 +36,18 @@ export const Navigation: Story = {
           onValueChange={setTab}
           value={tab}
         />
-        <Breadcrumb items={[{ href: "/", label: "Beranda" }, { label: "Pesanan" }]} />
-        <Pagination onPageChange={setPage} page={page} total={240} />
+        <Breadcrumb
+          label="Breadcrumb"
+          items={[{ href: "/", label: "Beranda" }, { label: "Pesanan" }]}
+        />
+        <Pagination
+          label="Halaman"
+          nextLabel="Halaman berikutnya"
+          previousLabel="Halaman sebelumnya"
+          onPageChange={setPage}
+          page={page}
+          total={240}
+        />
         <Stepper
           current={1}
           steps={[{ label: "Outlet" }, { label: "Pembayaran" }, { label: "Selesai" }]}

@@ -24,7 +24,7 @@ export type TabsSize = "sm" | "md" | "lg";
 export function Sidebar({
   collapsed = false,
   items,
-  label = "Navigasi utama",
+  label,
   mobile = false,
   onNavigate,
   renderLink,
@@ -32,7 +32,7 @@ export function Sidebar({
   collapsed?: boolean;
   items: readonly NavItem[];
   /** Accessible name of the navigation landmark. */
-  label?: string;
+  label: string;
   mobile?: boolean;
   /** Called after an item is activated, e.g. to close a mobile drawer. */
   onNavigate?: () => void;
@@ -82,7 +82,7 @@ export function Tabs({
 }: {
   items: readonly { label: string; value: string; disabled?: boolean }[];
   /** Accessible name of the tab list. */
-  label?: string;
+  label: string;
   size?: TabsSize;
   value: string;
   onValueChange: (value: string) => void;
@@ -134,10 +134,10 @@ export function Tabs({
 }
 export function Breadcrumb({
   items,
-  label = "Breadcrumb",
+  label,
 }: {
   items: readonly { label: string; href?: string }[];
-  label?: string;
+  label: string;
 }) {
   const visible = items.slice(-3);
   return (
@@ -161,22 +161,22 @@ export function Breadcrumb({
 }
 export function Pagination({
   formatRange = (start, end, total) => `${start}-${end} dari ${total}`,
-  label = "Pagination",
-  nextLabel = "Halaman berikutnya",
+  label,
+  nextLabel,
   page,
   onPageChange,
   pageSize = 25,
-  previousLabel = "Halaman sebelumnya",
+  previousLabel,
   total,
 }: {
   /** Builds the visible range text, e.g. "1-25 dari 240". */
   formatRange?: (start: number, end: number, total: number) => string;
-  label?: string;
-  nextLabel?: string;
+  label: string;
+  nextLabel: string;
   page: number;
   onPageChange: (page: number) => void;
   pageSize?: number;
-  previousLabel?: string;
+  previousLabel: string;
   total: number;
 }) {
   const pages = Math.max(1, Math.ceil(total / pageSize));

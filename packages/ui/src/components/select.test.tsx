@@ -12,7 +12,15 @@ describe("select primitives", () => {
   it("selects through keyboard and keeps disabled options unavailable", async () => {
     const user = userEvent.setup();
     const onValueChange = vi.fn();
-    render(<Select label="Outlet" onValueChange={onValueChange} options={options} />);
+    render(
+      <Select
+        emptyLabel="Tidak ada opsi tersedia."
+        placeholder="Pilih opsi"
+        label="Outlet"
+        onValueChange={onValueChange}
+        options={options}
+      />,
+    );
     const trigger = screen.getByRole("button", { name: "Pilih opsi" });
     await user.click(trigger);
     expect(screen.getByRole("option", { name: /Bandung/ })).toBeDisabled();
@@ -23,6 +31,10 @@ describe("select primitives", () => {
     const user = userEvent.setup();
     render(
       <Combobox
+        searchPlaceholder="Cari..."
+        emptyLabel="Tidak ada opsi tersedia."
+        placeholder="Pilih atau cari opsi"
+        retryLabel="Coba lagi"
         errorLabel="Gagal memuat outlet."
         label="Outlet"
         onRetry={vi.fn()}
@@ -37,7 +49,12 @@ describe("select primitives", () => {
     const user = userEvent.setup();
     render(
       <>
-        <Select label="Outlet" options={options} />
+        <Select
+          emptyLabel="Tidak ada opsi tersedia."
+          placeholder="Pilih opsi"
+          label="Outlet"
+          options={options}
+        />
         <button type="button">Di luar</button>
       </>,
     );
@@ -47,7 +64,14 @@ describe("select primitives", () => {
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
   });
   it("passes an axe smoke test", async () => {
-    const { container } = render(<Select label="Outlet" options={options} />);
+    const { container } = render(
+      <Select
+        emptyLabel="Tidak ada opsi tersedia."
+        placeholder="Pilih opsi"
+        label="Outlet"
+        options={options}
+      />,
+    );
     expect((await axe(container)).violations).toEqual([]);
   });
 });

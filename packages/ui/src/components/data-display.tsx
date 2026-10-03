@@ -20,20 +20,20 @@ type ChartRendererProps = {
 };
 type CommonChartProps = {
   emptyDescription?: string;
-  emptyTitle?: string;
+  emptyTitle: string;
   errorDescription?: string;
-  errorTitle?: string;
+  errorTitle: string;
   /** Formats tooltip and axis values; defaults to a grouped number in `locale`. */
   formatValue?: (value: number) => string;
   height?: number;
   locale?: string;
   onRetry?: () => void;
-  retryLabel?: string;
+  retryLabel: string;
   showLegend?: boolean;
   state?: "ready" | "loading" | "empty" | "error";
   /** Text alternative of the chart; always rendered below it. */
   summary: ReactNode;
-  summaryLabel?: string;
+  summaryLabel: string;
   title: string;
 };
 export type ChartProps =
@@ -335,20 +335,20 @@ function useChartPalette(elementRef: { current: HTMLElement | null }) {
 
 export function Chart({
   categories,
-  emptyDescription = "Belum ada data yang dapat ditampilkan untuk periode ini.",
-  emptyTitle = "Data chart belum tersedia",
-  errorDescription = "Chart tidak dapat dimuat saat ini.",
-  errorTitle = "Terjadi kesalahan",
+  emptyDescription,
+  emptyTitle,
+  errorDescription,
+  errorTitle,
   formatValue,
   height = 280,
   locale = "id-ID",
   onRetry,
-  retryLabel = "Coba lagi",
+  retryLabel,
   series,
   showLegend = true,
   state = "ready",
   summary,
-  summaryLabel = "Ringkasan data",
+  summaryLabel,
   title,
   type,
 }: ChartProps) {

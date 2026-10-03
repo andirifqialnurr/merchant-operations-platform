@@ -53,7 +53,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-BE-06 Metode transfer dan EDC** `f8a2922` — perluas `payOrderSchema`; ringkasan shift per metode dari billing.
 - [x] **M1-BE-07 Keranjang tertahan** `9cba9c0` — diwujudkan sebagai `pos_held_carts` (bukan pesanan `DRAFT`): hanya pilihan dan label, tanpa nomor dan harga; nomor pesanan diberikan saat dibayar seperti biasa.
 - [x] **M1-BE-08 Data struk** `928e049` — endpoint baca struk per penjualan (snapshot, tanpa ID internal selain nomor).
-- [x] **M1-BE-09 Preferensi pengguna** — kolom `users.locale` dan `users.theme` (schema B.1); endpoint ubah preferensi; bahasa tersimpan menang atas bahasa browser (D-09).
+- [x] **M1-BE-09 Preferensi pengguna** `766dca2` — kolom `users.locale` dan `users.theme` (schema B.1); endpoint ubah preferensi; bahasa tersimpan menang atas bahasa browser (D-09).
 - [ ] **M1-BE-10 Pesan error katalog berbahasa netral** — ganti pesan server Indonesia di modul catalog dengan pesan Inggris + kode stabil, terjemahan di kamus web (`SEC-F6`).
 
 ### UX — Alur dan interaksi
@@ -63,7 +63,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-UX-03 Shell kasir** — rute `(pos)`, bar atas 56px, navigasi Jual/Pesanan/Shift. `432f10b`, `a1932b6`
 - [ ] **M1-UX-04 Status shift dan koneksi di bar atas POS** — indikator shift terbuka dan offline (flowchart 15); tanpa mengulang data yang sudah ada di halaman.
 - [ ] **M1-UX-05 Uji browser Catalog lengkap** — tambah produk, kategori, modifier, varian, assignment outlet, dan pengguna outlet-scoped; semua dengan dua bahasa dan dua tema.
-- [x] **M1-UX-06 Bahasa dan tema tersimpan di profil** — UserMenu menyimpan ke `users.locale`/`users.theme` (setelah M1-BE-09).
+- [x] **M1-UX-06 Bahasa dan tema tersimpan di profil** `766dca2` — UserMenu menyimpan ke `users.locale`/`users.theme` (setelah M1-BE-09).
 - [ ] **M1-UX-07 Halaman dev keluar dari rute aplikasi** — `/foundation`, `/design-system`, `/color-bank`, `/typography`, dan placeholder `/kds`, `/inventory` dipindah ke grup dev yang tidak ikut build produksi, atau dihapus bila sudah tercakup Storybook.
 
 ### DS — Design system dan komponen
@@ -72,7 +72,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-DS-02 Komponen dasar 1–11** — Button sampai DataTable/Panel/Chart dibenahi satu per satu. `e218d59` … `3efa190`, `0ef2ed7`
 - [x] **M1-DS-03 Ikon Tabler lewat AppIcon** — larangan impor `lucide-react`. `03cc2eb`
 - [x] **M1-DS-04 Label kartu produk dan rel kategori lewat props.** `1b3a7fc`, `a3c3645`
-- [ ] **M1-DS-05 Hapus bawaan Bahasa Indonesia di komponen 4–9** — semua label menjadi props wajib; perbarui story dan test.
+- [x] **M1-DS-05 Hapus bawaan Bahasa Indonesia di komponen 4–9** — semua label menjadi props wajib; perbarui story dan test.
 - [ ] **M1-DS-06 Komponen POS lama** — putuskan nasib `ProductModifierPicker`, `CartItem`, `CartSummary`, `PaymentMethodTile`, `CashKeypad`, `PaymentConfirmationPanel`: dirapikan (label lewat props, tanpa deskripsi) atau dihapus beserta story. Layar pelanggan (M4) memakai hasilnya.
 - [x] **M1-DS-07 `Receipt`** `928e049` — komponen struk layar dan cetak (design-system 21.2, P1).
 - [ ] **M1-DS-08 `HeldOrderList` dan `PinInput`** — untuk tahan pesanan dan persetujuan manager.

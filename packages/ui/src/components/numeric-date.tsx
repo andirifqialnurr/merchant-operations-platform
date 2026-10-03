@@ -33,8 +33,8 @@ export type MoneyInputProps = Omit<NumericProps, "allowDecimal" | "onValueChange
   value?: number;
 };
 type CalendarLabels = {
-  nextMonthLabel?: string;
-  previousMonthLabel?: string;
+  nextMonthLabel: string;
+  previousMonthLabel: string;
 };
 export type DatePickerProps = CalendarLabels & {
   disabled?: boolean;
@@ -42,20 +42,20 @@ export type DatePickerProps = CalendarLabels & {
   label: string;
   locale?: string;
   onValueChange?: (value: string | undefined) => void;
-  placeholder?: string;
+  placeholder: string;
   value?: string | undefined;
 };
 export type DateRangePickerProps = CalendarLabels & {
   disabled?: boolean;
   end?: string | undefined;
-  endLabel?: string;
-  endPlaceholder?: string;
+  endLabel: string;
+  endPlaceholder: string;
   label: string;
   locale?: string;
   onValueChange?: (range: { start?: string | undefined; end?: string | undefined }) => void;
   start?: string | undefined;
-  startLabel?: string;
-  startPlaceholder?: string;
+  startLabel: string;
+  startPlaceholder: string;
 };
 export type MonthPickerProps = {
   disabled?: boolean;
@@ -67,7 +67,7 @@ export type TimeInputProps = {
   disabled?: boolean;
   error?: string;
   /** Message shown when the typed value is not a valid 24-hour time. */
-  formatError?: string;
+  formatError: string;
   label: string;
   onValueChange?: (value: string | undefined) => void;
   value?: string;
@@ -229,10 +229,10 @@ export function DatePicker({
   error,
   label,
   locale = DEFAULT_LOCALE,
-  nextMonthLabel = "Bulan berikutnya",
+  nextMonthLabel,
   onValueChange,
-  placeholder = "Pilih tanggal",
-  previousMonthLabel = "Bulan sebelumnya",
+  placeholder,
+  previousMonthLabel,
   value,
 }: DatePickerProps) {
   const id = useId();
@@ -296,7 +296,7 @@ export function DateRangePicker({
   disabled = false,
   end,
   endLabel,
-  endPlaceholder = "Tanggal selesai",
+  endPlaceholder,
   label,
   locale = DEFAULT_LOCALE,
   nextMonthLabel,
@@ -304,18 +304,15 @@ export function DateRangePicker({
   previousMonthLabel,
   start,
   startLabel,
-  startPlaceholder = "Tanggal mulai",
+  startPlaceholder,
 }: DateRangePickerProps) {
-  const calendarLabels = {
-    ...(nextMonthLabel ? { nextMonthLabel } : {}),
-    ...(previousMonthLabel ? { previousMonthLabel } : {}),
-  };
+  const calendarLabels = { nextMonthLabel, previousMonthLabel };
   return (
-    <div className="ui-date-range">
+    <div aria-label={label} className="ui-date-range" role="group">
       <DatePicker
         {...calendarLabels}
         disabled={disabled}
-        label={startLabel ?? `${label} mulai`}
+        label={startLabel}
         locale={locale}
         onValueChange={(next) => onValueChange?.({ start: next, end })}
         placeholder={startPlaceholder}
@@ -324,7 +321,7 @@ export function DateRangePicker({
       <DatePicker
         {...calendarLabels}
         disabled={disabled}
-        label={endLabel ?? `${label} selesai`}
+        label={endLabel}
         locale={locale}
         onValueChange={(next) => onValueChange?.({ start, end: next })}
         placeholder={endPlaceholder}
@@ -354,7 +351,7 @@ export function MonthPicker({ disabled = false, label, onValueChange, value }: M
 export function TimeInput({
   disabled = false,
   error,
-  formatError = "Gunakan format 24 jam, misalnya 18:30.",
+  formatError,
   label,
   onValueChange,
   value = "",

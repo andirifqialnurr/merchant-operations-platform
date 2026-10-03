@@ -80,7 +80,7 @@ export function Alert({
   children,
   className,
   compact = false,
-  dismissLabel = "Tutup notifikasi",
+  dismissLabel,
   onDismiss,
   title,
   tone = "info",
@@ -145,7 +145,7 @@ export function StatusBar({ children, className, label, tone = "info", ...props 
     </div>
   );
 }
-export function Spinner({ label = "Memuat" }: { label?: string }) {
+export function Spinner({ label }: { label: string }) {
   return (
     <span aria-label={label} className="ui-spinner" role="status">
       <span className="ui-spinner__visual" />

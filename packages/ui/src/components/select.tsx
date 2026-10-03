@@ -34,12 +34,12 @@ type CommonProps = {
   className?: string;
   defaultValue?: string;
   disabled?: boolean;
-  emptyLabel?: string;
+  emptyLabel: string;
   error?: string;
   label: string;
   onValueChange?: (value: string) => void;
   options: readonly SelectOption[];
-  placeholder?: string;
+  placeholder: string;
   size?: SelectSize;
   value?: string;
 };
@@ -52,7 +52,7 @@ export type ComboboxProps = CommonProps & {
   retryLabel?: string;
   /** Accessible name of the search input. */
   searchLabel?: string;
-  searchPlaceholder?: string;
+  searchPlaceholder: string;
 };
 
 function classes(...values: Array<string | false | undefined>) {
@@ -211,12 +211,12 @@ export function Select({
   className,
   defaultValue,
   disabled = false,
-  emptyLabel = "Tidak ada opsi tersedia.",
+  emptyLabel,
   error,
   label,
   onValueChange,
   options,
-  placeholder = "Pilih opsi",
+  placeholder,
   size = "md",
   value,
 }: SelectProps) {
@@ -298,19 +298,19 @@ export function Combobox({
   className,
   defaultValue,
   disabled = false,
-  emptyLabel = "Tidak ada hasil yang cocok.",
+  emptyLabel,
   error,
   errorLabel,
   label,
   loading = false,
-  loadingLabel = "Memuat pilihan...",
+  loadingLabel,
   onRetry,
   onValueChange,
   options,
-  placeholder = "Pilih atau cari opsi",
-  retryLabel = "Coba lagi",
+  placeholder,
+  retryLabel,
   searchLabel,
-  searchPlaceholder = "Cari...",
+  searchPlaceholder,
   size = "md",
   value,
 }: ComboboxProps) {

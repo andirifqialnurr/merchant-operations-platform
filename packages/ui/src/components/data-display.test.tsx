@@ -80,19 +80,39 @@ describe("data display primitives", () => {
       title: "Tren pesanan",
       type: "line" as const,
     };
-    const { container, rerender } = render(<Chart {...chartProps} state="loading" />);
+    const { container, rerender } = render(
+      <Chart
+        emptyTitle="Data belum tersedia"
+        errorTitle="Terjadi kesalahan"
+        retryLabel="Coba lagi"
+        summaryLabel="Ringkasan data"
+        {...chartProps}
+        state="loading"
+      />,
+    );
     expect(screen.getByRole("region", { name: "Tren pesanan" })).toHaveAttribute(
       "aria-busy",
       "true",
     );
     expect(container.querySelector(".ui-skeleton")).not.toBeNull();
 
-    rerender(<Chart {...chartProps} state="empty" />);
-    expect(screen.getByText("Data chart belum tersedia")).toBeInTheDocument();
+    rerender(
+      <Chart
+        emptyTitle="Data belum tersedia"
+        errorTitle="Terjadi kesalahan"
+        retryLabel="Coba lagi"
+        summaryLabel="Ringkasan data"
+        {...chartProps}
+        state="empty"
+      />,
+    );
+    expect(screen.getByText("Data belum tersedia")).toBeInTheDocument();
     expect(container.querySelector(".ui-skeleton")).toBeNull();
 
     rerender(
       <Chart
+        emptyTitle="Data belum tersedia"
+        summaryLabel="Ringkasan data"
         {...chartProps}
         errorTitle="Chart gagal dimuat"
         onRetry={vi.fn()}

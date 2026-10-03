@@ -171,6 +171,7 @@ function ShellExample() {
         sheetDoneLabel="Tampilkan hasil"
       >
         <Select
+          emptyLabel="Tidak ada opsi tersedia."
           label="Status"
           onValueChange={setStatus}
           options={[

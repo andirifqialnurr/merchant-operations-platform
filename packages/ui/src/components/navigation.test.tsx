@@ -10,6 +10,7 @@ describe("navigation primitives", () => {
     render(
       <>
         <Tabs
+          label="Tab"
           items={[
             { label: "Ringkasan", value: "summary" },
             { label: "Pesanan", value: "orders" },
@@ -17,7 +18,14 @@ describe("navigation primitives", () => {
           onValueChange={tab}
           value="summary"
         />
-        <Pagination onPageChange={page} page={1} total={60} />
+        <Pagination
+          label="Halaman"
+          nextLabel="Halaman berikutnya"
+          previousLabel="Halaman sebelumnya"
+          onPageChange={page}
+          page={1}
+          total={60}
+        />
       </>,
     );
     await user.click(screen.getByRole("tab", { name: "Ringkasan" }));
@@ -51,6 +59,7 @@ describe("navigation primitives", () => {
   it("shows an empty range and custom labels in pagination", () => {
     render(
       <Pagination
+        label="Halaman"
         formatRange={(start, end, total) => `${start}-${end} of ${total}`}
         nextLabel="Next page"
         onPageChange={vi.fn()}
@@ -66,6 +75,7 @@ describe("navigation primitives", () => {
   it("marks final breadcrumb as current and keeps at most three levels", () => {
     render(
       <Breadcrumb
+        label="Breadcrumb"
         items={[
           { href: "/", label: "Beranda" },
           { href: "/catalog", label: "Katalog" },

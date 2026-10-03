@@ -79,6 +79,7 @@ export function FloorSelector({
           className,
         )}
         disabled={disabled}
+        emptyLabel="Belum ada lantai."
         label={ariaLabel}
         onValueChange={onValueChange}
         options={floors.map((floor) => ({

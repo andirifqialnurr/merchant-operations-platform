@@ -49,6 +49,7 @@ describe("page patterns", () => {
     const reset = vi.fn();
     render(
       <FilterBar
+        sheetCloseLabel="Tutup filter"
         chips={[
           {
             key: "status",
@@ -80,7 +81,7 @@ describe("page patterns", () => {
   });
 
   it("hides chips and reset when no filter is active", () => {
-    render(<FilterBar onReset={vi.fn()} resetLabel="Reset" />);
+    render(<FilterBar sheetCloseLabel="Tutup filter" onReset={vi.fn()} resetLabel="Reset" />);
     expect(screen.queryByRole("button", { name: "Reset" })).not.toBeInTheDocument();
   });
 
@@ -89,6 +90,7 @@ describe("page patterns", () => {
       <main>
         <PageHeader primaryAction={<Button>Tambah produk</Button>} title="Produk" />
         <FilterBar
+          sheetCloseLabel="Tutup filter"
           chips={[
             {
               key: "status",

@@ -23,7 +23,7 @@ export type SheetSize = "sm" | "md" | "lg";
 export type DialogProps = {
   children: ReactNode;
   /** Accessible name of the close button. */
-  closeLabel?: string;
+  closeLabel: string;
   description?: string;
   footer?: ReactNode;
   onOpenChange: (open: boolean) => void;
@@ -32,7 +32,7 @@ export type DialogProps = {
   title: string;
 };
 export type AlertDialogProps = Omit<DialogProps, "footer"> & {
-  cancelLabel?: string;
+  cancelLabel: string;
   confirmLabel: string;
   /** Destructive by default; set false for a neutral confirmation. */
   destructive?: boolean;
@@ -40,7 +40,7 @@ export type AlertDialogProps = Omit<DialogProps, "footer"> & {
 };
 export type SheetProps = {
   children: ReactNode;
-  closeLabel?: string;
+  closeLabel: string;
   footer?: ReactNode;
   onOpenChange: (open: boolean) => void;
   open: boolean;
@@ -169,7 +169,7 @@ function Overlay({
 }
 export function Dialog({
   children,
-  closeLabel = "Tutup dialog",
+  closeLabel,
   description,
   footer,
   onOpenChange,
@@ -208,7 +208,7 @@ export function Dialog({
   );
 }
 export function AlertDialog({
-  cancelLabel = "Batal",
+  cancelLabel,
   confirmLabel,
   destructive = true,
   onConfirm,
@@ -242,7 +242,7 @@ export function AlertDialog({
 }
 export function Sheet({
   children,
-  closeLabel = "Tutup panel",
+  closeLabel,
   footer,
   onOpenChange,
   open,

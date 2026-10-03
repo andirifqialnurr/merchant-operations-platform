@@ -343,7 +343,11 @@ export function FinanceValidatedReport(props: FinanceValidatedReportProps) {
       <div className="ui-finance-report__content">
         <Chart
           categories={chartCategories}
+          emptyTitle="Data chart belum tersedia"
+          errorTitle="Chart tidak dapat dimuat"
           height={320}
+          retryLabel="Coba lagi"
+          summaryLabel="Ringkasan data"
           series={chartSeries}
           state={chartSeries.length > 0 ? "ready" : "empty"}
           summary={reportSummary}

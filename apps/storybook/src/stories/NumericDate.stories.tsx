@@ -31,10 +31,30 @@ export const DateAndTime: Story = {
   args: { "aria-label": "Jumlah", value: "" },
   render: () => (
     <div className="story-contract-page">
-      <DatePicker label="Tanggal transaksi" value="2026-07-17" />
-      <DateRangePicker end="2026-07-31" label="Periode laporan" start="2026-07-01" />
+      <DatePicker
+        placeholder="Pilih opsi"
+        nextMonthLabel="Bulan berikutnya"
+        previousMonthLabel="Bulan sebelumnya"
+        label="Tanggal transaksi"
+        value="2026-07-17"
+      />
+      <DateRangePicker
+        endLabel="Tanggal selesai"
+        endPlaceholder="Tanggal selesai"
+        startLabel="Tanggal mulai"
+        startPlaceholder="Tanggal mulai"
+        nextMonthLabel="Bulan berikutnya"
+        previousMonthLabel="Bulan sebelumnya"
+        end="2026-07-31"
+        label="Periode laporan"
+        start="2026-07-01"
+      />
       <MonthPicker label="Bulan laporan" value="2026-07" />
-      <TimeInput label="Jam operasional" value="18:30" />
+      <TimeInput
+        formatError="Gunakan format 24 jam, misalnya 18:30."
+        label="Jam operasional"
+        value="18:30"
+      />
     </div>
   ),
 };

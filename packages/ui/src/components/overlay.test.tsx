@@ -7,7 +7,7 @@ describe("overlay primitives", () => {
     const user = userEvent.setup();
     const close = vi.fn();
     render(
-      <Dialog onOpenChange={close} open title="Edit outlet">
+      <Dialog closeLabel="Tutup" onOpenChange={close} open title="Edit outlet">
         <button>Simpan</button>
       </Dialog>,
     );
@@ -36,6 +36,7 @@ describe("overlay primitives", () => {
     const close = vi.fn();
     render(
       <AlertDialog
+        closeLabel="Tutup"
         cancelLabel="Kembali"
         confirmLabel="Hapus produk"
         onConfirm={confirm}

@@ -12,7 +12,13 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const DialogAndSheet: Story = {
-  args: { children: "Konten overlay", open: false, onOpenChange: () => undefined, title: "Contoh" },
+  args: {
+    children: "Konten overlay",
+    closeLabel: "Tutup",
+    onOpenChange: () => undefined,
+    open: false,
+    title: "Contoh",
+  },
   render: () => {
     const [dialog, setDialog] = useState(false);
     const [sheet, setSheet] = useState(false);
@@ -23,6 +29,7 @@ export const DialogAndSheet: Story = {
           Buka panel
         </Button>
         <Dialog
+          closeLabel="Tutup"
           footer={<Button>Simpan</Button>}
           onOpenChange={setDialog}
           open={dialog}
@@ -30,7 +37,7 @@ export const DialogAndSheet: Story = {
         >
           Konten form ditampilkan di sini.
         </Dialog>
-        <Sheet onOpenChange={setSheet} open={sheet} title="Filter pesanan">
+        <Sheet closeLabel="Tutup" onOpenChange={setSheet} open={sheet} title="Filter pesanan">
           Filter ringkas untuk daftar pesanan.
         </Sheet>
       </div>
@@ -38,7 +45,13 @@ export const DialogAndSheet: Story = {
   },
 };
 export const Menus: Story = {
-  args: { children: "Konten overlay", open: false, onOpenChange: () => undefined, title: "Contoh" },
+  args: {
+    children: "Konten overlay",
+    closeLabel: "Tutup",
+    onOpenChange: () => undefined,
+    open: false,
+    title: "Contoh",
+  },
   render: () => (
     <div className="story-contract-grid">
       <Popover content="Konten filter ringan">Buka popover</Popover>
@@ -52,6 +65,8 @@ export const Menus: Story = {
       />
       <Tooltip content="Informasi tambahan">?</Tooltip>
       <AlertDialog
+        cancelLabel="Batal"
+        closeLabel="Tutup"
         confirmLabel="Hapus outlet"
         onConfirm={() => undefined}
         onOpenChange={() => undefined}

@@ -347,6 +347,7 @@ export function ProductSheet({
                 <div className="grid grid-cols-[1fr_auto] items-start gap-2">
                   <Select
                     {...(modifierId ? { value: modifierId } : {})}
+                    emptyLabel={t("emptyOptions")}
                     label={t("modifiers")}
                     onValueChange={setModifierId}
                     options={attachable.map((item) => ({ label: item.name, value: item.id }))}

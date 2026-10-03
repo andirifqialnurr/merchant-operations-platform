@@ -118,7 +118,7 @@ export type FilterBarProps = {
     value: string;
   };
   /** Title and close label of the filter sheet on small screens. */
-  sheetCloseLabel?: string;
+  sheetCloseLabel: string;
   /** Label of the button that closes the sheet and shows results. */
   sheetDoneLabel?: string;
 };
@@ -198,7 +198,7 @@ export function FilterBar({
       ) : null}
       {inSheet ? (
         <Sheet
-          {...(sheetCloseLabel ? { closeLabel: sheetCloseLabel } : {})}
+          closeLabel={sheetCloseLabel}
           footer={
             sheetDoneLabel ? (
               <Button onClick={() => setSheetOpen(false)}>{sheetDoneLabel}</Button>

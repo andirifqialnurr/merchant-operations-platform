@@ -115,7 +115,9 @@ export function ProductsView({
         sheetDoneLabel={t("showResults")}
       >
         <Select
+          emptyLabel={t("emptyOptions")}
           label={t("status")}
+          placeholder={t("status")}
           onValueChange={setStatus}
           options={[
             { label: t("filterValue", { name: t("status"), value: t("filterAll") }), value: ALL },
@@ -124,7 +126,9 @@ export function ProductsView({
           value={status}
         />
         <Select
+          emptyLabel={t("emptyOptions")}
           label={t("category")}
+          placeholder={t("selectCategory")}
           onValueChange={setCategoryId}
           options={[
             { label: t("filterValue", { name: t("category"), value: t("filterAll") }), value: ALL },

@@ -28,6 +28,10 @@ const days = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
 export const Components: Story = {
   args: {
     categories: days,
+    emptyTitle: "Data belum tersedia",
+    errorTitle: "Terjadi kesalahan",
+    retryLabel: "Coba lagi",
+    summaryLabel: "Ringkasan data",
     series: [{ data: dailyOrders, name: "Pesanan" }],
     summary: "Total 298 pesanan dalam tujuh hari.",
     title: "Tren pesanan",
@@ -63,6 +67,10 @@ export const Components: Story = {
 export const ChartTypes: Story = {
   args: {
     categories: days,
+    emptyTitle: "Data belum tersedia",
+    errorTitle: "Terjadi kesalahan",
+    retryLabel: "Coba lagi",
+    summaryLabel: "Ringkasan data",
     series: [{ data: dailyOrders, name: "Pesanan" }],
     summary: "Total 298 pesanan dalam tujuh hari.",
     title: "Tren pesanan",
@@ -71,6 +79,10 @@ export const ChartTypes: Story = {
   render: () => (
     <div className="story-contract-page">
       <Chart
+        emptyTitle="Data belum tersedia"
+        errorTitle="Terjadi kesalahan"
+        retryLabel="Coba lagi"
+        summaryLabel="Ringkasan data"
         categories={days}
         series={[{ data: dailyOrders, name: "Pesanan" }]}
         summary="Total 298 pesanan dalam tujuh hari."
@@ -78,6 +90,10 @@ export const ChartTypes: Story = {
         type="line"
       />
       <Chart
+        emptyTitle="Data belum tersedia"
+        errorTitle="Terjadi kesalahan"
+        retryLabel="Coba lagi"
+        summaryLabel="Ringkasan data"
         categories={days}
         series={[{ data: dailyOrders, name: "Penjualan" }]}
         summary="Penjualan tertinggi terjadi pada Minggu."
@@ -85,6 +101,10 @@ export const ChartTypes: Story = {
         type="area"
       />
       <Chart
+        emptyTitle="Data belum tersedia"
+        errorTitle="Terjadi kesalahan"
+        retryLabel="Coba lagi"
+        summaryLabel="Ringkasan data"
         categories={["Dine in", "Bawa pulang", "Delivery"]}
         series={[{ data: [142, 96, 60], name: "Pesanan" }]}
         summary="Dine in menyumbang pesanan terbanyak."
@@ -92,6 +112,10 @@ export const ChartTypes: Story = {
         type="bar"
       />
       <Chart
+        emptyTitle="Data belum tersedia"
+        errorTitle="Terjadi kesalahan"
+        retryLabel="Coba lagi"
+        summaryLabel="Ringkasan data"
         categories={["Tunai", "QRIS", "Transfer"]}
         series={[48, 36, 16]}
         summary="QRIS merupakan metode pembayaran terbesar kedua."
@@ -105,6 +129,10 @@ export const ChartTypes: Story = {
 export const ChartStates: Story = {
   args: {
     categories: days,
+    emptyTitle: "Data belum tersedia",
+    errorTitle: "Terjadi kesalahan",
+    retryLabel: "Coba lagi",
+    summaryLabel: "Ringkasan data",
     series: [{ data: dailyOrders, name: "Pesanan" }],
     summary: "Total 298 pesanan dalam tujuh hari.",
     title: "Tren pesanan",
@@ -113,6 +141,10 @@ export const ChartStates: Story = {
   render: () => (
     <div className="story-contract-page">
       <Chart
+        emptyTitle="Data belum tersedia"
+        errorTitle="Terjadi kesalahan"
+        retryLabel="Coba lagi"
+        summaryLabel="Ringkasan data"
         categories={days}
         series={[{ data: dailyOrders, name: "Pesanan" }]}
         state="loading"
@@ -121,6 +153,10 @@ export const ChartStates: Story = {
         type="line"
       />
       <Chart
+        emptyTitle="Data belum tersedia"
+        errorTitle="Terjadi kesalahan"
+        retryLabel="Coba lagi"
+        summaryLabel="Ringkasan data"
         categories={days}
         series={[{ data: [], name: "Pesanan" }]}
         state="empty"
@@ -129,6 +165,10 @@ export const ChartStates: Story = {
         type="line"
       />
       <Chart
+        emptyTitle="Data belum tersedia"
+        errorTitle="Terjadi kesalahan"
+        retryLabel="Coba lagi"
+        summaryLabel="Ringkasan data"
         categories={days}
         onRetry={() => undefined}
         series={[{ data: [], name: "Pesanan" }]}

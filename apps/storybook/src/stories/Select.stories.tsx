@@ -21,42 +21,96 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const Sizes: Story = {
-  args: { label: "Outlet", options },
+  args: {
+    emptyLabel: "Tidak ada opsi tersedia.",
+    label: "Outlet",
+    options,
+    placeholder: "Pilih opsi",
+  },
   render: () => (
     <div className="story-contract-page">
       {(["sm", "md", "lg"] as const).map((size) => (
-        <Select key={size} label={`Outlet ${size}`} options={options} size={size} />
+        <Select
+          emptyLabel="Tidak ada opsi tersedia."
+          placeholder="Pilih opsi"
+          key={size}
+          label={`Outlet ${size}`}
+          options={options}
+          size={size}
+        />
       ))}
     </div>
   ),
 };
 export const States: Story = {
-  args: { label: "Outlet", options },
+  args: {
+    emptyLabel: "Tidak ada opsi tersedia.",
+    label: "Outlet",
+    options,
+    placeholder: "Pilih opsi",
+  },
   render: () => (
     <div className="story-contract-page">
-      <Select defaultValue="sudirman" label="Outlet" options={options} />
-      <Select error="Outlet wajib dipilih." label="Outlet" options={options} />
+      <Select
+        emptyLabel="Tidak ada opsi tersedia."
+        placeholder="Pilih opsi"
+        defaultValue="sudirman"
+        label="Outlet"
+        options={options}
+      />
+      <Select
+        emptyLabel="Tidak ada opsi tersedia."
+        placeholder="Pilih opsi"
+        error="Outlet wajib dipilih."
+        label="Outlet"
+        options={options}
+      />
       <Combobox
+        searchPlaceholder="Cari..."
+        emptyLabel="Tidak ada opsi tersedia."
+        placeholder="Pilih opsi"
         errorLabel="Gagal memuat daftar outlet."
         label="Cari outlet"
         onRetry={() => undefined}
         options={options}
       />
-      <Combobox label="Cari outlet" loading options={options} />
+      <Combobox
+        searchPlaceholder="Cari..."
+        emptyLabel="Tidak ada opsi tersedia."
+        placeholder="Pilih opsi"
+        label="Cari outlet"
+        loading
+        options={options}
+      />
     </div>
   ),
 };
 export const ThemeComparison: Story = {
-  args: { label: "Outlet", options },
+  args: {
+    emptyLabel: "Tidak ada opsi tersedia.",
+    label: "Outlet",
+    options,
+    placeholder: "Pilih opsi",
+  },
   render: () => (
     <div className="story-contract-theme-comparison">
       <section data-theme-preview="light">
         <h2 className="text-heading-sm">Light</h2>
-        <Select label="Outlet" options={options} />
+        <Select
+          emptyLabel="Tidak ada opsi tersedia."
+          placeholder="Pilih opsi"
+          label="Outlet"
+          options={options}
+        />
       </section>
       <section data-theme-preview="dark">
         <h2 className="text-heading-sm">Dark</h2>
-        <Select label="Outlet" options={options} />
+        <Select
+          emptyLabel="Tidak ada opsi tersedia."
+          placeholder="Pilih opsi"
+          label="Outlet"
+          options={options}
+        />
       </section>
     </div>
   ),

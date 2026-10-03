@@ -26,7 +26,10 @@ export const Header: Story = {
       />
       <PageHeader
         breadcrumb={
-          <Breadcrumb items={[{ href: "#", label: "Stok" }, { label: "Opname Juli 2026" }]} />
+          <Breadcrumb
+            label="Breadcrumb"
+            items={[{ href: "#", label: "Stok" }, { label: "Opname Juli 2026" }]}
+          />
         }
         primaryAction={<Button>Finalisasi</Button>}
         secondaryActions={
@@ -84,6 +87,7 @@ function FilterExample() {
   const [filters, setFilters] = useState(["Status: Aktif", "Kategori: Minuman dingin"]);
   return (
     <FilterBar
+      sheetCloseLabel="Tutup filter"
       chips={filters.map((filter) => ({
         key: filter,
         label: filter,
