@@ -9,13 +9,13 @@ import { BadRequestException, ForbiddenException, type INestApplication } from "
 import { DocumentBuilder, SwaggerModule, type OpenAPIObject } from "@nestjs/swagger";
 
 import { mapExceptionToApiError } from "./api-exception.filter.js";
-import { SESSION_COOKIE_NAME } from "./core/auth/session-cookie.js";
-import { getRequestId } from "./core/observability/request-observability.js";
-import { PlatformAuthService } from "./core/platform/platform-auth.service.js";
+import { SESSION_COOKIE_NAME } from "../core/auth/session-cookie.js";
+import { getRequestId } from "../core/observability/request-observability.js";
+import { PlatformAuthService } from "../core/platform/platform-auth.service.js";
 import {
   PLATFORM_SESSION_COOKIE_NAME,
   readPlatformSessionToken,
-} from "./core/platform/platform-session-cookie.js";
+} from "../core/platform/platform-session-cookie.js";
 
 type OpenApiSchemas = NonNullable<OpenAPIObject["components"]>["schemas"];
 type OpenApiEnvironment = {

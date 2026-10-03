@@ -30,7 +30,7 @@ import {
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
-import { ZodValidationPipe } from "../../zod-validation.pipe.js";
+import { ZodValidationPipe } from "../../bootstrap/zod-validation.pipe.js";
 import { AuthService } from "./auth.service.js";
 import {
   readSessionToken,

@@ -14,16 +14,16 @@ import {
 } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 
-import { mapExceptionToApiError } from "./api-exception.filter.js";
+import { mapExceptionToApiError } from "./bootstrap/api-exception.filter.js";
 import { AppModule } from "./app.module.js";
 import {
   configureOpenApi,
   createOpenApiDocument,
   isOpenApiEnabled,
   isOpenApiPlatformAuthRequired,
-} from "./openapi.js";
+} from "./bootstrap/openapi.js";
 import { PlatformAuthService } from "./core/platform/platform-auth.service.js";
-import { ZodValidationPipe } from "./zod-validation.pipe.js";
+import { ZodValidationPipe } from "./bootstrap/zod-validation.pipe.js";
 
 test("maps known and unknown exceptions to the stable error contract", () => {
   const known = mapExceptionToApiError(

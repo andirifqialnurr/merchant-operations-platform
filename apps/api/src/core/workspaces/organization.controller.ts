@@ -43,7 +43,7 @@ import {
   SessionPermissionGuard,
 } from "../memberships/session-permission.guard.js";
 import { SESSION_COOKIE_NAME } from "../auth/session-cookie.js";
-import { RequestHeaders, ZodValidationPipe } from "../../zod-validation.pipe.js";
+import { RequestHeaders, ZodValidationPipe } from "../../bootstrap/zod-validation.pipe.js";
 import { OrganizationService } from "./organization.service.js";
 
 @ApiTags("organization")

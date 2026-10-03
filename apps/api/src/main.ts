@@ -2,10 +2,10 @@ import "reflect-metadata";
 
 import { NestFactory } from "@nestjs/core";
 
-import { ApiExceptionFilter } from "./api-exception.filter.js";
+import { ApiExceptionFilter } from "./bootstrap/api-exception.filter.js";
 import { AppModule } from "./app.module.js";
 import { createRequestObservabilityMiddleware } from "./core/observability/request-observability.js";
-import { configureOpenApi } from "./openapi.js";
+import { configureOpenApi } from "./bootstrap/openapi.js";
 import {
   createCsrfProtectionMiddleware,
   createSecurityHeadersMiddleware,

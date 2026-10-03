@@ -12,7 +12,7 @@ import {
   defaultStructuredLogger,
   getRequestId,
   type StructuredLogger,
-} from "./core/observability/request-observability.js";
+} from "../core/observability/request-observability.js";
 
 type HttpResponse = {
   json(body: ApiError): unknown;

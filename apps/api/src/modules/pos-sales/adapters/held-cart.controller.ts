@@ -47,7 +47,7 @@ import {
   SessionPermissionGuard,
 } from "../../../core/memberships/session-permission.guard.js";
 import { SESSION_COOKIE_NAME } from "../../../core/auth/session-cookie.js";
-import { RequestHeaders, ZodValidationPipe } from "../../../zod-validation.pipe.js";
+import { RequestHeaders, ZodValidationPipe } from "../../../bootstrap/zod-validation.pipe.js";
 import { HeldCartService } from "../application/held-cart.service.js";
 
 /** Carts the outlet's cashiers set aside to finish later. */
