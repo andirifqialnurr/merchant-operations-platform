@@ -11,49 +11,49 @@ Dokumen terkait: [`architecture.md`](./architecture.md), [`backend.md`](./backen
 
 ## 1. Model ancaman ringkas
 
-| Aset | Ancaman utama | Kontrol utama |
-|---|---|---|
-| Data antar-workspace | Pengguna satu workspace membaca atau mengubah data workspace lain | Isolasi `tenant_id` di setiap query + foreign key komposit + test substitusi ID |
-| Sesi | Pencurian cookie, sesi tidak dapat dicabut | Cookie `HttpOnly`, token di-hash di database, pencabutan sesi |
-| Transaksi keuangan | Pembayaran atau refund ganda, manipulasi nilai | Idempotency, nilai turunan dihitung server, audit, tidak ada hapus |
-| Akun | Tebak kata sandi | Argon2id, rate limit login |
-| Data pribadi | Telepon pelanggan, data karyawan bocor ke surface yang tidak berhak | Data minimization per DTO dan per surface |
-| Token QR meja | Tebak atau pakai ulang token | Token acak, hanya hash yang disimpan, rotasi dan pencabutan |
-| Akses operator | Operator platform membuka data pelanggan tanpa jejak | Sesi platform terpisah, akses support beralasan dan berbatas waktu |
-| Secret | Secret bocor lewat repositori, log, atau UI | Secret hanya di environment; tidak pernah di log atau response |
+| Aset                 | Ancaman utama                                                       | Kontrol utama                                                                   |
+| -------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Data antar-workspace | Pengguna satu workspace membaca atau mengubah data workspace lain   | Isolasi `tenant_id` di setiap query + foreign key komposit + test substitusi ID |
+| Sesi                 | Pencurian cookie, sesi tidak dapat dicabut                          | Cookie `HttpOnly`, token di-hash di database, pencabutan sesi                   |
+| Transaksi keuangan   | Pembayaran atau refund ganda, manipulasi nilai                      | Idempotency, nilai turunan dihitung server, audit, tidak ada hapus              |
+| Akun                 | Tebak kata sandi                                                    | Argon2id, rate limit login                                                      |
+| Data pribadi         | Telepon pelanggan, data karyawan bocor ke surface yang tidak berhak | Data minimization per DTO dan per surface                                       |
+| Token QR meja        | Tebak atau pakai ulang token                                        | Token acak, hanya hash yang disimpan, rotasi dan pencabutan                     |
+| Akses operator       | Operator platform membuka data pelanggan tanpa jejak                | Sesi platform terpisah, akses support beralasan dan berbatas waktu              |
+| Secret               | Secret bocor lewat repositori, log, atau UI                         | Secret hanya di environment; tidak pernah di log atau response                  |
 
 ---
 
 ## 2. Status kontrol
 
-| Kontrol | Status | Lokasi |
-|---|---|---|
-| Hash kata sandi Argon2id (64 MiB, 3 pass) dengan perbandingan waktu-konstan | Berjalan | `apps/api/src/core/auth/password.ts` |
-| Token sesi acak 32 byte; database hanya menyimpan SHA-256 | Berjalan | `auth/password.ts`, tabel `login_sessions` |
-| Cookie sesi `HttpOnly`, `SameSite=Lax`, `Secure` di produksi | Berjalan | `auth/session-cookie.ts` |
-| Sesi platform terpisah dari sesi merchant | Berjalan | `platform/` |
-| Rate limit login (5 per 15 menit per IP+email) | Berjalan, di memori proses | `security/rate-limit.service.ts` |
-| Header keamanan (`nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, COOP, CORP, `Permissions-Policy`, HSTS di produksi) | Berjalan | `security/http-security.ts` |
-| Pemeriksaan header CSRF untuk mutasi bersesi | Berjalan di API dan klien web | `security/http-security.ts`, `apps/web/src/lib/api-client.ts` |
-| Guard sesi + keanggotaan + izin + cakupan lokasi + entitlement modul | Berjalan | `access/session-permission.guard.ts` |
-| Validasi Zod untuk header, params, body, response | Berjalan | `zod-validation.pipe.ts`, `packages/contracts` |
-| Error tanpa detail internal pada 5xx | Berjalan | `api-exception.filter.ts` |
-| Audit aksi kritis | Berjalan untuk modul yang ada | `audit/critical-action-audit.ts` |
-| Request ID dan log terstruktur | Berjalan | `observability/` |
-| Dokumentasi API tertutup di produksi kecuali sesi platform berizin | Berjalan | `openapi.ts` |
-| Drill backup dan restore | Berjalan sebagai skrip | `packages/database/src/backup-restore-drill.ts` |
-| Test isolasi tenant/outlet dan constraint skema | Berjalan | `reliability/`, `tenant-isolation-schema.spec.ts` |
-| Content-Security-Policy | **Belum** | — |
-| Rate limit lintas instance (Redis) | **Belum** | — |
-| Rate limit API integrasi dan endpoint sensitif lain | **Belum** | — |
-| Idempotency pada endpoint | **Belum** (tabel ada, belum dipakai) | — |
-| Token QR ber-hash dengan rotasi | **Belum** (kontrak ada) | — |
-| Akses support beralasan dan berbatas waktu | **Belum** (kontrak ada) | — |
-| Registri perangkat dan kredensial perangkat | **Belum** | — |
-| Lint batas modul | **Belum** (kontrak ada) | — |
-| Integration test PostgreSQL sekali pakai | **Belum** | — |
-| Upload berkas bertanda tangan | **Belum** | — |
-| Row-level security PostgreSQL | **Belum diputuskan** (`SCH-02`) | — |
+| Kontrol                                                                                                                     | Status                               | Lokasi                                                        |
+| --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------- |
+| Hash kata sandi Argon2id (64 MiB, 3 pass) dengan perbandingan waktu-konstan                                                 | Berjalan                             | `apps/api/src/core/auth/password.ts`                          |
+| Token sesi acak 32 byte; database hanya menyimpan SHA-256                                                                   | Berjalan                             | `auth/password.ts`, tabel `login_sessions`                    |
+| Cookie sesi `HttpOnly`, `SameSite=Lax`, `Secure` di produksi                                                                | Berjalan                             | `auth/session-cookie.ts`                                      |
+| Sesi platform terpisah dari sesi merchant                                                                                   | Berjalan                             | `platform/`                                                   |
+| Rate limit login (5 per 15 menit per IP+email)                                                                              | Berjalan, di memori proses           | `security/rate-limit.service.ts`                              |
+| Header keamanan (`nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, COOP, CORP, `Permissions-Policy`, HSTS di produksi) | Berjalan                             | `security/http-security.ts`                                   |
+| Pemeriksaan header CSRF untuk mutasi bersesi                                                                                | Berjalan di API dan klien web        | `security/http-security.ts`, `apps/web/src/lib/api-client.ts` |
+| Guard sesi + keanggotaan + izin + cakupan lokasi + entitlement modul                                                        | Berjalan                             | `access/session-permission.guard.ts`                          |
+| Validasi Zod untuk header, params, body, response                                                                           | Berjalan                             | `zod-validation.pipe.ts`, `packages/contracts`                |
+| Error tanpa detail internal pada 5xx                                                                                        | Berjalan                             | `api-exception.filter.ts`                                     |
+| Audit aksi kritis                                                                                                           | Berjalan untuk modul yang ada        | `audit/critical-action-audit.ts`                              |
+| Request ID dan log terstruktur                                                                                              | Berjalan                             | `observability/`                                              |
+| Dokumentasi API tertutup di produksi kecuali sesi platform berizin                                                          | Berjalan                             | `openapi.ts`                                                  |
+| Drill backup dan restore                                                                                                    | Berjalan sebagai skrip               | `packages/database/src/backup-restore-drill.ts`               |
+| Test isolasi tenant/outlet dan constraint skema                                                                             | Berjalan                             | `reliability/`, `tenant-isolation-schema.spec.ts`             |
+| Content-Security-Policy                                                                                                     | **Belum**                            | —                                                             |
+| Rate limit lintas instance (Redis)                                                                                          | **Belum**                            | —                                                             |
+| Rate limit API integrasi dan endpoint sensitif lain                                                                         | **Belum**                            | —                                                             |
+| Idempotency pada endpoint                                                                                                   | **Belum** (tabel ada, belum dipakai) | —                                                             |
+| Token QR ber-hash dengan rotasi                                                                                             | **Belum** (kontrak ada)              | —                                                             |
+| Akses support beralasan dan berbatas waktu                                                                                  | **Belum** (kontrak ada)              | —                                                             |
+| Registri perangkat dan kredensial perangkat                                                                                 | **Belum**                            | —                                                             |
+| Lint batas modul                                                                                                            | **Belum** (kontrak ada)              | —                                                             |
+| Integration test PostgreSQL sekali pakai                                                                                    | **Belum**                            | —                                                             |
+| Upload berkas bertanda tangan                                                                                               | **Belum**                            | —                                                             |
+| Row-level security PostgreSQL                                                                                               | **Belum diputuskan** (`SCH-02`)      | —                                                             |
 
 ---
 
@@ -61,15 +61,15 @@ Dokumen terkait: [`architecture.md`](./architecture.md), [`backend.md`](./backen
 
 Temuan berikut berasal dari pembacaan kode pada 2 Oktober 2026 dan belum diverifikasi dengan menjalankan aplikasi.
 
-| ID | Temuan | Dampak | Tindakan |
-|---|---|---|---|
-| SEC-F1 | **Selesai.** API menolak `POST/PATCH/PUT/DELETE` bersesi tanpa header `x-csrf-token`, dan klien web sebelumnya tidak mengirimnya | Terkonfirmasi: permintaan tanpa header dijawab 403 `CSRF_TOKEN_REQUIRED` | Klien API kini mengirim header pada setiap metode tidak aman; simpan data dari halaman Katalog terverifikasi di browser |
-| SEC-F2 | Pemeriksaan CSRF hanya memvalidasi keberadaan dan format header, tidak mengikat nilainya ke sesi | Cukup sebagai pertahanan "custom header" selama CORS tidak dibuka; tidak cukup bila API diakses lintas origin | Pertahankan satu origin; bila kelak lintas origin, ikat token ke sesi |
-| SEC-F3 | Rate limit bawaan disimpan di memori proses | Tidak efektif bila API berjalan lebih dari satu instance; hilang saat restart | **Tersedia 3 Oktober 2026:** `RATE_LIMIT_STORE=redis` memakai penghitung atomik di Redis yang dibagi semua instance; kunci disimpan sebagai hash (tanpa email/IP mentah). Bila Redis tidak terjangkau, tiap instance tetap membatasi di memorinya sendiri dan mencatat peringatan. Wajib disetel di produksi |
-| SEC-F4 | Alamat IP untuk rate limit diambil dari koneksi; di belakang reverse proxy semua permintaan tampak dari IP proxy | Satu pengguna dapat mengunci login pengguna lain, atau batas tidak efektif | Konfigurasikan `trust proxy` untuk satu hop (Nginx) di produksi |
-| SEC-F5 | Sesi merchant berlaku 720 jam (30 hari) secara bawaan | Jendela penyalahgunaan panjang pada perangkat bersama (POS) | Tetapkan masa sesi per surface: lebih pendek untuk Backoffice, terikat perangkat untuk POS/KDS |
-| SEC-F6 | Pesan error server berbahasa Indonesia | Bukan celah, tetapi bertentangan dengan dua bahasa | Kode stabil + terjemahan klien (`backend.md` bagian 9) |
-| SEC-F7 | Belum ada Content-Security-Policy | Dampak XSS tidak dibatasi | Tambahkan CSP di Next.js (bagian 6) |
+| ID     | Temuan                                                                                                                           | Dampak                                                                                                        | Tindakan                                                                                                                                                                                                                                                                                                     |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| SEC-F1 | **Selesai.** API menolak `POST/PATCH/PUT/DELETE` bersesi tanpa header `x-csrf-token`, dan klien web sebelumnya tidak mengirimnya | Terkonfirmasi: permintaan tanpa header dijawab 403 `CSRF_TOKEN_REQUIRED`                                      | Klien API kini mengirim header pada setiap metode tidak aman; simpan data dari halaman Katalog terverifikasi di browser                                                                                                                                                                                      |
+| SEC-F2 | Pemeriksaan CSRF hanya memvalidasi keberadaan dan format header, tidak mengikat nilainya ke sesi                                 | Cukup sebagai pertahanan "custom header" selama CORS tidak dibuka; tidak cukup bila API diakses lintas origin | Pertahankan satu origin; bila kelak lintas origin, ikat token ke sesi                                                                                                                                                                                                                                        |
+| SEC-F3 | Rate limit bawaan disimpan di memori proses                                                                                      | Tidak efektif bila API berjalan lebih dari satu instance; hilang saat restart                                 | **Tersedia 3 Oktober 2026:** `RATE_LIMIT_STORE=redis` memakai penghitung atomik di Redis yang dibagi semua instance; kunci disimpan sebagai hash (tanpa email/IP mentah). Bila Redis tidak terjangkau, tiap instance tetap membatasi di memorinya sendiri dan mencatat peringatan. Wajib disetel di produksi |
+| SEC-F4 | Alamat IP untuk rate limit diambil dari koneksi; di belakang reverse proxy semua permintaan tampak dari IP proxy                 | Satu pengguna dapat mengunci login pengguna lain, atau batas tidak efektif                                    | Konfigurasikan `trust proxy` untuk satu hop (Nginx) di produksi                                                                                                                                                                                                                                              |
+| SEC-F5 | Sesi merchant berlaku 720 jam (30 hari) secara bawaan                                                                            | Jendela penyalahgunaan panjang pada perangkat bersama (POS)                                                   | Tetapkan masa sesi per surface: lebih pendek untuk Backoffice, terikat perangkat untuk POS/KDS                                                                                                                                                                                                               |
+| SEC-F6 | Pesan error server berbahasa Indonesia                                                                                           | Bukan celah, tetapi bertentangan dengan dua bahasa                                                            | Kode stabil + terjemahan klien (`backend.md` bagian 9)                                                                                                                                                                                                                                                       |
+| SEC-F7 | Belum ada Content-Security-Policy                                                                                                | Dampak XSS tidak dibatasi                                                                                     | Tambahkan CSP di Next.js (bagian 6)                                                                                                                                                                                                                                                                          |
 
 ---
 
@@ -107,10 +107,10 @@ Sudah diterapkan di API: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DE
 
 Harus ditambahkan pada respons Next.js:
 
-| Header | Nilai awal |
-|---|---|
-| `Content-Security-Policy` | `default-src 'self'`; `img-src 'self' data: blob:` + origin object storage; `style-src 'self' 'unsafe-inline'` (kebutuhan ApexCharts dan gaya sebaris); `script-src 'self'` dengan nonce; `connect-src 'self'` + origin WebSocket; `frame-ancestors 'none'` |
-| Header yang sama dengan API | Agar halaman juga terlindungi, bukan hanya `/api` |
+| Header                      | Nilai awal                                                                                                                                                                                                                                                  |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Content-Security-Policy`   | `default-src 'self'`; `img-src 'self' data: blob:` + origin object storage; `style-src 'self' 'unsafe-inline'` (kebutuhan ApexCharts dan gaya sebaris); `script-src 'self'` dengan nonce; `connect-src 'self'` + origin WebSocket; `frame-ancestors 'none'` |
+| Header yang sama dengan API | Agar halaman juga terlindungi, bukan hanya `/api`                                                                                                                                                                                                           |
 
 `Permissions-Policy` ditinjau ulang saat absensi mobile (kamera, lokasi) dibuat.
 
@@ -167,14 +167,14 @@ Aturan:
 
 ### 10.1 Batas per surface
 
-| Surface | Tidak boleh menerima |
-|---|---|
-| KDS | Harga, HPP, pembayaran, telepon pelanggan, payload audit |
-| POS | HPP, laba, data HR |
-| Customer | ID internal meja/sesi, koordinat tata letak, token mentah, data keuangan atau HR |
-| Karyawan | Data karyawan lain tanpa izin |
-| Merchant | Secret platform, payload mentah provider |
-| Platform Support | Data di luar cakupan, alasan, dan masa akses |
+| Surface          | Tidak boleh menerima                                                             |
+| ---------------- | -------------------------------------------------------------------------------- |
+| KDS              | Harga, HPP, pembayaran, telepon pelanggan, payload audit                         |
+| POS              | HPP, laba, data HR                                                               |
+| Customer         | ID internal meja/sesi, koordinat tata letak, token mentah, data keuangan atau HR |
+| Karyawan         | Data karyawan lain tanpa izin                                                    |
+| Merchant         | Secret platform, payload mentah provider                                         |
+| Platform Support | Data di luar cakupan, alasan, dan masa akses                                     |
 
 Pembatasan dilakukan di DTO backend, bukan dengan menyembunyikan field di frontend. Guard KDS dan pemeta QR pelanggan yang sudah ada di `packages/ui` adalah lapisan kedua, bukan pengganti.
 
@@ -182,6 +182,7 @@ Pembatasan dilakukan di DTO backend, bukan dengan menyembunyikan field di fronte
 
 - Data sensitif: kontak dan data kepegawaian karyawan, bukti absensi, telepon pelanggan, lampiran keuangan, akses support.
 - Log, event, dan audit tidak memuat kata sandi, token, secret, payload pembayaran, foto, atau isi lampiran.
+- Payload event dijaga di kode (`shared/command/event-payload.ts`, sejak 4 Oktober 2026): setiap penulisan outbox melewati `safeEventPayload`. Key yang menyebut secret (password, token, secret, session, signature, pin, raw, dan sejenisnya) atau data pribadi (email, phone, address, tanggal lahir, NIK, NPWP, nama pelanggan/nama lengkap) menggagalkan transaksi; teks bebas yang diketik orang (`reason`, `note`, `notes`, `comment`) tidak ikut ke event dan tetap tersimpan di audit. Handler yang butuh data orang membacanya dari pemiliknya lewat ID. Penjagaan ini berdasarkan nama key, bukan isi nilai; log belum dijaga dengan cara yang sama.
 - Ringkasan sebelum/sesudah di audit disanitasi; nilai sensitif disamarkan.
 - Ekspor data sensitif diaudit.
 - Masa simpan audit, bukti absensi, data pelanggan, dan lampiran adalah keputusan terbuka (`OD-08`) yang harus selesai sebelum produksi.

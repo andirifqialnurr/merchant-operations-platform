@@ -12,6 +12,7 @@ import { Injectable } from "@nestjs/common";
 
 import { buildAuditMetadata, buildAuditPayload } from "../audit/public.js";
 import { eventOrigin, type CommandOrigin } from "../../shared/command/command-origin.js";
+import { safeEventPayload } from "../../shared/command/event-payload.js";
 
 export type AccessMutationContext = CommandOrigin;
 
@@ -208,7 +209,7 @@ async function writeAccessChange(
       ...eventOrigin(options.context, "CORE_IDENTITY"),
       aggregateId: options.entityId,
       aggregateType: options.entityType,
-      payload,
+      payload: safeEventPayload(payload),
       tenantId: options.tenantId,
       type: `identity.${options.entityType}.${options.action.split(".").at(-1)}`,
     },

@@ -9,6 +9,7 @@ import type {
   OrderRepository,
 } from "../application/order.repository.js";
 import { eventOrigin } from "../../../shared/command/command-origin.js";
+import { safeEventPayload } from "../../../shared/command/event-payload.js";
 
 const orderSelect = {
   cancelReason: true,
@@ -118,7 +119,7 @@ export class PrismaOrderRepository implements OrderRepository {
           aggregateId: orderId,
           aggregateType: "order_order",
           outletId,
-          payload,
+          payload: safeEventPayload(payload),
           tenantId,
           type: "order.canceled.v1",
         },
@@ -233,7 +234,7 @@ export class PrismaOrderRepository implements OrderRepository {
             aggregateId: created.id,
             aggregateType: "order_order",
             outletId,
-            payload,
+            payload: safeEventPayload(payload),
             tenantId,
             type: "order.submitted.v1",
           },

@@ -4,6 +4,7 @@ import { Injectable } from "@nestjs/common";
 
 import { buildAuditMetadata, buildAuditPayload } from "../audit/public.js";
 import { eventOrigin, type CommandOrigin } from "../../shared/command/command-origin.js";
+import { safeEventPayload } from "../../shared/command/event-payload.js";
 
 export type InstallationMutationContext = CommandOrigin;
 
@@ -159,7 +160,7 @@ export class PrismaInstallationRepository implements InstallationRepository {
             ...eventOrigin(options.context, "CORE_SUBSCRIPTION"),
             aggregateId: id,
             aggregateType: "module_installation",
-            payload: { moduleKey, status: row.status },
+            payload: safeEventPayload({ moduleKey, status: row.status }),
             tenantId,
             type: options.event.type,
           },

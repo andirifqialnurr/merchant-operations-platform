@@ -13,6 +13,7 @@ import type {
   FullPaymentOutcome,
 } from "../application/billing.repository.js";
 import { eventOrigin } from "../../../shared/command/command-origin.js";
+import { safeEventPayload } from "../../../shared/command/event-payload.js";
 
 const billSelect = {
   currency: true,
@@ -263,7 +264,7 @@ export class PrismaBillingRepository implements BillingRepository {
             aggregateId: refund.saleId,
             aggregateType: "sales_sale",
             outletId,
-            payload,
+            payload: safeEventPayload(payload),
             tenantId,
             type: "sale.refunded.v1",
           },
@@ -421,7 +422,7 @@ export class PrismaBillingRepository implements BillingRepository {
               aggregateId: paid.id,
               aggregateType: "billing_payment",
               outletId,
-              payload,
+              payload: safeEventPayload(payload),
               tenantId,
               type: "payment.recorded.v1",
             },
@@ -430,14 +431,14 @@ export class PrismaBillingRepository implements BillingRepository {
               aggregateId: sale.id,
               aggregateType: "sales_sale",
               outletId,
-              payload: {
+              payload: safeEventPayload({
                 completedAt: now.toISOString(),
                 currency: payment.currency,
                 orderId: payment.orderId,
                 saleId: sale.id,
                 saleNumber: sale.saleNumber,
                 totalMinor: payment.totalMinor.toString(),
-              },
+              }),
               tenantId,
               type: "sale.completed.v1",
             },

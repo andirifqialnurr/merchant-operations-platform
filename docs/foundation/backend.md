@@ -333,6 +333,7 @@ Aturan handler:
 4. Error sementara → coba ulang dengan jeda bertahap. Error konfigurasi/validasi → `BLOCKED` dengan alasan aman.
 5. Kegagalan handler tidak pernah membatalkan transaksi sumber.
 6. Hanya event setelah `effective_from` binding yang diproses; data lama tidak diproses otomatis.
+7. Payload event hanya berisi fakta berupa ID dan nilai. Penulis outbox wajib memakai `safeEventPayload` (`security.md` bagian data sensitif); sebuah test menolak penulisan outbox yang melewatinya.
 
 Binding dalam kode (`core/integrations`, berjalan sejak 3 Oktober 2026):
 

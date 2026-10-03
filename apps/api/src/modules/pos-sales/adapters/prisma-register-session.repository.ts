@@ -9,6 +9,7 @@ import type {
   ShiftMutationContext,
 } from "../application/register-session.repository.js";
 import { eventOrigin } from "../../../shared/command/command-origin.js";
+import { safeEventPayload } from "../../../shared/command/event-payload.js";
 
 type TransactionClient = Pick<
   DatabaseClient,
@@ -85,7 +86,7 @@ async function recordChange(
         aggregateId: options.session.id,
         aggregateType: "pos_register_session",
         outletId: options.session.outletId,
-        payload: options.payload as object,
+        payload: safeEventPayload(options.payload),
         tenantId: options.session.tenantId,
         type: options.eventType,
       },

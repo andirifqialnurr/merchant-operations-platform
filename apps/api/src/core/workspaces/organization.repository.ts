@@ -12,6 +12,7 @@ import { Injectable } from "@nestjs/common";
 
 import { buildAuditMetadata } from "../audit/public.js";
 import { eventOrigin, type CommandOrigin } from "../../shared/command/command-origin.js";
+import { safeEventPayload } from "../../shared/command/event-payload.js";
 
 export type MutationContext = CommandOrigin;
 
@@ -168,7 +169,7 @@ async function writeChange(
       aggregateId: options.after.id,
       aggregateType: options.entityType,
       ...(options.outletId ? { outletId: options.outletId } : {}),
-      payload,
+      payload: safeEventPayload(payload),
       tenantId: options.tenantId,
       type: `organization.${options.entityType}.${options.action.endsWith("create") ? "created" : "updated"}`,
     },

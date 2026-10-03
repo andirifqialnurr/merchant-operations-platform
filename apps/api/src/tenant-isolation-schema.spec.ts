@@ -556,3 +556,16 @@ test("records where the command behind an event came from", () => {
     /model OutboxEvent \{[\s\S]*clientVersion\s+String\?\s+@map\("client_version"\)/,
   );
 });
+
+test("removes free text from events written before the payload guard", () => {
+  const cleanup = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261004070000_outbox_payload_free_text/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(cleanup, /"payload" - 'reason' - 'note' - 'notes' - 'comment'/);
+  // Only events are touched; the audit trail keeps the reason.
+  assert.doesNotMatch(cleanup, /audit_logs/);
+});

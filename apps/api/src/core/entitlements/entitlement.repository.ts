@@ -18,6 +18,7 @@ import type {
   TargetOverride,
 } from "./effective-entitlements.js";
 import { eventOrigin, type CommandOrigin } from "../../shared/command/command-origin.js";
+import { safeEventPayload } from "../../shared/command/event-payload.js";
 
 export type EntitlementMutationContext = CommandOrigin;
 
@@ -296,7 +297,7 @@ async function writeChange(
       ...eventOrigin(options.context, "CORE_SUBSCRIPTION"),
       aggregateId: options.entityId,
       aggregateType: options.entityType,
-      payload,
+      payload: safeEventPayload(payload),
       tenantId: options.tenantId,
       type: `subscription.${options.entityType}.${options.action.split(".").at(-1)}`,
     },

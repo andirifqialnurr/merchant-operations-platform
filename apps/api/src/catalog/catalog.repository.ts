@@ -25,6 +25,7 @@ import { Injectable } from "@nestjs/common";
 
 import { buildAuditMetadata } from "../core/audit/public.js";
 import { eventOrigin, type CommandOrigin } from "../shared/command/command-origin.js";
+import { safeEventPayload } from "../shared/command/event-payload.js";
 
 export type CatalogMutationContext = CommandOrigin;
 
@@ -495,7 +496,7 @@ async function writeCatalogChange(
       ...eventOrigin(options.context, "CORE_CATALOG"),
       aggregateId: options.after.id,
       aggregateType: options.entityType,
-      payload,
+      payload: safeEventPayload(payload),
       ...(outletId ? { outletId } : {}),
       tenantId: options.tenantId,
       type: `catalog.${options.entityType.slice("catalog_".length)}.${options.operation}`,
