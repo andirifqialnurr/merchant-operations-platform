@@ -1,11 +1,8 @@
 import { Module } from "@nestjs/common";
 
-import { EntitlementModule } from "../core/entitlements/entitlement.module.js";
-import { OrganizationModule } from "../core/workspaces/organization.module.js";
-import {
-  InMemoryRateLimitService,
-  RATE_LIMIT_SERVICE,
-} from "../core/security/rate-limit.service.js";
+import { EntitlementModule } from "../entitlements/entitlement.module.js";
+import { OrganizationModule } from "../workspaces/organization.module.js";
+import { InMemoryRateLimitService, RATE_LIMIT_SERVICE } from "../security/rate-limit.service.js";
 import { PlatformAuthController } from "./platform-auth.controller.js";
 import {
   PLATFORM_AUTH_REPOSITORY,

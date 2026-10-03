@@ -22,7 +22,7 @@ import {
   isOpenApiEnabled,
   isOpenApiPlatformAuthRequired,
 } from "./openapi.js";
-import { PlatformAuthService } from "./platform/platform-auth.service.js";
+import { PlatformAuthService } from "./core/platform/platform-auth.service.js";
 import { ZodValidationPipe } from "./zod-validation.pipe.js";
 
 test("maps known and unknown exceptions to the stable error contract", () => {

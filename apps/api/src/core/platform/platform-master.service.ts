@@ -8,8 +8,8 @@ import {
 } from "@merchant/contracts";
 import { Inject, Injectable } from "@nestjs/common";
 
-import { EntitlementService } from "../core/entitlements/entitlement.service.js";
-import { OrganizationService } from "../core/workspaces/organization.service.js";
+import { EntitlementService } from "../entitlements/entitlement.service.js";
+import { OrganizationService } from "../workspaces/organization.service.js";
 
 export type PlatformMutationContext = { actorId: string; requestId?: string };
 
