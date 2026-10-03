@@ -85,19 +85,21 @@ export function Receipt({
 
       <Rows rows={meta} />
 
-      <ul className="ui-receipt__lines">
-        {lines.map((line) => (
-          <li key={line.key}>
-            <div className="ui-receipt__line">
-              <span>
-                {line.quantity} {line.name}
-              </span>
-              <span>{line.amount}</span>
-            </div>
-            {line.detail ? <p className="ui-receipt__detail">{line.detail}</p> : null}
-          </li>
-        ))}
-      </ul>
+      {lines.length > 0 ? (
+        <ul className="ui-receipt__lines">
+          {lines.map((line) => (
+            <li key={line.key}>
+              <div className="ui-receipt__line">
+                <span>
+                  {line.quantity} {line.name}
+                </span>
+                <span>{line.amount}</span>
+              </div>
+              {line.detail ? <p className="ui-receipt__detail">{line.detail}</p> : null}
+            </li>
+          ))}
+        </ul>
+      ) : null}
 
       <Rows rows={totals} />
       <Rows rows={payment} />

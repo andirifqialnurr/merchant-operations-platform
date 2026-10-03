@@ -36,11 +36,11 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-FT-06 Daftar pesanan dan batal** — pesanan 24 jam terakhir, bayar nanti, batal dengan alasan. `e68e655`, `a1932b6`
 - [x] **M1-FT-07 Struk** `928e049` — tampilan struk setelah lunas dan dari daftar pesanan, bisa dicetak dari browser (cetak ulang ditandai "salinan"). Selesai bila: struk memuat nama outlet, nomor penjualan, waktu, baris item, total, metode, uang diterima, dan kembalian; tidak memuat ID internal.
 - [x] **M1-FT-08 Transfer dan EDC manual** `f8a2922` — dua metode tambahan dengan nomor referensi opsional, tercatat terpisah dari tunai. Selesai bila: tidak menambah kas seharusnya; muncul di ringkasan shift per metode.
-- [x] **M1-FT-09 Refund sederhana** — refund penuh atau sebagian atas penjualan dengan alasan wajib, izin `payment.refund`; penjualan asli tetap ada. Selesai bila: refund tunai mengurangi kas seharusnya shift yang sedang terbuka; refund melebihi sisa ditolak; event `sale.refunded.v1`.
+- [x] **M1-FT-09 Refund sederhana** `241efa6` — refund penuh atau sebagian atas penjualan dengan alasan wajib, izin `payment.refund`; penjualan asli tetap ada. Selesai bila: refund tunai mengurangi kas seharusnya shift yang sedang terbuka; refund melebihi sisa ditolak; event `sale.refunded.v1`.
 - [ ] **M1-FT-10 Persetujuan manager untuk refund** — kasir tanpa izin refund meminta persetujuan manager dengan PIN (flowchart 5.4). Selesai bila: PIN tersimpan ber-hash; persetujuan diaudit dengan nama penyetuju. Boleh dipindah ke M2 bila PIN butuh pengaturan pengguna.
 - [ ] **M1-FT-11 Catatan per item** — catatan bebas pada baris keranjang, ikut ke snapshot pesanan.
 - [ ] **M1-FT-12 Tahan pesanan** — simpan keranjang sebagai pesanan `DRAFT` beri label, lanjutkan atau buang dari daftar. Selesai bila: pesanan yang ditahan tidak bernomor penjualan dan tidak memengaruhi kas.
-- [ ] **M1-FT-13 Ringkasan shift tertutup** — ringkasan per metode bayar (tunai, QRIS, transfer, EDC), refund, kas masuk/keluar, dan selisih; bisa dicetak. Selisih hanya untuk yang berizin.
+- [x] **M1-FT-13 Ringkasan shift tertutup** — ringkasan per metode bayar (tunai, QRIS, transfer, EDC), refund, kas masuk/keluar, dan selisih; bisa dicetak. Selisih hanya untuk yang berizin.
 - [ ] **M1-FT-14 Pengaturan pajak dan service charge per outlet** — pola "harga sudah termasuk" atau "ditambahkan di struk", tarif per outlet. Menunggu keputusan `M1-OD-01`; sampai diputuskan total = subtotal.
 
 ### BE — Backend dan data
@@ -49,7 +49,7 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 - [x] **M1-BE-02 Kernel order intake** — `order_orders`, item, modifier, counter nomor. `9e8242a`
 - [x] **M1-BE-03 Kernel billing** — bill, payment, alokasi, sale, counter nomor penjualan; penguncian baris shift antara bayar, kas, dan tutup shift. `76e0a57`
 - [x] **M1-BE-04 Batal pesanan** — kolom pembatalan, penguncian baris pesanan antara batal dan bayar. `e68e655`
-- [x] **M1-BE-05 Refund** — tabel `sales_refunds` dan alokasi refund ke pembayaran; status penjualan `PARTIALLY_REFUNDED`/`REFUNDED`; kas seharusnya shift dikurangi refund tunai di bawah kunci shift yang sama.
+- [x] **M1-BE-05 Refund** `241efa6` — tabel `sales_refunds` dan alokasi refund ke pembayaran; status penjualan `PARTIALLY_REFUNDED`/`REFUNDED`; kas seharusnya shift dikurangi refund tunai di bawah kunci shift yang sama.
 - [x] **M1-BE-06 Metode transfer dan EDC** `f8a2922` — perluas `payOrderSchema`; ringkasan shift per metode dari billing.
 - [ ] **M1-BE-07 Pesanan DRAFT** — buat, ubah, dan submit pesanan yang ditahan; nomor pesanan baru diberikan saat submit.
 - [x] **M1-BE-08 Data struk** `928e049` — endpoint baca struk per penjualan (snapshot, tanpa ID internal selain nomor).

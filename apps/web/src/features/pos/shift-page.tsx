@@ -18,6 +18,7 @@ import { useToast } from "@/providers/toast-provider";
 
 import { useCurrentShift, useShiftMutations } from "./api";
 import { CashMovementSheet } from "./cash-movement-sheet";
+import { ClosedShiftView } from "./closed-shift-view";
 
 const VARIANCE_REASON_MIN_LENGTH = 3;
 const NON_CASH_LABELS = {
@@ -227,6 +228,17 @@ function ShiftForOutlet({
   const errorMessage = useErrorMessage();
   const current = useCurrentShift(tenantId, outletId, true);
   const mutations = useShiftMutations(tenantId, outletId);
+
+  // The shift just closed stays on screen until the cashier is done with it.
+  if (mutations.close.data) {
+    return (
+      <ClosedShiftView
+        canViewVariance={canClose}
+        onDone={() => mutations.close.reset()}
+        shift={mutations.close.data}
+      />
+    );
+  }
 
   if (current.isPending) {
     return (

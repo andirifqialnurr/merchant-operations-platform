@@ -834,6 +834,7 @@ Catatan alignment 5 Agustus 2026: urutan historis P2 dimulai setelah primitive U
 - [x] **12.12 Struk (M1-FT-07):** `GET /pos/orders/:id/receipt` untuk pesanan lunas; komponen `Receipt` dengan kertas 58 mm/80 mm/A4 (pilihan disimpan per perangkat) dan stylesheet cetak yang hanya mencetak struk dengan token `print.ink`/`print.paper`; tombol Cetak struk di layar lunas dan Struk di detail pesanan lunas (ditandai SALINAN).
 - [x] **12.13 Transfer dan EDC (M1-FT-08):** metode bayar transfer dan EDC manual dengan nomor referensi opsional; tidak menambah kas seharusnya; shift menampilkan bagian Non-tunai per metode (`nonCashPayments`).
 - [x] **12.14 Refund (M1-FT-09):** tabel `sales_refunds`; `POST /pos/orders/:id/refunds` (izin `payment.refund`, idempotent) untuk refund sebagian atau penuh lewat metode bayar asli, dalam shift terbuka; layar Refund dari detail pesanan lunas dengan riwayat refund; status Refund sebagian/Direfund di daftar pesanan; struk mencantumkan refund; shift menampilkan Refund tunai.
+- [x] **12.15 Ringkasan shift tertutup (M1-FT-13):** setelah tutup shift, layar Shift ditutup menampilkan kasir, waktu buka/tutup, rekonsiliasi kas (refund tunai bila ada), kas fisik, selisih dan alasannya untuk yang berizin tutup shift, serta Non-tunai per metode; Cetak ringkasan mencetak versi kertas memakai komponen `Receipt`; Selesai kembali ke form buka shift.
 - [ ] **12.10d-4 Lanjutan layar jual:** catatan per item, tahan pesanan, makan di tempat, gambar produk, dan status shift/koneksi di bar atas.
 
 **Checkpoint 12.1:** `feat(ui): add POS product tile and category rail`
@@ -871,6 +872,8 @@ Catatan alignment 5 Agustus 2026: urutan historis P2 dimulai setelah primitive U
 **Checkpoint 12.13:** `feat(pos): take transfer and EDC payments`
 
 **Checkpoint 12.14:** `feat(pos): refund paid orders`
+
+**Checkpoint 12.15:** `feat(pos): show and print the closed shift summary`
 
 **POS catalog component gate:** Product Tile menyediakan variant `compact/default/touch/customer`, size `sm/md/lg/customer`, state selected, low stock, sold out, scheduled/unavailable, image loading, dan image fallback tanpa menyembunyikan harga/status. Category Rail menyediakan mode vertical untuk POS desktop dan horizontal-scroll untuk customer/mobile dengan active indicator yang eksplisit. Component tests mencakup interaksi, disabled state, semantics, dan axe smoke; Storybook production build serta review Chrome pada 1440/390 px, light/dark, focus ring, minimum size, long status, dan overflow sudah lulus.
 
