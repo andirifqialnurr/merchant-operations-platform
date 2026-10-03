@@ -15,14 +15,9 @@ import {
   type UpdateMembership,
   type UpdateRole,
 } from "@merchant/contracts";
-import {
-  ConflictException,
-  ForbiddenException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
+import { accessDenied, assertAccess, evaluateAccess } from "../entitlements/public.js";
 import {
   ACCESS_REPOSITORY,
   type AccessMutationContext,
@@ -91,12 +86,12 @@ function conflict(code: string, message: string) {
   return new ConflictException({ code, message });
 }
 
-function denied() {
-  return new ForbiddenException({
-    code: "AUTHORIZATION_DENIED",
-    message: "Anda tidak memiliki akses untuk tindakan ini.",
-  });
-}
+/** A user in a workspace, as far as access is concerned. `context` is null for a non-member. */
+export type AccessDescription = {
+  context: AuthorizationContext | null;
+  location?: { active: boolean; inScope: boolean };
+  membershipActive: boolean;
+};
 
 function isUniqueConstraintError(error: unknown) {
   return typeof error === "object" && error !== null && "code" in error && error.code === "P2002";
@@ -258,33 +253,65 @@ export class AccessService {
     );
   }
 
+  /**
+   * What the access evaluator needs to know about this user in this workspace,
+   * and about the location when the request names one.
+   */
+  async describeAccess(
+    userId: string,
+    tenantId: string,
+    outletId?: string,
+  ): Promise<AccessDescription> {
+    const access = await this.repository.findAuthorization(userId, tenantId);
+    const membershipActive =
+      access?.userStatus === "ACTIVE" &&
+      access.tenantStatus === "ACTIVE" &&
+      access.status === "ACTIVE";
+    if (!access || !membershipActive) return { context: null, membershipActive: false };
+
+    let location: { active: boolean; inScope: boolean } | undefined;
+    if (outletId) {
+      const outlets = await this.repository.findOutlets(tenantId, [outletId]);
+      location = {
+        active: outlets.length === 1 && outlets[0]?.status === "ACTIVE",
+        inScope: access.allOutlets || access.outletIds.includes(outletId),
+      };
+    }
+    return {
+      context: authorizationContextSchema.parse({
+        allOutlets: access.allOutlets,
+        membershipId: access.id,
+        outletIds: access.outletIds,
+        permissionKeys: access.permissionKeys,
+        tenantId,
+        userId,
+      }),
+      ...(location ? { location } : {}),
+      membershipActive: true,
+    };
+  }
+
+  /** Membership, permission, and location check on its own, without the subscription. */
   async authorize(
     userId: string,
     tenantId: string,
     permission?: PermissionKey,
     outletId?: string,
   ): Promise<AuthorizationContext> {
-    const access = await this.repository.findAuthorization(userId, tenantId);
-    if (
-      !access ||
-      access.userStatus !== "ACTIVE" ||
-      access.tenantStatus !== "ACTIVE" ||
-      access.status !== "ACTIVE"
-    )
-      throw denied();
-    if (permission && !access.permissionKeys.includes(permission)) throw denied();
-    if (outletId) {
-      const outlets = await this.repository.findOutlets(tenantId, [outletId]);
-      if (outlets.length !== 1 || outlets[0]?.status !== "ACTIVE") throw denied();
-      if (!access.allOutlets && !access.outletIds.includes(outletId)) throw denied();
-    }
-    return authorizationContextSchema.parse({
-      allOutlets: access.allOutlets,
-      membershipId: access.id,
-      outletIds: access.outletIds,
-      permissionKeys: access.permissionKeys,
-      tenantId,
-      userId,
-    });
+    const access = await this.describeAccess(userId, tenantId, outletId);
+    assertAccess(
+      evaluateAccess(
+        {
+          allLocations: access.context?.allOutlets ?? false,
+          ...(access.location ? { location: access.location } : {}),
+          membershipActive: access.membershipActive,
+          permissionKeys: access.context?.permissionKeys ?? [],
+          subscriptionUsable: true,
+        },
+        permission ? { permission } : {},
+      ),
+    );
+    if (!access.context) throw accessDenied("WORKSPACE_ACCESS_DENIED");
+    return access.context;
   }
 }

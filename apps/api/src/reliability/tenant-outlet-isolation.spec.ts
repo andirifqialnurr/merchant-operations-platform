@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { API_HEADERS, MODULES, PERMISSIONS, type AuthorizationContext } from "@merchant/contracts";
-import { BadRequestException, ForbiddenException } from "@nestjs/common";
+import { BadRequestException } from "@nestjs/common";
 import type { ExecutionContext } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 
@@ -65,7 +65,6 @@ function createGuard({
   const authCalls: Array<string | undefined> = [];
   const accessCalls: Array<{
     outletId?: string | undefined;
-    permission?: string | undefined;
     tenantId: string;
     userId: string;
   }> = [];
@@ -80,21 +79,31 @@ function createGuard({
     },
   } as unknown as AuthService;
   const accessService = {
-    authorize: async (userId: string, tenantId: string, permission?: string, outletId?: string) => {
-      accessCalls.push({ outletId, permission, tenantId, userId });
-      if (tenantId !== allowTenant) {
-        throw new ForbiddenException({
-          code: "AUTHORIZATION_DENIED",
-          message: "Anda tidak memiliki akses untuk tindakan ini.",
-        });
-      }
-      return { ...accessContext, outletIds: accessContext.outletIds };
+    describeAccess: async (userId: string, tenantId: string, outletId?: string) => {
+      accessCalls.push({ outletId, tenantId, userId });
+      // A user of another workspace is simply not a member here.
+      if (tenantId !== allowTenant) return { context: null, membershipActive: false };
+      return {
+        context: accessContext,
+        ...(outletId
+          ? {
+              location: {
+                active: true,
+                inScope: accessContext.allOutlets || accessContext.outletIds.includes(outletId),
+              },
+            }
+          : {}),
+        membershipActive: true,
+      };
     },
   } as unknown as AccessService;
   const entitlementService = {
-    requireAccess: async (tenantId: string, moduleKey?: string) => {
+    describeAccess: async (tenantId: string, moduleKey?: string) => {
       entitlementCalls.push({ moduleKey, tenantId });
-      return { modules: [], subscription: null };
+      return {
+        ...(moduleKey ? { module: { entitled: true, tier: null } } : {}),
+        subscriptionUsable: true,
+      };
     },
   } as unknown as EntitlementService;
 
@@ -136,7 +145,6 @@ test("outlet-scoped routes authorize only the requested tenant and outlet contex
   assert.deepEqual(accessCalls, [
     {
       outletId: IDS.outletA,
-      permission: PERMISSIONS.catalogRead,
       tenantId: IDS.tenantA,
       userId: IDS.userA,
     },

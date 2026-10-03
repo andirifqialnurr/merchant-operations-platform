@@ -10,6 +10,8 @@ const messages = join(here, "..", "..", "messages");
 
 /** The API areas whose errors reach the catalog and cashier screens. */
 const AREAS = ["catalog", "modules", "kernels"];
+/** Access refusals are declared as a table rather than thrown by name. */
+const ACCESS_DENIALS = join(apiSource, "core", "entitlements", "access-evaluator.ts");
 const THROWN_CODE =
   /(?:notFound|conflict|badRequest|forbidden|unprocessable)\(\s*"([A-Z][A-Z0-9_]+)"|code:\s*"([A-Z][A-Z0-9_]+)"/g;
 
@@ -32,6 +34,12 @@ function thrownCodes() {
       }
     }
   }
+  const table = readFileSync(ACCESS_DENIALS, "utf8");
+  const start = table.indexOf("export const ACCESS_DENIALS = {");
+  const end = table.indexOf("} as const;", start);
+  for (const match of table.slice(start, end).matchAll(/^ {2}([A-Z][A-Z0-9_]+):/gm)) {
+    if (match[1]) codes.add(match[1]);
+  }
   return codes;
 }
 
@@ -39,6 +47,7 @@ test("every catalog and cashier error code has a message in both languages", () 
   const codes = thrownCodes();
   assert.ok(codes.has("CATALOG_PRODUCT_NOT_FOUND"), "the scan finds catalog codes");
   assert.ok(codes.has("POS_SHIFT_NOT_OPEN"), "the scan finds cashier codes");
+  assert.ok(codes.has("PERMISSION_DENIED"), "the scan finds access refusal codes");
 
   for (const locale of ["id", "en"]) {
     const { errors } = JSON.parse(readFileSync(join(messages, `${locale}.json`), "utf8")) as {

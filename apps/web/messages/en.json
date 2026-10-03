@@ -277,7 +277,6 @@
   },
   "errors": {
     "API_REQUEST_FAILED": "The service could not process the request. Try again.",
-    "AUTHORIZATION_DENIED": "You do not have access to this action.",
     "AUTH_INVALID_CREDENTIALS": "Incorrect email or password.",
     "AUTH_SESSION_INVALID": "Your session has ended. Sign in again.",
     "BILL_ALREADY_PAID": "This order is already paid.",
@@ -303,9 +302,13 @@
     "CATALOG_PRODUCT_VARIANT_CONFLICT": "This product already has a variant with this name.",
     "CATALOG_PRODUCT_VARIANT_NOT_FOUND": "Variant not found.",
     "CSRF_TOKEN_REQUIRED": "Request rejected. Reload the page and try again.",
+    "ENTITLEMENT_REQUIRED": "This module or feature is not part of this business's subscription.",
+    "FEATURE_DISABLED": "This feature is not switched on yet.",
     "HELD_CART_NOT_FOUND": "This order was already resumed or discarded.",
     "IDEMPOTENCY_KEY_REUSED": "This request conflicts with an earlier one. Try again.",
-    "MODULE_NOT_ENTITLED": "This module is not part of this business's subscription.",
+    "INSTALLATION_SETUP_REQUIRED": "This module is not installed or not fully set up yet.",
+    "LIMIT_REACHED": "The limit for this feature has been reached.",
+    "LOCATION_SCOPE_DENIED": "You are not assigned to this location.",
     "ORDER_ALREADY_PAID": "A paid order cannot be canceled.",
     "ORDER_CANCELED": "A canceled order cannot be paid.",
     "ORDER_CURRENCY_MIXED": "An order cannot use more than one currency.",
@@ -319,6 +322,7 @@
     "OUTLET_NOT_FOUND": "Outlet not found.",
     "OUTLET_SCOPE_MISMATCH": "You do not have access to this outlet.",
     "PAYMENT_TENDERED_INSUFFICIENT": "The cash received is less than the total.",
+    "PERMISSION_DENIED": "Your role does not allow this action.",
     "POS_CASH_OUT_EXCEEDS_DRAWER": "Cash out is more than the cash in the drawer.",
     "POS_SHIFT_ALREADY_OPEN": "You still have an open shift.",
     "POS_SHIFT_NOT_FOUND": "Shift not found.",
@@ -330,10 +334,13 @@
     "REFUND_EXCEEDS_REFUNDABLE": "The refund is more than what is left to refund.",
     "SUBSCRIPTION_INVALID": "This business's subscription is not active.",
     "SUBSCRIPTION_REQUIRED": "This business does not have a subscription yet.",
+    "SUBSCRIPTION_SUSPENDED": "This business's subscription cannot be used. Contact the business owner.",
     "TENANT_INACTIVE": "This business is inactive.",
     "TENANT_NOT_FOUND": "Business not found.",
+    "TIER_UPGRADE_REQUIRED": "This feature needs a higher tier of the module.",
     "UNKNOWN": "Something went wrong. Try again.",
     "UNKNOWN_WITH_ID": "Something went wrong. Try again, or quote code {requestId} when contacting support.",
-    "VALIDATION_ERROR": "Check your entries and try again."
+    "VALIDATION_ERROR": "Check your entries and try again.",
+    "WORKSPACE_ACCESS_DENIED": "You are not an active member of this business."
   }
 }

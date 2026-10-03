@@ -277,7 +277,6 @@
   },
   "errors": {
     "API_REQUEST_FAILED": "Layanan tidak dapat memproses permintaan. Coba lagi.",
-    "AUTHORIZATION_DENIED": "Anda tidak punya akses untuk tindakan ini.",
     "AUTH_INVALID_CREDENTIALS": "Email atau kata sandi salah.",
     "AUTH_SESSION_INVALID": "Sesi Anda sudah berakhir. Masuk lagi.",
     "BILL_ALREADY_PAID": "Pesanan ini sudah dibayar.",
@@ -303,9 +302,13 @@
     "CATALOG_PRODUCT_VARIANT_CONFLICT": "Sudah ada varian dengan nama ini di produk ini.",
     "CATALOG_PRODUCT_VARIANT_NOT_FOUND": "Varian tidak ditemukan.",
     "CSRF_TOKEN_REQUIRED": "Permintaan ditolak. Muat ulang halaman lalu coba lagi.",
+    "ENTITLEMENT_REQUIRED": "Modul atau fitur ini tidak termasuk dalam langganan bisnis ini.",
+    "FEATURE_DISABLED": "Fitur ini belum diaktifkan.",
     "HELD_CART_NOT_FOUND": "Pesanan ini sudah dilanjutkan atau dibuang.",
     "IDEMPOTENCY_KEY_REUSED": "Permintaan ini bentrok dengan permintaan sebelumnya. Coba lagi.",
-    "MODULE_NOT_ENTITLED": "Modul ini tidak termasuk dalam langganan bisnis ini.",
+    "INSTALLATION_SETUP_REQUIRED": "Modul ini belum dipasang atau belum selesai diatur.",
+    "LIMIT_REACHED": "Batas untuk fitur ini sudah tercapai.",
+    "LOCATION_SCOPE_DENIED": "Anda tidak ditugaskan ke lokasi ini.",
     "ORDER_ALREADY_PAID": "Pesanan yang sudah dibayar tidak bisa dibatalkan.",
     "ORDER_CANCELED": "Pesanan yang dibatalkan tidak bisa dibayar.",
     "ORDER_CURRENCY_MIXED": "Pesanan tidak boleh memakai lebih dari satu mata uang.",
@@ -319,6 +322,7 @@
     "OUTLET_NOT_FOUND": "Outlet tidak ditemukan.",
     "OUTLET_SCOPE_MISMATCH": "Anda tidak punya akses ke outlet ini.",
     "PAYMENT_TENDERED_INSUFFICIENT": "Uang diterima kurang dari total.",
+    "PERMISSION_DENIED": "Peran Anda tidak mengizinkan tindakan ini.",
     "POS_CASH_OUT_EXCEEDS_DRAWER": "Kas keluar melebihi uang di laci.",
     "POS_SHIFT_ALREADY_OPEN": "Anda masih punya shift yang terbuka.",
     "POS_SHIFT_NOT_FOUND": "Shift tidak ditemukan.",
@@ -330,10 +334,13 @@
     "REFUND_EXCEEDS_REFUNDABLE": "Refund melebihi sisa yang bisa direfund.",
     "SUBSCRIPTION_INVALID": "Langganan bisnis ini tidak aktif.",
     "SUBSCRIPTION_REQUIRED": "Bisnis ini belum punya langganan.",
+    "SUBSCRIPTION_SUSPENDED": "Langganan bisnis ini tidak dapat dipakai. Hubungi pemilik bisnis.",
     "TENANT_INACTIVE": "Bisnis ini nonaktif.",
     "TENANT_NOT_FOUND": "Bisnis tidak ditemukan.",
+    "TIER_UPGRADE_REQUIRED": "Fitur ini butuh tingkat modul yang lebih tinggi.",
     "UNKNOWN": "Terjadi kesalahan. Coba lagi.",
     "UNKNOWN_WITH_ID": "Terjadi kesalahan. Coba lagi, atau sebutkan kode {requestId} saat menghubungi dukungan.",
-    "VALIDATION_ERROR": "Periksa kembali isian Anda."
+    "VALIDATION_ERROR": "Periksa kembali isian Anda.",
+    "WORKSPACE_ACCESS_DENIED": "Anda bukan anggota aktif bisnis ini."
   }
 }

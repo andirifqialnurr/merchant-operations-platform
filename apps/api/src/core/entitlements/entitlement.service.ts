@@ -12,12 +12,12 @@ import {
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 
+import { assertAccess, evaluateAccess } from "./access-evaluator.js";
 import {
   ENTITLEMENT_REPOSITORY,
   type EntitlementMutationContext,
@@ -37,16 +37,6 @@ function conflict(code: string, message: string) {
 
 function invalid(message: string): never {
   throw new BadRequestException({ code: "SUBSCRIPTION_INVALID", message });
-}
-
-function denied(code: "MODULE_NOT_ENTITLED" | "SUBSCRIPTION_INACTIVE") {
-  return new ForbiddenException({
-    code,
-    message:
-      code === "MODULE_NOT_ENTITLED"
-        ? "Modul ini tidak tersedia untuk tenant aktif."
-        : "Subscription tenant tidak aktif.",
-  });
 }
 
 function toSubscription(record: SubscriptionRecord): Subscription {
@@ -302,19 +292,35 @@ export class EntitlementService {
     return this.getSnapshot(tenantId);
   }
 
-  async requireAccess(tenantId: string, moduleKey?: ModuleKey, now = new Date()) {
+  /**
+   * What the access evaluator needs to know about the workspace's subscription
+   * and, when a module is named, whether that module is entitled.
+   */
+  async describeAccess(tenantId: string, moduleKey?: ModuleKey, now = new Date()) {
     const state = await this.repository.getState(tenantId);
-    if (
-      !state.tenant ||
-      state.tenant.status !== "ACTIVE" ||
-      !isSubscriptionUsable(state.subscription, now)
-    ) {
-      throw denied("SUBSCRIPTION_INACTIVE");
-    }
+    const subscriptionUsable =
+      state.tenant?.status === "ACTIVE" && isSubscriptionUsable(state.subscription, now);
     const snapshot = this.resolveState(state, now);
-    if (moduleKey && !snapshot.modules.find((item) => item.key === moduleKey)?.enabled) {
-      throw denied("MODULE_NOT_ENTITLED");
-    }
+    const entitled = moduleKey
+      ? snapshot.modules.find((item) => item.key === moduleKey)?.enabled === true
+      : undefined;
+    return {
+      // Tiers come from the package version once modules are read from it.
+      ...(entitled === undefined ? {} : { module: { entitled, tier: null } }),
+      snapshot,
+      subscriptionUsable,
+    };
+  }
+
+  /** Subscription and module check on its own, for callers outside a request guard. */
+  async requireAccess(tenantId: string, moduleKey?: ModuleKey, now = new Date()) {
+    const { snapshot, ...facts } = await this.describeAccess(tenantId, moduleKey, now);
+    assertAccess(
+      evaluateAccess(
+        { allLocations: true, membershipActive: true, permissionKeys: [], ...facts },
+        moduleKey ? { moduleKey } : {},
+      ),
+    );
     return snapshot;
   }
 }

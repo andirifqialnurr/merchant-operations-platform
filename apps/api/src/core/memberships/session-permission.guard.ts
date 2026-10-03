@@ -8,7 +8,6 @@ import {
 import {
   BadRequestException,
   createParamDecorator,
-  ForbiddenException,
   Inject,
   Injectable,
   SetMetadata,
@@ -19,7 +18,12 @@ import { Reflector } from "@nestjs/core";
 
 import { AuthService } from "../auth/public.js";
 import { readSessionToken } from "../auth/public.js";
-import { EntitlementService } from "../entitlements/public.js";
+import {
+  accessDenied,
+  assertAccess,
+  EntitlementService,
+  evaluateAccess,
+} from "../entitlements/public.js";
 import { AccessService } from "./access.service.js";
 
 const REQUIRED_PERMISSION = "required-access-permission";
@@ -73,30 +77,44 @@ export class SessionPermissionGuard implements CanActivate {
       REQUIRED_PERMISSION,
       [context.getHandler(), context.getClass()],
     );
-    request.accessContext = await this.accessService.authorize(
-      session.user.id,
-      parsedHeaders.data[API_HEADERS.tenantId],
-      permission,
-      parsedHeaders.data[API_HEADERS.outletId],
-    );
+    const tenantId = parsedHeaders.data[API_HEADERS.tenantId];
     const moduleKey = this.reflector.getAllAndOverride<ModuleKey | undefined>(REQUIRED_MODULE, [
       context.getHandler(),
       context.getClass(),
     ]);
-    await this.entitlementService.requireAccess(
-      parsedHeaders.data[API_HEADERS.tenantId],
-      moduleKey,
-    );
     const requireAllOutlets = this.reflector.getAllAndOverride<boolean>(REQUIRE_ALL_OUTLETS, [
       context.getHandler(),
       context.getClass(),
     ]);
-    if (requireAllOutlets && !request.accessContext.allOutlets) {
-      throw new ForbiddenException({
-        code: "AUTHORIZATION_DENIED",
-        message: "Anda tidak memiliki akses untuk tindakan ini.",
-      });
-    }
+
+    const access = await this.accessService.describeAccess(
+      session.user.id,
+      tenantId,
+      parsedHeaders.data[API_HEADERS.outletId],
+    );
+    // Someone outside the workspace learns nothing about its subscription.
+    if (!access.context) throw accessDenied("WORKSPACE_ACCESS_DENIED");
+    const entitlement = await this.entitlementService.describeAccess(tenantId, moduleKey);
+
+    // One decision, in the order of architecture.md 6.3, with one reason when refused.
+    assertAccess(
+      evaluateAccess(
+        {
+          allLocations: access.context.allOutlets,
+          ...(access.location ? { location: access.location } : {}),
+          membershipActive: access.membershipActive,
+          ...(entitlement.module ? { module: entitlement.module } : {}),
+          permissionKeys: access.context.permissionKeys,
+          subscriptionUsable: entitlement.subscriptionUsable,
+        },
+        {
+          ...(requireAllOutlets ? { allLocations: true } : {}),
+          ...(moduleKey ? { moduleKey } : {}),
+          ...(permission ? { permission } : {}),
+        },
+      ),
+    );
+    request.accessContext = access.context;
     return true;
   }
 }

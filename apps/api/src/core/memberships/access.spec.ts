@@ -358,21 +358,24 @@ test("rejects outlet-scoped actors from tenant-wide protected routes", async () 
     }),
   } as unknown as AuthService;
   const accessService = {
-    authorize: async () => ({
-      allOutlets: false,
-      membershipId: IDS.membershipStaff,
-      outletIds: [IDS.outletA],
-      permissionKeys: [PERMISSIONS.organizationRead],
-      tenantId: IDS.tenantA,
-      userId: IDS.userStaff,
+    describeAccess: async () => ({
+      context: {
+        allOutlets: false,
+        membershipId: IDS.membershipStaff,
+        outletIds: [IDS.outletA],
+        permissionKeys: [PERMISSIONS.organizationRead],
+        tenantId: IDS.tenantA,
+        userId: IDS.userStaff,
+      },
+      membershipActive: true,
     }),
   } as unknown as AccessService;
   let checkedModule: string | undefined;
   const entitlementService = {
-    requireAccess: async (tenantId: string, moduleKey?: string) => {
+    describeAccess: async (tenantId: string, moduleKey?: string) => {
       assert.equal(tenantId, IDS.tenantA);
       checkedModule = moduleKey;
-      return { modules: [], subscription: null };
+      return { module: { entitled: false, tier: null }, subscriptionUsable: true };
     },
   } as unknown as EntitlementService;
   const guard = new SessionPermissionGuard(

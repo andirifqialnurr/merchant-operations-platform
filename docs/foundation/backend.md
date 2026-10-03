@@ -378,13 +378,15 @@ Kode akses minimum:
 
 | Kode | HTTP | Kondisi |
 |---|---|---|
-| `UNAUTHENTICATED` | 401 | Sesi tidak ada atau kedaluwarsa |
+| `AUTH_SESSION_INVALID` | 401 | Sesi tidak ada atau kedaluwarsa |
+| `WORKSPACE_ACCESS_DENIED` | 403 | Bukan anggota aktif workspace; dikembalikan sebelum data langganan dibaca |
 | `CSRF_TOKEN_REQUIRED` | 403 | Header CSRF tidak ada |
 | `PERMISSION_DENIED` | 403 | Pengguna tidak punya izin |
 | `LOCATION_SCOPE_DENIED` | 403 | Lokasi di luar cakupan |
 | `ENTITLEMENT_REQUIRED` | 403 | Modul/capability tidak dibeli |
 | `TIER_UPGRADE_REQUIRED` | 403 | Butuh tier lebih tinggi |
 | `INSTALLATION_SETUP_REQUIRED` | 409 | Setup modul belum lengkap |
+| `FEATURE_DISABLED` | 403 | Feature flag belum membuka fitur |
 | `SUBSCRIPTION_SUSPENDED` | 403 | Langganan tidak dapat dipakai |
 | `LIMIT_REACHED` | 409 | Batas hard tercapai |
 | `RATE_LIMIT_EXCEEDED` | 429 | Batas laju |
@@ -393,6 +395,8 @@ Kode akses minimum:
 | `NOT_FOUND` | 404 | Termasuk record milik workspace lain (tanpa membocorkan keberadaannya) |
 
 ---
+
+Kode akses di atas (selain sesi, CSRF, rate limit, validasi, dan idempotency) dihasilkan satu tempat: `evaluateAccess` di `apps/api/src/core/entitlements/access-evaluator.ts`. Fungsi itu memeriksa menurut urutan `architecture.md` 6.3 dan berhenti pada kegagalan pertama, jadi alasan yang dikembalikan selalu yang paling mendasar. `details` membawa parameter (`moduleKey`, `capability`, `requiredTier`, `dimensionKey`, `limit`, `usage`). `SessionPermissionGuard` mengumpulkan fakta lalu memanggilnya; langkah instalasi, capability, feature flag, dan limit sudah didukung evaluator tetapi belum punya sumber data (`M2-BE-06`, `M2-BE-07`, `M2-BE-11`).
 
 ## 10. Guard dan otorisasi
 
