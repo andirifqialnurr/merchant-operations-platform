@@ -6,9 +6,11 @@
     "dismissToast": "Tutup notifikasi",
     "language": "Bahasa",
     "loadFailed": "Halaman tidak dapat dimuat",
-    "navCatalog": "Katalog",
+    "moduleNav": {
+      "CORE_CATALOG": "Katalog",
+      "POS": "Kasir"
+    },
     "navOrders": "Pesanan",
-    "navPos": "Kasir",
     "navSell": "Jual",
     "navShift": "Shift",
     "navigation": "Navigasi utama",

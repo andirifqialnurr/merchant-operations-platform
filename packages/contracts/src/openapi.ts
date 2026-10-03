@@ -99,6 +99,7 @@ import {
   moduleRouteRegistrationSchema,
   moduleSettingRegistrationSchema,
   moduleInstallationListSchema,
+  workspaceNavigationSchema,
 } from "./module-manifest.ts";
 import {
   effectiveLimitSchema,
@@ -191,6 +192,7 @@ export const commonOpenApiSchemas = {
   ModuleInstallStep: toOpenApiSchema(moduleInstallStepSchema),
   ModuleInstallation: toOpenApiSchema(moduleInstallationSchema),
   ModuleInstallationList: toOpenApiSchema(moduleInstallationListSchema),
+  WorkspaceNavigation: toOpenApiSchema(workspaceNavigationSchema),
   ModuleEntitlement: toOpenApiSchema(moduleEntitlementSchema),
   IntegrationBinding: toOpenApiSchema(integrationBindingSchema),
   ModuleManifest: toOpenApiSchema(moduleManifestSchema),

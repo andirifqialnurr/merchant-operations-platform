@@ -4,15 +4,19 @@ import { useTranslations } from "next-intl";
 import { type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconCashRegister, IconPackage } from "@tabler/icons-react";
 
-import { PERMISSIONS } from "@merchant/contracts";
 import { AppIcon } from "@merchant/ui/app-icon";
 import { Brand } from "@merchant/ui/brand";
 import { AppShell } from "@merchant/ui/app-shell";
 
 import { useWorkspace } from "@/features/workspace";
 
+import {
+  isNavigableModule,
+  MODULE_NAVIGATION,
+  UNKNOWN_MODULE_ICON,
+  useModuleNavigation,
+} from "./module-navigation";
 import { ShellAccount, ShellContext, type ShellUser } from "./shell-controls";
 
 export function BackofficeShell({
@@ -26,31 +30,21 @@ export function BackofficeShell({
 }>) {
   const t = useTranslations("shell");
   const pathname = usePathname();
-  const { can } = useWorkspace();
+  const { workspace } = useWorkspace();
+  const entries = useModuleNavigation(workspace.tenant.id);
 
-  // Only modules the user may open appear here; the API still enforces access.
-  const navigation = [
-    ...(can(PERMISSIONS.catalogRead)
-      ? [
-          {
-            active: pathname.startsWith("/catalog"),
-            href: "/catalog",
-            icon: <AppIcon icon={IconPackage} />,
-            label: t("navCatalog"),
-          },
-        ]
-      : []),
-    ...(can(PERMISSIONS.shiftOpen)
-      ? [
-          {
-            active: false,
-            href: "/pos",
-            icon: <AppIcon icon={IconCashRegister} />,
-            label: t("navPos"),
-          },
-        ]
-      : []),
-  ];
+  // The menu comes from the API: modules in the subscription, installed, and
+  // within the user's permissions. Until it arrives the menu is simply empty.
+  const navigation = (entries.data?.entries ?? []).map((entry) => {
+    const known = isNavigableModule(entry.moduleKey) ? MODULE_NAVIGATION[entry.moduleKey] : null;
+    return {
+      active: pathname === entry.path || pathname.startsWith(`${entry.path}/`),
+      href: entry.path,
+      icon: <AppIcon icon={known?.icon ?? UNKNOWN_MODULE_ICON} />,
+      // A module this build cannot name yet is shown by its key rather than hidden.
+      label: known ? t(known.labelKey) : entry.moduleKey,
+    };
+  });
 
   return (
     <AppShell

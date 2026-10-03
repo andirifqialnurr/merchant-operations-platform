@@ -1,8 +1,11 @@
 import {
   moduleInstallationSchema,
+  workspaceNavigationSchema,
   type ModuleInstallation,
   type ModuleInstallationStatus,
   type ModuleKey,
+  type PermissionKey,
+  type WorkspaceNavigation,
 } from "@merchant/contracts";
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
@@ -79,6 +82,35 @@ export class InstallationService {
         const record = byModule.get(module.key);
         return record ? toInstallation(record) : notInstalled(tenantId, module.key, now);
       });
+  }
+
+  /**
+   * The menu for a user: entries of modules that are entitled and, for
+   * commercial modules, actively installed, and that the user's permissions
+   * allow. The order follows the manifest list.
+   */
+  async navigation(
+    tenantId: string,
+    permissionKeys: readonly PermissionKey[],
+    now = new Date(),
+  ): Promise<WorkspaceNavigation> {
+    const [snapshot, records] = await Promise.all([
+      this.entitlements.getSnapshot(tenantId, now),
+      this.repository.list(tenantId),
+    ]);
+    const active = new Set(
+      records.filter((record) => record.status === "ACTIVE").map((record) => record.moduleKey),
+    );
+    const usable = new Set(
+      snapshot.modules
+        .filter((module) => module.enabled && (module.kind === "CORE" || active.has(module.key)))
+        .map((module) => module.key),
+    );
+    return workspaceNavigationSchema.parse({
+      entries: this.manifests
+        .navigationFor(usable, permissionKeys)
+        .map((entry) => ({ moduleKey: entry.moduleKey, path: entry.path })),
+    });
   }
 
   /**

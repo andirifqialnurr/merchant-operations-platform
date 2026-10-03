@@ -9,9 +9,10 @@ import {
   PrismaInstallationRepository,
 } from "./installation.repository.js";
 import { InstallationService } from "./installation.service.js";
+import { NavigationController } from "./navigation.controller.js";
 
 @Module({
-  controllers: [InstallationController],
+  controllers: [InstallationController, NavigationController],
   exports: [InstallationService],
   imports: [AccessModule, AuthModule, EntitlementModule],
   providers: [

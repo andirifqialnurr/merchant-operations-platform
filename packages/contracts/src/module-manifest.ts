@@ -166,6 +166,19 @@ export const moduleInstallationListSchema = z.object({
   installations: z.array(moduleInstallationSchema),
 });
 
+/**
+ * The menu of one user in one workspace: an entry per module screen they can
+ * open. It carries no label; the client names each module in its own language.
+ */
+export const workspaceNavigationSchema = z.object({
+  entries: z.array(
+    z.object({
+      moduleKey: moduleKeySchema,
+      path: moduleRouteRegistrationSchema.shape.path,
+    }),
+  ),
+});
+
 export const integrationBindingStatusSchema = z.enum([
   "ACTIVE",
   "DISABLED",
@@ -247,6 +260,8 @@ export type ModuleInstallStep = z.infer<typeof moduleInstallStepSchema>;
 export type ModuleInstallation = z.infer<typeof moduleInstallationSchema>;
 
 export type ModuleInstallationList = z.infer<typeof moduleInstallationListSchema>;
+
+export type WorkspaceNavigation = z.infer<typeof workspaceNavigationSchema>;
 
 export type ModuleInstallationStatus = z.infer<typeof moduleInstallationStatusSchema>;
 

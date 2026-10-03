@@ -54,6 +54,7 @@ import {
   updateCatalogProductSchema,
   updateCatalogProductVariantSchema,
   workspaceContextsSchema,
+  workspaceNavigationSchema,
   type AuthLoginRequest,
   type UpdateUserPreferences,
   type CancelOrder,
@@ -194,6 +195,10 @@ export const merchantApi = {
       {},
     ),
   workspaces: () => apiRequest("/access/workspaces", workspaceContextsSchema),
+  navigation: (tenantId: string) =>
+    apiRequest("/modules/navigation", workspaceNavigationSchema, {
+      headers: tenantHeaders(tenantId),
+    }),
   catalog: (tenantId: string) =>
     apiRequest("/catalog", catalogSnapshotSchema, { headers: tenantHeaders(tenantId) }),
   outletCatalog: (tenantId: string, outletId: string) =>

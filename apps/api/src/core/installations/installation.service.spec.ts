@@ -3,10 +3,12 @@ import test from "node:test";
 
 import {
   MODULES,
+  PERMISSIONS,
   type EntitlementSnapshot,
   type ModuleInstallationStatus,
   type ModuleKey,
   type ModuleManifest,
+  type PermissionKey,
 } from "@merchant/contracts";
 import { ConflictException, ForbiddenException, NotFoundException } from "@nestjs/common";
 
@@ -315,4 +317,26 @@ test("the list shows entitled modules that are not installed yet", async () => {
     list.map((item) => `${item.moduleKey}:${item.status}`),
     ["POS:ACTIVE", "KDS:NOT_INSTALLED"],
   );
+});
+
+test("the menu lists what is entitled, installed, and permitted, and nothing else", async () => {
+  const { service } = setup();
+  const paths = async (permissions: PermissionKey[]) =>
+    (await service.navigation(TENANT, permissions)).entries.map((entry) => entry.path);
+  const owner = [PERMISSIONS.catalogRead, PERMISSIONS.orderCreate];
+
+  // POS is entitled but not installed yet: only the core catalog shows.
+  assert.deepEqual(await paths(owner), ["/catalog"]);
+
+  await service.install(TENANT, MODULES.pos);
+  assert.deepEqual(await paths(owner), ["/catalog", "/pos"]);
+  // A cashier has no catalog permission.
+  assert.deepEqual(await paths([PERMISSIONS.orderCreate]), ["/pos"]);
+  assert.deepEqual((await service.navigation(TENANT, [PERMISSIONS.orderCreate])).entries, [
+    { moduleKey: MODULES.pos, path: "/pos" },
+  ]);
+
+  // A suspended module leaves the menu until it is resumed.
+  await service.suspend(TENANT, MODULES.pos, "Unpaid invoice");
+  assert.deepEqual(await paths(owner), ["/catalog"]);
 });

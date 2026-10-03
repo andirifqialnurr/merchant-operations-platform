@@ -6,9 +6,11 @@
     "dismissToast": "Dismiss notification",
     "language": "Language",
     "loadFailed": "The page could not be loaded",
-    "navCatalog": "Catalog",
+    "moduleNav": {
+      "CORE_CATALOG": "Catalog",
+      "POS": "Cashier"
+    },
     "navOrders": "Orders",
-    "navPos": "Cashier",
     "navSell": "Sell",
     "navShift": "Shift",
     "navigation": "Main navigation",
