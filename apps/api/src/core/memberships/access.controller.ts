@@ -42,9 +42,9 @@ import {
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
-import { AuthService } from "../core/auth/auth.service.js";
-import { readSessionToken, SESSION_COOKIE_NAME } from "../core/auth/session-cookie.js";
-import { RequestHeaders, ZodValidationPipe } from "../zod-validation.pipe.js";
+import { AuthService } from "../auth/auth.service.js";
+import { readSessionToken, SESSION_COOKIE_NAME } from "../auth/session-cookie.js";
+import { RequestHeaders, ZodValidationPipe } from "../../zod-validation.pipe.js";
 import { AccessService } from "./access.service.js";
 import {
   CurrentAccess,

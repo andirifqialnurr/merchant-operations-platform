@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 
-import { AuthModule } from "../core/auth/auth.module.js";
-import { EntitlementModule } from "../core/entitlements/entitlement.module.js";
+import { AuthModule } from "../auth/auth.module.js";
+import { EntitlementModule } from "../entitlements/entitlement.module.js";
 import { AccessController, AccessWorkspaceController } from "./access.controller.js";
 import { ACCESS_REPOSITORY, PrismaAccessRepository } from "./access.repository.js";
 import { AccessService } from "./access.service.js";

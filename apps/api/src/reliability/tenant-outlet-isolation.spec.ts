@@ -13,8 +13,8 @@ import { SESSION_COOKIE_NAME } from "../core/auth/session-cookie.js";
 import { CatalogController } from "../catalog/catalog.controller.js";
 import type { CatalogService } from "../catalog/catalog.service.js";
 import type { EntitlementService } from "../core/entitlements/entitlement.service.js";
-import type { AccessService } from "../access/access.service.js";
-import { SessionPermissionGuard } from "../access/session-permission.guard.js";
+import type { AccessService } from "../core/memberships/access.service.js";
+import { SessionPermissionGuard } from "../core/memberships/session-permission.guard.js";
 
 const IDS = {
   membershipA: "019f738d-e61f-7d46-92de-17b35f972501",

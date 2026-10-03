@@ -43,7 +43,7 @@ import {
   RequireModule,
   RequirePermission,
   SessionPermissionGuard,
-} from "../../../access/session-permission.guard.js";
+} from "../../../core/memberships/session-permission.guard.js";
 import { SESSION_COOKIE_NAME } from "../../../core/auth/session-cookie.js";
 import { OrderIntakeService } from "../../../kernels/order-intake/application/order-intake.service.js";
 import { RequestHeaders, ZodValidationPipe } from "../../../zod-validation.pipe.js";

@@ -5,7 +5,7 @@ import test from "node:test";
 
 import { PERMISSIONS } from "@merchant/contracts";
 
-import { DEFAULT_ROLE_DEFINITIONS } from "../../../access/access.service.js";
+import { DEFAULT_ROLE_DEFINITIONS } from "../../../core/memberships/access.service.js";
 import { OrderController } from "./order.controller.js";
 
 // The key RequirePermission writes and SessionPermissionGuard reads.
