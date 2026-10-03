@@ -1560,6 +1560,8 @@ export const registerSessionSchema = z.object({
   cashInMinor: moneyMinorSchema,
   cashOutMinor: moneyMinorSchema,
   /** Cash payments taken during the shift. */
+  /** Cash refunds paid out of the drawer during the shift. */
+  cashRefundsMinor: moneyMinorSchema,
   cashSalesMinor: moneyMinorSchema,
   /** Non-cash payments taken in the shift, per method; methods without payments are left out. */
   nonCashPayments: z.array(
@@ -1729,7 +1731,7 @@ export const cancelOrderSchema = z.object({
   reason: z.string().trim().min(3).max(300),
 });
 
-export const orderPaymentStateSchema = z.enum(["UNPAID", "PAID"]);
+export const orderPaymentStateSchema = z.enum(["UNPAID", "PAID", "PARTIALLY_REFUNDED", "REFUNDED"]);
 
 /** One row of the cashier's order list; the payment state comes from billing. */
 export const posOrderSummarySchema = z.object({
@@ -1846,6 +1848,31 @@ export type PaymentStatus = z.infer<typeof paymentStatusSchema>;
 export type Sale = z.infer<typeof saleSchema>;
 export type SaleStatus = z.infer<typeof saleStatusSchema>;
 
+export const refundSchema = z.object({
+  amountMinor: positiveMoneyMinorSchema,
+  createdAt: z.iso.datetime(),
+  id: z.uuid(),
+  method: paymentMethodSchema,
+  reason: z.string().min(3).max(300),
+});
+
+/** The amount and reason are entered; the method is always the sale's payment method. */
+export const refundOrderSchema = z.object({
+  amountMinor: positiveMoneyMinorSchema,
+  reason: z.string().trim().min(3).max(300),
+});
+
+/** A sale's refunds and what can still be refunded. Both are derived by the server. */
+export const saleRefundsSchema = z.object({
+  refundableMinor: moneyMinorSchema,
+  refunds: z.array(refundSchema),
+  sale: saleSchema,
+});
+
+export type Refund = z.infer<typeof refundSchema>;
+export type RefundOrder = z.infer<typeof refundOrderSchema>;
+export type SaleRefunds = z.infer<typeof saleRefundsSchema>;
+
 /**
  * Everything a receipt prints for one paid order. Outlet and workspace names
  * come from the caller's workspace context, so they are not repeated here.
@@ -1855,12 +1882,16 @@ export const receiptSchema = z.object({
   cashierName: z.string().min(1).max(160),
   order: orderSchema,
   payment: paymentSchema,
+  refundableMinor: moneyMinorSchema,
+  refunds: z.array(refundSchema),
   sale: saleSchema,
 });
 
 export type Receipt = z.infer<typeof receiptSchema>;
 
 export const posOpenApiSchemas = {
+  RefundOrder: toOpenApiSchema(refundOrderSchema),
+  SaleRefunds: toOpenApiSchema(saleRefundsSchema),
   Receipt: toOpenApiSchema(receiptSchema),
   CancelOrder: toOpenApiSchema(cancelOrderSchema),
   PosOrderList: toOpenApiSchema(posOrderListSchema),

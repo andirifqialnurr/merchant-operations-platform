@@ -130,6 +130,10 @@ enum SaleStatus {
   VOIDED
 }
 
+enum RefundStatus {
+  COMPLETED
+}
+
 model User {
   id                     String               @id @default(dbgenerated("uuidv7()")) @db.Uuid
   email                  String               @unique @db.VarChar(254)
@@ -149,6 +153,8 @@ model User {
   canceledOrders         Order[]              @relation("OrderCanceledBy")
   paymentsRecorded       BillingPayment[]     @relation("PaymentActor")
   paymentsConfirmed      BillingPayment[]     @relation("PaymentConfirmedBy")
+  refundsRecorded        SaleRefund[]         @relation("RefundActor")
+  refundsApproved        SaleRefund[]         @relation("RefundApprovedBy")
 
   @@map("users")
 }
@@ -234,6 +240,7 @@ model Tenant {
   bills                        Bill[]
   payments                     BillingPayment[]
   sales                        Sale[]
+  saleRefunds                  SaleRefund[]
 
   @@map("tenants")
 }
@@ -278,6 +285,7 @@ model Outlet {
   bills              Bill[]
   payments           BillingPayment[]
   sales              Sale[]
+  saleRefunds        SaleRefund[]
   saleNumberCounter  SaleNumberCounter?
   orderNumberCounter OrderNumberCounter?
 
@@ -715,6 +723,7 @@ model PosRegisterSession {
   closer            User?                 @relation("RegisterSessionClosedBy", fields: [closedBy], references: [id], onDelete: Restrict)
   cashMovements     PosCashMovement[]
   payments          BillingPayment[]
+  refunds           SaleRefund[]
 
   @@unique([tenantId, id])
   @@index([tenantId, outletId, status, openedAt])
@@ -877,6 +886,7 @@ model BillingPayment {
   actor             User                @relation("PaymentActor", fields: [actorId], references: [id], onDelete: Restrict)
   confirmer         User?               @relation("PaymentConfirmedBy", fields: [confirmedBy], references: [id], onDelete: Restrict)
   allocations       PaymentAllocation[]
+  refunds           SaleRefund[]
 
   @@unique([tenantId, id])
   @@unique([tenantId, outletId, idempotencyKey])
@@ -912,23 +922,55 @@ model SaleNumberCounter {
 
 /// A completed sale: the record finance and reports are built from.
 model Sale {
-  id          String     @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  tenantId    String     @map("tenant_id") @db.Uuid
-  outletId    String     @map("outlet_id") @db.Uuid
-  saleNumber  Int        @map("sale_number")
-  billId      String     @map("bill_id") @db.Uuid
+  id          String       @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId    String       @map("tenant_id") @db.Uuid
+  outletId    String       @map("outlet_id") @db.Uuid
+  saleNumber  Int          @map("sale_number")
+  billId      String       @map("bill_id") @db.Uuid
   status      SaleStatus
-  totalMinor  BigInt     @map("total_minor") @db.BigInt
-  completedAt DateTime?  @map("completed_at") @db.Timestamptz(6)
-  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
-  tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  outlet      Outlet     @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
-  bill        Bill       @relation(fields: [tenantId, billId], references: [tenantId, id], onDelete: Restrict)
+  totalMinor  BigInt       @map("total_minor") @db.BigInt
+  completedAt DateTime?    @map("completed_at") @db.Timestamptz(6)
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet      Outlet       @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
+  bill        Bill         @relation(fields: [tenantId, billId], references: [tenantId, id], onDelete: Restrict)
+  refunds     SaleRefund[]
 
   @@unique([tenantId, id])
   @@unique([tenantId, outletId, saleNumber])
   @@unique([tenantId, billId])
   @@index([tenantId, outletId, completedAt])
   @@map("sales_sales")
+}
+
+/// A refund of a completed sale. The sale and its payment are never changed.
+model SaleRefund {
+  id                String             @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId          String             @map("tenant_id") @db.Uuid
+  outletId          String             @map("outlet_id") @db.Uuid
+  saleId            String             @map("sale_id") @db.Uuid
+  paymentId         String             @map("payment_id") @db.Uuid
+  registerSessionId String             @map("register_session_id") @db.Uuid
+  method            PaymentMethod
+  amountMinor       BigInt             @map("amount_minor") @db.BigInt
+  reason            String             @db.VarChar(300)
+  status            RefundStatus       @default(COMPLETED)
+  actorId           String             @map("actor_id") @db.Uuid
+  approvedBy        String?            @map("approved_by") @db.Uuid
+  idempotencyKey    String             @map("idempotency_key") @db.VarChar(255)
+  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  tenant            Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet            Outlet             @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
+  sale              Sale               @relation(fields: [tenantId, saleId], references: [tenantId, id], onDelete: Restrict)
+  payment           BillingPayment     @relation(fields: [tenantId, paymentId], references: [tenantId, id], onDelete: Restrict)
+  registerSession   PosRegisterSession @relation(fields: [tenantId, registerSessionId], references: [tenantId, id], onDelete: Restrict)
+  actor             User               @relation("RefundActor", fields: [actorId], references: [id], onDelete: Restrict)
+  approver          User?              @relation("RefundApprovedBy", fields: [approvedBy], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, outletId, idempotencyKey])
+  @@index([tenantId, saleId])
+  @@index([tenantId, registerSessionId, method])
+  @@map("sales_refunds")
 }

@@ -1,9 +1,23 @@
-import { posOrderListSchema, receiptSchema, type CancelOrder } from "@merchant/contracts";
+import {
+  posOrderListSchema,
+  receiptSchema,
+  type CancelOrder,
+  type RefundOrder,
+  type SaleStatus,
+} from "@merchant/contracts";
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
 import { BillingService } from "../../../kernels/billing-payment-ledger/application/billing.service.js";
 import { OrderIntakeService } from "../../../kernels/order-intake/application/order-intake.service.js";
 import type { ShiftMutationContext } from "./register-session.repository.js";
+import { ShiftService } from "./shift.service.js";
+
+/** What the cashier's list says about payment, from the state of the sale. */
+function paymentState(saleStatus: SaleStatus | undefined) {
+  if (!saleStatus) return "UNPAID";
+  if (saleStatus === "REFUNDED" || saleStatus === "PARTIALLY_REFUNDED") return saleStatus;
+  return "PAID";
+}
 
 /** How far back the cashier's order list reaches, and how many rows it shows. */
 export const ORDER_LIST_HOURS = 24;
@@ -18,6 +32,7 @@ export class PosOrdersService {
   constructor(
     @Inject(OrderIntakeService) private readonly orders: OrderIntakeService,
     @Inject(BillingService) private readonly billing: BillingService,
+    @Inject(ShiftService) private readonly shifts: ShiftService,
   ) {}
 
   async list(tenantId: string, outletId: string) {
@@ -37,8 +52,8 @@ export class PosOrdersService {
         id: order.id,
         itemCount: order.items.reduce((sum, item) => sum + item.quantity, 0),
         orderNumber: order.orderNumber,
-        paymentState: paid.has(order.id) ? "PAID" : "UNPAID",
-        saleNumber: paid.get(order.id) ?? null,
+        paymentState: paymentState(paid.get(order.id)?.saleStatus),
+        saleNumber: paid.get(order.id)?.saleNumber ?? null,
         status: order.status,
         subtotalMinor: order.subtotalMinor,
       })),
@@ -55,7 +70,55 @@ export class PosOrdersService {
         message: "This order has no receipt because it is not paid.",
       });
     }
-    return receiptSchema.parse({ ...paid.checkout, cashierName: paid.cashierName, order });
+    return receiptSchema.parse({
+      ...paid.checkout,
+      cashierName: paid.cashierName,
+      order,
+      refundableMinor: paid.refunds.refundableMinor,
+      refunds: paid.refunds.refunds,
+    });
+  }
+
+  /**
+   * Refunds a paid order in the cashier's open shift. Cash comes out of the
+   * drawer, so a cash refund cannot exceed what the drawer should hold.
+   */
+  async refund(
+    tenantId: string,
+    outletId: string,
+    orderId: string,
+    input: RefundOrder,
+    idempotencyKey: string,
+    context: ShiftMutationContext,
+  ) {
+    const shift = await this.shifts.findOpen(tenantId, outletId, context.actorId);
+    if (!shift) {
+      throw new ConflictException({
+        code: "POS_SHIFT_REQUIRED",
+        message: "Open a shift before giving refunds.",
+      });
+    }
+    const paid = await this.billing.paidCheckout(tenantId, outletId, orderId);
+    if (paid?.checkout.payment.method === "CASH") {
+      const drawer = await this.shifts.expectedCash(tenantId, outletId, context.actorId);
+      if (drawer !== null && BigInt(input.amountMinor) > drawer) {
+        throw new ConflictException({
+          code: "POS_CASH_OUT_EXCEEDS_DRAWER",
+          message: "The refund is more than the cash in the drawer.",
+        });
+      }
+    }
+    return this.billing.refundOrder(
+      {
+        idempotencyKey,
+        orderId,
+        outletId,
+        refund: input,
+        registerSessionId: shift.id,
+        tenantId,
+      },
+      context,
+    );
   }
 
   /** A paid order is a sale; it is refunded, never cancelled. */

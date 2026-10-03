@@ -22,6 +22,7 @@ import { orderKeys, useOrder, useOrders } from "./api";
 import { PaidView } from "./paid-view";
 import { PaymentView } from "./payment-view";
 import { ReceiptSheet } from "./receipt-sheet";
+import { RefundSheet } from "./refund-sheet";
 
 const REASON_MIN_LENGTH = 3;
 
@@ -31,6 +32,10 @@ function OrderState({
   const t = useTranslations("pos");
   if (order.status === "CANCELED") return <Badge>{t("stateCanceled")}</Badge>;
   if (order.paymentState === "PAID") return <Badge tone="success">{t("paid")}</Badge>;
+  if (order.paymentState === "REFUNDED") return <Badge>{t("stateRefunded")}</Badge>;
+  if (order.paymentState === "PARTIALLY_REFUNDED") {
+    return <Badge tone="info">{t("statePartiallyRefunded")}</Badge>;
+  }
   return <Badge tone="warning">{t("stateUnpaid")}</Badge>;
 }
 
@@ -41,9 +46,11 @@ function OrderState({
 function OrderSheet({
   canCancel,
   canPay,
+  canRefund,
   onClose,
   onPay,
   onReceipt,
+  onRefund,
   orderId,
   outletId,
   summary,
@@ -51,9 +58,11 @@ function OrderSheet({
 }: Readonly<{
   canCancel: boolean;
   canPay: boolean;
+  canRefund: boolean;
   onClose: () => void;
   onPay: (order: Order) => void;
   onReceipt: () => void;
+  onRefund: () => void;
   orderId: string;
   outletId: string;
   summary: PosOrderSummary;
@@ -119,8 +128,17 @@ function OrderSheet({
         {canPay ? <Button onClick={() => onPay(order)}>{t("pay")}</Button> : null}
       </>
     );
-  } else if (summary.paymentState === "PAID") {
-    footer = <Button onClick={onReceipt}>{t("receipt")}</Button>;
+  } else if (summary.paymentState !== "UNPAID") {
+    footer = (
+      <>
+        {canRefund && summary.paymentState !== "REFUNDED" ? (
+          <Button onClick={onRefund} variant="secondary">
+            {t("refund")}
+          </Button>
+        ) : null}
+        <Button onClick={onReceipt}>{t("receipt")}</Button>
+      </>
+    );
   }
 
   return (
@@ -212,9 +230,16 @@ function OrderSheet({
 function OrdersForOutlet({
   canCancel,
   canPay,
+  canRefund,
   outletId,
   tenantId,
-}: Readonly<{ canCancel: boolean; canPay: boolean; outletId: string; tenantId: string }>) {
+}: Readonly<{
+  canCancel: boolean;
+  canPay: boolean;
+  canRefund: boolean;
+  outletId: string;
+  tenantId: string;
+}>) {
   const t = useTranslations("pos");
   const { dateTime, locale } = useFormat();
   const errorMessage = useErrorMessage();
@@ -223,6 +248,7 @@ function OrdersForOutlet({
   const [paying, setPaying] = useState<Order | undefined>();
   const [checkout, setCheckout] = useState<Checkout | undefined>();
   const [receiptFor, setReceiptFor] = useState<string | undefined>();
+  const [refundFor, setRefundFor] = useState<string | undefined>();
 
   if (checkout) {
     return (
@@ -313,6 +339,7 @@ function OrdersForOutlet({
         <OrderSheet
           canCancel={canCancel}
           canPay={canPay}
+          canRefund={canRefund}
           key={selected.id}
           onClose={() => setSelectedId(undefined)}
           onPay={(order) => {
@@ -323,9 +350,21 @@ function OrdersForOutlet({
             setSelectedId(undefined);
             setReceiptFor(selected.id);
           }}
+          onRefund={() => {
+            setSelectedId(undefined);
+            setRefundFor(selected.id);
+          }}
           orderId={selected.id}
           outletId={outletId}
           summary={selected}
+          tenantId={tenantId}
+        />
+      ) : null}
+      {refundFor ? (
+        <RefundSheet
+          onClose={() => setRefundFor(undefined)}
+          orderId={refundFor}
+          outletId={outletId}
           tenantId={tenantId}
         />
       ) : null}
@@ -358,6 +397,7 @@ export function OrdersPage() {
     <OrdersForOutlet
       canCancel={can(PERMISSIONS.orderCancel)}
       canPay={can(PERMISSIONS.paymentConfirm)}
+      canRefund={can(PERMISSIONS.paymentRefund)}
       key={`${workspace.tenant.id}:${outlet.id}`}
       outletId={outlet.id}
       tenantId={workspace.tenant.id}

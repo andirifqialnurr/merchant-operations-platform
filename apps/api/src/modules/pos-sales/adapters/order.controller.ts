@@ -10,6 +10,8 @@ import {
   payOrderSchema,
   posOrderListSchema,
   receiptSchema,
+  refundOrderSchema,
+  saleRefundsSchema,
   PERMISSIONS,
   requestContextHeadersSchema,
   type AuthorizationContext,
@@ -17,6 +19,7 @@ import {
   type CreatePosOrder,
   type IdempotentRequestHeaders,
   type PayOrder,
+  type RefundOrder,
   type RequestContextHeaders,
 } from "@merchant/contracts";
 import { Body, Controller, Get, HttpCode, Inject, Param, Post, UseGuards } from "@nestjs/common";
@@ -132,6 +135,33 @@ export class OrderController {
         headers[API_HEADERS.outletId],
         params.id,
         input,
+        { actorId: access.userId, ...(requestId ? { requestId } : {}) },
+      ),
+    );
+  }
+
+  @ApiOperation({ summary: "Refund part or all of a paid order in the cashier's open shift" })
+  @ApiHeader({ name: API_HEADERS.idempotencyKey, required: true })
+  @ApiBody({ schema: { $ref: "#/components/schemas/RefundOrder" } })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/SaleRefunds" } })
+  @RequirePermission(PERMISSIONS.paymentRefund)
+  @HttpCode(200)
+  @Post(":id/refunds")
+  async refund(
+    @RequestHeaders(new ZodValidationPipe(idempotentRequestHeadersSchema))
+    headers: IdempotentRequestHeaders,
+    @Param(new ZodValidationPipe(entityIdParamsSchema)) params: { id: string },
+    @Body(new ZodValidationPipe(refundOrderSchema)) input: RefundOrder,
+    @CurrentAccess() access: AuthorizationContext,
+  ) {
+    const requestId = headers[API_HEADERS.requestId];
+    return saleRefundsSchema.parse(
+      await this.posOrders.refund(
+        headers[API_HEADERS.tenantId],
+        headers[API_HEADERS.outletId],
+        params.id,
+        input,
+        headers[API_HEADERS.idempotencyKey],
         { actorId: access.userId, ...(requestId ? { requestId } : {}) },
       ),
     );

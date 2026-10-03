@@ -3,6 +3,9 @@ import { Injectable } from "@nestjs/common";
 
 import { buildAuditMetadata } from "../../../audit/critical-action-audit.js";
 import type {
+  NewRefund,
+  PaidOrderState,
+  RefundOutcome,
   BillingMutationContext,
   BillingRepository,
   CheckoutRecord,
@@ -40,6 +43,14 @@ const saleSelect = {
   saleNumber: true,
   status: true,
   totalMinor: true,
+} as const;
+
+const refundSelect = {
+  amountMinor: true,
+  createdAt: true,
+  id: true,
+  method: true,
+  reason: true,
 } as const;
 
 function isUniqueConstraintError(error: unknown) {
@@ -120,14 +131,158 @@ export class PrismaBillingRepository implements BillingRepository {
   }
 
   async paidOrders(tenantId: string, orderIds: readonly string[]) {
-    if (orderIds.length === 0) return new Map<string, number>();
+    if (orderIds.length === 0) return new Map<string, PaidOrderState>();
     const bills = await getPrismaClient().bill.findMany({
-      select: { orderId: true, sale: { select: { saleNumber: true } } },
+      select: { orderId: true, sale: { select: { saleNumber: true, status: true } } },
       where: { orderId: { in: [...orderIds] }, status: "PAID", tenantId },
     });
     return new Map(
-      bills.flatMap((bill) => (bill.sale ? [[bill.orderId, bill.sale.saleNumber] as const] : [])),
+      bills.flatMap((bill) =>
+        bill.sale
+          ? [
+              [
+                bill.orderId,
+                { saleNumber: bill.sale.saleNumber, saleStatus: bill.sale.status },
+              ] as const,
+            ]
+          : [],
+      ),
     );
+  }
+
+  async refundsOfSale(tenantId: string, saleId: string) {
+    return getPrismaClient().saleRefund.findMany({
+      orderBy: { createdAt: "asc" },
+      select: refundSelect,
+      where: { saleId, tenantId },
+    });
+  }
+
+  async findRefundByIdempotencyKey(tenantId: string, outletId: string, idempotencyKey: string) {
+    const row = await getPrismaClient().saleRefund.findUnique({
+      select: {
+        sale: { select: { ...saleSelect, bill: { select: { orderId: true } } } },
+        saleId: true,
+      },
+      where: { tenantId_outletId_idempotencyKey: { idempotencyKey, outletId, tenantId } },
+    });
+    if (!row) return null;
+    const { bill, ...sale } = row.sale;
+    return {
+      orderId: bill.orderId,
+      result: { refunds: await this.refundsOfSale(tenantId, row.saleId), sale },
+    };
+  }
+
+  async sumRefundsByMethod(tenantId: string, registerSessionId: string) {
+    const groups = await getPrismaClient().saleRefund.groupBy({
+      _sum: { amountMinor: true },
+      by: ["method"],
+      where: { registerSessionId, tenantId },
+    });
+    return new Map(groups.map((group) => [group.method, group._sum.amountMinor ?? 0n] as const));
+  }
+
+  async recordRefund(refund: NewRefund, context: BillingMutationContext): Promise<RefundOutcome> {
+    const { outletId, tenantId } = refund;
+    try {
+      return await getPrismaClient().$transaction(async (transaction) => {
+        // Same shift lock as payments and closing, so a cash refund is always
+        // part of the shift it is paid out in.
+        const shift = await transaction.posRegisterSession.updateMany({
+          data: { updatedAt: new Date() },
+          where: { id: refund.registerSessionId, outletId, status: "OPEN", tenantId },
+        });
+        if (shift.count !== 1) return { kind: "shift_not_open" };
+
+        // Locks the sale so two refunds cannot both pass the amount check.
+        await transaction.sale.updateMany({
+          data: { updatedAt: new Date() },
+          where: { id: refund.saleId, tenantId },
+        });
+        const sale = await transaction.sale.findUniqueOrThrow({
+          select: { totalMinor: true },
+          where: { tenantId_id: { id: refund.saleId, tenantId } },
+        });
+        const refunded = await transaction.saleRefund.aggregate({
+          _sum: { amountMinor: true },
+          where: { saleId: refund.saleId, tenantId },
+        });
+        const refundableMinor = sale.totalMinor - (refunded._sum.amountMinor ?? 0n);
+        if (refund.amountMinor > refundableMinor) {
+          return { kind: "exceeds_refundable", refundableMinor };
+        }
+
+        const created = await transaction.saleRefund.create({
+          data: {
+            actorId: context.actorId,
+            amountMinor: refund.amountMinor,
+            idempotencyKey: refund.idempotencyKey,
+            method: refund.method,
+            outletId,
+            paymentId: refund.paymentId,
+            reason: refund.reason,
+            registerSessionId: refund.registerSessionId,
+            saleId: refund.saleId,
+            tenantId,
+          },
+          select: refundSelect,
+        });
+        const fully = refund.amountMinor === refundableMinor;
+        const updated = await transaction.sale.update({
+          data: { status: fully ? "REFUNDED" : "PARTIALLY_REFUNDED" },
+          select: saleSelect,
+          where: { tenantId_id: { id: refund.saleId, tenantId } },
+        });
+
+        const payload = {
+          amountMinor: refund.amountMinor.toString(),
+          method: refund.method,
+          reason: refund.reason,
+          refundId: created.id,
+          saleId: refund.saleId,
+          saleNumber: updated.saleNumber,
+          shiftId: refund.registerSessionId,
+        };
+        await transaction.auditLog.create({
+          data: {
+            action: "sale.refund",
+            actorId: context.actorId,
+            entityId: refund.saleId,
+            entityType: "sales_sale",
+            metadata: buildAuditMetadata("sale.refund", payload),
+            outletId,
+            ...(context.requestId ? { requestId: context.requestId } : {}),
+            tenantId,
+          },
+        });
+        await transaction.outboxEvent.create({
+          data: {
+            aggregateId: refund.saleId,
+            aggregateType: "sales_sale",
+            outletId,
+            payload,
+            tenantId,
+            type: "sale.refunded.v1",
+          },
+        });
+        const refunds = await transaction.saleRefund.findMany({
+          orderBy: { createdAt: "asc" },
+          select: refundSelect,
+          where: { saleId: refund.saleId, tenantId },
+        });
+        return { kind: "recorded", result: { refunds, sale: updated } };
+      });
+    } catch (error) {
+      if (!isUniqueConstraintError(error)) throw error;
+      const replayed = await this.findRefundByIdempotencyKey(
+        tenantId,
+        outletId,
+        refund.idempotencyKey,
+      );
+      if (!replayed) throw error;
+      return { kind: "recorded", result: replayed.result };
+    }
   }
 
   async sumPaymentsByMethod(tenantId: string, registerSessionId: string) {

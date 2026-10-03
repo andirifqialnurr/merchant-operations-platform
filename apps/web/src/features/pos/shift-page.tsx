@@ -144,6 +144,9 @@ function OpenShiftView({
               cashInMinor={shift.cashInMinor}
               cashOutMinor={shift.cashOutMinor}
               cashSalesMinor={shift.cashSalesMinor}
+              {...(shift.cashRefundsMinor === "0"
+                ? {}
+                : { cashRefundsMinor: shift.cashRefundsMinor })}
               nonCashBreakdown={shift.nonCashPayments.map((payment) => ({
                 amountMinor: payment.amountMinor,
                 id: payment.method,
@@ -154,6 +157,7 @@ function OpenShiftView({
               labels={{
                 cashIn: t("cashIn"),
                 cashOut: t("cashOut"),
+                cashRefunds: t("cashRefunds"),
                 cashSales: t("cashSales"),
                 countedCash: t("countedCash"),
                 expectedCash: t("expectedCash"),

@@ -8,7 +8,7 @@ export type CashMovementFact = { amountMinor: bigint; direction: "IN" | "OUT" };
 export type CashTotals = {
   cashInMinor: bigint;
   cashOutMinor: bigint;
-  /** Cash that should be in the drawer: opening + sales + in - out. */
+  /** Cash that should be in the drawer: opening + sales - refunds + in - out. */
   expectedCashMinor: bigint;
 };
 
@@ -16,6 +16,7 @@ export function totalCash(
   openingCashMinor: bigint,
   movements: readonly CashMovementFact[],
   cashSalesMinor = 0n,
+  cashRefundsMinor = 0n,
 ): CashTotals {
   let cashInMinor = 0n;
   let cashOutMinor = 0n;
@@ -26,7 +27,8 @@ export function totalCash(
   return {
     cashInMinor,
     cashOutMinor,
-    expectedCashMinor: openingCashMinor + cashSalesMinor + cashInMinor - cashOutMinor,
+    expectedCashMinor:
+      openingCashMinor + cashSalesMinor - cashRefundsMinor + cashInMinor - cashOutMinor,
   };
 }
 

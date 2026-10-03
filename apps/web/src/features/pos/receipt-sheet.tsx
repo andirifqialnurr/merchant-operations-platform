@@ -113,6 +113,10 @@ function ReceiptContent({
           ? [{ emphasis: true, label: t("change"), value: money(payment.changeMinor) }]
           : []),
         ...(payment.reference ? [{ label: t("reference"), value: payment.reference }] : []),
+        ...receipt.refunds.map((refund) => ({
+          label: t("refund"),
+          value: `-${money(refund.amountMinor)}`,
+        })),
       ]}
       {...(outlet ? { subtitle: workspace.tenant.name } : {})}
       title={outlet?.name ?? workspace.tenant.name}

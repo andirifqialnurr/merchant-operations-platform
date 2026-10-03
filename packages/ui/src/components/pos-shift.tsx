@@ -16,6 +16,8 @@ import { FormField, Textarea } from "./text-field";
 export type ShiftSummaryLabels = {
   cashIn: string;
   cashOut: string;
+  /** Only needed when cashRefundsMinor is passed. */
+  cashRefunds?: string;
   cashSales: string;
   countedCash: string;
   expectedCash: string;
@@ -36,6 +38,8 @@ export type ShiftSummaryFact = { label: string; value: string };
 type ShiftSummaryCommonProps = {
   cashInMinor: MoneyMinorValue;
   cashOutMinor: MoneyMinorValue;
+  /** Cash paid back to customers; omit when there were none. */
+  cashRefundsMinor?: MoneyMinorValue;
   /** Omit while cash sales are not available; the row is then not rendered. */
   cashSalesMinor?: MoneyMinorValue;
   className?: string;
@@ -168,6 +172,7 @@ export function ShiftSummary(props: ShiftSummaryProps) {
   const {
     cashInMinor,
     cashOutMinor,
+    cashRefundsMinor,
     cashSalesMinor,
     className,
     currency = "IDR",
@@ -201,6 +206,9 @@ export function ShiftSummary(props: ShiftSummaryProps) {
         <SummaryMoneyRow {...row} amountMinor={openingCashMinor} label={labels.openingCash} />
         {cashSalesMinor !== undefined ? (
           <SummaryMoneyRow {...row} amountMinor={cashSalesMinor} label={labels.cashSales} />
+        ) : null}
+        {cashRefundsMinor !== undefined && labels.cashRefunds ? (
+          <SummaryMoneyRow {...row} amountMinor={cashRefundsMinor} label={labels.cashRefunds} />
         ) : null}
         <SummaryMoneyRow {...row} amountMinor={cashInMinor} label={labels.cashIn} />
         <SummaryMoneyRow {...row} amountMinor={cashOutMinor} label={labels.cashOut} />

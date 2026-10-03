@@ -26,11 +26,18 @@ export function toRegisterSession(
   record: RegisterSessionRecord,
   cashSalesMinor: bigint,
   nonCashPayments: readonly { amountMinor: bigint; method: string }[] = [],
+  cashRefundsMinor = 0n,
 ): RegisterSession {
-  const totals = totalCash(record.openingCashMinor, record.movements, cashSalesMinor);
+  const totals = totalCash(
+    record.openingCashMinor,
+    record.movements,
+    cashSalesMinor,
+    cashRefundsMinor,
+  );
   return registerSessionSchema.parse({
     cashInMinor: totals.cashInMinor.toString(),
     cashOutMinor: totals.cashOutMinor.toString(),
+    cashRefundsMinor: cashRefundsMinor.toString(),
     cashSalesMinor: cashSalesMinor.toString(),
     nonCashPayments: nonCashPayments.map((payment) => ({
       amountMinor: payment.amountMinor.toString(),
@@ -71,7 +78,13 @@ export class ShiftService {
 
   private async present(record: RegisterSessionRecord) {
     const taken = await this.billing.paymentsInSession(record.tenantId, record.id);
-    return toRegisterSession(record, taken.cashMinor, taken.nonCash);
+    return toRegisterSession(record, taken.cashMinor, taken.nonCash, taken.cashRefundsMinor);
+  }
+
+  /** The cash the drawer of the cashier's open shift should hold right now. */
+  async expectedCash(tenantId: string, outletId: string, cashierId: string) {
+    const current = await this.getCurrent(tenantId, outletId, cashierId);
+    return current.session ? BigInt(current.session.expectedCashMinor) : null;
   }
 
   /** The cashier's open shift at the outlet, or null. Payments are taken in it. */

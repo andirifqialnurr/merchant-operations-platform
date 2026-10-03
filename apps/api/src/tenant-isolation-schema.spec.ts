@@ -288,3 +288,27 @@ test("keeps a cancelled order with its time, actor, and reason", () => {
     /"status" = 'CANCELED' AND "canceled_at" IS NOT NULL AND "canceled_by" IS NOT NULL AND "cancel_reason" IS NOT NULL/,
   );
 });
+
+test("keeps refunds tenant-scoped, positive, and tied to the sale and shift", () => {
+  const refundMigration = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261003180000_sales_refunds/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(schema, /model SaleRefund \{[\s\S]*@@map\("sales_refunds"\)/);
+  assert.match(
+    refundMigration,
+    /FOREIGN KEY \("tenant_id", "sale_id"\) REFERENCES "sales_sales"\("tenant_id", "id"\)/,
+  );
+  assert.match(
+    refundMigration,
+    /FOREIGN KEY \("tenant_id", "register_session_id"\) REFERENCES "pos_register_sessions"\("tenant_id", "id"\)/,
+  );
+  assert.match(
+    refundMigration,
+    /ON "sales_refunds"\("tenant_id", "outlet_id", "idempotency_key"\)/,
+  );
+  assert.match(refundMigration, /"amount_minor" > 0/);
+});

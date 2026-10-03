@@ -109,7 +109,11 @@ function setup() {
   const repository = new InMemoryRegisterSessionRepository();
   const billing = {
     cashReceivedInSession: async () => repository.cashSales,
-    paymentsInSession: async () => ({ cashMinor: repository.cashSales, nonCash: [] }),
+    paymentsInSession: async () => ({
+      cashMinor: repository.cashSales,
+      cashRefundsMinor: 0n,
+      nonCash: [],
+    }),
   } as unknown as BillingService;
   return { repository, service: new ShiftService(repository, billing) };
 }

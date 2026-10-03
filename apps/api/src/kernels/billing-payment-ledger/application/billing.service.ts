@@ -1,8 +1,10 @@
 import {
   checkoutSchema,
+  saleRefundsSchema,
   type Checkout,
   type OrderStatus,
   type PayOrder,
+  type RefundOrder,
 } from "@merchant/contracts";
 import { ConflictException, Inject, Injectable } from "@nestjs/common";
 
@@ -12,6 +14,7 @@ import {
   type BillingMutationContext,
   type BillingRepository,
   type CheckoutRecord,
+  type SaleRefundsRecord,
 } from "./billing.repository.js";
 
 const conflict = (code: string, message: string) => new ConflictException({ code, message });
@@ -62,9 +65,31 @@ export function toCheckout({ bill, payment, sale }: CheckoutRecord): Checkout {
   });
 }
 
+/** Maps a sale and its refunds; what is still refundable is derived here. */
+export function toSaleRefunds({ refunds, sale }: SaleRefundsRecord) {
+  const refundedMinor = refunds.reduce((sum, refund) => sum + refund.amountMinor, 0n);
+  return saleRefundsSchema.parse({
+    refundableMinor: (sale.totalMinor - refundedMinor).toString(),
+    refunds: refunds.map((refund) => ({
+      amountMinor: refund.amountMinor.toString(),
+      createdAt: refund.createdAt.toISOString(),
+      id: refund.id,
+      method: refund.method,
+      reason: refund.reason,
+    })),
+    sale: {
+      completedAt: sale.completedAt?.toISOString() ?? null,
+      id: sale.id,
+      saleNumber: sale.saleNumber,
+      status: sale.status,
+      totalMinor: sale.totalMinor.toString(),
+    },
+  });
+}
+
 /**
- * Bills an order and takes its payment. The amount is always the full amount
- * due and is decided here; callers only say how it was paid.
+ * Bills an order, takes its payment, and refunds it. Amounts are always
+ * decided here; callers only say how it was paid or how much to give back.
  */
 @Injectable()
 export class BillingService {
@@ -144,34 +169,107 @@ export class BillingService {
     return toCheckout(outcome.checkout);
   }
 
-  /** The paid checkout of an order and its cashier, or null while unpaid. */
+  /** The paid checkout of an order, its cashier, and its refunds, or null while unpaid. */
   async paidCheckout(tenantId: string, outletId: string, orderId: string) {
     const found = await this.billing.findPaidCheckoutByOrder(tenantId, outletId, orderId);
-    return found ? { cashierName: found.cashierName, checkout: toCheckout(found) } : null;
+    if (!found) return null;
+    const refunds = toSaleRefunds({
+      refunds: await this.billing.refundsOfSale(tenantId, found.sale.id),
+      sale: found.sale,
+    });
+    return { cashierName: found.cashierName, checkout: toCheckout(found), refunds };
   }
 
-  /** Sale numbers of the paid orders among `orderIds`, keyed by order id. */
+  /**
+   * Refunds part or all of a paid order through the method it was paid with.
+   * The money is paid out in the given open shift.
+   */
+  async refundOrder(
+    input: {
+      idempotencyKey: string;
+      orderId: string;
+      outletId: string;
+      refund: RefundOrder;
+      registerSessionId: string;
+      tenantId: string;
+    },
+    context: BillingMutationContext,
+  ) {
+    const { idempotencyKey, orderId, outletId, tenantId } = input;
+    const replayed = await this.billing.findRefundByIdempotencyKey(
+      tenantId,
+      outletId,
+      idempotencyKey,
+    );
+    if (replayed) {
+      if (replayed.orderId !== orderId) {
+        throw conflict(
+          "IDEMPOTENCY_KEY_REUSED",
+          "This idempotency key was already used for a different request.",
+        );
+      }
+      return toSaleRefunds(replayed.result);
+    }
+
+    const paid = await this.billing.findPaidCheckoutByOrder(tenantId, outletId, orderId);
+    if (!paid) throw conflict("ORDER_NOT_PAID", "Only a paid order can be refunded.");
+
+    const outcome = await this.billing.recordRefund(
+      {
+        amountMinor: BigInt(input.refund.amountMinor),
+        idempotencyKey,
+        method: paid.payment.method,
+        outletId,
+        paymentId: paid.payment.id,
+        reason: input.refund.reason,
+        registerSessionId: input.registerSessionId,
+        saleId: paid.sale.id,
+        tenantId,
+      },
+      context,
+    );
+    if (outcome.kind === "shift_not_open") {
+      throw conflict("POS_SHIFT_NOT_OPEN", "This shift is already closed.");
+    }
+    if (outcome.kind === "exceeds_refundable") {
+      throw new ConflictException({
+        code: "REFUND_EXCEEDS_REFUNDABLE",
+        details: { refundableMinor: outcome.refundableMinor.toString() },
+        message: "The refund is more than what is left to refund.",
+      });
+    }
+    return toSaleRefunds(outcome.result);
+  }
+
+  /** Sale number and state of the paid orders among `orderIds`, keyed by order id. */
   paidOrders(tenantId: string, orderIds: readonly string[]) {
     return this.billing.paidOrders(tenantId, orderIds);
   }
 
+  /** Whether the order was paid, whatever was refunded since. */
   async isOrderPaid(tenantId: string, orderId: string) {
     return (await this.billing.paidOrders(tenantId, [orderId])).has(orderId);
   }
 
-  /** Cash taken in a shift; the shift adds it to the cash it expects. */
+  /** Net cash from sales in a shift: cash taken minus cash refunded. */
   async cashReceivedInSession(tenantId: string, registerSessionId: string) {
-    return (await this.billing.sumPaymentsByMethod(tenantId, registerSessionId)).get("CASH") ?? 0n;
+    const taken = await this.paymentsInSession(tenantId, registerSessionId);
+    return taken.cashMinor - taken.cashRefundsMinor;
   }
 
   /**
-   * Money taken in a shift: cash, which belongs in the drawer, and non-cash
-   * per method in a fixed order, leaving out methods with nothing taken.
+   * Money in a shift: cash taken and cash refunded, which both touch the
+   * drawer, and non-cash taken per method in a fixed order, leaving out
+   * methods with nothing taken.
    */
   async paymentsInSession(tenantId: string, registerSessionId: string) {
-    const sums = await this.billing.sumPaymentsByMethod(tenantId, registerSessionId);
+    const [sums, refunds] = await Promise.all([
+      this.billing.sumPaymentsByMethod(tenantId, registerSessionId),
+      this.billing.sumRefundsByMethod(tenantId, registerSessionId),
+    ]);
     return {
       cashMinor: sums.get("CASH") ?? 0n,
+      cashRefundsMinor: refunds.get("CASH") ?? 0n,
       nonCash: NON_CASH_ORDER.flatMap((method) => {
         const amountMinor = sums.get(method) ?? 0n;
         return amountMinor > 0n ? [{ amountMinor, method }] : [];

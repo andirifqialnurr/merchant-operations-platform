@@ -33,6 +33,8 @@ import {
   payOrderSchema,
   posOrderListSchema,
   receiptSchema,
+  refundOrderSchema,
+  saleRefundsSchema,
   recordCashMovementSchema,
   registerSessionSchema,
   requestContextHeadersSchema,
@@ -62,6 +64,7 @@ import {
   type CreatePosOrder,
   type OpenRegisterSession,
   type PayOrder,
+  type RefundOrder,
   type RecordCashMovement,
   type UpdateCatalogCategory,
   type UpdateCatalogModifierGroup,
@@ -387,6 +390,22 @@ export const merchantApi = {
       {
         headers: outletHeaders(tenantId, outletId),
       },
+    ),
+  /** The caller keeps one key per intended refund so a retry never pays out twice. */
+  refundOrder: (
+    tenantId: string,
+    outletId: string,
+    orderId: string,
+    input: RefundOrder,
+    idempotencyKey: string,
+  ) =>
+    jsonMutation(
+      `/pos/orders/${entityIdParamsSchema.parse({ id: orderId }).id}/refunds`,
+      "POST",
+      input,
+      refundOrderSchema,
+      saleRefundsSchema,
+      { ...outletHeaders(tenantId, outletId), [API_HEADERS.idempotencyKey]: idempotencyKey },
     ),
   cancelOrder: (tenantId: string, outletId: string, orderId: string, input: CancelOrder) =>
     jsonMutation(

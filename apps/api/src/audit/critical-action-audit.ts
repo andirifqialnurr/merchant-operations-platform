@@ -18,6 +18,7 @@ export const CRITICAL_AUDIT_ACTIONS = [
   "pos_register_session.close",
   "pos_register_session.open",
   "role.create",
+  "sale.refund",
   "role.update",
   "subscription.replace",
   "tenant.create",

@@ -7,6 +7,9 @@ import { ConflictException } from "@nestjs/common";
 
 import { billTotal, cashChange } from "../domain/bill-total.js";
 import type {
+  NewRefund,
+  RefundOutcome,
+  RefundRecord,
   BillingRepository,
   CheckoutRecord,
   FullPayment,
@@ -29,12 +32,72 @@ class InMemoryBillingRepository implements BillingRepository {
     return found ? { ...found, cashierName: "Kasir Uji" } : null;
   }
 
+  readonly refunds: (RefundRecord & { key: string; saleId: string; shift: string })[] = [];
+
   async paidOrders(_tenantId: string, orderIds: readonly string[]) {
     return new Map(
       this.checkouts
         .filter((item) => orderIds.includes(item.bill.orderId))
-        .map((item) => [item.bill.orderId, item.sale.saleNumber] as const),
+        .map(
+          (item) =>
+            [
+              item.bill.orderId,
+              { saleNumber: item.sale.saleNumber, saleStatus: item.sale.status },
+            ] as const,
+        ),
     );
+  }
+
+  async refundsOfSale(_tenantId: string, saleId: string) {
+    return this.refunds.filter((refund) => refund.saleId === saleId);
+  }
+
+  async findRefundByIdempotencyKey(_tenantId: string, _outletId: string, key: string) {
+    const refund = this.refunds.find((item) => item.key === key);
+    const checkout = this.checkouts.find((item) => item.sale.id === refund?.saleId);
+    if (!refund || !checkout) return null;
+    return {
+      orderId: checkout.bill.orderId,
+      result: { refunds: await this.refundsOfSale("", checkout.sale.id), sale: checkout.sale },
+    };
+  }
+
+  async sumRefundsByMethod(_tenantId: string, registerSessionId: string) {
+    const sums = new Map<PaymentMethod, bigint>();
+    for (const refund of this.refunds.filter((item) => item.shift === registerSessionId)) {
+      sums.set(refund.method, (sums.get(refund.method) ?? 0n) + refund.amountMinor);
+    }
+    return sums;
+  }
+
+  async recordRefund(refund: NewRefund): Promise<RefundOutcome> {
+    if (!this.shiftOpen) return { kind: "shift_not_open" };
+    const checkout = this.checkouts.find((item) => item.sale.id === refund.saleId)!;
+    const refunded = (await this.refundsOfSale("", refund.saleId)).reduce(
+      (sum, item) => sum + item.amountMinor,
+      0n,
+    );
+    const refundableMinor = checkout.sale.totalMinor - refunded;
+    if (refund.amountMinor > refundableMinor)
+      return { kind: "exceeds_refundable", refundableMinor };
+    this.refunds.push({
+      amountMinor: refund.amountMinor,
+      createdAt: new Date(),
+      id: randomUUID(),
+      key: refund.idempotencyKey,
+      method: refund.method,
+      reason: refund.reason,
+      saleId: refund.saleId,
+      shift: refund.registerSessionId,
+    });
+    checkout.sale = {
+      ...checkout.sale,
+      status: refund.amountMinor === refundableMinor ? "REFUNDED" : "PARTIALLY_REFUNDED",
+    };
+    return {
+      kind: "recorded",
+      result: { refunds: await this.refundsOfSale("", refund.saleId), sale: checkout.sale },
+    };
   }
 
   async findCheckoutByIdempotencyKey(_tenantId: string, _outletId: string, key: string) {
@@ -253,7 +316,7 @@ test("refuses an order cancelled while it was being paid, and reports paid order
   assert.equal(await service.isOrderPaid(TENANT, raced.id), false);
   assert.deepEqual(
     [...(await service.paidOrders(TENANT, [paidOrder.id, raced.id]))],
-    [[paidOrder.id, 1]],
+    [[paidOrder.id, { saleNumber: 1, saleStatus: "COMPLETED" }]],
   );
 });
 
@@ -310,4 +373,80 @@ test("takes transfer and EDC with a reference and keeps them out of the drawer",
     { amountMinor: 30_000n, method: "EDC" },
   ]);
   assert.equal(await service.cashReceivedInSession(TENANT, SHIFT), 10_000n);
+});
+
+test("refunds part then the rest of a sale, never more, and counts cash refunds", async () => {
+  const { service } = setup();
+  const paidOrder = order();
+  await service.payOrderInFull(
+    { ...base, idempotencyKey: "pay-1", order: paidOrder, pay: cash("64000") },
+    context,
+  );
+  const refundBase = { ...base, orderId: paidOrder.id };
+
+  const partial = await service.refundOrder(
+    {
+      ...refundBase,
+      idempotencyKey: "refund-1",
+      refund: { amountMinor: "14000", reason: "Salah pesan" },
+    },
+    context,
+  );
+  assert.equal(partial.sale.status, "PARTIALLY_REFUNDED");
+  assert.equal(partial.refundableMinor, "50000");
+  assert.equal(partial.refunds[0]!.method, "CASH");
+
+  const retry = await service.refundOrder(
+    {
+      ...refundBase,
+      idempotencyKey: "refund-1",
+      refund: { amountMinor: "14000", reason: "Salah pesan" },
+    },
+    context,
+  );
+  assert.equal(retry.refunds.length, 1);
+
+  await rejectsWithCode(
+    service.refundOrder(
+      {
+        ...refundBase,
+        idempotencyKey: "refund-2",
+        refund: { amountMinor: "50001", reason: "Lebih" },
+      },
+      context,
+    ),
+    "REFUND_EXCEEDS_REFUNDABLE",
+  );
+  const rest = await service.refundOrder(
+    {
+      ...refundBase,
+      idempotencyKey: "refund-3",
+      refund: { amountMinor: "50000", reason: "Batal semua" },
+    },
+    context,
+  );
+  assert.equal(rest.sale.status, "REFUNDED");
+  assert.equal(rest.refundableMinor, "0");
+
+  const taken = await service.paymentsInSession(TENANT, SHIFT);
+  assert.equal(taken.cashMinor, 64_000n);
+  assert.equal(taken.cashRefundsMinor, 64_000n);
+  assert.equal(await service.cashReceivedInSession(TENANT, SHIFT), 0n);
+  assert.equal(
+    (await service.paidOrders(TENANT, [paidOrder.id])).get(paidOrder.id)?.saleStatus,
+    "REFUNDED",
+  );
+
+  await rejectsWithCode(
+    service.refundOrder(
+      {
+        ...base,
+        idempotencyKey: "refund-4",
+        orderId: order().id,
+        refund: { amountMinor: "1000", reason: "Tidak ada" },
+      },
+      context,
+    ),
+    "ORDER_NOT_PAID",
+  );
 });
