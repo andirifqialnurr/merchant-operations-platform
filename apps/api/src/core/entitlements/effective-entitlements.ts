@@ -40,15 +40,22 @@ function inForce(
     .sort((left, right) => left.effectiveAt.getTime() - right.effectiveAt.getTime());
 }
 
-/** What the package includes, then each override in the order it was made. */
+/**
+ * The tier defaults of the enabled modules, then what the package adds or
+ * takes away, then each override in the order it was made.
+ */
 export function effectiveCapabilities(
   packageCapabilities: readonly PackageCapability[],
   overrides: readonly TargetOverride[],
   now: Date,
+  /** What the enabled modules give at their tier, before the package adjusts it. */
+  tierDefaults: readonly string[] = [],
 ) {
-  const capabilities = new Set(
-    packageCapabilities.filter((item) => item.included).map((item) => item.capabilityKey),
-  );
+  const capabilities = new Set(tierDefaults);
+  for (const item of packageCapabilities) {
+    if (item.included) capabilities.add(item.capabilityKey);
+    else capabilities.delete(item.capabilityKey);
+  }
   for (const override of inForce(overrides, "CAPABILITY", now)) {
     if (override.operation === "GRANT") capabilities.add(override.targetKey);
     if (override.operation === "REVOKE") capabilities.delete(override.targetKey);
@@ -94,40 +101,28 @@ export function effectiveLimits(
 }
 
 /**
- * Which module owns which key namespace (the part before the first dot of a
- * capability or limit key). Interim: module manifests will declare this
- * (M2-BE-07). Anything unclaimed is kept on the subscription module's row, so
- * nothing the tenant is entitled to disappears from the projection.
+ * Capabilities and limits that no enabled module owns are kept on this
+ * module's row, so nothing the tenant is entitled to disappears from the
+ * projection.
  */
-const MODULE_NAMESPACES: Partial<Record<ModuleKey, readonly string[]>> = {
-  CAFE_PROFILE: ["profile"],
-  CORE_CATALOG: ["catalog"],
-  CORE_TENANCY: ["core"],
-  CUSTOMER_BASIC: ["customer"],
-  FINANCE_BASIC: ["finance"],
-  INVENTORY_BASIC: ["inventory"],
-  KDS: ["kds"],
-  POS: ["pos"],
-  TABLE_SELF_ORDER: ["floor", "self_order"],
-};
 const UNCLAIMED_OWNER: ModuleKey = "CORE_SUBSCRIPTION";
-
-const namespaceOf = (key: string) => key.slice(0, key.indexOf("."));
 
 /** One projection row per enabled module, carrying the capabilities and limits it owns. */
 export function buildEffectiveEntitlementRows(
   modules: ReadonlyArray<{ moduleKey: ModuleKey; tier: ModuleTier }>,
   capabilities: readonly string[],
   limits: readonly EffectiveLimit[],
+  /** The module that owns a capability or limit key, from the manifests. */
+  ownerOf: (key: string) => ModuleKey | undefined,
 ): EffectiveEntitlementRow[] {
-  const ownerOf = new Map<string, ModuleKey>();
-  for (const { moduleKey } of modules) {
-    for (const namespace of MODULE_NAMESPACES[moduleKey] ?? []) ownerOf.set(namespace, moduleKey);
-  }
+  const enabled = new Set(modules.map((item) => item.moduleKey));
   const fallback = modules.some((item) => item.moduleKey === UNCLAIMED_OWNER)
     ? UNCLAIMED_OWNER
     : undefined;
-  const owner = (key: string) => ownerOf.get(namespaceOf(key)) ?? fallback;
+  const owner = (key: string) => {
+    const declared = ownerOf(key);
+    return declared && enabled.has(declared) ? declared : fallback;
+  };
 
   return modules
     .map(({ moduleKey, tier }) => ({

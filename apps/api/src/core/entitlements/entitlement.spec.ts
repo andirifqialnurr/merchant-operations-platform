@@ -13,6 +13,8 @@ import type {
   ReplaceSubscriptionRecordInput,
   SubscriptionRecord,
 } from "./entitlement.repository.js";
+import { MODULE_MANIFESTS } from "../../module-manifests.js";
+import { ModuleManifestRegistry } from "../manifest/module-manifest.registry.js";
 import { EntitlementService } from "./entitlement.service.js";
 import type { EffectiveEntitlementRow } from "./effective-entitlements.js";
 
@@ -417,9 +419,24 @@ test("modules take their tier from the package version that was bought", async (
   assert.deepEqual([...facts.capabilities], ["profile.custom_domain"]);
 });
 
+test("an enabled module gives the capabilities of its tier from its manifest", async () => {
+  const repository = new MemoryEntitlementRepository();
+  const service = new EntitlementService(repository, new ModuleManifestRegistry(MODULE_MANIFESTS));
+  await service.replaceSubscription(TENANT_ID, activeSubscription(PLAN_CODES.profile));
+
+  // Catalog is a core module, so it is on at Basic for every usable subscription.
+  const { capabilities } = await service.describeAccess(TENANT_ID);
+  assert.ok(capabilities.has("catalog.product.manage"));
+  assert.ok(!capabilities.has("catalog.bundle.manage"), "Pro capability on a Basic module");
+  // POS is not in this package, so none of its capabilities are given.
+  assert.ok(!capabilities.has("pos.order.create"));
+  // What the package itself includes is still there.
+  assert.ok(capabilities.has("profile.custom_domain"));
+});
+
 test("the projection is rewritten whenever the subscription or an override changes", async () => {
   const repository = new MemoryEntitlementRepository();
-  const service = new EntitlementService(repository);
+  const service = new EntitlementService(repository, new ModuleManifestRegistry(MODULE_MANIFESTS));
   await service.replaceSubscription(TENANT_ID, activeSubscription(PLAN_CODES.profile));
 
   const rowOf = (key: string) =>

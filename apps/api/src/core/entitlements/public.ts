@@ -9,3 +9,4 @@ export type {
   AccessFacts,
   AccessRequirement,
 } from "./access-evaluator.js";
+export { subscriptionManifest } from "./manifest.js";

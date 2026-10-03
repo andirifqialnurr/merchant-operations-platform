@@ -2,7 +2,7 @@ import * as z from "zod";
 
 import { uniquePermissions, uniqueStrings } from "./internal.ts";
 import { organizationNameSchema, workspaceTypeSchema } from "./organization.ts";
-import { moduleKeySchema } from "./entitlement.ts";
+import { moduleKeySchema, moduleTierSchema } from "./entitlement.ts";
 import { permissionKeySchema } from "./access.ts";
 
 export const capabilityKeySchema = z
@@ -64,6 +64,11 @@ export const moduleManifestSchema = z
     capabilities: z.array(capabilityKeySchema).refine(uniqueStrings, {
       message: "Capability tidak boleh duplikat.",
     }),
+    /**
+     * The tier at which a capability starts; higher tiers inherit it. A
+     * capability that is not listed here starts at Basic.
+     */
+    capabilityTiers: z.record(capabilityKeySchema, moduleTierSchema).default({}),
     configSchemaVersion: z.number().int().min(1),
     displayName: organizationNameSchema,
     eventHandlers: z.array(moduleEventHandlerRegistrationSchema),
@@ -75,6 +80,19 @@ export const moduleManifestSchema = z
       message: "Dependency module tidak boleh duplikat.",
     }),
     key: moduleKeySchema,
+    /** Usage dimensions this module is limited by, e.g. "pos.registers.active". */
+    limitDimensions: z
+      .array(capabilityKeySchema)
+      .refine(uniqueStrings, { message: "Limit dimension must not repeat." })
+      .default([]),
+    /**
+     * First segment of the capability and limit keys this module owns, e.g.
+     * "pos". When given, every key the manifest declares must use one of them.
+     */
+    namespaces: z
+      .array(z.string().regex(/^[a-z][a-z0-9_]*$/))
+      .refine(uniqueStrings, { message: "Namespace must not repeat." })
+      .default([]),
     navigation: z.array(moduleNavigationRegistrationSchema),
     permissions: z.array(permissionKeySchema).refine(uniquePermissions, {
       message: "Permission tidak boleh duplikat.",
@@ -89,7 +107,25 @@ export const moduleManifestSchema = z
   .refine((value) => !value.internalDependencies.includes(value.key), {
     message: "Module tidak boleh bergantung pada dirinya sendiri.",
     path: ["internalDependencies"],
-  });
+  })
+  .refine(
+    (value) => Object.keys(value.capabilityTiers).every((key) => value.capabilities.includes(key)),
+    {
+      message: "A tier is given for a capability the module does not declare.",
+      path: ["capabilityTiers"],
+    },
+  )
+  .refine(
+    (value) =>
+      value.namespaces.length === 0 ||
+      [...value.capabilities, ...value.limitDimensions].every((key) =>
+        value.namespaces.includes(key.slice(0, key.indexOf("."))),
+      ),
+    {
+      message: "A capability or limit key is outside the module's namespaces.",
+      path: ["namespaces"],
+    },
+  );
 
 export const moduleInstallationStatusSchema = z.enum([
   "ACTIVE",

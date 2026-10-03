@@ -2,3 +2,4 @@
 // Enforced by scripts/check-boundaries.mjs.
 export { OrganizationModule } from "./organization.module.js";
 export { OrganizationService } from "./organization.service.js";
+export { tenancyManifest } from "./manifest.js";

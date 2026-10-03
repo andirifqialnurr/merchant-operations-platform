@@ -9,3 +9,4 @@ export {
   RequirePermission,
   SessionPermissionGuard,
 } from "./session-permission.guard.js";
+export { identityManifest } from "./manifest.js";

@@ -15,8 +15,10 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  Optional,
 } from "@nestjs/common";
 
+import { MODULE_MANIFEST_REGISTRY, ModuleManifestRegistry } from "../manifest/public.js";
 import { assertAccess, evaluateAccess } from "./access-evaluator.js";
 import {
   buildEffectiveEntitlementRows,
@@ -108,6 +110,10 @@ export class EntitlementService {
   constructor(
     @Inject(ENTITLEMENT_REPOSITORY)
     private readonly repository: EntitlementRepository,
+    // Without manifests (unit tests) modules give no capabilities by default.
+    @Optional()
+    @Inject(MODULE_MANIFEST_REGISTRY)
+    private readonly manifests: ModuleManifestRegistry = new ModuleManifestRegistry(),
   ) {}
 
   private resolveState(state: EntitlementStateRecord, now: Date): EntitlementSnapshot {
@@ -318,7 +324,12 @@ export class EntitlementService {
     return {
       capabilities: new Set(
         subscriptionUsable && state.subscription
-          ? effectiveCapabilities(state.subscription.capabilities, state.targetOverrides, now)
+          ? effectiveCapabilities(
+              state.subscription.capabilities,
+              state.targetOverrides,
+              now,
+              this.tierDefaults(snapshot),
+            )
           : [],
       ),
       ...(moduleKey
@@ -327,6 +338,13 @@ export class EntitlementService {
       snapshot,
       subscriptionUsable,
     };
+  }
+
+  /** Capabilities the enabled modules give at their tier, according to their manifests. */
+  private tierDefaults(snapshot: EntitlementSnapshot) {
+    return snapshot.modules.flatMap((item) =>
+      item.enabled && item.tier ? this.manifests.capabilitiesAt(item.key, item.tier) : [],
+    );
   }
 
   /**
@@ -344,8 +362,14 @@ export class EntitlementService {
             snapshot.modules
               .filter((item) => item.enabled && item.tier !== null)
               .map((item) => ({ moduleKey: item.key, tier: item.tier ?? "BASIC" })),
-            effectiveCapabilities(state.subscription.capabilities, state.targetOverrides, now),
+            effectiveCapabilities(
+              state.subscription.capabilities,
+              state.targetOverrides,
+              now,
+              this.tierDefaults(snapshot),
+            ),
             effectiveLimits(state.subscription.limits, state.targetOverrides, now),
+            (key) => this.manifests.ownerOf(key),
           )
         : [];
     await this.repository.saveEffectiveEntitlements(tenantId, rows, now);

@@ -2,3 +2,4 @@
 // Enforced by scripts/check-boundaries.mjs.
 export { OrderIntakeService } from "./application/order-intake.service.js";
 export { OrderIntakeModule } from "./order-intake.module.js";
+export { orderIntakeManifest } from "./manifest.js";

@@ -31,12 +31,14 @@ apps/api/src/
     security/                 rate limit
     observability/            request ID, log terstruktur
     audit/                    audit aksi kritis
+    manifest/                 registry manifest modul (kunci capability per tier, dimensi limit, izin, navigasi, event, ketergantungan)
   catalog/                    kategori, produk, varian, modifier, gambar, produk per outlet (dipecah di M2-QA-02)
   kernels/
     order-intake/             pesanan dan item
     billing-payment-ledger/   tagihan, pembayaran, penjualan, refund
   modules/
     pos-sales/                shift dan kas, pesanan kasir, keranjang tertahan
+  module-manifests.ts         daftar manifest semua unit; satu-satunya tempat yang perlu diubah saat modul baru ditambahkan
   reliability/                test isolasi tenant/outlet
 apps/worker/src/
   index.ts                    worker BullMQ untuk antrean `system` + smoke check lewat Redis; belum ada dispatcher outbox

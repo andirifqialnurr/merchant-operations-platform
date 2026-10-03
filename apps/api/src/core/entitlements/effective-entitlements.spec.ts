@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { MODULE_MANIFESTS } from "../../module-manifests.js";
+import { ModuleManifestRegistry } from "../manifest/module-manifest.registry.js";
 import {
   buildEffectiveEntitlementRows,
   effectiveCapabilities,
@@ -9,6 +11,7 @@ import {
 } from "./effective-entitlements.js";
 
 const NOW = new Date("2026-10-10T00:00:00.000Z");
+const registry = new ModuleManifestRegistry(MODULE_MANIFESTS);
 const at = (iso: string) => new Date(iso);
 
 function override(
@@ -101,6 +104,24 @@ test("limit overrides replace or add, and never shrink an unlimited package limi
   ]);
 });
 
+test("tier defaults come first, then the package adds or takes away", () => {
+  const defaults = registry.capabilitiesAt("POS", "BASIC");
+  const result = effectiveCapabilities(
+    [
+      { capabilityKey: "pos.bill.split", included: true },
+      { capabilityKey: "pos.discount.basic", included: false },
+    ],
+    [],
+    NOW,
+    defaults,
+  );
+
+  assert.ok(result.includes("pos.order.create"), "a Basic capability from the manifest");
+  assert.ok(result.includes("pos.bill.split"), "a Pro capability the package adds");
+  assert.ok(!result.includes("pos.discount.basic"), "a Basic capability the package removes");
+  assert.ok(!result.includes("pos.payment.split"), "a Pro capability nobody granted");
+});
+
 test("each capability and limit lands on exactly one module row", () => {
   const rows = buildEffectiveEntitlementRows(
     [
@@ -115,6 +136,7 @@ test("each capability and limit lands on exactly one module row", () => {
       { dimensionKey: "core.locations.active", source: "PACKAGE", unlimited: false, value: 1n },
       { dimensionKey: "pos.registers.active", source: "OVERRIDE", unlimited: false, value: 2n },
     ],
+    (key) => registry.ownerOf(key),
   );
   const row = (key: string) => rows.find((item) => item.moduleKey === key);
 
