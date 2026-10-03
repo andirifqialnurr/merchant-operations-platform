@@ -847,6 +847,7 @@ Catatan alignment 5 Agustus 2026: urutan historis P2 dimulai setelah primitive U
 - [x] **12.25 Halaman dev keluar dari build produksi (M1-UX-07, pilihan pengguna: opsi 1):** `/` sekarang hanya mengarah ke `/catalog`. Layar Device Mode lama pindah ke `/device-mode`, dan bersama `/foundation`, `/design-system`, `/color-bank`, `/typography`, `/kds`, `/inventory` dinamai `page.dev.tsx`; `next.config.ts` hanya mengenali ekstensi itu di luar produksi, sehingga `next build` tidak memuat ketujuhnya (terverifikasi dari daftar rute build). `device-mode.css` tidak lagi dimuat di layout utama. Service worker (cache v3) tidak lagi menyimpan `/` dan `/design-system`. Tidak ada yang dihapus.
 - [x] **12.26 Data guard POS (M1-SC-03):** semua respons controller `pos-sales` sudah lewat `Schema.parse` kontrak, sehingga field di luar DTO terbuang; database belum punya kolom HPP/laba. Test kontrak baru menelusuri seluruh `posOpenApiSchemas` dan gagal bila ada nama field biaya, laba, HR, atau kontak pelanggan (`security.md` 10.1).
 - [x] **12.27 Test browser POS dan test unit web (M1-QA-02, M1-QA-03):** `apps/web/e2e/pos-shift-sale.spec.ts` (Playwright, `pnpm --filter @merchant/web test:e2e`) menjalankan buka shift → jual tunai → bayar → tutup shift sebagai `pos.cashier@local.test` terhadap stack lokal yang sudah berjalan; tidak ikut `pnpm test` karena butuh web, API, dan database. Sesi login disimpan di `apps/web/e2e/.auth/` (diabaikan Git) karena API membatasi 5 login per akun per 15 menit. `src/lib/format.test.ts` menguji `formatMoney` dan `slugify`; logika keranjang sudah diuji di `cart.test.ts`.
+- [x] **12.28 Pesan error katalog netral (M1-BE-10):** 46 pesan server berbahasa Indonesia di `apps/api/src/catalog` diganti pesan Inggris; kodenya tidak berubah. 13 kode katalog/tenant yang belum punya terjemahan ditambahkan ke kamus `id`/`en`. `apps/web/src/i18n/error-codes.test.ts` memindai kode error di `catalog`, `modules`, dan `kernels` dan gagal bila ada yang belum diterjemahkan di kedua bahasa. Modul API lain (auth, access, organization) masih berpesan Indonesia; layar tetap menampilkan terjemahan berdasarkan kode.
 - [ ] **12.10d-4 Lanjutan layar jual:** catatan per item, tahan pesanan, makan di tempat, gambar produk, dan status shift/koneksi di bar atas.
 
 **Checkpoint 12.1:** `feat(ui): add POS product tile and category rail`
@@ -910,6 +911,8 @@ Catatan alignment 5 Agustus 2026: urutan historis P2 dimulai setelah primitive U
 **Checkpoint 12.26:** `test(contracts): lock sensitive fields out of POS responses`
 
 **Checkpoint 12.27:** `test(web): add the POS browser test and format tests`
+
+**Checkpoint 12.28:** `refactor(api): use English catalog error messages`
 
 **POS catalog component gate:** Product Tile menyediakan variant `compact/default/touch/customer`, size `sm/md/lg/customer`, state selected, low stock, sold out, scheduled/unavailable, image loading, dan image fallback tanpa menyembunyikan harga/status. Category Rail menyediakan mode vertical untuk POS desktop dan horizontal-scroll untuk customer/mobile dengan active indicator yang eksplisit. Component tests mencakup interaksi, disabled state, semantics, dan axe smoke; Storybook production build serta review Chrome pada 1440/390 px, light/dark, focus ring, minimum size, long status, dan overflow sudah lulus.
 

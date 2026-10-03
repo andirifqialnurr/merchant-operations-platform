@@ -147,34 +147,34 @@ export class CatalogService {
 
   private async requireTenant(tenantId: string) {
     const tenant = await this.repository.findTenant(tenantId);
-    if (!tenant) throw notFound("TENANT_NOT_FOUND", "Tenant tidak ditemukan.");
+    if (!tenant) throw notFound("TENANT_NOT_FOUND", "Tenant was not found.");
     return tenant;
   }
 
   private async requireActiveTenant(tenantId: string) {
     const tenant = await this.requireTenant(tenantId);
-    if (tenant.status !== "ACTIVE") throw conflict("TENANT_INACTIVE", "Tenant tidak aktif.");
+    if (tenant.status !== "ACTIVE") throw conflict("TENANT_INACTIVE", "Tenant is inactive.");
     return tenant;
   }
 
   private async requireOutlet(tenantId: string, outletId: string) {
     const outlet = await this.repository.findOutlet(tenantId, outletId);
     if (!outlet) {
-      throw notFound("OUTLET_NOT_FOUND", "Outlet tidak ditemukan pada tenant ini.");
+      throw notFound("OUTLET_NOT_FOUND", "Outlet was not found in this tenant.");
     }
     return outlet;
   }
 
   private async requireActiveOutlet(tenantId: string, outletId: string) {
     const outlet = await this.requireOutlet(tenantId, outletId);
-    if (outlet.status !== "ACTIVE") throw conflict("OUTLET_INACTIVE", "Outlet tidak aktif.");
+    if (outlet.status !== "ACTIVE") throw conflict("OUTLET_INACTIVE", "Outlet is inactive.");
     return outlet;
   }
 
   private async requireCategory(tenantId: string, categoryId: string) {
     const category = await this.repository.findCategoryById(tenantId, categoryId);
     if (!category) {
-      throw notFound("CATALOG_CATEGORY_NOT_FOUND", "Kategori tidak ditemukan pada tenant ini.");
+      throw notFound("CATALOG_CATEGORY_NOT_FOUND", "Category was not found in this tenant.");
     }
     return category;
   }
@@ -182,7 +182,7 @@ export class CatalogService {
   private async requireActiveCategory(tenantId: string, categoryId: string) {
     const category = await this.requireCategory(tenantId, categoryId);
     if (category.status !== "ACTIVE") {
-      throw conflict("CATALOG_CATEGORY_INACTIVE", "Kategori tidak aktif.");
+      throw conflict("CATALOG_CATEGORY_INACTIVE", "Category is inactive.");
     }
     return category;
   }
@@ -190,7 +190,7 @@ export class CatalogService {
   private async requireProduct(tenantId: string, productId: string) {
     const product = await this.repository.findProductById(tenantId, productId);
     if (!product) {
-      throw notFound("CATALOG_PRODUCT_NOT_FOUND", "Produk tidak ditemukan pada tenant ini.");
+      throw notFound("CATALOG_PRODUCT_NOT_FOUND", "Product was not found in this tenant.");
     }
     return product;
   }
@@ -198,7 +198,7 @@ export class CatalogService {
   private async requireActiveProduct(tenantId: string, productId: string) {
     const product = await this.requireProduct(tenantId, productId);
     if (product.status !== "ACTIVE") {
-      throw conflict("CATALOG_PRODUCT_INACTIVE", "Produk tidak aktif.");
+      throw conflict("CATALOG_PRODUCT_INACTIVE", "Product is inactive.");
     }
     return product;
   }
@@ -208,7 +208,7 @@ export class CatalogService {
     if (!group) {
       throw notFound(
         "CATALOG_MODIFIER_GROUP_NOT_FOUND",
-        "Modifier group tidak ditemukan pada tenant ini.",
+        "Modifier group was not found in this tenant.",
       );
     }
     return group;
@@ -217,7 +217,7 @@ export class CatalogService {
   private async requireActiveModifierGroup(tenantId: string, groupId: string) {
     const group = await this.requireModifierGroup(tenantId, groupId);
     if (group.status !== "ACTIVE") {
-      throw conflict("CATALOG_MODIFIER_GROUP_INACTIVE", "Modifier group tidak aktif.");
+      throw conflict("CATALOG_MODIFIER_GROUP_INACTIVE", "Modifier group is inactive.");
     }
     return group;
   }
@@ -239,12 +239,12 @@ export class CatalogService {
     await this.requireActiveTenant(tenantId);
     const parsed = createCatalogCategorySchema.parse(input);
     if (await this.repository.findCategoryBySlug(tenantId, parsed.slug)) {
-      throw conflict("CATALOG_CATEGORY_SLUG_CONFLICT", "Slug kategori sudah digunakan.");
+      throw conflict("CATALOG_CATEGORY_SLUG_CONFLICT", "Category slug is already in use.");
     }
     const record = await this.uniqueMutation(
       () => this.repository.createCategory(tenantId, parsed, context),
       "CATALOG_CATEGORY_SLUG_CONFLICT",
-      "Slug kategori sudah digunakan.",
+      "Category slug is already in use.",
     );
     return toCategory(record);
   }
@@ -261,13 +261,13 @@ export class CatalogService {
     if (parsed.slug && parsed.slug !== current.slug) {
       const duplicate = await this.repository.findCategoryBySlug(tenantId, parsed.slug);
       if (duplicate && duplicate.id !== categoryId) {
-        throw conflict("CATALOG_CATEGORY_SLUG_CONFLICT", "Slug kategori sudah digunakan.");
+        throw conflict("CATALOG_CATEGORY_SLUG_CONFLICT", "Category slug is already in use.");
       }
     }
     const record = await this.uniqueMutation(
       () => this.repository.updateCategory(tenantId, categoryId, parsed, context),
       "CATALOG_CATEGORY_SLUG_CONFLICT",
-      "Slug kategori sudah digunakan.",
+      "Category slug is already in use.",
     );
     return toCategory(record);
   }
@@ -281,12 +281,12 @@ export class CatalogService {
     const parsed = createCatalogProductSchema.parse(input);
     await this.requireActiveCategory(tenantId, parsed.categoryId);
     if (await this.repository.findProductBySlug(tenantId, parsed.slug)) {
-      throw conflict("CATALOG_PRODUCT_SLUG_CONFLICT", "Slug produk sudah digunakan.");
+      throw conflict("CATALOG_PRODUCT_SLUG_CONFLICT", "Product slug is already in use.");
     }
     const record = await this.uniqueMutation(
       () => this.repository.createProduct(tenantId, parsed, context),
       "CATALOG_PRODUCT_SLUG_CONFLICT",
-      "Slug produk sudah digunakan.",
+      "Product slug is already in use.",
     );
     return toProduct(record);
   }
@@ -300,7 +300,7 @@ export class CatalogService {
     await this.requireActiveTenant(tenantId);
     const current = await this.repository.findProductById(tenantId, productId);
     if (!current) {
-      throw notFound("CATALOG_PRODUCT_NOT_FOUND", "Produk tidak ditemukan pada tenant ini.");
+      throw notFound("CATALOG_PRODUCT_NOT_FOUND", "Product was not found in this tenant.");
     }
     const parsed = updateCatalogProductSchema.parse(input);
     if (parsed.categoryId && parsed.categoryId !== current.categoryId) {
@@ -309,13 +309,13 @@ export class CatalogService {
     if (parsed.slug && parsed.slug !== current.slug) {
       const duplicate = await this.repository.findProductBySlug(tenantId, parsed.slug);
       if (duplicate && duplicate.id !== productId) {
-        throw conflict("CATALOG_PRODUCT_SLUG_CONFLICT", "Slug produk sudah digunakan.");
+        throw conflict("CATALOG_PRODUCT_SLUG_CONFLICT", "Product slug is already in use.");
       }
     }
     const record = await this.uniqueMutation(
       () => this.repository.updateProduct(tenantId, productId, parsed, context),
       "CATALOG_PRODUCT_SLUG_CONFLICT",
-      "Slug produk sudah digunakan.",
+      "Product slug is already in use.",
     );
     return toProduct(record);
   }
@@ -331,7 +331,7 @@ export class CatalogService {
     const record = await this.uniqueMutation(
       () => this.repository.createProductVariant(tenantId, parsed, context),
       "CATALOG_PRODUCT_VARIANT_CONFLICT",
-      "Nama variant sudah digunakan pada produk ini.",
+      "Variant name is already in use on this product.",
     );
     return toProductVariant(record);
   }
@@ -345,16 +345,13 @@ export class CatalogService {
     await this.requireActiveTenant(tenantId);
     const current = await this.repository.findProductVariantById(tenantId, variantId);
     if (!current) {
-      throw notFound(
-        "CATALOG_PRODUCT_VARIANT_NOT_FOUND",
-        "Variant tidak ditemukan pada tenant ini.",
-      );
+      throw notFound("CATALOG_PRODUCT_VARIANT_NOT_FOUND", "Variant was not found in this tenant.");
     }
     const parsed = updateCatalogProductVariantSchema.parse(input);
     const record = await this.uniqueMutation(
       () => this.repository.updateProductVariant(tenantId, variantId, parsed, context),
       "CATALOG_PRODUCT_VARIANT_CONFLICT",
-      "Nama variant sudah digunakan pada produk ini.",
+      "Variant name is already in use on this product.",
     );
     return toProductVariant(record);
   }
@@ -369,13 +366,13 @@ export class CatalogService {
     if (await this.repository.findModifierGroupByName(tenantId, parsed.name)) {
       throw conflict(
         "CATALOG_MODIFIER_GROUP_NAME_CONFLICT",
-        "Nama modifier group sudah digunakan.",
+        "Modifier group name is already in use.",
       );
     }
     const record = await this.uniqueMutation(
       () => this.repository.createModifierGroup(tenantId, parsed, context),
       "CATALOG_MODIFIER_GROUP_NAME_CONFLICT",
-      "Nama modifier group sudah digunakan.",
+      "Modifier group name is already in use.",
     );
     return toModifierGroup(record);
   }
@@ -401,14 +398,14 @@ export class CatalogService {
       if (duplicate && duplicate.id !== groupId) {
         throw conflict(
           "CATALOG_MODIFIER_GROUP_NAME_CONFLICT",
-          "Nama modifier group sudah digunakan.",
+          "Modifier group name is already in use.",
         );
       }
     }
     const record = await this.uniqueMutation(
       () => this.repository.updateModifierGroup(tenantId, groupId, parsed, context),
       "CATALOG_MODIFIER_GROUP_NAME_CONFLICT",
-      "Nama modifier group sudah digunakan.",
+      "Modifier group name is already in use.",
     );
     return toModifierGroup(record);
   }
@@ -424,13 +421,13 @@ export class CatalogService {
     if (await this.repository.findModifierOptionByName(tenantId, parsed.groupId, parsed.name)) {
       throw conflict(
         "CATALOG_MODIFIER_OPTION_NAME_CONFLICT",
-        "Nama modifier option sudah digunakan pada group ini.",
+        "Modifier option name is already in use in this group.",
       );
     }
     const record = await this.uniqueMutation(
       () => this.repository.createModifierOption(tenantId, parsed, context),
       "CATALOG_MODIFIER_OPTION_NAME_CONFLICT",
-      "Nama modifier option sudah digunakan pada group ini.",
+      "Modifier option name is already in use in this group.",
     );
     return toModifierOption(record);
   }
@@ -446,7 +443,7 @@ export class CatalogService {
     if (!current) {
       throw notFound(
         "CATALOG_MODIFIER_OPTION_NOT_FOUND",
-        "Modifier option tidak ditemukan pada tenant ini.",
+        "Modifier option was not found in this tenant.",
       );
     }
     const parsed = updateCatalogModifierOptionSchema.parse(input);
@@ -459,14 +456,14 @@ export class CatalogService {
       if (duplicate && duplicate.id !== optionId) {
         throw conflict(
           "CATALOG_MODIFIER_OPTION_NAME_CONFLICT",
-          "Nama modifier option sudah digunakan pada group ini.",
+          "Modifier option name is already in use in this group.",
         );
       }
     }
     const record = await this.uniqueMutation(
       () => this.repository.updateModifierOption(tenantId, optionId, parsed, context),
       "CATALOG_MODIFIER_OPTION_NAME_CONFLICT",
-      "Nama modifier option sudah digunakan pada group ini.",
+      "Modifier option name is already in use in this group.",
     );
     return toModifierOption(record);
   }
@@ -489,13 +486,13 @@ export class CatalogService {
     ) {
       throw conflict(
         "CATALOG_PRODUCT_MODIFIER_GROUP_CONFLICT",
-        "Modifier group sudah terhubung ke produk ini.",
+        "Modifier group is already assigned to this product.",
       );
     }
     const record = await this.uniqueMutation(
       () => this.repository.createProductModifierGroup(tenantId, parsed, context),
       "CATALOG_PRODUCT_MODIFIER_GROUP_CONFLICT",
-      "Modifier group sudah terhubung ke produk ini.",
+      "Modifier group is already assigned to this product.",
     );
     return toProductModifierGroup(record);
   }
@@ -511,7 +508,7 @@ export class CatalogService {
     if (!current) {
       throw notFound(
         "CATALOG_PRODUCT_MODIFIER_GROUP_NOT_FOUND",
-        "Assignment modifier tidak ditemukan pada tenant ini.",
+        "Modifier assignment was not found in this tenant.",
       );
     }
     const parsed = updateCatalogProductModifierGroupSchema.parse(input);
@@ -529,12 +526,12 @@ export class CatalogService {
     const parsed = createCatalogProductImageSchema.parse(input);
     await this.requireActiveProduct(tenantId, parsed.productId);
     if (await this.repository.findProductImageByObjectKey(tenantId, parsed.objectKey)) {
-      throw conflict("CATALOG_PRODUCT_IMAGE_KEY_CONFLICT", "Object key image sudah digunakan.");
+      throw conflict("CATALOG_PRODUCT_IMAGE_KEY_CONFLICT", "Image object key is already in use.");
     }
     const record = await this.uniqueMutation(
       () => this.repository.createProductImage(tenantId, parsed, context),
       "CATALOG_PRODUCT_IMAGE_KEY_CONFLICT",
-      "Object key image sudah digunakan.",
+      "Image object key is already in use.",
     );
     return toProductImage(record);
   }
@@ -549,7 +546,7 @@ export class CatalogService {
     if (!(await this.repository.findProductImageById(tenantId, imageId))) {
       throw notFound(
         "CATALOG_PRODUCT_IMAGE_NOT_FOUND",
-        "Product image tidak ditemukan pada tenant ini.",
+        "Product image was not found in this tenant.",
       );
     }
     const parsed = updateCatalogProductImageSchema.parse(input);
@@ -568,12 +565,15 @@ export class CatalogService {
     await this.requireActiveOutlet(tenantId, parsed.outletId);
     await this.requireActiveProduct(tenantId, parsed.productId);
     if (await this.repository.findOutletProduct(tenantId, parsed.outletId, parsed.productId)) {
-      throw conflict("CATALOG_OUTLET_PRODUCT_CONFLICT", "Produk sudah terhubung ke outlet ini.");
+      throw conflict(
+        "CATALOG_OUTLET_PRODUCT_CONFLICT",
+        "Product is already assigned to this outlet.",
+      );
     }
     const record = await this.uniqueMutation(
       () => this.repository.createOutletProduct(tenantId, parsed, context),
       "CATALOG_OUTLET_PRODUCT_CONFLICT",
-      "Produk sudah terhubung ke outlet ini.",
+      "Product is already assigned to this outlet.",
     );
     return toOutletProduct(record);
   }
@@ -590,13 +590,13 @@ export class CatalogService {
     if (!current) {
       throw notFound(
         "CATALOG_OUTLET_PRODUCT_NOT_FOUND",
-        "Outlet product tidak ditemukan pada tenant ini.",
+        "Outlet product was not found in this tenant.",
       );
     }
     if (expectedOutletId && current.outletId !== expectedOutletId) {
       throw notFound(
         "CATALOG_OUTLET_PRODUCT_NOT_FOUND",
-        "Outlet product tidak ditemukan pada outlet ini.",
+        "Outlet product was not found in this outlet.",
       );
     }
     const parsed = updateCatalogOutletProductSchema.parse(input);
@@ -613,7 +613,7 @@ export class CatalogService {
     const tenant = await this.requireTenant(tenantId);
     const outlet = await this.requireOutlet(tenantId, outletId);
     const snapshot = await this.repository.getSnapshot(tenantId);
-    if (!snapshot) throw notFound("TENANT_NOT_FOUND", "Tenant tidak ditemukan.");
+    if (!snapshot) throw notFound("TENANT_NOT_FOUND", "Tenant was not found.");
     const products = new Map(snapshot.products.map((product) => [product.id, product]));
     const items = snapshot.outletProducts
       .filter((assignment) => assignment.outletId === outletId)
@@ -622,7 +622,7 @@ export class CatalogService {
         if (!productRecord) {
           throw conflict(
             "CATALOG_OUTLET_PRODUCT_INVALID",
-            "Outlet product tidak memiliki master product yang valid.",
+            "Outlet product has no valid master product.",
           );
         }
         const assignment = toOutletProduct(assignmentRecord);
@@ -657,7 +657,7 @@ export class CatalogService {
     const tenant = await this.requireTenant(tenantId);
     const outlet = await this.requireOutlet(tenantId, outletId);
     const snapshot = await this.repository.getSnapshot(tenantId);
-    if (!snapshot) throw notFound("TENANT_NOT_FOUND", "Tenant tidak ditemukan.");
+    if (!snapshot) throw notFound("TENANT_NOT_FOUND", "Tenant was not found.");
     const open = tenant.status === "ACTIVE" && outlet.status === "ACTIVE";
     return sellableMenuSchema.parse(
       open ? buildSellableMenu(snapshot, outletId) : { categories: [], outletId, products: [] },
@@ -666,7 +666,7 @@ export class CatalogService {
 
   async getSnapshot(tenantId: string) {
     const snapshot = await this.repository.getSnapshot(tenantId);
-    if (!snapshot) throw notFound("TENANT_NOT_FOUND", "Tenant tidak ditemukan.");
+    if (!snapshot) throw notFound("TENANT_NOT_FOUND", "Tenant was not found.");
     return catalogSnapshotSchema.parse({
       categories: snapshot.categories.map(toCategory),
       modifierGroups: snapshot.modifierGroups.map(toModifierGroup),

@@ -126,7 +126,7 @@ export class CatalogController {
     if (headers[API_HEADERS.outletId] !== outletId) {
       throw new BadRequestException({
         code: "OUTLET_SCOPE_MISMATCH",
-        message: "Outlet route harus sama dengan x-outlet-id.",
+        message: "The outlet in the route must match x-outlet-id.",
       });
     }
   }
