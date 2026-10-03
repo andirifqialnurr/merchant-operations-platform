@@ -3,6 +3,7 @@ import test from "node:test";
 import * as z from "zod";
 
 import {
+  posOpenApiSchemas,
   API_HEADERS,
   authLoginRequestSchema,
   authSessionSchema,
@@ -956,4 +957,31 @@ test("normalizes outlet catalog inheritance and exact price overrides", () => {
     productId,
   });
   assert.equal(commonOpenApiSchemas.CatalogOutletSnapshot.type, "object");
+});
+
+function schemaPropertyNames(node: unknown, names = new Set<string>()): Set<string> {
+  if (Array.isArray(node)) {
+    for (const item of node) schemaPropertyNames(item, names);
+  } else if (node && typeof node === "object") {
+    for (const [key, value] of Object.entries(node)) {
+      if (key === "properties" && value && typeof value === "object") {
+        for (const name of Object.keys(value)) names.add(name);
+      }
+      schemaPropertyNames(value, names);
+    }
+  }
+  return names;
+}
+
+test("POS contracts carry no cost, profit, HR, or customer contact fields", () => {
+  // security.md 10.1: the cashier surface never receives these, so the DTOs must not have them.
+  const forbidden =
+    /cost|hpp|cogs|profit|margin|salary|wage|payroll|employee|passwordHash|phone|email|address|birth/i;
+  const names = [...schemaPropertyNames(posOpenApiSchemas)];
+
+  assert.ok(names.includes("totalMinor"), "the walk reaches nested order fields");
+  assert.deepEqual(
+    names.filter((name) => forbidden.test(name)),
+    [],
+  );
 });
