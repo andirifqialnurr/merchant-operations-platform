@@ -11,7 +11,10 @@ import {
 } from "./auth.repository.js";
 import { AuthService, readSessionTtlHours } from "./auth.service.js";
 import { hashPassword, hashSessionToken, verifyPassword } from "./password.js";
-import { InMemoryRateLimitService, RATE_LIMIT_POLICIES } from "../security/rate-limit.service.js";
+import {
+  InMemoryRateLimitService,
+  RATE_LIMIT_POLICIES,
+} from "../core/security/rate-limit.service.js";
 import {
   readSessionToken,
   serializeExpiredSessionCookie,

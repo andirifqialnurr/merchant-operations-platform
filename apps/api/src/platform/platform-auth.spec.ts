@@ -12,7 +12,10 @@ import {
 import type { Reflector } from "@nestjs/core";
 
 import { hashPassword } from "../auth/password.js";
-import { InMemoryRateLimitService, RATE_LIMIT_POLICIES } from "../security/rate-limit.service.js";
+import {
+  InMemoryRateLimitService,
+  RATE_LIMIT_POLICIES,
+} from "../core/security/rate-limit.service.js";
 import {
   type CreatePlatformLoginSessionInput,
   type CreatePlatformUserInput,

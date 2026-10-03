@@ -3,8 +3,8 @@ import test from "node:test";
 
 import { API_HEADERS, apiErrorSchema } from "@merchant/contracts";
 
-import { SESSION_COOKIE_NAME } from "../auth/session-cookie.js";
-import { PLATFORM_SESSION_COOKIE_NAME } from "../platform/platform-session-cookie.js";
+import { SESSION_COOKIE_NAME } from "../../auth/session-cookie.js";
+import { PLATFORM_SESSION_COOKIE_NAME } from "../../platform/platform-session-cookie.js";
 import {
   createCsrfProtectionMiddleware,
   createSecurityHeadersMiddleware,

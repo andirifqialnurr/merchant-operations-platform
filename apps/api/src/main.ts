@@ -9,7 +9,7 @@ import { configureOpenApi } from "./openapi.js";
 import {
   createCsrfProtectionMiddleware,
   createSecurityHeadersMiddleware,
-} from "./security/http-security.js";
+} from "./core/security/http-security.js";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
