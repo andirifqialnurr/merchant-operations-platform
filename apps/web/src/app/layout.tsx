@@ -14,22 +14,25 @@ import "./globals.css";
 import "./device-mode.css";
 
 export const metadata: Metadata = {
-  applicationName: "Merchant Operations Platform",
+  applicationName: "Cafe Companion",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Merchant Ops",
+    title: "Cafe Companion",
   },
   description: "Merchant backoffice untuk operasi tenant dan outlet",
   formatDetection: {
     telephone: false,
   },
   icons: {
-    apple: "/merchant-pwa-icon.svg",
-    icon: "/merchant-pwa-icon.svg",
+    apple: "/apple-touch-icon.png",
+    icon: [
+      { type: "image/svg+xml", url: "/icon.svg" },
+      { sizes: "32x32", type: "image/png", url: "/icon-32.png" },
+    ],
   },
   manifest: "/manifest.webmanifest",
-  title: "Merchant Operations Platform",
+  title: "Cafe Companion",
 };
 
 export const viewport: Viewport = {

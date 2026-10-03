@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { Brand } from "@merchant/ui/brand";
 import { SegmentedControl } from "@merchant/ui/selection-control";
 
 import { LoginForm } from "@/features/auth";
@@ -27,6 +28,7 @@ export default function LoginPage() {
   return (
     <main className="grid min-h-dvh place-items-center bg-canvas p-4">
       <div className="grid w-full max-w-sm justify-items-center gap-4">
+        <Brand name={t("brand")} size="lg" />
         <div className="w-full rounded-lg border border-line-default bg-surface p-6">
           <Suspense>
             <Login />

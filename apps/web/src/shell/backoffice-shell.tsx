@@ -8,6 +8,7 @@ import { IconCashRegister, IconPackage } from "@tabler/icons-react";
 
 import { PERMISSIONS } from "@merchant/contracts";
 import { AppIcon } from "@merchant/ui/app-icon";
+import { Brand } from "@merchant/ui/brand";
 import { AppShell } from "@merchant/ui/app-shell";
 
 import { useWorkspace } from "@/features/workspace";
@@ -54,7 +55,7 @@ export function BackofficeShell({
   return (
     <AppShell
       account={<ShellAccount onSignOut={onSignOut} user={user} />}
-      brand={t("brand")}
+      brand={<Brand name={t("brand")} />}
       context={<ShellContext />}
       labels={{
         closeNavigation: t("closeNavigation"),

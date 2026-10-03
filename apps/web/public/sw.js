@@ -1,5 +1,5 @@
-const APP_SHELL_CACHE = "merchant-application-shell-v1";
-const APP_SHELL_URLS = ["/", "/design-system", "/manifest.webmanifest", "/merchant-pwa-icon.svg"];
+const APP_SHELL_CACHE = "merchant-application-shell-v2";
+const APP_SHELL_URLS = ["/", "/design-system", "/manifest.webmanifest", "/icon.svg"];
 const STATIC_ASSET_PREFIX = "/_next/static/";
 
 self.addEventListener("install", (event) => {

@@ -82,8 +82,8 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 
 ### AS — Aset
 
-- [ ] **M1-AS-01 Logo dan wordmark** — tanda produk sederhana monokrom untuk login, sidebar, dan kepala struk; versi terang dan gelap; SVG.
-- [ ] **M1-AS-02 Ikon aplikasi** — favicon, ikon PWA 192/512 dan maskable, `apple-touch-icon`; `manifest.ts` memakai nama dan warna dari token.
+- [x] **M1-AS-01 Logo dan wordmark** — tanda produk sederhana monokrom untuk login, sidebar, dan kepala struk; versi terang dan gelap; SVG.
+- [x] **M1-AS-02 Ikon aplikasi** — favicon, ikon PWA 192/512 dan maskable, `apple-touch-icon`; `manifest.ts` memakai nama dan warna dari token.
 - [x] **M1-AS-03 Gaya cetak struk** `928e049` — stylesheet cetak untuk kertas 58 mm dan 80 mm serta A4; tanpa elemen navigasi.
 
 ### SC — Keamanan dan privasi
