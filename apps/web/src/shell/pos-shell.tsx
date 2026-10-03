@@ -9,13 +9,14 @@ import { IconLayoutSidebar } from "@tabler/icons-react";
 import { PERMISSIONS } from "@merchant/contracts";
 import { AppIcon } from "@merchant/ui/app-icon";
 
+import { PosStatus } from "@/features/pos";
 import { useWorkspace } from "@/features/workspace";
 
 import { ShellAccount, ShellContext, type ShellUser } from "./shell-controls";
 
 /**
- * Full-screen cashier shell: a 56px top bar with the outlet, the cashier's
- * two surfaces, and the account menu. No sidebar, so the whole width belongs
+ * Full-screen cashier shell: a 56px top bar with the outlet, shift and connection
+ * status, the cashier's surfaces, and the account menu. No sidebar, so the whole width belongs
  * to the task.
  */
 export function PosShell({
@@ -42,6 +43,7 @@ export function PosShell({
         <div className="min-w-0 flex-1">
           <ShellContext />
         </div>
+        <PosStatus />
         <nav aria-label={t("posNavigation")} className="flex shrink-0 items-center gap-1">
           {surfaces.map((surface) => {
             const active = pathname === surface.href;

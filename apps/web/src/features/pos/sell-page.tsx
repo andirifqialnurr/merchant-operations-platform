@@ -143,8 +143,8 @@ function SellScreen({
   return (
     <>
       <h1 className="ui-visually-hidden">{t("sell")}</h1>
-      <div className="grid items-start gap-4 pb-20 lg:grid-cols-[minmax(0,1fr)_22rem] lg:pb-0">
-        <section className="grid min-w-0 gap-4">
+      <div className="grid grid-cols-1 items-start gap-4 pb-20 lg:grid-cols-[minmax(0,1fr)_22rem] lg:pb-0">
+        <section className="grid min-w-0 grid-cols-1 gap-4">
           <div className="flex items-center gap-3">
             <div className="min-w-0 flex-1">
               <CategoryRail
