@@ -19,6 +19,7 @@ import { MAX_LINE_QUANTITY, MAX_NOTE_LENGTH, type CartLineView } from "./cart";
  */
 export function CartPanel({
   lines,
+  onHold,
   onNoteChange,
   onPay,
   onQuantityChange,
@@ -26,6 +27,7 @@ export function CartPanel({
   totalMinor,
 }: Readonly<{
   lines: readonly CartLineView[];
+  onHold: () => void;
   onNoteChange: (key: string, note: string) => void;
   /** Omitted when the cashier may not take payments. */
   onPay?: (() => void) | undefined;
@@ -118,11 +120,18 @@ export function CartPanel({
           <span className="text-label font-semibold">{t("total")}</span>
           <MoneyDisplay amountMinor={totalMinor} locale={locale} variant="summary" />
         </div>
-        {onPay ? (
-          <Button fullWidth onClick={onPay} size="lg">
-            {t("pay")}
+        <div className="flex gap-2">
+          <Button onClick={onHold} size="lg" variant="secondary">
+            {t("hold")}
           </Button>
-        ) : null}
+          {onPay ? (
+            <div className="min-w-0 flex-1">
+              <Button fullWidth onClick={onPay} size="lg">
+                {t("pay")}
+              </Button>
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );

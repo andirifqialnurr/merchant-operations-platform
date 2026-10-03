@@ -18,8 +18,9 @@ import { Sheet } from "@merchant/ui/sheet";
 
 import { useWorkspace } from "@/features/workspace";
 import { useErrorMessage, useFormat } from "@/lib/i18n";
+import { useToast } from "@/providers/toast-provider";
 
-import { useCurrentShift, useMenu } from "./api";
+import { useCurrentShift, useHeldCarts, useMenu } from "./api";
 import {
   addLine,
   removeLine,
@@ -30,6 +31,7 @@ import {
   type CartLine,
 } from "./cart";
 import { CartPanel } from "./cart-panel";
+import { HeldCartsSheet, HoldCartSheet } from "./held-carts";
 import { PaidView } from "./paid-view";
 import { PaymentView } from "./payment-view";
 import { ProductOptionsSheet } from "./product-options-sheet";
@@ -50,6 +52,11 @@ function SellScreen({
   const [categoryId, setCategoryId] = useState(ALL_CATEGORIES);
   const [choosing, setChoosing] = useState<SellableMenuProduct | undefined>();
   const [cartOpen, setCartOpen] = useState(false);
+  const [holding, setHolding] = useState(false);
+  const [heldOpen, setHeldOpen] = useState(false);
+  const notify = useToast();
+  const heldCarts = useHeldCarts(tenantId, outletId);
+  const heldCount = heldCarts.data?.heldCarts.length ?? 0;
   const [stage, setStage] = useState<"pay" | "sell">("sell");
   const [checkout, setCheckout] = useState<Checkout | undefined>();
 
@@ -122,6 +129,10 @@ function SellScreen({
             }
           : undefined
       }
+      onHold={() => {
+        setCartOpen(false);
+        setHolding(true);
+      }}
       onNoteChange={(key, note) => changeCart(setLineNote(cart, key, note))}
       onQuantityChange={(key, quantity) => changeCart(setLineQuantity(cart, key, quantity))}
       onRemove={(key) => changeCart(removeLine(cart, key))}
@@ -134,16 +145,25 @@ function SellScreen({
       <h1 className="ui-visually-hidden">{t("sell")}</h1>
       <div className="grid items-start gap-4 pb-20 lg:grid-cols-[minmax(0,1fr)_22rem] lg:pb-0">
         <section className="grid min-w-0 gap-4">
-          <CategoryRail
-            activeId={categoryId}
-            ariaLabel={t("categories")}
-            categories={[
-              { id: ALL_CATEGORIES, label: t("allCategories") },
-              ...menu.categories.map((category) => ({ id: category.id, label: category.name })),
-            ]}
-            onSelect={setCategoryId}
-            orientation="horizontal"
-          />
+          <div className="flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <CategoryRail
+                activeId={categoryId}
+                ariaLabel={t("categories")}
+                categories={[
+                  { id: ALL_CATEGORIES, label: t("allCategories") },
+                  ...menu.categories.map((category) => ({ id: category.id, label: category.name })),
+                ]}
+                onSelect={setCategoryId}
+                orientation="horizontal"
+              />
+            </div>
+            {heldCount > 0 ? (
+              <Button onClick={() => setHeldOpen(true)} size="sm" variant="secondary">
+                {t("heldCount", { count: heldCount })}
+              </Button>
+            ) : null}
+          </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
             {products.map((product) => (
               <ProductTile
@@ -180,6 +200,41 @@ function SellScreen({
         <div className="-m-4 flex min-h-0 flex-col">{cartPanel}</div>
       </Sheet>
 
+      {holding ? (
+        <HoldCartSheet
+          items={toOrderItems(view.lines)}
+          onClose={() => setHolding(false)}
+          onHeld={() => {
+            setHolding(false);
+            changeCart([]);
+          }}
+          outletId={outletId}
+          tenantId={tenantId}
+        />
+      ) : null}
+      {heldOpen ? (
+        <HeldCartsSheet
+          canResume={view.lines.length === 0}
+          onClose={() => setHeldOpen(false)}
+          onResumed={(resumed) => {
+            setHeldOpen(false);
+            const lines = resumed.items.map((item) => ({
+              modifierOptionIds: item.modifierOptionIds,
+              productId: item.productId,
+              quantity: item.quantity,
+              ...(item.note ? { note: item.note } : {}),
+              ...(item.variantId ? { variantId: item.variantId } : {}),
+            }));
+            changeCart(lines);
+            // Items the menu no longer sells are left out of the cart.
+            if (viewCart(lines, menu.products).lines.length < lines.length) {
+              notify({ message: t("resumedWithUnavailable"), tone: "danger" });
+            }
+          }}
+          outletId={outletId}
+          tenantId={tenantId}
+        />
+      ) : null}
       {choosing ? (
         <ProductOptionsSheet
           key={choosing.id}

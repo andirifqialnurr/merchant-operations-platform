@@ -28,6 +28,9 @@ import {
   createPosOrderSchema,
   currentRegisterSessionSchema,
   entityIdParamsSchema,
+  heldCartListSchema,
+  heldCartSchema,
+  holdCartSchema,
   openRegisterSessionSchema,
   orderSchema,
   payOrderSchema,
@@ -37,6 +40,7 @@ import {
   saleRefundsSchema,
   recordCashMovementSchema,
   registerSessionSchema,
+  resumedCartSchema,
   requestContextHeadersSchema,
   sellableMenuSchema,
   tenantRequestHeadersSchema,
@@ -62,6 +66,7 @@ import {
   type CreateCatalogProductModifierGroup,
   type CreateCatalogProductVariant,
   type CreatePosOrder,
+  type HoldCart,
   type OpenRegisterSession,
   type PayOrder,
   type RefundOrder,
@@ -77,6 +82,8 @@ import {
 } from "@merchant/contracts";
 
 type Schema<T> = { parse(value: unknown): T };
+/** For endpoints that answer 204 No Content. */
+const noContent: Schema<void> = { parse: () => undefined };
 
 export class ApiClientError extends Error {
   constructor(
@@ -416,6 +423,26 @@ export const merchantApi = {
       orderSchema,
       outletHeaders(tenantId, outletId),
     ),
+  heldCarts: (tenantId: string, outletId: string) =>
+    apiRequest("/pos/held-carts", heldCartListSchema, {
+      headers: outletHeaders(tenantId, outletId),
+    }),
+  holdCart: (tenantId: string, outletId: string, input: HoldCart, idempotencyKey: string) =>
+    jsonMutation("/pos/held-carts", "POST", input, holdCartSchema, heldCartSchema, {
+      ...outletHeaders(tenantId, outletId),
+      [API_HEADERS.idempotencyKey]: idempotencyKey,
+    }),
+  resumeHeldCart: (tenantId: string, outletId: string, id: string) =>
+    apiRequest(
+      `/pos/held-carts/${entityIdParamsSchema.parse({ id }).id}/resume`,
+      resumedCartSchema,
+      { headers: outletHeaders(tenantId, outletId), method: "POST" },
+    ),
+  discardHeldCart: (tenantId: string, outletId: string, id: string) =>
+    apiRequest(`/pos/held-carts/${entityIdParamsSchema.parse({ id }).id}`, noContent, {
+      headers: outletHeaders(tenantId, outletId),
+      method: "DELETE",
+    }),
   posMenu: (tenantId: string, outletId: string) =>
     apiRequest("/pos/menu", sellableMenuSchema, { headers: outletHeaders(tenantId, outletId) }),
   /** The caller keeps one key per cart so a retry returns the same order. */

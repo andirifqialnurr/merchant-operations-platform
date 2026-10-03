@@ -50,6 +50,18 @@ export function useOrder(tenantId: string, outletId: string, orderId: string | u
   });
 }
 
+export const heldCartKeys = {
+  list: (tenantId: string, outletId: string) => ["pos", tenantId, "held-carts", outletId] as const,
+};
+
+/** Carts held at the outlet, oldest first. */
+export function useHeldCarts(tenantId: string, outletId: string) {
+  return useQuery({
+    queryFn: () => merchantApi.heldCarts(tenantId, outletId),
+    queryKey: heldCartKeys.list(tenantId, outletId),
+  });
+}
+
 export const menuKeys = {
   outlet: (tenantId: string, outletId: string) => ["pos", tenantId, "menu", outletId] as const,
 };

@@ -312,3 +312,20 @@ test("keeps refunds tenant-scoped, positive, and tied to the sale and shift", ()
   );
   assert.match(refundMigration, /"amount_minor" > 0/);
 });
+
+test("keeps held carts tenant-scoped, labelled, and idempotent", () => {
+  const heldMigration = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261003200000_pos_held_carts/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(schema, /model PosHeldCart \{[\s\S]*@@map\("pos_held_carts"\)/);
+  assert.match(
+    heldMigration,
+    /FOREIGN KEY \("tenant_id", "outlet_id"\) REFERENCES "outlets"\("tenant_id", "id"\)/,
+  );
+  assert.match(heldMigration, /ON "pos_held_carts"\("tenant_id", "outlet_id", "idempotency_key"\)/);
+  assert.match(heldMigration, /"item_count" > 0/);
+});
