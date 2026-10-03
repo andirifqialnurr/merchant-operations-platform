@@ -43,7 +43,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 
 ### BE — Backend dan data
 
-- [ ] **M2-BE-01 Penyesuaian tabel lama (B.1)** — `tenants.type/template/currency/timezone`, `outlets.address`, kolom tambahan `outbox_events` dan `audit_logs`, `idempotency_keys.outlet_id` nullable.
+- [x] **M2-BE-01 Penyesuaian tabel lama (B.1)** — `tenants.type/template/currency/timezone`, `outlets.address`, kolom tambahan `outbox_events` dan `audit_logs`, `idempotency_keys.outlet_id` nullable.
 - [ ] **M2-BE-02 Paket berversi** — `core_packages`, `core_package_versions`, modul, capability, limit; versi `PUBLISHED` tidak dapat diubah; migrasi data dari `plans`.
 - [ ] **M2-BE-03 Langganan dan add-on** — `subscriptions` merujuk versi paket; `core_subscription_addons`; status `DRAFT` dan `CANCELED_AT_PERIOD_END`.
 - [ ] **M2-BE-04 Override entitlement** — `core_entitlement_overrides` menggantikan `tenant_entitlements`, dengan alasan, masa berlaku, dan pelaku.

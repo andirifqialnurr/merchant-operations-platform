@@ -329,3 +329,26 @@ test("keeps held carts tenant-scoped, labelled, and idempotent", () => {
   assert.match(heldMigration, /ON "pos_held_carts"\("tenant_id", "outlet_id", "idempotency_key"\)/);
   assert.match(heldMigration, /"item_count" > 0/);
 });
+
+test("extends the core tables for the modular platform without breaking old rows", () => {
+  const adjustments = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261003230000_core_table_adjustments/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  // Workspace-level idempotency keys have no outlet and still may not repeat.
+  assert.match(adjustments, /ALTER COLUMN "outlet_id" DROP NOT NULL/);
+  assert.match(
+    adjustments,
+    /UNIQUE INDEX[\s\S]*ON "idempotency_keys" \("tenant_id", "scope", "key"\)\s+WHERE "outlet_id" IS NULL/,
+  );
+  // Nothing added to an existing table may be required without a default.
+  for (const line of adjustments.split("\n").filter((item) => item.includes("ADD COLUMN"))) {
+    assert.ok(!line.includes("NOT NULL") || line.includes("DEFAULT"), line.trim());
+  }
+  assert.match(adjustments, /\("type" = 'PERSONAL'\) = \("template" = 'PERSONAL'\)/);
+  assert.match(schema, /model OutboxEvent \{[\s\S]*eventVersion\s+Int\s+@default\(1\)/);
+  assert.match(schema, /model AuditLog \{[\s\S]*@@index\(\[tenantId, correlationId\]\)/);
+});

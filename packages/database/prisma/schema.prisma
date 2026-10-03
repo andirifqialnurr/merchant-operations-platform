@@ -26,6 +26,22 @@ enum PlatformRole {
   SUPPORT
 }
 
+enum WorkspaceType {
+  BUSINESS
+  PERSONAL
+}
+
+/// Preset for labels, navigation, and onboarding (PRD v2 section 6.4).
+enum BusinessTemplate {
+  CAFE
+  RESTAURANT
+  BAKERY_RETAIL
+  CLOUD_KITCHEN
+  HC_ONLY
+  BUSINESS_FINANCE_ONLY
+  PERSONAL
+}
+
 enum OrganizationUnitStatus {
   ACTIVE
   INACTIVE
@@ -220,6 +236,12 @@ model Tenant {
   name                         String                        @db.VarChar(160)
   slug                         String                        @unique @db.VarChar(80)
   status                       OrganizationUnitStatus        @default(ACTIVE)
+  type                         WorkspaceType                 @default(BUSINESS)
+  template                     BusinessTemplate              @default(CAFE)
+  /// Default currency for new prices; ISO 4217.
+  currency                     String                        @default("IDR") @db.Char(3)
+  /// Default time zone for new locations; IANA name.
+  timezone                     String                        @default("Asia/Jakarta") @db.VarChar(64)
   createdAt                    DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt                    DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(6)
   brands                       Brand[]
@@ -275,6 +297,7 @@ model Outlet {
   code               String                 @db.VarChar(40)
   name               String                 @db.VarChar(160)
   timezone           String                 @default("Asia/Jakarta") @db.VarChar(64)
+  address            String?                @db.VarChar(500)
   status             OrganizationUnitStatus @default(ACTIVE)
   createdAt          DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt          DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -647,28 +670,33 @@ model TenantEntitlement {
 }
 
 model AuditLog {
-  id         String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  tenantId   String   @map("tenant_id") @db.Uuid
-  outletId   String?  @map("outlet_id") @db.Uuid
-  actorId    String?  @map("actor_id") @db.Uuid
-  action     String   @db.VarChar(120)
-  entityType String   @map("entity_type") @db.VarChar(120)
-  entityId   String?  @map("entity_id") @db.Uuid
-  requestId  String?  @map("request_id") @db.VarChar(100)
-  metadata   Json?
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  outlet     Outlet?  @relation(fields: [outletId], references: [id], onDelete: Restrict)
+  id            String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId      String   @map("tenant_id") @db.Uuid
+  outletId      String?  @map("outlet_id") @db.Uuid
+  actorId       String?  @map("actor_id") @db.Uuid
+  action        String   @db.VarChar(120)
+  entityType    String   @map("entity_type") @db.VarChar(120)
+  entityId      String?  @map("entity_id") @db.Uuid
+  requestId     String?  @map("request_id") @db.VarChar(100)
+  metadata      Json?
+  channel       String?  @db.VarChar(20)
+  reason        String?  @db.VarChar(500)
+  correlationId String?  @map("correlation_id") @db.VarChar(100)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet        Outlet?  @relation(fields: [outletId], references: [id], onDelete: Restrict)
 
   @@index([tenantId, outletId, createdAt])
   @@index([tenantId, entityType, entityId, createdAt])
+  @@index([tenantId, correlationId])
   @@map("audit_logs")
 }
 
 model IdempotencyKey {
   id             String            @id @default(dbgenerated("uuidv7()")) @db.Uuid
   tenantId       String            @map("tenant_id") @db.Uuid
-  outletId       String            @map("outlet_id") @db.Uuid
+  /// Null for workspace-level commands; those are kept unique by a partial index.
+  outletId       String?           @map("outlet_id") @db.Uuid
   scope          String            @db.VarChar(120)
   key            String            @db.VarChar(255)
   requestHash    String?           @map("request_hash") @db.VarChar(128)
@@ -679,7 +707,7 @@ model IdempotencyKey {
   createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
   tenant         Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  outlet         Outlet            @relation(fields: [outletId], references: [id], onDelete: Restrict)
+  outlet         Outlet?           @relation(fields: [outletId], references: [id], onDelete: Restrict)
 
   @@unique([tenantId, outletId, scope, key])
   @@index([tenantId, outletId, expiresAt])
@@ -694,6 +722,14 @@ model OutboxEvent {
   aggregateType String    @map("aggregate_type") @db.VarChar(120)
   aggregateId   String    @map("aggregate_id") @db.Uuid
   payload       Json
+  eventVersion  Int       @default(1) @map("event_version")
+  correlationId String?   @map("correlation_id") @db.VarChar(100)
+  causationId   String?   @map("causation_id") @db.Uuid
+  actorType     String?   @map("actor_type") @db.VarChar(20)
+  actorId       String?   @map("actor_id") @db.Uuid
+  /// Module key of the code that produced the event.
+  producer      String?   @db.VarChar(80)
+  recordedAt    DateTime  @default(now()) @map("recorded_at") @db.Timestamptz(6)
   occurredAt    DateTime  @default(now()) @map("occurred_at") @db.Timestamptz(6)
   availableAt   DateTime  @default(now()) @map("available_at") @db.Timestamptz(6)
   processedAt   DateTime? @map("processed_at") @db.Timestamptz(6)
