@@ -28,7 +28,7 @@ Dokumen terkait: [`architecture.md`](./architecture.md), [`backend.md`](./backen
 
 | Kontrol | Status | Lokasi |
 |---|---|---|
-| Hash kata sandi Argon2id (64 MiB, 3 pass) dengan perbandingan waktu-konstan | Berjalan | `apps/api/src/auth/password.ts` |
+| Hash kata sandi Argon2id (64 MiB, 3 pass) dengan perbandingan waktu-konstan | Berjalan | `apps/api/src/core/auth/password.ts` |
 | Token sesi acak 32 byte; database hanya menyimpan SHA-256 | Berjalan | `auth/password.ts`, tabel `login_sessions` |
 | Cookie sesi `HttpOnly`, `SameSite=Lax`, `Secure` di produksi | Berjalan | `auth/session-cookie.ts` |
 | Sesi platform terpisah dari sesi merchant | Berjalan | `platform/` |

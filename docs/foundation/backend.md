@@ -13,20 +13,27 @@ Dokumen terkait: [`architecture.md`](./architecture.md), [`schema.md`](./schema.
 ```text
 apps/api/src/
   main.ts                     bootstrap: observability, header keamanan, CSRF, prefix /api/v1, filter error, OpenAPI
-  app.module.ts               Access, Auth, Catalog, Organization, Platform
-  api-exception.filter.ts     pemetaan error -> { code, message, requestId, details? }
-  zod-validation.pipe.ts      validasi Zod untuk header/params/body
-  openapi.ts                  Swagger di /api/docs
+  app.module.ts               Access, Auth, Catalog, Organization, Platform, PosSales
   health.controller.ts
-  auth/                       login, sesi, cookie, hash password (argon2id)
-  access/                     role, membership, konteks workspace, SessionPermissionGuard
-  entitlement/                langganan + entitlement boolean per modul
-  organization/               tenant, brand, outlet
-  catalog/                    kategori, produk, varian, modifier, gambar, produk per outlet
-  platform/                   sesi platform, master tenant/langganan/entitlement, CLI provisioning
-  security/                   header keamanan, CSRF, rate limit
-  observability/              request ID, log terstruktur
-  audit/                      audit aksi kritis
+  bootstrap/
+    api-exception.filter.ts   pemetaan error -> { code, message, requestId, details? }
+    zod-validation.pipe.ts    validasi Zod untuk header/params/body
+    openapi.ts                Swagger di /api/docs
+  core/                       dipindah 3 Oktober 2026 tanpa perubahan perilaku (M2-QA-01)
+    auth/                     login, sesi, cookie, hash password (argon2id)
+    memberships/              (dulu access) role, membership, konteks workspace, SessionPermissionGuard
+    entitlements/             (dulu entitlement) langganan + entitlement boolean per modul
+    workspaces/               (dulu organization) tenant, brand, outlet
+    platform/                 sesi platform, master tenant/langganan/entitlement, CLI provisioning
+    security/                 header keamanan, CSRF, rate limit
+    observability/            request ID, log terstruktur
+    audit/                    audit aksi kritis
+  catalog/                    kategori, produk, varian, modifier, gambar, produk per outlet (dipecah di M2-QA-02)
+  kernels/
+    order-intake/             pesanan dan item
+    billing-payment-ledger/   tagihan, pembayaran, penjualan, refund
+  modules/
+    pos-sales/                shift dan kas, pesanan kasir, keranjang tertahan
   reliability/                test isolasi tenant/outlet
 apps/worker/src/
   index.ts                    proses hidup + smoke check; belum ada dispatcher

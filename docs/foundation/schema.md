@@ -124,7 +124,7 @@ erDiagram
 | `user_roles`         | `(tenant_id, membership_id, role_id)`              |                                                                         |
 | `outlet_assignments` | `(tenant_id, membership_id, outlet_id)`            | Cakupan lokasi bila `all_outlets = false`                               |
 
-Role sistem bawaan: `OWNER`, `MANAGER`, `CASHIER`, `KITCHEN`, dan role lain yang didefinisikan di `apps/api/src/access/access.service.ts`.
+Role sistem bawaan: `OWNER`, `MANAGER`, `CASHIER`, `KITCHEN`, dan role lain yang didefinisikan di `apps/api/src/core/memberships/access.service.ts`.
 
 ## 6. Langganan dan entitlement
 

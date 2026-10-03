@@ -94,7 +94,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 
 ### QA — Kualitas kode dan test
 
-- [ ] **M2-QA-01 Pindah ke `core/`, `kernels/`, `modules/`** — satu folder per commit, perilaku tidak berubah (`backend.md` 2.2).
+- [x] **M2-QA-01 Pindah ke `core/`, `kernels/`, `modules/`** `fba8446`..`a4f3eba` — satu folder per commit, perilaku tidak berubah (`backend.md` 2.2).
 - [ ] **M2-QA-02 Pecah Catalog** — `kernels/catalog` + `modules/catalog-profile`, satu use case per file; repository 1.226 baris dipecah.
 - [ ] **M2-QA-03 Pecah `packages/contracts`** — satu file per domain dengan indeks ekspor.
 - [ ] **M2-QA-04 Lint batas modul** — aturan impor `backend.md` 3 dijalankan di lint dan CI.
