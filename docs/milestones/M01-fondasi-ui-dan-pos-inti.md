@@ -104,8 +104,8 @@ Milestone ini juga menutup sisa fondasi UI yang dibutuhkan semua milestone berik
 
 - [x] **M1-OP-01 Seed menu kafe** — `pnpm db:seed:menu`. `2b7095d`
 - [x] **M1-OP-02 Folder milestone** — dokumen ini.
-- [x] **M1-OP-03 Rapikan `TODO.md`** — item lama yang sudah tidak relevan (gate UI Foundation lama, catatan typecheck `.next`) ditutup atau dipindah ke milestone.
-- [x] **M1-OP-04 Perbarui `prd.md` 11.1 dan `docs/README.md`** — posisi implementasi terbaru.
+- [x] **M1-OP-03 Rapikan `TODO.md`** `7c3fedf` — item lama yang sudah tidak relevan (gate UI Foundation lama, catatan typecheck `.next`) ditutup atau dipindah ke milestone.
+- [x] **M1-OP-04 Perbarui `prd.md` 11.1 dan `docs/README.md`** `7c3fedf` — posisi implementasi terbaru.
 
 ## 5. Urutan checkpoint yang disarankan
 
