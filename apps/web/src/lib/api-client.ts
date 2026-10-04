@@ -54,6 +54,7 @@ import {
   updateCatalogProductSchema,
   updateCatalogProductVariantSchema,
   workspaceContextsSchema,
+  activateDeviceSchema,
   deviceActivationTicketSchema,
   deviceListSchema,
   deviceSchema,
@@ -216,6 +217,21 @@ export const merchantApi = {
   navigation: (tenantId: string) =>
     apiRequest("/modules/navigation", workspaceNavigationSchema, {
       headers: tenantHeaders(tenantId),
+    }),
+  /** The device this browser is activated as, or null when it is not (or was revoked). */
+  currentDevice: async () => {
+    try {
+      return await apiRequest("/device/current", deviceSchema);
+    } catch (error) {
+      if (error instanceof ApiClientError && error.status === 401) return null;
+      throw error;
+    }
+  },
+  activateDevice: (code: string) =>
+    apiRequest("/device/activate", deviceSchema, {
+      body: JSON.stringify(activateDeviceSchema.parse({ code })),
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
     }),
   devices: (tenantId: string) =>
     apiRequest("/devices", deviceListSchema, { headers: tenantHeaders(tenantId) }),

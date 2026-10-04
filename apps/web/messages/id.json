@@ -592,5 +592,22 @@
       "REVOKED": "Dicabut"
     },
     "title": "Perangkat"
+  },
+  "activate": {
+    "activate": "Aktifkan",
+    "activating": "Mengaktifkan…",
+    "activeDescription": "{label} terdaftar sebagai {mode}.",
+    "activeTitle": "Perangkat ini aktif",
+    "code": "Kode aktivasi",
+    "codeHint": "8 karakter dari halaman Perangkat di pengaturan bisnis.",
+    "codeInvalid": "Kode terdiri dari 8 huruf dan angka.",
+    "failed": "Tidak dapat mengaktifkan",
+    "kdsNotReady": "Layar dapur belum tersedia di versi ini.",
+    "modeName": {
+      "KDS": "layar dapur",
+      "POS": "kasir"
+    },
+    "openPos": "Buka kasir",
+    "title": "Aktifkan perangkat"
   }
 }

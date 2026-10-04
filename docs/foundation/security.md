@@ -241,7 +241,9 @@ Yang berjalan sejak 4 Oktober 2026 (`core/devices`):
 - **CSRF:** permintaan tulis yang membawa cookie perangkat wajib menyertakan header CSRF, sama seperti cookie sesi.
 - **Audit:** `device.register`, `device.reissue_code`, `device.activate`, `device.revoke`. Aktivasi tercatat tanpa aktor pengguna karena dilakukan perangkat.
 - **Sesi per surface:** `login_sessions.surface` adalah `BACKOFFICE`, `POS`, atau `KDS`. Server yang menentukannya saat masuk: bila permintaan membawa kredensial perangkat aktif, sesi terikat ke perangkat itu (`device_id`); selain itu sesi Backoffice. Sesi terikat perangkat ditolak (`AUTH_SESSION_INVALID`) bila dipakai tanpa kredensial perangkat yang sama atau setelah perangkat dicabut. Sesi Backoffice tidak bergantung pada perangkat apa pun.
-- **Belum:** endpoint POS/KDS belum mewajibkan perangkat aktif dan belum mengisi `deviceId` pada event (menunggu `M2-UX-05`).
+- **Cakupan sesi perangkat (sejak 4 Oktober 2026):** sesi yang dibuka di perangkat hanya berlaku untuk workspace dan outlet perangkat itu. Guard menolak workspace lain (`WORKSPACE_ACCESS_DENIED`), outlet lain (`LOCATION_SCOPE_DENIED`), dan rute yang butuh semua outlet, apa pun peran orangnya. `GET /access/workspaces` hanya mengembalikan outlet perangkat. Event dari POS membawa `deviceId`, diisi guard dari sesi, tidak dari header.
+- **Layar aktivasi:** `/activate` tidak memerlukan sesi. Setelah kode diterima, sesi yang sedang terbuka di browser itu diakhiri supaya masuk berikutnya terikat ke perangkat.
+- **Belum:** POS masih bisa dipakai dari browser tanpa perangkat aktif (dengan sesi Backoffice). Mewajibkan perangkat untuk POS adalah keputusan produk yang belum diambil.
 
 **Integrasi eksternal (nanti)**
 

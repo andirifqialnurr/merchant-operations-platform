@@ -592,5 +592,22 @@
       "REVOKED": "Revoked"
     },
     "title": "Devices"
+  },
+  "activate": {
+    "activate": "Activate",
+    "activating": "Activating…",
+    "activeDescription": "{label} is registered as a {mode}.",
+    "activeTitle": "This device is active",
+    "code": "Activation code",
+    "codeHint": "8 characters from the Devices page in the business settings.",
+    "codeInvalid": "The code is 8 letters and digits.",
+    "failed": "Could not activate",
+    "kdsNotReady": "The kitchen display is not available in this version yet.",
+    "modeName": {
+      "KDS": "kitchen display",
+      "POS": "cashier"
+    },
+    "openPos": "Open the cashier",
+    "title": "Activate this device"
   }
 }

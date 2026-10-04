@@ -100,7 +100,7 @@ export class OrderController {
         headers[API_HEADERS.outletId],
         input,
         headers[API_HEADERS.idempotencyKey],
-        commandOriginFromRequest(access.userId, headers),
+        commandOriginFromRequest(access.userId, headers, access.deviceId),
       ),
     );
   }
@@ -137,7 +137,7 @@ export class OrderController {
         headers[API_HEADERS.outletId],
         params.id,
         input,
-        commandOriginFromRequest(access.userId, headers),
+        commandOriginFromRequest(access.userId, headers, access.deviceId),
       ),
     );
   }
@@ -163,7 +163,7 @@ export class OrderController {
         params.id,
         input,
         headers[API_HEADERS.idempotencyKey],
-        commandOriginFromRequest(access.userId, headers),
+        commandOriginFromRequest(access.userId, headers, access.deviceId),
       ),
     );
   }
@@ -225,7 +225,7 @@ export class OrderController {
         params.id,
         input,
         headers[API_HEADERS.idempotencyKey],
-        commandOriginFromRequest(access.userId, headers),
+        commandOriginFromRequest(access.userId, headers, access.deviceId),
       ),
     );
   }

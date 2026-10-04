@@ -71,3 +71,19 @@ test("a cashier is told the devices are not theirs to manage", async ({ page }) 
   await expect(page.getByRole("heading", { name: "Anda tidak punya akses" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Daftarkan perangkat" })).toHaveCount(0);
 });
+
+test("a device that is not activated yet is asked for its code, without signing in", async ({
+  page,
+}) => {
+  await page.goto("/activate");
+  await expect(page.getByRole("heading", { level: 1, name: "Aktifkan perangkat" })).toBeVisible();
+  // No sign-in is asked for and no cashier screen is offered before activation.
+  await expect(page.locator('input[type="password"]')).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Buka kasir" })).toHaveCount(0);
+
+  // A code of the wrong shape is caught on the device, before any request.
+  await page.getByLabel("Kode aktivasi").fill("abc");
+  await page.getByRole("button", { name: "Aktifkan" }).click();
+  await expect(page.getByText("Kode terdiri dari 8 huruf dan angka.")).toBeVisible();
+  await expect(page.getByLabel("Kode aktivasi")).toHaveValue("ABC");
+});

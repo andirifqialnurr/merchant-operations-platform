@@ -26,6 +26,7 @@ import {
   HttpCode,
   Headers,
   Inject,
+  Optional,
   Param,
   Patch,
   Post,
@@ -55,7 +56,12 @@ import {
   SessionPermissionGuard,
 } from "./session-permission.guard.js";
 import { commandOriginFromRequest } from "../../shared/command/command-origin.js";
-import { readDeviceCredential } from "../../shared/devices/device-identity.js";
+import {
+  DEVICE_AUTHENTICATOR,
+  readDeviceCredential,
+  type DeviceAuthenticator,
+} from "../../shared/devices/device-identity.js";
+import { scopeWorkspacesToDevice } from "./device-scope.js";
 
 @ApiTags("identity-access")
 @ApiCookieAuth(SESSION_COOKIE_NAME)
@@ -229,6 +235,7 @@ export class AccessWorkspaceController {
   constructor(
     @Inject(AuthService) private readonly authService: AuthService,
     @Inject(AccessService) private readonly accessService: AccessService,
+    @Optional() @Inject(DEVICE_AUTHENTICATOR) private readonly devices?: DeviceAuthenticator,
   ) {}
 
   @ApiOperation({ summary: "List active tenant and outlet contexts for the current session" })
@@ -237,12 +244,18 @@ export class AccessWorkspaceController {
   })
   @Get("workspaces")
   async workspaces(@Headers("cookie") cookieHeader: string | undefined) {
+    const deviceCredential = readDeviceCredential(cookieHeader);
     const session = await this.authService.getSession(
       readSessionToken(cookieHeader),
-      readDeviceCredential(cookieHeader),
+      deviceCredential,
     );
+    const contexts = await this.accessService.listWorkspaceContexts(session.user.id);
+    const device =
+      session.surface !== "BACKOFFICE"
+        ? await this.devices?.authenticate(deviceCredential)
+        : undefined;
     return workspaceContextsSchema.parse(
-      await this.accessService.listWorkspaceContexts(session.user.id),
+      device ? scopeWorkspacesToDevice(contexts, device) : contexts,
     );
   }
 }

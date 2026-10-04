@@ -141,6 +141,8 @@ export const updateMembershipSchema = z
 
 export const authorizationContextSchema = z.object({
   allOutlets: z.boolean(),
+  /** Set when the session was opened on a registered device. */
+  deviceId: z.uuid().optional(),
   membershipId: z.uuid(),
   outletIds: z.array(z.uuid()),
   permissionKeys: z.array(permissionKeySchema),

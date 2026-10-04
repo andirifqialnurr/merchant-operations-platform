@@ -267,7 +267,7 @@ Skemanya sudah ada (`commandContextSchema`). Konteks dibentuk oleh adapter dari 
 - `commandOriginFromRequest` dipakai semua controller. Channel dibaca dari header `x-client-channel` (nilai di luar daftar ditolak `400`), versi klien dari `x-client-version`. Klien yang tidak menyebut channel dihitung `API`. Klien web mengirim `WEB` dan versinya.
 - `commandOriginFromEvent` dipakai handler event: perintah yang dikeluarkan handler memakai `causationId` = ID event dan `correlationId` yang sama, dengan aktor `SYSTEM`.
 - `eventOrigin` mengisi kolom envelope di `outbox_events`. Sebuah test menolak penulisan outbox tanpa `eventOrigin` dan controller yang merakit konteks sendiri.
-- `deviceId` hanya diisi dari perangkat yang terautentikasi (`DeviceService.authenticate` atas cookie `merchant_device`), tidak dari header. Bila ada pengguna yang masuk di perangkat itu, pengguna tetap menjadi aktor event dan perangkat dicatat di sampingnya; perangkat menjadi aktor hanya bila tidak ada pengguna. Controller POS/KDS belum meneruskannya (`M2-UX-05`).
+- `deviceId` hanya diisi dari perangkat yang terautentikasi, tidak dari header: guard sesi menaruhnya di `AuthorizationContext.deviceId` untuk sesi yang terikat perangkat, dan controller POS meneruskannya lewat argumen ketiga `commandOriginFromRequest`. Bila ada pengguna yang masuk di perangkat itu, pengguna tetap menjadi aktor event dan perangkat dicatat di sampingnya; perangkat menjadi aktor hanya bila tidak ada pengguna.
 - Belum dikerjakan: `idempotencyKey`, `occurredAt`, dan `receivedAt` masih dibawa sebagai argumen use case masing-masing, belum di dalam konteks; `audit_logs.channel` dan `audit_logs.correlation_id` belum diisi.
 
 ---

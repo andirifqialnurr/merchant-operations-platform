@@ -10,6 +10,7 @@ import {
   createParamDecorator,
   Inject,
   Injectable,
+  Optional,
   SetMetadata,
   type CanActivate,
   type ExecutionContext,
@@ -25,7 +26,11 @@ import {
   evaluateAccess,
 } from "../entitlements/public.js";
 import { AccessService } from "./access.service.js";
-import { readDeviceCredential } from "../../shared/devices/device-identity.js";
+import {
+  DEVICE_AUTHENTICATOR,
+  readDeviceCredential,
+  type DeviceAuthenticator,
+} from "../../shared/devices/device-identity.js";
 
 const REQUIRED_PERMISSION = "required-access-permission";
 const REQUIRED_MODULE = "required-entitlement-module";
@@ -53,6 +58,7 @@ export class SessionPermissionGuard implements CanActivate {
     @Inject(AccessService) private readonly accessService: AccessService,
     @Inject(EntitlementService) private readonly entitlementService: EntitlementService,
     @Inject(Reflector) private readonly reflector: Reflector,
+    @Optional() @Inject(DEVICE_AUTHENTICATOR) private readonly devices?: DeviceAuthenticator,
   ) {}
 
   async canActivate(context: ExecutionContext) {
@@ -73,15 +79,26 @@ export class SessionPermissionGuard implements CanActivate {
     }
     const cookie = request.headers.cookie;
     const cookieHeader = Array.isArray(cookie) ? cookie[0] : cookie;
+    const deviceCredential = readDeviceCredential(cookieHeader);
     const session = await this.authService.getSession(
       readSessionToken(cookieHeader),
-      readDeviceCredential(cookieHeader),
+      deviceCredential,
     );
+    // A session opened on a device is good for that device's workspace and outlet only.
+    const device =
+      session.surface && session.surface !== "BACKOFFICE"
+        ? await this.devices?.authenticate(deviceCredential)
+        : undefined;
     const permission = this.reflector.getAllAndOverride<PermissionKey | undefined>(
       REQUIRED_PERMISSION,
       [context.getHandler(), context.getClass()],
     );
     const tenantId = parsedHeaders.data[API_HEADERS.tenantId];
+    if (device) {
+      const outletId = parsedHeaders.data[API_HEADERS.outletId];
+      if (device.workspaceId !== tenantId) throw accessDenied("WORKSPACE_ACCESS_DENIED");
+      if (outletId && outletId !== device.outletId) throw accessDenied("LOCATION_SCOPE_DENIED");
+    }
     const moduleKey = this.reflector.getAllAndOverride<ModuleKey | undefined>(REQUIRED_MODULE, [
       context.getHandler(),
       context.getClass(),
@@ -104,7 +121,7 @@ export class SessionPermissionGuard implements CanActivate {
     assertAccess(
       evaluateAccess(
         {
-          allLocations: access.context.allOutlets,
+          allLocations: access.context.allOutlets && !device,
           capabilities: entitlement.capabilities,
           ...(entitlement.installation ? { installation: entitlement.installation } : {}),
           ...(access.location ? { location: access.location } : {}),
@@ -114,13 +131,14 @@ export class SessionPermissionGuard implements CanActivate {
           subscriptionUsable: entitlement.subscriptionUsable,
         },
         {
+          // On a device nobody acts for every outlet.
           ...(requireAllOutlets ? { allLocations: true } : {}),
           ...(moduleKey ? { moduleKey } : {}),
           ...(permission ? { permission } : {}),
         },
       ),
     );
-    request.accessContext = access.context;
+    request.accessContext = device ? { ...access.context, deviceId: device.id } : access.context;
     return true;
   }
 }

@@ -76,7 +76,7 @@ export class ShiftController {
   constructor(@Inject(ShiftService) private readonly service: ShiftService) {}
 
   private context(access: AuthorizationContext, headers: RequestContextHeaders) {
-    return commandOriginFromRequest(access.userId, headers);
+    return commandOriginFromRequest(access.userId, headers, access.deviceId);
   }
 
   @ApiOperation({ summary: "Read the caller's open shift at the outlet, if any" })

@@ -37,6 +37,8 @@ type OriginHeaders = {
 export function commandOriginFromRequest(
   actorId: string,
   headers: OriginHeaders,
+  /** From the session guard, when the session is bound to a device. Never from a header. */
+  deviceId?: string,
 ): ActorCommandOrigin {
   const requestId = headers[API_HEADERS.requestId];
   const clientVersion = headers[API_HEADERS.clientVersion];
@@ -44,6 +46,7 @@ export function commandOriginFromRequest(
     actorId,
     channel: headers[API_HEADERS.clientChannel] ?? "API",
     ...(clientVersion ? { clientVersion } : {}),
+    ...(deviceId ? { deviceId } : {}),
     ...(requestId ? { requestId } : {}),
   };
 }

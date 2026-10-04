@@ -42,23 +42,24 @@ Navigasi Backoffice hanya menampilkan modul yang terpasang dan boleh diakses pen
 
 ### 1.1 Peta rute
 
-| Surface | Rute | Layar |
-|---|---|---|
-| Auth | `/login` | Login |
-| Backoffice | `/` | Beranda |
-| | `/catalog`, `/catalog/categories`, `/catalog/modifiers` | Produk, kategori, modifier |
-| | `/floor` | Edit tata letak meja |
-| | `/inventory`, `/inventory/movements`, `/inventory/stocktakes`, `/inventory/receipts`, `/inventory/recipes` | Stok |
-| | `/finance`, `/finance/cashbook`, `/finance/reconciliation`, `/finance/reports` | Keuangan |
-| | `/hc/employees`, `/hc/schedule`, `/hc/attendance`, `/hc/leave` | Karyawan |
-| | `/customers` | Pelanggan |
-| | `/reports` | Laporan |
-| | `/settings/organization`, `/settings/users`, `/settings/roles`, `/settings/devices`, `/settings/subscription`, `/settings/integrations` | Pengaturan |
-| | `/modules` | Jelajahi modul |
-| POS | `/pos`, `/pos/tables`, `/pos/orders`, `/pos/shift` | Kasir |
-| KDS | `/kds`, `/kds/history` | Dapur |
-| Customer | `/t/[token]`, `/m/[slug]` | Pesan dari meja, menu publik |
-| Platform | `/platform/login`, `/platform/workspaces`, `/platform/packages`, `/platform/audit` | Operator |
+| Surface    | Rute                                                                                                                                    | Layar                                                   |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Auth       | `/login`                                                                                                                                | Login                                                   |
+| Backoffice | `/`                                                                                                                                     | Beranda                                                 |
+|            | `/catalog`, `/catalog/categories`, `/catalog/modifiers`                                                                                 | Produk, kategori, modifier                              |
+|            | `/floor`                                                                                                                                | Edit tata letak meja                                    |
+|            | `/inventory`, `/inventory/movements`, `/inventory/stocktakes`, `/inventory/receipts`, `/inventory/recipes`                              | Stok                                                    |
+|            | `/finance`, `/finance/cashbook`, `/finance/reconciliation`, `/finance/reports`                                                          | Keuangan                                                |
+|            | `/hc/employees`, `/hc/schedule`, `/hc/attendance`, `/hc/leave`                                                                          | Karyawan                                                |
+|            | `/customers`                                                                                                                            | Pelanggan                                               |
+|            | `/reports`                                                                                                                              | Laporan                                                 |
+|            | `/activate`                                                                                                                             | Aktivasi perangkat dengan kode sekali pakai; tanpa sesi |
+|            | `/settings/organization`, `/settings/users`, `/settings/roles`, `/settings/devices`, `/settings/subscription`, `/settings/integrations` | Pengaturan                                              |
+|            | `/modules`                                                                                                                              | Jelajahi modul                                          |
+| POS        | `/pos`, `/pos/tables`, `/pos/orders`, `/pos/shift`                                                                                      | Kasir                                                   |
+| KDS        | `/kds`, `/kds/history`                                                                                                                  | Dapur                                                   |
+| Customer   | `/t/[token]`, `/m/[slug]`                                                                                                               | Pesan dari meja, menu publik                            |
+| Platform   | `/platform/login`, `/platform/workspaces`, `/platform/packages`, `/platform/audit`                                                      | Operator                                                |
 
 ---
 
