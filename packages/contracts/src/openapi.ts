@@ -156,6 +156,15 @@ import {
 } from "./devices.ts";
 import { sessionRevocationSchema } from "./access.ts";
 import { fileUploadRequestSchema, fileUploadTicketSchema } from "./files.ts";
+import {
+  acceptInvitationSchema,
+  createInvitationSchema,
+  invitationAcceptedSchema,
+  invitationListSchema,
+  invitationPreviewSchema,
+  invitationSchema,
+  invitationTokenRequestSchema,
+} from "./invitations.ts";
 
 export type ContractSchema = z.ZodType;
 
@@ -211,6 +220,13 @@ export const commonOpenApiSchemas = {
   RegisterDevice: toOpenApiSchema(registerDeviceSchema),
   FileUploadRequest: toOpenApiSchema(fileUploadRequestSchema),
   FileUploadTicket: toOpenApiSchema(fileUploadTicketSchema),
+  AcceptInvitation: toOpenApiSchema(acceptInvitationSchema),
+  CreateInvitation: toOpenApiSchema(createInvitationSchema),
+  Invitation: toOpenApiSchema(invitationSchema),
+  InvitationAccepted: toOpenApiSchema(invitationAcceptedSchema),
+  InvitationList: toOpenApiSchema(invitationListSchema),
+  InvitationPreview: toOpenApiSchema(invitationPreviewSchema),
+  InvitationTokenRequest: toOpenApiSchema(invitationTokenRequestSchema),
   ModuleInstallationList: toOpenApiSchema(moduleInstallationListSchema),
   SessionRevocation: toOpenApiSchema(sessionRevocationSchema),
   WorkspaceNavigation: toOpenApiSchema(workspaceNavigationSchema),

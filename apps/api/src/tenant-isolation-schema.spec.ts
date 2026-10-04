@@ -652,3 +652,24 @@ test("binds device sessions to their device and shortens the sessions that exist
   );
   assert.match(surface, /LEAST[(]"expires_at", CURRENT_TIMESTAMP [+] INTERVAL '12 hours'[)]/);
 });
+
+test("keeps invitations inside their tenant and stores only the hash of their secret", () => {
+  const invitations = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261004110000_core_invitations/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(invitations, /FOREIGN KEY [(]"tenant_id"[)] REFERENCES "tenants"[(]"id"[)]/);
+  assert.match(invitations, /"token_hash" CHAR[(]64[)]/);
+  assert.doesNotMatch(invitations, /"(token|secret|link)" /);
+  // Only a pending invitation keeps a usable secret.
+  assert.match(invitations, /[(]"status" = 'PENDING'[)] = [(]"token_hash" IS NOT NULL[)]/);
+  // One open invitation per email in a workspace.
+  assert.match(
+    invitations,
+    /UNIQUE INDEX "core_invitations_pending_email_key"\s+ON "core_invitations"[(]"tenant_id", "email"[)] WHERE "status" = 'PENDING'/,
+  );
+  assert.match(invitations, /"email" = lower[(]btrim[(]"email"[)][)]/);
+});

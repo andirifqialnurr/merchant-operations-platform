@@ -5,6 +5,7 @@ export {
   RATE_LIMIT_POLICIES,
   RATE_LIMIT_SERVICE,
   buildDeviceActivationRateLimitKey,
+  buildInvitationRateLimitKey,
   buildLoginRateLimitKey,
   buildPlatformLoginRateLimitKey,
 } from "./rate-limit.service.js";

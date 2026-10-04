@@ -80,6 +80,15 @@ Temuan berikut berasal dari pembacaan kode pada 2 Oktober 2026 dan belum diverif
 - Kebijakan kata sandi: minimal 10 karakter; tanpa aturan komposisi yang memaksa; tolak kata sandi yang sangat umum.
 - Token sesi: 32 byte acak, dikirim hanya lewat cookie `HttpOnly`. Database menyimpan hash; token mentah tidak dapat dipulihkan dari database.
 - Pencabutan: logout mencabut sesi; mengganti kata sandi mencabut semua sesi lain; admin dapat mencabut sesi pengguna.
+- Undangan yang berjalan sejak 4 Oktober 2026 (`core/memberships/invitation.*`):
+  - Tautan undangan adalah bukti kepemilikan email, jadi hanya dikirim ke alamat itu. Jawaban API kepada pengundang dan daftar undangan tidak pernah memuat tautan atau secret-nya.
+  - Secret 32 byte acak; hanya hash SHA-256 yang disimpan. Berlaku 7 hari, sekali pakai. Mengirim ulang membuat secret baru dan mematikan yang lama; mencabut mematikannya.
+  - Secret berada di fragmen tautan (`/invite#token=…`) dan dikirim ke API di body (`POST /invitations/preview`, `POST /invitations/accept`), tidak di alamat, supaya tidak masuk log akses.
+  - Tautan salah, kedaluwarsa, sudah dipakai, atau dicabut mendapat jawaban yang sama (`INVITATION_INVALID`). Percobaan dibatasi 20 kali per 15 menit per alamat jaringan.
+  - Email tanpa akun: menerima undangan membuat akun dengan nama dan kata sandi dari orang itu (di-hash Argon2id), keanggotaan, dan menandai undangan diterima dalam satu transaksi. Email yang sudah punya akun cukup dengan tautan; nama dan kata sandinya tidak diubah.
+  - Peran dan outlet yang diberikan diperiksa saat mengundang dan lagi saat diterima; batas pengguna paket juga.
+  - Email tidak ditulis ke audit maupun event (data pribadi). Audit: `invitation.create`, `invitation.resend`, `invitation.revoke`, `invitation.accept`; yang menerima tercatat sebagai aktor keanggotaannya sendiri.
+  - **Pengiriman:** di luar produksi tautan ditulis ke keluaran API (`invitation_link_for_development`) untuk pengembang. Di produksi, tanpa layanan email, mengundang ditolak `503 MAIL_NOT_CONFIGURED` dan tidak ada yang disimpan. Pengirim email sungguhan menyusul bersama template (`M2-AS-01`).
 - Pencabutan yang berjalan sejak 4 Oktober 2026:
   - Menonaktifkan keanggotaan (`PATCH /access/memberships/:id` dengan `status: INACTIVE`) mengakhiri semua sesi orang itu di semua surface. Akses ke workspace itu sudah ditolak pada permintaan berikutnya karena keanggotaan diperiksa setiap permintaan.
   - `POST /access/memberships/:id/revoke-sessions` (izin `access.membership.manage`) mengakhiri semua sesi seorang anggota tanpa mengubah keanggotaannya, misalnya saat HP hilang. Jawabannya jumlah sesi yang diakhiri.

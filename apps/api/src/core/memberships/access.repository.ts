@@ -223,6 +223,44 @@ async function writeAccessChange(
   });
 }
 
+type MembershipTransaction = Parameters<
+  Parameters<ReturnType<typeof getPrismaClient>["$transaction"]>[0]
+>[0];
+
+/**
+ * Creates a membership with its roles and outlets, and writes its audit entry
+ * and event, inside a transaction the caller owns. Accepting an invitation
+ * uses it so that the account, the membership, and the invitation change together.
+ */
+export async function insertMembership(
+  transaction: MembershipTransaction,
+  tenantId: string,
+  input: CreateMembership,
+  context?: AccessMutationContext,
+) {
+  const membership = await transaction.tenantMembership.create({
+    data: {
+      allOutlets: input.allOutlets,
+      tenantId,
+      userId: input.userId,
+      roles: { create: input.roleIds.map((roleId) => ({ roleId })) },
+      assignments: { create: input.outletIds.map((outletId) => ({ outletId })) },
+    },
+    select: membershipSelect,
+  });
+  await writeAccessChange(transaction, {
+    action: "membership.create",
+    ...(context?.actorId ? { actorId: context.actorId } : {}),
+    ...(context ? { context } : {}),
+    entityId: membership.id,
+    entityType: "membership",
+    payload: { after: mapMembership(membership) },
+    ...(context?.requestId ? { requestId: context.requestId } : {}),
+    tenantId,
+  });
+  return mapMembership(membership);
+}
+
 @Injectable()
 export class PrismaAccessRepository implements AccessRepository {
   async recordSessionRevocation(
@@ -466,29 +504,9 @@ export class PrismaAccessRepository implements AccessRepository {
     input: CreateMembership,
     context?: AccessMutationContext,
   ) {
-    return getPrismaClient().$transaction(async (transaction) => {
-      const membership = await transaction.tenantMembership.create({
-        data: {
-          allOutlets: input.allOutlets,
-          tenantId,
-          userId: input.userId,
-          roles: { create: input.roleIds.map((roleId) => ({ roleId })) },
-          assignments: { create: input.outletIds.map((outletId) => ({ outletId })) },
-        },
-        select: membershipSelect,
-      });
-      await writeAccessChange(transaction, {
-        action: "membership.create",
-        ...(context?.actorId ? { actorId: context.actorId } : {}),
-        ...(context ? { context } : {}),
-        entityId: membership.id,
-        entityType: "membership",
-        payload: { after: mapMembership(membership) },
-        ...(context?.requestId ? { requestId: context.requestId } : {}),
-        tenantId,
-      });
-      return mapMembership(membership);
-    });
+    return getPrismaClient().$transaction((transaction) =>
+      insertMembership(transaction, tenantId, input, context),
+    );
   }
 
   async updateMembership(
