@@ -409,7 +409,9 @@
     "OUTLET_CODE_CONFLICT": "An outlet with a similar name already exists.",
     "INTEGRATION_BINDING_CHANGED": "This integration has just changed. Reload the page and try again.",
     "INTEGRATION_BINDING_INVALID_TRANSITION": "This integration cannot be retried in its current state.",
-    "INTEGRATION_BINDING_NOT_FOUND": "This integration was not found."
+    "INTEGRATION_BINDING_NOT_FOUND": "This integration was not found.",
+    "CATALOG_CURRENCY_MISMATCH": "A product price always uses the currency of the business.",
+    "CURRENCY_LOCKED": "The currency can no longer be changed because this business already has prices or transactions."
   },
   "subscription": {
     "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",
@@ -916,7 +918,18 @@
     "viewBrands": "Brands",
     "viewBusiness": "Business",
     "viewOutlets": "Outlets",
-    "views": "Parts of the business"
+    "views": "Parts of the business",
+    "currencyConfirm": "Yes, change the currency",
+    "currencyConfirmDescription": "This currency applies to every outlet. Once the business has its first price or transaction, the currency can no longer be changed.",
+    "currencyConfirmTitle": "Use {currency} for this business?",
+    "currencyHint": "Can be changed until the business has its first price or transaction.",
+    "currencyLocked": {
+      "MONEY_DATA_EXISTS": "Cannot be changed because this business already has prices or transactions."
+    },
+    "currencyName": {
+      "IDR": "Rupiah",
+      "USD": "US Dollar"
+    }
   },
   "integrations": {
     "accessDenied": "Ask the business owner if you need to see the integrations between modules.",

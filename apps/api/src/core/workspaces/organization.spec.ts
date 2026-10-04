@@ -3,6 +3,7 @@ import test from "node:test";
 
 import { ConflictException, NotFoundException } from "@nestjs/common";
 
+import { CurrencyLockedError } from "./organization.repository.js";
 import type {
   BrandRecord,
   OrganizationRepository,
@@ -24,6 +25,8 @@ class InMemoryOrganizationRepository implements OrganizationRepository {
   readonly brands: BrandRecord[] = [];
   readonly outlets: OutletRecord[] = [];
   readonly tenants: TenantRecord[] = [];
+  /** Stands for a product, a shift, or a sale recorded in the workspace. */
+  moneyData = false;
 
   private now() {
     return new Date("2026-07-18T04:00:00.000Z");
@@ -65,10 +68,13 @@ class InMemoryOrganizationRepository implements OrganizationRepository {
 
   async updateTenant(
     tenantId: string,
-    input: Partial<Pick<TenantRecord, "name" | "slug" | "status">>,
+    input: Parameters<OrganizationRepository["updateTenant"]>[1],
   ) {
     const tenant = this.tenants.find((candidate) => candidate.id === tenantId);
     assert.ok(tenant);
+    if (input.currency && input.currency !== tenant.currency && this.moneyData) {
+      throw new CurrencyLockedError();
+    }
     Object.assign(tenant, input, { updatedAt: this.now() });
     return tenant;
   }
@@ -159,6 +165,7 @@ class InMemoryOrganizationRepository implements OrganizationRepository {
     return tenant
       ? {
           brands: this.brands.filter((brand) => brand.tenantId === tenantId),
+          hasMoneyData: this.moneyData,
           outlets: this.outlets.filter((outlet) => outlet.tenantId === tenantId),
           tenant,
         }
@@ -479,4 +486,35 @@ test("moving an inactive outlet still requires an active brand in the same tenan
   const moved = await service.updateOutlet(tenant.id, outlet.id, { brandId: other.id });
   assert.equal(moved.brandId, other.id);
   assert.equal(moved.status, "INACTIVE");
+});
+
+test("the currency is chosen between rupiah and US dollars until money data exists", async () => {
+  const repository = new InMemoryOrganizationRepository();
+  const service = new OrganizationService(repository);
+  const tenant = await service.createTenant({ name: "Tenant A", slug: "tenant-a" });
+  assert.deepEqual((await service.getSnapshot(tenant.id)).currencyChange, {
+    allowed: true,
+    reason: null,
+  });
+
+  const dollars = await service.updateTenant(tenant.id, { currency: "USD" });
+  assert.equal(dollars.currency, "USD");
+  await assert.rejects(() => service.updateTenant(tenant.id, { currency: "EUR" as never }));
+
+  repository.moneyData = true;
+  assert.deepEqual((await service.getSnapshot(tenant.id)).currencyChange, {
+    allowed: false,
+    reason: "MONEY_DATA_EXISTS",
+  });
+  // Nothing of a refused request is saved, the name included.
+  await assert.rejects(
+    () => service.updateTenant(tenant.id, { currency: "IDR", name: "Tenant B" }),
+    (error) => responseCode(error) === "CURRENCY_LOCKED",
+  );
+  const after = (await service.getSnapshot(tenant.id)).tenant;
+  assert.deepEqual([after.currency, after.name], ["USD", "Tenant A"]);
+
+  // Sending the currency it already has is not a change, so the name is saved.
+  const renamed = await service.updateTenant(tenant.id, { currency: "USD", name: "Tenant B" });
+  assert.deepEqual([renamed.currency, renamed.name], ["USD", "Tenant B"]);
 });

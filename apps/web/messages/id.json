@@ -409,7 +409,9 @@
     "OUTLET_CODE_CONFLICT": "Sudah ada outlet dengan nama serupa.",
     "INTEGRATION_BINDING_CHANGED": "Integrasi ini baru saja berubah. Muat ulang halaman lalu coba lagi.",
     "INTEGRATION_BINDING_INVALID_TRANSITION": "Integrasi ini tidak bisa dicoba ulang dalam keadaannya sekarang.",
-    "INTEGRATION_BINDING_NOT_FOUND": "Integrasi ini tidak ditemukan."
+    "INTEGRATION_BINDING_NOT_FOUND": "Integrasi ini tidak ditemukan.",
+    "CATALOG_CURRENCY_MISMATCH": "Harga produk selalu memakai mata uang bisnis.",
+    "CURRENCY_LOCKED": "Mata uang tidak bisa diubah lagi karena bisnis ini sudah punya data harga atau transaksi."
   },
   "subscription": {
     "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat langganan.",
@@ -916,7 +918,18 @@
     "viewBrands": "Brand",
     "viewBusiness": "Bisnis",
     "viewOutlets": "Outlet",
-    "views": "Bagian bisnis"
+    "views": "Bagian bisnis",
+    "currencyConfirm": "Ya, ubah mata uang",
+    "currencyConfirmDescription": "Mata uang ini berlaku untuk semua outlet. Setelah bisnis punya harga atau transaksi pertama, mata uang tidak bisa diubah lagi.",
+    "currencyConfirmTitle": "Pakai {currency} untuk bisnis ini?",
+    "currencyHint": "Bisa diubah sampai bisnis punya harga atau transaksi pertama.",
+    "currencyLocked": {
+      "MONEY_DATA_EXISTS": "Tidak bisa diubah karena bisnis ini sudah punya harga atau transaksi."
+    },
+    "currencyName": {
+      "IDR": "Rupiah",
+      "USD": "Dolar AS"
+    }
   },
   "integrations": {
     "accessDenied": "Minta pemilik bisnis jika Anda perlu melihat integrasi antarmodul.",

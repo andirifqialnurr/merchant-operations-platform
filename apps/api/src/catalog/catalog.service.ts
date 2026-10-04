@@ -288,8 +288,15 @@ export class CatalogService {
     input: CreateCatalogProduct,
     context?: CatalogMutationContext,
   ) {
-    await this.requireActiveTenant(tenantId);
+    const tenant = await this.requireActiveTenant(tenantId);
     const parsed = createCatalogProductSchema.parse(input);
+    // A price is never recorded in a currency other than the workspace's.
+    if (parsed.currency && parsed.currency !== tenant.currency) {
+      throw conflict(
+        "CATALOG_CURRENCY_MISMATCH",
+        "A product is priced in the currency of its workspace.",
+      );
+    }
     await this.requireActiveCategory(tenantId, parsed.categoryId);
     if (await this.repository.findProductBySlug(tenantId, parsed.slug)) {
       throw conflict("CATALOG_PRODUCT_SLUG_CONFLICT", "Product slug is already in use.");
@@ -315,6 +322,13 @@ export class CatalogService {
       throw notFound("CATALOG_PRODUCT_NOT_FOUND", "Product was not found in this tenant.");
     }
     const parsed = updateCatalogProductSchema.parse(input);
+    // Relabelling a recorded price would change what it means.
+    if (parsed.currency && parsed.currency !== current.currency) {
+      throw conflict(
+        "CATALOG_CURRENCY_MISMATCH",
+        "A product is priced in the currency of its workspace.",
+      );
+    }
     if (parsed.categoryId && parsed.categoryId !== current.categoryId) {
       await this.requireActiveCategory(tenantId, parsed.categoryId);
     }

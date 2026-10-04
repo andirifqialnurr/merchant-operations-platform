@@ -3,9 +3,18 @@
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { IconPlus } from "@tabler/icons-react";
 
-import { PERMISSIONS, type Brand, type Outlet, type Tenant } from "@merchant/contracts";
+import {
+  PERMISSIONS,
+  WORKSPACE_CURRENCIES,
+  workspaceCurrencySchema,
+  type Brand,
+  type OrganizationSnapshot,
+  type Outlet,
+  type Tenant,
+} from "@merchant/contracts";
 import { Button } from "@merchant/ui/button";
 import { DataTable, Panel } from "@merchant/ui/data-display";
 import { Badge, EmptyState, Skeleton } from "@merchant/ui/feedback";
@@ -17,25 +26,70 @@ import { PageHeader } from "@merchant/ui/page";
 import { Select } from "@merchant/ui/select";
 
 import { useWorkspace } from "@/features/workspace";
-import { type ApiClientError, merchantApi } from "@/lib/api-client";
+import { ApiClientError, merchantApi } from "@/lib/api-client";
 import { isLimitReached, LimitReachedState } from "@/shell/limit-reached-state";
 import { RequestErrorState } from "@/shell/request-error-state";
 
-import { useOrganization, useOrganizationMutation, type OrganizationMutation } from "./api";
+import {
+  organizationKey,
+  useOrganization,
+  useOrganizationMutation,
+  type OrganizationMutation,
+} from "./api";
 import { OUTLET_TIME_ZONES, outletCodeFromName, slugFromName } from "./organization-codes";
 
 type View = "brands" | "business" | "outlets";
 
 function BusinessForm({
   canManage,
+  currencyChange,
   mutation,
   tenant,
-}: Readonly<{ canManage: boolean; mutation: OrganizationMutation; tenant: Tenant }>) {
+}: Readonly<{
+  canManage: boolean;
+  /** Decided by the server; it is checked again when the change is saved. */
+  currencyChange: OrganizationSnapshot["currencyChange"];
+  mutation: OrganizationMutation;
+  tenant: Tenant;
+}>) {
   const t = useTranslations("organization");
   const locale = useLocale();
+  const queryClient = useQueryClient();
   const [name, setName] = useState(tenant.name);
+  const [currency, setCurrency] = useState(tenant.currency);
   const [error, setError] = useState<string>();
-  const currencyName = new Intl.DisplayNames(locale, { type: "currency" }).of(tenant.currency);
+  const [confirming, setConfirming] = useState(false);
+  // The choice is offered only until the business records its first amount.
+  const canChoose = canManage && currencyChange.allowed;
+  const currencyLabel = (code: string) => {
+    const known = t.has(`currencyName.${code}` as never)
+      ? t(`currencyName.${code}` as never)
+      : new Intl.DisplayNames(locale, { type: "currency" }).of(code);
+    return known ? `${known} (${code})` : code;
+  };
+
+  function save(withCurrency: boolean) {
+    mutation.mutate(
+      {
+        action: () =>
+          merchantApi.updateTenant(tenant.id, {
+            name: name.trim(),
+            ...(withCurrency ? { currency: workspaceCurrencySchema.parse(currency) } : {}),
+          }),
+        success: t("saved"),
+      },
+      {
+        // Somebody recorded a first amount meanwhile: show the currency as locked.
+        // What was typed stays in the form.
+        onError: (failure) => {
+          if (failure instanceof ApiClientError && failure.code === "CURRENCY_LOCKED") {
+            setCurrency(tenant.currency);
+            void queryClient.invalidateQueries({ queryKey: organizationKey(tenant.id) });
+          }
+        },
+      },
+    );
+  }
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -43,10 +97,8 @@ function BusinessForm({
       setError(t("nameRequired"));
       return;
     }
-    mutation.mutate({
-      action: () => merchantApi.updateTenant(tenant.id, { name: name.trim() }),
-      success: t("saved"),
-    });
+    if (canChoose && currency !== tenant.currency) setConfirming(true);
+    else save(false);
   }
 
   return (
@@ -64,13 +116,33 @@ function BusinessForm({
             value={name}
           />
         </FormField>
-        {/* Set when the business was made; changing it would change what every past amount means. */}
-        <dl className="m-0 grid gap-1">
-          <dt className="text-label text-foreground-secondary">{t("currency")}</dt>
-          <dd className="m-0 text-body">
-            {currencyName ? `${tenant.currency} — ${currencyName}` : tenant.currency}
-          </dd>
-        </dl>
+        {canChoose ? (
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-1.5">
+            <span className="text-label">{t("currency")}</span>
+            <Select
+              emptyLabel={t("currency")}
+              label={t("currency")}
+              onValueChange={setCurrency}
+              options={WORKSPACE_CURRENCIES.map((code) => ({
+                label: currencyLabel(code),
+                value: code,
+              }))}
+              placeholder={t("currency")}
+              value={currency}
+            />
+            <p className="m-0 text-caption text-foreground-secondary">{t("currencyHint")}</p>
+          </div>
+        ) : (
+          <dl className="m-0 grid gap-1">
+            <dt className="text-label text-foreground-secondary">{t("currency")}</dt>
+            <dd className="m-0 text-body">{currencyLabel(tenant.currency)}</dd>
+            {canManage && currencyChange.reason ? (
+              <dd className="m-0 text-caption text-foreground-secondary">
+                {t(`currencyLocked.${currencyChange.reason}`)}
+              </dd>
+            ) : null}
+          </dl>
+        )}
         {canManage ? (
           <div className="pt-2">
             <Button loading={mutation.isPending} loadingLabel={t("saving")} type="submit">
@@ -79,6 +151,17 @@ function BusinessForm({
           </div>
         ) : null}
       </form>
+      <AlertDialog
+        cancelLabel={t("cancel")}
+        closeLabel={t("closeSheet")}
+        confirmLabel={t("currencyConfirm")}
+        onConfirm={() => save(true)}
+        onOpenChange={setConfirming}
+        open={confirming}
+        title={t("currencyConfirmTitle", { currency: currencyLabel(currency) })}
+      >
+        {t("currencyConfirmDescription")}
+      </AlertDialog>
     </Panel>
   );
 }
@@ -568,6 +651,7 @@ export function OrganizationPage() {
       ) : view === "business" ? (
         <BusinessForm
           canManage={canManage}
+          currencyChange={query.data.currencyChange}
           key={`${tenantId}:${query.data.tenant.updatedAt}`}
           mutation={mutation}
           tenant={query.data.tenant}

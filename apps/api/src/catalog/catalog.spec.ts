@@ -29,9 +29,9 @@ const OUTLET_INACTIVE = "019f738d-e61f-7d46-92de-17b35f971107";
 
 class InMemoryCatalogRepository implements CatalogRepository {
   private readonly tenants = new Map<string, CatalogTenantRecord>([
-    [TENANT_A, { id: TENANT_A, status: "ACTIVE" }],
-    [TENANT_B, { id: TENANT_B, status: "ACTIVE" }],
-    [TENANT_INACTIVE, { id: TENANT_INACTIVE, status: "INACTIVE" }],
+    [TENANT_A, { currency: "IDR", id: TENANT_A, status: "ACTIVE" }],
+    [TENANT_B, { currency: "IDR", id: TENANT_B, status: "ACTIVE" }],
+    [TENANT_INACTIVE, { currency: "IDR", id: TENANT_INACTIVE, status: "INACTIVE" }],
   ]);
   private readonly outlets = new Map([
     [OUTLET_A, { id: OUTLET_A, status: "ACTIVE" as const, tenantId: TENANT_A }],
@@ -129,6 +129,7 @@ class InMemoryCatalogRepository implements CatalogRepository {
     const product: CatalogProductRecord = {
       ...input,
       createdAt: now,
+      currency: this.tenants.get(tenantId)?.currency ?? "IDR",
       description: input.description ?? null,
       id: randomUUID(),
       status: "ACTIVE",

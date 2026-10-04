@@ -32,6 +32,7 @@ export type CatalogMutationContext = CommandOrigin;
 type RecordTimestamps = { createdAt: Date; updatedAt: Date };
 
 export type CatalogTenantRecord = {
+  currency: string;
   id: string;
   status: OrganizationUnitStatus;
 };
@@ -542,7 +543,7 @@ async function clearActivePrimaryImages(
 export class PrismaCatalogRepository implements CatalogRepository {
   async findTenant(tenantId: string) {
     return getPrismaClient().tenant.findUnique({
-      select: { id: true, status: true },
+      select: { currency: true, id: true, status: true },
       where: { id: tenantId },
     });
   }
@@ -637,9 +638,16 @@ export class PrismaCatalogRepository implements CatalogRepository {
     context?: CatalogMutationContext,
   ) {
     return getPrismaClient().$transaction(async (transaction) => {
+      // Read under a lock shared with changing the currency of the workspace:
+      // the price is recorded in the currency that is in force when it commits.
+      const workspace = await transaction.$queryRaw<Array<{ currency: string }>>`
+        SELECT currency FROM tenants WHERE id = ${tenantId}::uuid FOR SHARE`;
+      const currency = workspace[0]?.currency;
+      if (!currency) throw new Error("Workspace not found while creating a product.");
       const productRecord = await transaction.catalogProduct.create({
         data: {
           ...input,
+          currency,
           basePriceMinor: BigInt(input.basePriceMinor),
           description: input.description ?? null,
           tenantId,
@@ -676,7 +684,6 @@ export class PrismaCatalogRepository implements CatalogRepository {
             ? { basePriceMinor: BigInt(input.basePriceMinor) }
             : {}),
           ...(input.categoryId !== undefined ? { categoryId: input.categoryId } : {}),
-          ...(input.currency !== undefined ? { currency: input.currency } : {}),
           ...(input.description !== undefined ? { description: input.description } : {}),
           ...(input.name !== undefined ? { name: input.name } : {}),
           ...(input.slug !== undefined ? { slug: input.slug } : {}),

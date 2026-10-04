@@ -58,7 +58,8 @@ export const createCatalogProductSchema = z.object({
   slug: catalogSlugSchema,
   description: z.string().trim().min(1).max(2_000).nullable().optional(),
   basePriceMinor: moneyMinorSchema,
-  currency: currencyCodeSchema.default("IDR"),
+  /** Decided by the workspace. When sent, it must be the currency of the workspace. */
+  currency: currencyCodeSchema.optional(),
   availability: productAvailabilitySchema.default("AVAILABLE"),
 });
 

@@ -23,6 +23,7 @@ import {
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
 import {
+  CurrencyLockedError,
   ORGANIZATION_REPOSITORY,
   type BrandRecord,
   type MutationContext,
@@ -72,6 +73,9 @@ function toOutlet(record: OutletRecord): Outlet {
 function toSnapshot(record: OrganizationSnapshotRecord): OrganizationSnapshot {
   return organizationSnapshotSchema.parse({
     brands: record.brands.map(toBrand),
+    currencyChange: record.hasMoneyData
+      ? { allowed: false, reason: "MONEY_DATA_EXISTS" }
+      : { allowed: true, reason: null },
     outlets: record.outlets.map(toOutlet),
     tenant: toTenant(record.tenant),
   });
@@ -172,12 +176,23 @@ export class OrganizationService {
       }
     }
 
-    const tenant = await this.runUniqueMutation(
-      () => this.repository.updateTenant(tenantId, parsed, context),
-      "TENANT_SLUG_CONFLICT",
-      "Slug tenant sudah digunakan.",
-    );
-    return toTenant(tenant);
+    try {
+      const tenant = await this.runUniqueMutation(
+        () => this.repository.updateTenant(tenantId, parsed, context),
+        "TENANT_SLUG_CONFLICT",
+        "Slug tenant sudah digunakan.",
+      );
+      return toTenant(tenant);
+    } catch (error) {
+      // Nothing of the request is saved: the name stays as it was too.
+      if (error instanceof CurrencyLockedError) {
+        throw conflict(
+          "CURRENCY_LOCKED",
+          "Mata uang tidak bisa diubah setelah ada data bernilai uang.",
+        );
+      }
+      throw error;
+    }
   }
 
   async createBrand(tenantId: string, input: CreateBrand, context?: MutationContext) {

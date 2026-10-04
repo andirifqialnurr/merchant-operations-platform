@@ -122,7 +122,6 @@ export function ProductSheet({
           merchantApi.createProduct(tenantId, {
             ...fields,
             availability: "AVAILABLE",
-            currency: "IDR",
             slug: slugify(fields.name),
           }),
         t("productCreated"),

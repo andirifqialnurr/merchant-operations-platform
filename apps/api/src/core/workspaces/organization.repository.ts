@@ -49,6 +49,8 @@ export type OutletRecord = RecordTimestamps & {
 };
 
 export type OrganizationSnapshotRecord = {
+  /** Whether anything with an amount was ever recorded, even zero, inactive, or cancelled. */
+  hasMoneyData: boolean;
   tenant: TenantRecord;
   brands: BrandRecord[];
   outlets: OutletRecord[];
@@ -93,6 +95,36 @@ export interface OrganizationRepository {
 }
 
 export const ORGANIZATION_REPOSITORY = Symbol("ORGANIZATION_REPOSITORY");
+
+/** The workspace already has data with an amount in it, so its currency stays. */
+export class CurrencyLockedError extends Error {
+  constructor() {
+    super("The currency cannot change once the workspace has money data.");
+    this.name = "CurrencyLockedError";
+  }
+}
+
+/**
+ * Every table that holds an amount in the currency of the workspace. A row
+ * counts whatever its state: a zero price, an inactive product, or a cancelled
+ * order would be relabelled just the same. Products, modifier options, and
+ * register sessions are where a first amount can appear; the others cannot
+ * exist without them and are listed so a future change cannot open a gap.
+ */
+async function hasMoneyData(client: Pick<DatabaseClient, "$queryRaw">, tenantId: string) {
+  const rows = await client.$queryRaw<Array<{ found: boolean }>>`
+    SELECT (
+      EXISTS (SELECT 1 FROM products WHERE tenant_id = ${tenantId}::uuid)
+      OR EXISTS (SELECT 1 FROM modifier_options WHERE tenant_id = ${tenantId}::uuid)
+      OR EXISTS (SELECT 1 FROM pos_register_sessions WHERE tenant_id = ${tenantId}::uuid)
+      OR EXISTS (SELECT 1 FROM order_orders WHERE tenant_id = ${tenantId}::uuid)
+      OR EXISTS (SELECT 1 FROM billing_bills WHERE tenant_id = ${tenantId}::uuid)
+      OR EXISTS (SELECT 1 FROM billing_payments WHERE tenant_id = ${tenantId}::uuid)
+      OR EXISTS (SELECT 1 FROM sales_sales WHERE tenant_id = ${tenantId}::uuid)
+      OR EXISTS (SELECT 1 FROM pos_held_carts WHERE tenant_id = ${tenantId}::uuid)
+    ) AS found`;
+  return rows[0]?.found === true;
+}
 
 const tenantSelect = {
   createdAt: true,
@@ -219,12 +251,24 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
 
   async updateTenant(tenantId: string, input: UpdateTenant, context?: MutationContext) {
     return getPrismaClient().$transaction(async (transaction) => {
+      if (input.currency !== undefined) {
+        // Recording a first amount takes a key-share lock on this row (the
+        // foreign key to the workspace), so it either finished before this
+        // lock and is seen below, or waits and is created in the new currency.
+        await transaction.$queryRaw`SELECT id FROM tenants WHERE id = ${tenantId}::uuid FOR UPDATE`;
+      }
       const before = await transaction.tenant.findUniqueOrThrow({
         select: tenantSelect,
         where: { id: tenantId },
       });
+      const currency =
+        input.currency !== undefined && input.currency !== before.currency
+          ? input.currency
+          : undefined;
+      if (currency && (await hasMoneyData(transaction, tenantId))) throw new CurrencyLockedError();
       const tenant = await transaction.tenant.update({
         data: {
+          ...(currency ? { currency } : {}),
           ...(input.name !== undefined ? { name: input.name } : {}),
           ...(input.slug !== undefined ? { slug: input.slug } : {}),
           ...(input.status !== undefined ? { status: input.status } : {}),
@@ -391,6 +435,11 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
     }
 
     const { brands, outlets, ...tenantRecord } = tenant;
-    return { brands, outlets, tenant: tenantRecord };
+    return {
+      brands,
+      hasMoneyData: await hasMoneyData(getPrismaClient(), tenantId),
+      outlets,
+      tenant: tenantRecord,
+    };
   }
 }

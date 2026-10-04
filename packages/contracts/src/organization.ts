@@ -1,7 +1,7 @@
 import * as z from "zod";
 
 import { organizationRecordTimestampsSchema } from "./internal.ts";
-import { currencyCodeSchema } from "./money.ts";
+import { currencyCodeSchema, workspaceCurrencySchema } from "./money.ts";
 
 export const organizationUnitStatusSchema = z.enum(["ACTIVE", "INACTIVE"]);
 
@@ -79,6 +79,8 @@ export const createTenantSchema = z.object({
 
 export const updateTenantSchema = z
   .object({
+    /** Accepted only while the workspace has no data with an amount in it. */
+    currency: workspaceCurrencySchema.optional(),
     name: organizationNameSchema.optional(),
     slug: organizationSlugSchema.optional(),
     status: organizationUnitStatusSchema.optional(),
@@ -118,7 +120,15 @@ export const updateOutletSchema = z
   })
   .refine((value) => Object.keys(value).length > 0, { message: "Perubahan outlet wajib diisi." });
 
+/** Why the currency of the workspace cannot be changed any more. */
+export const currencyLockReasonSchema = z.enum(["MONEY_DATA_EXISTS"]);
+
 export const organizationSnapshotSchema = z.object({
+  /** Decided by the server; a client never sends it back as permission. */
+  currencyChange: z.object({
+    allowed: z.boolean(),
+    reason: currencyLockReasonSchema.nullable(),
+  }),
   tenant: tenantSchema,
   brands: z.array(brandSchema),
   outlets: z.array(outletSchema),
