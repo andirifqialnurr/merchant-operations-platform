@@ -39,7 +39,8 @@
       "devices": "Devices",
       "users": "Users",
       "roles": "Roles",
-      "organization": "Business and outlets"
+      "organization": "Business and outlets",
+      "integrations": "Integrations"
     }
   },
   "access": {
@@ -405,7 +406,10 @@
     "BRAND_HAS_ACTIVE_OUTLETS": "This brand still has active outlets. Deactivate or move them first.",
     "BRAND_INACTIVE": "This brand is inactive. Activate it first or choose another brand.",
     "BRAND_SLUG_CONFLICT": "A brand with a similar name already exists.",
-    "OUTLET_CODE_CONFLICT": "An outlet with a similar name already exists."
+    "OUTLET_CODE_CONFLICT": "An outlet with a similar name already exists.",
+    "INTEGRATION_BINDING_CHANGED": "This integration has just changed. Reload the page and try again.",
+    "INTEGRATION_BINDING_INVALID_TRANSITION": "This integration cannot be retried in its current state.",
+    "INTEGRATION_BINDING_NOT_FOUND": "This integration was not found."
   },
   "subscription": {
     "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",
@@ -913,5 +917,34 @@
     "viewBusiness": "Business",
     "viewOutlets": "Outlets",
     "views": "Parts of the business"
+  },
+  "integrations": {
+    "accessDenied": "Ask the business owner if you need to see the integrations between modules.",
+    "accessDeniedTitle": "You do not have access to this page",
+    "action": "Action",
+    "connection": "{source} → {target}",
+    "empty": "Integrations appear here once the business uses modules that send data to each other, such as Cashier to Finance.",
+    "emptyTitle": "No integrations yet",
+    "hint": {
+      "ACTIVE": "Data from {source} goes into {target}.",
+      "FAILED": "Some data from {source} has not reached {target}.",
+      "PAUSED": "Stopped for now. New data is held, not lost.",
+      "PROCESSING": "Held data is being sent again.",
+      "SETUP_REQUIRED": "{target} needs to be set up before it can receive data."
+    },
+    "integration": "Integration",
+    "loadFailed": "The integrations could not be loaded",
+    "note": "Note",
+    "retry": "Try again",
+    "retryQueued": "Held data is being sent again.",
+    "state": {
+      "ACTIVE": "Active",
+      "FAILED": "Failed",
+      "PAUSED": "Paused",
+      "PROCESSING": "In progress",
+      "SETUP_REQUIRED": "Needs setup"
+    },
+    "status": "Status",
+    "title": "Integrations"
   }
 }

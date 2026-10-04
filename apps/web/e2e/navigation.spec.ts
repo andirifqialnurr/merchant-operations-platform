@@ -17,6 +17,7 @@ test("the owner's menu lists the installed modules they may open", async ({ page
     "Kasir",
     "Bisnis dan outlet",
     "Perangkat",
+    "Integrasi",
     "Pengguna",
     "Peran",
     "Langganan",
@@ -188,4 +189,17 @@ test("the owner compares the roles side by side without being able to change the
   await expect(matrix.getByRole("checkbox")).toHaveCount(0);
   // Still one primary action on the page.
   await expect(main.getByRole("button")).toHaveCount(1);
+});
+
+test("the owner reads the integrations between modules; a cashier does not", async ({ page }) => {
+  await openAs(page, "catalog.owner@local.test", "/settings/integrations");
+  const main = page.getByRole("main");
+  await expect(main.getByRole("heading", { level: 1, name: "Integrasi" })).toBeVisible();
+  // This business has no module that receives data from another yet.
+  await expect(main.getByText("Belum ada integrasi")).toBeVisible();
+  // Nothing to press while there is nothing to try again.
+  await expect(main.getByRole("button")).toHaveCount(0);
+
+  await openAs(page, "pos.cashier@local.test", "/settings/integrations");
+  await expect(page.getByText("Anda tidak punya akses ke halaman ini")).toBeVisible();
 });

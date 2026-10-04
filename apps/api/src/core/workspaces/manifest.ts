@@ -23,6 +23,11 @@ export const tenancyManifest: ModuleManifest = {
       permissionKey: PERMISSIONS.organizationRead,
     },
     { label: "Devices", path: "/settings/devices", permissionKey: PERMISSIONS.deviceRead },
+    {
+      label: "Integrations",
+      path: "/settings/integrations",
+      permissionKey: PERMISSIONS.organizationRead,
+    },
   ],
   permissions: [
     PERMISSIONS.organizationRead,
@@ -33,6 +38,7 @@ export const tenancyManifest: ModuleManifest = {
   routes: [
     { path: "/settings/organization", permissionKey: PERMISSIONS.organizationRead },
     { path: "/settings/devices", permissionKey: PERMISSIONS.deviceRead },
+    { path: "/settings/integrations", permissionKey: PERMISSIONS.organizationRead },
   ],
   configSchemaVersion: 1,
   eventHandlers: [],

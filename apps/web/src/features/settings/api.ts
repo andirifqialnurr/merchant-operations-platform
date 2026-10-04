@@ -154,3 +154,29 @@ export function useOrganizationMutation(tenantId: string) {
 }
 
 export type OrganizationMutation = ReturnType<typeof useOrganizationMutation>;
+
+export const integrationsKey = (tenantId: string) => ["integrations", tenantId] as const;
+
+/** How the modules of the business pass data to each other. */
+export function useIntegrations(tenantId: string, enabled: boolean) {
+  return useQuery({
+    enabled,
+    queryFn: () => merchantApi.integrations(tenantId),
+    queryKey: integrationsKey(tenantId),
+  });
+}
+
+/** Runs one write to an integration, then reads the list again. */
+export function useIntegrationMutation(tenantId: string) {
+  const queryClient = useQueryClient();
+  const notify = useToast();
+  const errorMessage = useErrorMessage();
+  return useMutation({
+    mutationFn: ({ action }: { action: () => Promise<unknown>; success: string }) => action(),
+    onError: (error) => notify({ message: errorMessage(error), tone: "danger" }),
+    onSuccess: async (_result, { success }) => {
+      await queryClient.invalidateQueries({ queryKey: integrationsKey(tenantId) });
+      notify({ message: success, tone: "success" });
+    },
+  });
+}

@@ -39,7 +39,8 @@
       "devices": "Perangkat",
       "users": "Pengguna",
       "roles": "Peran",
-      "organization": "Bisnis dan outlet"
+      "organization": "Bisnis dan outlet",
+      "integrations": "Integrasi"
     }
   },
   "access": {
@@ -405,7 +406,10 @@
     "BRAND_HAS_ACTIVE_OUTLETS": "Brand ini masih punya outlet aktif. Nonaktifkan atau pindahkan outletnya dulu.",
     "BRAND_INACTIVE": "Brand ini nonaktif. Aktifkan brand dulu atau pilih brand lain.",
     "BRAND_SLUG_CONFLICT": "Sudah ada brand dengan nama serupa.",
-    "OUTLET_CODE_CONFLICT": "Sudah ada outlet dengan nama serupa."
+    "OUTLET_CODE_CONFLICT": "Sudah ada outlet dengan nama serupa.",
+    "INTEGRATION_BINDING_CHANGED": "Integrasi ini baru saja berubah. Muat ulang halaman lalu coba lagi.",
+    "INTEGRATION_BINDING_INVALID_TRANSITION": "Integrasi ini tidak bisa dicoba ulang dalam keadaannya sekarang.",
+    "INTEGRATION_BINDING_NOT_FOUND": "Integrasi ini tidak ditemukan."
   },
   "subscription": {
     "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat langganan.",
@@ -913,5 +917,34 @@
     "viewBusiness": "Bisnis",
     "viewOutlets": "Outlet",
     "views": "Bagian bisnis"
+  },
+  "integrations": {
+    "accessDenied": "Minta pemilik bisnis jika Anda perlu melihat integrasi antarmodul.",
+    "accessDeniedTitle": "Anda tidak punya akses ke halaman ini",
+    "action": "Aksi",
+    "connection": "{source} → {target}",
+    "empty": "Integrasi muncul di sini saat bisnis memakai modul yang saling mengirim data, misalnya Kasir ke Keuangan.",
+    "emptyTitle": "Belum ada integrasi",
+    "hint": {
+      "ACTIVE": "Data dari {source} masuk ke {target}.",
+      "FAILED": "Sebagian data dari {source} belum sampai ke {target}.",
+      "PAUSED": "Dihentikan sementara. Data baru ditahan dan tidak hilang.",
+      "PROCESSING": "Data yang tertahan sedang dikirim ulang.",
+      "SETUP_REQUIRED": "{target} perlu diatur dulu sebelum menerima data."
+    },
+    "integration": "Integrasi",
+    "loadFailed": "Daftar integrasi tidak bisa dimuat",
+    "note": "Keterangan",
+    "retry": "Coba lagi",
+    "retryQueued": "Data yang tertahan sedang dikirim ulang.",
+    "state": {
+      "ACTIVE": "Aktif",
+      "FAILED": "Gagal",
+      "PAUSED": "Dijeda",
+      "PROCESSING": "Sedang diproses",
+      "SETUP_REQUIRED": "Perlu setup"
+    },
+    "status": "Status",
+    "title": "Integrasi"
   }
 }

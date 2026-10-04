@@ -57,6 +57,8 @@ import {
   acceptInvitationSchema,
   createInvitationSchema,
   createRoleSchema,
+  integrationBindingListSchema,
+  integrationBindingSchema,
   brandSchema,
   createBrandSchema,
   createOutletSchema,
@@ -340,6 +342,16 @@ export const merchantApi = {
       outletSchema,
       tenantHeaders(tenantId),
     ),
+  integrations: (tenantId: string) =>
+    apiRequest("/modules/bindings", integrationBindingListSchema, {
+      headers: tenantHeaders(tenantId),
+    }),
+  /** The same key for a repeat of the same press, so held events are queued once. */
+  retryIntegration: (tenantId: string, id: string, idempotencyKey: string) =>
+    apiRequest(`/modules/bindings/${id}/retry`, integrationBindingSchema, {
+      headers: { ...tenantHeaders(tenantId), [API_HEADERS.idempotencyKey]: idempotencyKey },
+      method: "POST",
+    }),
   roles: (tenantId: string) =>
     apiRequest("/access/roles", roleListSchema, { headers: tenantHeaders(tenantId) }),
   createRole: (tenantId: string, input: CreateRole) =>

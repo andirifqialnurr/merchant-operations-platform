@@ -90,8 +90,7 @@ for (const width of [320, 767, 768, 1279, 1280, 1440]) {
           await page.keyboard.press("Escape");
           await expect(page.getByRole("dialog")).toBeHidden();
         }
-        // Add Integrations when its route is implemented in M2-FT-06.
-        for (const section of ["users", "roles", "devices", "subscription"]) {
+        for (const section of ["users", "roles", "devices", "subscription", "integrations"]) {
           await page.goto(`/settings/${section}`);
           await capture(page, info, section);
         }
