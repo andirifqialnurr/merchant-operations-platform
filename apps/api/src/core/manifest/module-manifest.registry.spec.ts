@@ -178,8 +178,8 @@ test("every event a unit writes is declared in its manifest, and nothing else", 
     CORE_BILL: "kernels/billing-payment-ledger",
     CORE_ORDER: "kernels/order-intake",
     CORE_PAYMENT_LEDGER: "kernels/billing-payment-ledger",
-    // The installation flow writes the event the subscription core declares.
-    CORE_SUBSCRIPTION: "core/installations",
+    // The installation flow and metering write the events the subscription core declares.
+    CORE_SUBSCRIPTION: "core/installations+core/metering",
     POS: "modules/pos-sales",
   };
   const written = (unit: string) => {
@@ -201,7 +201,7 @@ test("every event a unit writes is declared in its manifest, and nothing else", 
         }
       }
     };
-    walk(join(src, ...unit.split("/")));
+    for (const part of unit.split("+")) walk(join(src, ...part.split("/")));
     return found;
   };
 
