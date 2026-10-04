@@ -73,7 +73,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 
 - [x] **M2-DS-01 `ModuleAccessState`** `c38ae7d` — varian per alasan; satu aksi relevan per varian.
 - [x] **M2-DS-02 `UsageLimitState` dan meter pemakaian.** `7f0782a`
-- [x] **M2-DS-03 `FileUpload`** — pilih, pratinjau, progres, error, ganti; label lewat props.
+- [x] **M2-DS-03 `FileUpload`** `9c654bb` — pilih, pratinjau, progres, error, ganti; label lewat props.
 - [x] **M2-DS-04 Komponen perangkat** `94ea01b` — `DeviceStatusBadge`, `NetworkSyncIndicator`, `StaleDataBanner`.
 - [ ] **M2-DS-05 Matriks izin** — tampilan izin per peran yang mudah dipindai.
 - [ ] **M2-DS-06 `PinInput`** (dari `M1-DS-08`) — isian PIN bertopeng untuk persetujuan manager; label lewat props.
