@@ -57,6 +57,7 @@
     "./receipt": "./src/components/receipt.tsx",
     "./module-access-state": "./src/components/module-access-state.tsx",
     "./usage-limit-state": "./src/components/usage-limit-state.tsx",
+    "./device-status": "./src/components/device-status.tsx",
     "./brand": "./src/components/brand.tsx",
     "./table-layout-canvas": "./src/components/table-layout-canvas.tsx",
     "./table-layout-tray": "./src/components/table-layout-tray.tsx",

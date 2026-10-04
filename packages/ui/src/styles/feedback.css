@@ -345,3 +345,52 @@
   margin-block-start: var(--space-2);
   max-inline-size: 22rem;
 }
+
+/* Network sync indicator: the connection, always visible in a top bar. */
+.ui-network-sync {
+  display: inline-flex;
+}
+.ui-network-sync .ui-badge {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--space-1-5);
+}
+.ui-network-sync__icon {
+  display: inline-flex;
+}
+.ui-network-sync__icon--spin {
+  animation: ui-spin 1.2s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-network-sync__icon--spin {
+    animation: none;
+  }
+}
+
+/* Stale data banner: what is on screen may be older than the server's data. */
+.ui-stale-data {
+  align-items: center;
+  background: var(--color-status-warning-bg);
+  border-radius: var(--foundation-radius-sm);
+  color: var(--color-status-warning-text);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--text-label);
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+}
+.ui-stale-data > svg {
+  flex: none;
+}
+.ui-stale-data p {
+  color: var(--color-text-primary);
+  display: flex;
+  flex: 1 1 12rem;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  min-inline-size: 0;
+}
+.ui-stale-data__time {
+  color: var(--color-text-secondary);
+}
