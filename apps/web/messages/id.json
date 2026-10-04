@@ -37,7 +37,8 @@
     "workspace": "Bisnis",
     "pageNav": {
       "devices": "Perangkat",
-      "users": "Pengguna"
+      "users": "Pengguna",
+      "roles": "Peran"
     }
   },
   "access": {
@@ -388,9 +389,11 @@
     "RATE_LIMIT_EXCEEDED": "Terlalu banyak percobaan. Coba lagi nanti.",
     "RECEIPT_NOT_FOUND": "Pesanan ini belum dibayar, jadi belum ada struk.",
     "REFUND_EXCEEDS_REFUNDABLE": "Refund melebihi sisa yang bisa direfund.",
+    "ROLE_CODE_CONFLICT": "Sudah ada peran dengan nama serupa.",
     "SUBSCRIPTION_INVALID": "Langganan bisnis ini tidak aktif.",
     "SUBSCRIPTION_REQUIRED": "Bisnis ini belum punya langganan.",
     "SUBSCRIPTION_SUSPENDED": "Langganan bisnis ini tidak dapat dipakai. Hubungi pemilik bisnis.",
+    "SYSTEM_ROLE_IMMUTABLE": "Peran bawaan tidak dapat diubah.",
     "TENANT_INACTIVE": "Bisnis ini nonaktif.",
     "TENANT_NOT_FOUND": "Bisnis tidak ditemukan.",
     "TIER_UPGRADE_REQUIRED": "Fitur ini butuh tingkat modul yang lebih tinggi.",
@@ -727,5 +730,116 @@
     "title": "Pengguna",
     "validUntil": "Berlaku sampai",
     "withdraw": "Cabut undangan"
+  },
+  "roles": {
+    "accessDenied": "Hanya yang boleh melihat peran seluruh outlet yang dapat membuka halaman ini.",
+    "accessDeniedTitle": "Anda tidak punya akses",
+    "activate": "Aktifkan",
+    "activated": "Peran diaktifkan.",
+    "cancel": "Batal",
+    "closeSheet": "Tutup panel",
+    "createRole": "Buat peran",
+    "created": "Peran dibuat.",
+    "deactivate": "Nonaktifkan",
+    "deactivateDescription": "Anggota yang memegang peran ini langsung kehilangan izinnya. Peran bisa diaktifkan lagi nanti.",
+    "deactivateTitle": "Nonaktifkan peran {name}?",
+    "deactivated": "Peran dinonaktifkan.",
+    "empty": "Belum ada peran.",
+    "group": {
+      "business": "Bisnis dan perangkat",
+      "catalog": "Katalog",
+      "finance": "Keuangan",
+      "inventory": "Stok",
+      "people": "Pengguna dan peran",
+      "selling": "Penjualan dan kasir",
+      "tables": "Meja"
+    },
+    "kind": "Jenis",
+    "kindCustom": "Buatan sendiri",
+    "kindSystem": "Bawaan",
+    "loadFailed": "Peran tidak dapat dimuat",
+    "name": "Nama peran",
+    "nameRequired": "Isi nama peran, minimal 2 huruf atau angka.",
+    "newRole": "Peran baru",
+    "permission": {
+      "access": {
+        "membership": {
+          "manage": "Mengundang dan mencabut akses pengguna"
+        },
+        "role": {
+          "manage": "Membuat dan mengubah peran",
+          "read": "Melihat daftar peran"
+        }
+      },
+      "cash_variance": {
+        "approve": "Menyetujui selisih kas"
+      },
+      "catalog": {
+        "manage": "Mengubah produk, kategori, dan harga",
+        "read": "Melihat katalog"
+      },
+      "device": {
+        "manage": "Mendaftarkan dan mencabut perangkat",
+        "read": "Melihat daftar perangkat"
+      },
+      "finance": {
+        "dashboard": {
+          "view": "Melihat ringkasan keuangan"
+        },
+        "expense": {
+          "create": "Mencatat pengeluaran"
+        },
+        "report": {
+          "export": "Mengekspor laporan keuangan"
+        }
+      },
+      "inventory": {
+        "adjust": "Mengoreksi jumlah stok",
+        "receive": "Menerima barang masuk",
+        "stocktake": "Melakukan stok opname"
+      },
+      "order": {
+        "cancel": "Membatalkan pesanan",
+        "create": "Membuat pesanan",
+        "move_table": "Memindahkan pesanan ke meja lain"
+      },
+      "organization": {
+        "manage": "Mengubah data bisnis, brand, dan outlet",
+        "read": "Melihat data bisnis dan langganan"
+      },
+      "payment": {
+        "confirm": "Menerima pembayaran",
+        "reconcile": "Mencocokkan pembayaran",
+        "refund": "Mengembalikan uang (refund)"
+      },
+      "shift": {
+        "close": "Menutup shift",
+        "open": "Membuka shift"
+      },
+      "table": {
+        "layout": {
+          "manage": "Mengatur tata letak meja"
+        },
+        "manage": "Menambah dan mengubah meja",
+        "qr": {
+          "manage": "Membuat dan mengganti QR meja"
+        },
+        "view": "Melihat meja"
+      }
+    },
+    "permissionCount": "{count} izin",
+    "permissionRequired": "Pilih minimal satu izin.",
+    "permissions": "Izin",
+    "role": "Peran",
+    "save": "Simpan",
+    "saved": "Peran disimpan.",
+    "saving": "Menyimpan…",
+    "status": "Status",
+    "statusName": {
+      "ACTIVE": "Aktif",
+      "INACTIVE": "Nonaktif"
+    },
+    "systemNote": "Peran bawaan sama di semua bisnis dan tidak dapat diubah. Buat peran sendiri bila butuh susunan izin lain.",
+    "title": "Peran"
   }
 }

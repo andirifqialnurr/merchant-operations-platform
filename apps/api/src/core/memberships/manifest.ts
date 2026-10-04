@@ -16,13 +16,17 @@ export const identityManifest: ModuleManifest = {
       path: "/settings/users",
       permissionKey: PERMISSIONS.accessMembershipManage,
     },
+    { label: "Roles", path: "/settings/roles", permissionKey: PERMISSIONS.accessRoleRead },
   ],
   permissions: [
     PERMISSIONS.accessRoleRead,
     PERMISSIONS.accessRoleManage,
     PERMISSIONS.accessMembershipManage,
   ],
-  routes: [{ path: "/settings/users", permissionKey: PERMISSIONS.accessMembershipManage }],
+  routes: [
+    { path: "/settings/users", permissionKey: PERMISSIONS.accessMembershipManage },
+    { path: "/settings/roles", permissionKey: PERMISSIONS.accessRoleRead },
+  ],
   configSchemaVersion: 1,
   eventHandlers: [],
   installSteps: [],

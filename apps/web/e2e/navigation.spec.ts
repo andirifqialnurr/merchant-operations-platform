@@ -12,7 +12,14 @@ async function menu(page: Page) {
 test("the owner's menu lists the installed modules they may open", async ({ page }) => {
   await openAs(page, "catalog.owner@local.test", "/catalog");
   // Daily modules first, settings last.
-  expect(await menu(page)).toEqual(["Katalog", "Kasir", "Perangkat", "Pengguna", "Langganan"]);
+  expect(await menu(page)).toEqual([
+    "Katalog",
+    "Kasir",
+    "Perangkat",
+    "Pengguna",
+    "Peran",
+    "Langganan",
+  ]);
   await expect(page.getByRole("link", { name: "Katalog" })).toHaveAttribute("aria-current", "page");
 });
 
@@ -138,4 +145,28 @@ test("a cashier is told the people page is not theirs to open", async ({ page })
   await openAs(page, "pos.cashier@local.test", "/settings/users");
   await expect(page.getByRole("heading", { name: "Anda tidak punya akses" })).toBeVisible();
   await expect(page.getByRole("table")).toHaveCount(0);
+});
+
+test("the owner reads what each role may do, in plain words, and built-in roles stay as they are", async ({
+  page,
+}) => {
+  await openAs(page, "catalog.owner@local.test", "/settings/roles");
+  const main = page.getByRole("main");
+  await expect(main.getByRole("heading", { level: 1, name: "Peran" })).toBeVisible();
+  // One primary action on the page.
+  await expect(main.getByRole("button")).toHaveCount(1);
+
+  await main.getByRole("row", { name: /^Kasir/ }).click();
+  const sheet = page.getByRole("dialog");
+  await expect(sheet.getByText("Peran bawaan sama di semua bisnis")).toBeVisible();
+  await expect(sheet.getByLabel("Membuat pesanan")).toBeChecked();
+  await expect(sheet.getByLabel("Mengubah produk, kategori, dan harga")).not.toBeChecked();
+  // Nothing in a built-in role can be changed or saved.
+  await expect(sheet.getByLabel("Membuat pesanan")).toBeDisabled();
+  await expect(sheet.getByRole("button", { name: "Simpan" })).toHaveCount(0);
+  await page.keyboard.press("Escape");
+
+  await main.getByRole("button", { name: "Buat peran" }).click();
+  await sheet.getByRole("button", { name: "Simpan" }).click();
+  await expect(sheet.getByText("Pilih minimal satu izin.")).toBeVisible();
 });

@@ -37,7 +37,8 @@
     "workspace": "Business",
     "pageNav": {
       "devices": "Devices",
-      "users": "Users"
+      "users": "Users",
+      "roles": "Roles"
     }
   },
   "access": {
@@ -388,9 +389,11 @@
     "RATE_LIMIT_EXCEEDED": "Too many attempts. Try again later.",
     "RECEIPT_NOT_FOUND": "This order is not paid yet, so it has no receipt.",
     "REFUND_EXCEEDS_REFUNDABLE": "The refund is more than what is left to refund.",
+    "ROLE_CODE_CONFLICT": "There is already a role with a similar name.",
     "SUBSCRIPTION_INVALID": "This business's subscription is not active.",
     "SUBSCRIPTION_REQUIRED": "This business does not have a subscription yet.",
     "SUBSCRIPTION_SUSPENDED": "This business's subscription cannot be used. Contact the business owner.",
+    "SYSTEM_ROLE_IMMUTABLE": "Built-in roles cannot be changed.",
     "TENANT_INACTIVE": "This business is inactive.",
     "TENANT_NOT_FOUND": "Business not found.",
     "TIER_UPGRADE_REQUIRED": "This feature needs a higher tier of the module.",
@@ -727,5 +730,116 @@
     "title": "Users",
     "validUntil": "Valid until",
     "withdraw": "Withdraw invitation"
+  },
+  "roles": {
+    "accessDenied": "Only people who may see the roles of all outlets can open this page.",
+    "accessDeniedTitle": "You do not have access",
+    "activate": "Activate",
+    "activated": "The role was activated.",
+    "cancel": "Cancel",
+    "closeSheet": "Close panel",
+    "createRole": "Create a role",
+    "created": "The role was created.",
+    "deactivate": "Deactivate",
+    "deactivateDescription": "Members who hold this role lose its permissions at once. The role can be activated again later.",
+    "deactivateTitle": "Deactivate the role {name}?",
+    "deactivated": "The role was deactivated.",
+    "empty": "There are no roles yet.",
+    "group": {
+      "business": "Business and devices",
+      "catalog": "Catalog",
+      "finance": "Finance",
+      "inventory": "Inventory",
+      "people": "Users and roles",
+      "selling": "Selling and the cashier",
+      "tables": "Tables"
+    },
+    "kind": "Type",
+    "kindCustom": "Custom",
+    "kindSystem": "Built-in",
+    "loadFailed": "The roles could not be loaded",
+    "name": "Role name",
+    "nameRequired": "Enter a role name of at least 2 letters or digits.",
+    "newRole": "New role",
+    "permission": {
+      "access": {
+        "membership": {
+          "manage": "Invite users and remove their access"
+        },
+        "role": {
+          "manage": "Create and change roles",
+          "read": "See the list of roles"
+        }
+      },
+      "cash_variance": {
+        "approve": "Approve cash differences"
+      },
+      "catalog": {
+        "manage": "Change products, categories, and prices",
+        "read": "See the catalog"
+      },
+      "device": {
+        "manage": "Register and revoke devices",
+        "read": "See the list of devices"
+      },
+      "finance": {
+        "dashboard": {
+          "view": "See the finance summary"
+        },
+        "expense": {
+          "create": "Record expenses"
+        },
+        "report": {
+          "export": "Export finance reports"
+        }
+      },
+      "inventory": {
+        "adjust": "Correct stock quantities",
+        "receive": "Receive incoming goods",
+        "stocktake": "Do a stock count"
+      },
+      "order": {
+        "cancel": "Cancel orders",
+        "create": "Create orders",
+        "move_table": "Move an order to another table"
+      },
+      "organization": {
+        "manage": "Change business, brand, and outlet details",
+        "read": "See business details and the subscription"
+      },
+      "payment": {
+        "confirm": "Take payments",
+        "reconcile": "Reconcile payments",
+        "refund": "Give refunds"
+      },
+      "shift": {
+        "close": "Close a shift",
+        "open": "Open a shift"
+      },
+      "table": {
+        "layout": {
+          "manage": "Arrange the table layout"
+        },
+        "manage": "Add and change tables",
+        "qr": {
+          "manage": "Create and replace table QR codes"
+        },
+        "view": "See tables"
+      }
+    },
+    "permissionCount": "{count} permissions",
+    "permissionRequired": "Choose at least one permission.",
+    "permissions": "Permissions",
+    "role": "Role",
+    "save": "Save",
+    "saved": "The role was saved.",
+    "saving": "Saving…",
+    "status": "Status",
+    "statusName": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    },
+    "systemNote": "Built-in roles are the same in every business and cannot be changed. Create your own role when you need a different set of permissions.",
+    "title": "Roles"
   }
 }

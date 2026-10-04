@@ -56,6 +56,10 @@ import {
   workspaceContextsSchema,
   acceptInvitationSchema,
   createInvitationSchema,
+  createRoleSchema,
+  updateRoleSchema,
+  type CreateRole,
+  type UpdateRole,
   invitationListSchema,
   invitationSchema,
   memberListSchema,
@@ -277,6 +281,24 @@ export const merchantApi = {
     apiRequest("/access/members", memberListSchema, { headers: tenantHeaders(tenantId) }),
   roles: (tenantId: string) =>
     apiRequest("/access/roles", roleListSchema, { headers: tenantHeaders(tenantId) }),
+  createRole: (tenantId: string, input: CreateRole) =>
+    jsonMutation(
+      "/access/roles",
+      "POST",
+      input,
+      createRoleSchema,
+      roleSchema,
+      tenantHeaders(tenantId),
+    ),
+  updateRole: (tenantId: string, id: string, input: UpdateRole) =>
+    jsonMutation(
+      `/access/roles/${id}`,
+      "PATCH",
+      input,
+      updateRoleSchema,
+      roleSchema,
+      tenantHeaders(tenantId),
+    ),
   invitations: (tenantId: string) =>
     apiRequest("/access/invitations", invitationListSchema, { headers: tenantHeaders(tenantId) }),
   createInvitation: (tenantId: string, input: CreateInvitation) =>

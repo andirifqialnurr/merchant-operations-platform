@@ -63,6 +63,7 @@ import {
   type DeviceAuthenticator,
 } from "../../shared/devices/device-identity.js";
 import { scopeWorkspacesToDevice } from "./device-scope.js";
+import { assertCanGrant } from "./grantable.js";
 
 @ApiTags("identity-access")
 @ApiCookieAuth(SESSION_COOKIE_NAME)
@@ -116,6 +117,7 @@ export class AccessController {
     @Body(new ZodValidationPipe(createRoleSchema)) input: CreateRole,
     @CurrentAccess() access: AuthorizationContext,
   ) {
+    assertCanGrant(access.permissionKeys, input.permissionKeys);
     return roleSchema.parse(
       await this.accessService.createRole(
         headers[API_HEADERS.tenantId],
@@ -138,6 +140,7 @@ export class AccessController {
     @Body(new ZodValidationPipe(updateRoleSchema)) input: UpdateRole,
     @CurrentAccess() access: AuthorizationContext,
   ) {
+    assertCanGrant(access.permissionKeys, input.permissionKeys);
     return roleSchema.parse(
       await this.accessService.updateRole(
         headers[API_HEADERS.tenantId],

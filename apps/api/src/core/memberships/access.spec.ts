@@ -581,3 +581,16 @@ test("nobody can take away their own access", async () => {
   );
   assert.equal(removed.status, "INACTIVE");
 });
+
+test("nobody grants a permission they do not hold themselves", async () => {
+  const { assertCanGrant } = await import("./grantable.js");
+  const held = [PERMISSIONS.accessRoleManage, PERMISSIONS.catalogRead];
+
+  assert.doesNotThrow(() => assertCanGrant(held, [PERMISSIONS.catalogRead]));
+  // A change that does not touch permissions needs none.
+  assert.doesNotThrow(() => assertCanGrant(held, undefined));
+  assert.throws(
+    () => assertCanGrant(held, [PERMISSIONS.catalogRead, PERMISSIONS.paymentRefund]),
+    ForbiddenException,
+  );
+});

@@ -7,6 +7,7 @@ import {
   IconPackage,
   IconReceipt2,
   IconSettings,
+  IconShieldCheck,
   IconUsers,
   IconSquareRoundedLetterM,
 } from "@tabler/icons-react";
@@ -60,6 +61,7 @@ export function isNavigableModule(moduleKey: ModuleKey): moduleKey is NavigableM
  */
 export const PAGE_NAVIGATION: Record<string, { icon: AppIconComponent; labelKey: string }> = {
   "/settings/devices": { icon: IconDeviceTablet, labelKey: "pageNav.devices" },
+  "/settings/roles": { icon: IconShieldCheck, labelKey: "pageNav.roles" },
   "/settings/users": { icon: IconUsers, labelKey: "pageNav.users" },
 };
 

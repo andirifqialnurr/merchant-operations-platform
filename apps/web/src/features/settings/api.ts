@@ -105,6 +105,7 @@ export function usePeopleMutation(tenantId: string) {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: peopleKeys.members(tenantId) }),
         queryClient.invalidateQueries({ queryKey: peopleKeys.invitations(tenantId) }),
+        queryClient.invalidateQueries({ queryKey: peopleKeys.roles(tenantId) }),
         queryClient.invalidateQueries({ queryKey: subscriptionKey(tenantId) }),
       ]);
       notify({ message: success, tone: "success" });
