@@ -441,6 +441,40 @@ flowchart TD
 
 Saat batas hard tercapai (misalnya jumlah pengguna), tombol tambah tetap terlihat tetapi membuka penjelasan batas dan ajakan upgrade — bukan error umum.
 
+### 12.1 Pilih mata uang bisnis — IDR / USD (rencana M2-FT-10)
+
+Sumber cakupan: PRD Modular 6.5 (`CUR-001`–`CUR-005`). Satu pilihan per workspace, bukan per outlet. Alur ini belum tersedia pada implementasi M2-FT-01.
+
+```mermaid
+flowchart TD
+    A[Pengaturan - Organisasi - Bisnis] --> B{Boleh mengelola semua lokasi?}
+    B -- Tidak --> R[Nama dan mata uang baca-saja]
+    B -- Ya --> C[Server membaca mata uang dan syarat perubahan]
+    C --> D{Sudah ada data bernilai uang?}
+    D -- Ya --> E[Mata uang baca-saja dengan alasan; nama tetap bisa diedit]
+    D -- Tidak --> F[Pilih Rupiah IDR atau US Dollar USD]
+    F --> G[Simpan]
+    G --> H{Mata uang berubah?}
+    H -- Tidak --> I[Simpan perubahan nama bila ada]
+    H -- Ya --> J[Konfirmasi mata uang baru berlaku untuk seluruh outlet]
+    J -- Batal --> F
+    J -- Konfirmasi --> K[Server memeriksa izin dan syarat secara atomik]
+    K --> L{Masih memenuhi syarat?}
+    L -- Ya --> M[Simpan dan audit; perbarui konteks mata uang]
+    L -- Tidak --> N[Jelaskan penolakan; pertahankan draft nama dan muat ulang syarat]
+    M --> O[Tampilkan mata uang tersimpan]
+    I --> O
+```
+
+Inventaris data:
+
+- **Input:** nama bisnis; pilihan IDR/USD hanya bila diizinkan dan belum terkunci. Satu aksi utama halaman: Simpan. Konfirmasi hanya muncul untuk perubahan mata uang.
+- **Baca saja:** mata uang tersimpan dan alasan terkunci yang aman dari server; tanpa jumlah transaksi atau rincian keuangan yang tidak diperlukan.
+- **Turunan:** pratinjau format nominal opsional dari formatter yang sama dengan aplikasi; bukan saldo dan tidak dikirim sebagai nominal input.
+- **Tersembunyi:** ID tenant, actor, timestamp/audit, pemeriksaan keberadaan record, dan metadata konkurensi. Klien tidak dapat mengirim status kelayakan sebagai otorisasi.
+
+Record harga atau transaksi bernilai nol tetap mengunci; pembatalan/penonaktifan tidak membuka kunci. Tidak ada alur mengonversi nominal lama. Bahasa dapat diganti tanpa mengubah IDR/USD. Error jaringan mempertahankan draft dan menyediakan coba lagi; penolakan karena data uang pertama dibuat oleh sesi lain tidak menyimpan sebagian perubahan.
+
 ---
 
 ## 13. Platform Admin

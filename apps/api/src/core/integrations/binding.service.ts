@@ -154,6 +154,19 @@ export class BindingService implements BindingGate {
     });
   }
 
+  /** Recovery is a request to the worker, never a claim that delivery succeeded. */
+  retry(tenantId: string, id: string, context?: BindingMutationContext) {
+    return this.move(
+      tenantId,
+      id,
+      ["ACTIVE", "PAUSED", "ERROR"],
+      "integration_binding.retry",
+      context,
+      { auditReason: null, health: "STALE", lastError: null, status: "ACTIVE" },
+      true,
+    );
+  }
+
   private async move(
     tenantId: string,
     id: string,
@@ -161,6 +174,7 @@ export class BindingService implements BindingGate {
     action: string,
     context: BindingMutationContext | undefined,
     change: Parameters<BindingRepository["setStatus"]>[3],
+    retryHeld = false,
   ) {
     const current = await this.repository.findById(tenantId, id);
     if (!current) {
@@ -178,6 +192,7 @@ export class BindingService implements BindingGate {
     }
     const saved = await this.repository.setStatus(tenantId, id, current.status, change, {
       action,
+      retryHeld,
       ...(context ? { context } : {}),
     });
     if (!saved) {

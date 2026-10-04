@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 
 import { AuthModule } from "../auth/public.js";
+import { FeatureFlagModule } from "../feature-flags/public.js";
 import { EntitlementModule } from "../entitlements/public.js";
 import { SecurityModule } from "../security/public.js";
 import { AccessController, AccessWorkspaceController } from "./access.controller.js";
@@ -20,8 +21,8 @@ import { SessionPermissionGuard } from "./session-permission.guard.js";
     InvitationController,
     InvitationAcceptController,
   ],
-  exports: [AccessService, EntitlementModule, SessionPermissionGuard],
-  imports: [AuthModule, EntitlementModule, SecurityModule],
+  exports: [AccessService, EntitlementModule, FeatureFlagModule, SessionPermissionGuard],
+  imports: [AuthModule, EntitlementModule, FeatureFlagModule, SecurityModule],
   providers: [
     AccessService,
     AccessUsageGauges,

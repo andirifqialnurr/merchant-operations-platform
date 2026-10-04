@@ -455,6 +455,7 @@ markReady(@Param(...) params, @CurrentAccess() access, @Command() ctx) { … }
 
 - `@RequireCapability` memeriksa langganan, instalasi, dan capability sekaligus, dan mengembalikan kode yang berbeda untuk tiap kegagalan.
 - `@Idempotent()` mewajibkan header `Idempotency-Key`, menyimpan hasil pertama, dan menolak kunci yang sama dengan payload berbeda.
+- Implementasi draft M2-BE-14 berada di `core/idempotency`, dipakai `POST /modules/bindings/:id/retry`. Respons JSON non-secret direkam per tenant/outlet/route; actor, device, metode, params, query, dan body termasuk hash. Hasil COMPLETED dapat diputar ulang 24 jam dengan status HTTP yang sama. Kunci PENDING/FAILED tetap tertahan dan membutuhkan pemeriksaan hasil, tidak dilepas otomatis saat timeout/kedaluwarsa. Interceptor tidak membuat mutasi domain dan penyimpanan respons menjadi satu transaksi; jika proses mati di antaranya, kunci tetap tertahan agar tindakan tidak diulang. Domain finansial yang sudah punya kunci transaksionalnya sendiri tetap memakai mekanisme tersebut. Respons berisi secret (aktivasi perangkat, autentikasi, undangan) tidak memakai interceptor ini.
 - Header konteks hanya **memilih** workspace dan lokasi; guard membuktikan keanggotaan dan cakupan.
 - Sesi platform dan sesi merchant tidak pernah saling diterima.
 

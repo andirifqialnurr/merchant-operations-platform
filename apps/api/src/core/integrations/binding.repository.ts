@@ -57,7 +57,7 @@ export interface BindingRepository {
       lastError?: string | null;
       status: IntegrationBindingStatus;
     },
-    options: { action: string; context?: BindingMutationContext },
+    options: { action: string; context?: BindingMutationContext; retryHeld?: boolean },
   ): Promise<BindingRecord | null>;
 }
 
@@ -158,7 +158,7 @@ export class PrismaBindingRepository implements BindingRepository {
       lastError?: string | null;
       status: IntegrationBindingStatus;
     },
-    options: { action: string; context?: BindingMutationContext },
+    options: { action: string; context?: BindingMutationContext; retryHeld?: boolean },
   ) {
     return getPrismaClient().$transaction(async (transaction) => {
       const actor = options.context?.actorId ? { actorId: options.context.actorId } : {};
@@ -170,6 +170,47 @@ export class PrismaBindingRepository implements BindingRepository {
       const row = toRecord(
         await transaction.coreIntegrationBinding.findUniqueOrThrow({ select, where: { id } }),
       );
+      if (options.retryHeld) {
+        // Re-open only this consumer's held deliveries, within the binding's
+        // effective window. Other consumers' PROCESSED receipts remain intact.
+        // Do not steal a worker's lease: an in-flight event can be retried after
+        // that delivery finishes. Locking the binding serializes double clicks.
+        const events = await transaction.$queryRaw<Array<{ id: string }>>`
+          SELECT o.id FROM outbox_events o
+          JOIN core_inbox_events i ON i.event_id = o.id AND i.tenant_id = o.tenant_id
+          WHERE o.tenant_id = ${tenantId}::uuid
+            AND o.type = ${row.eventType}
+            AND i.consumer_name = ${row.handlerKey}
+            AND i.status IN ('BLOCKED', 'FAILED')
+            AND o.occurred_at >= ${row.effectiveFrom}
+            AND (${row.effectiveTo}::timestamptz IS NULL OR o.occurred_at < ${row.effectiveTo})
+            AND (o.processed_at IS NOT NULL OR o.failed_at IS NOT NULL)
+          ORDER BY o.id
+          FOR UPDATE OF o
+        `;
+        const ids = events.map((event) => event.id);
+        if (ids.length > 0) {
+          await transaction.coreInboxEvent.updateMany({
+            data: { status: "RETRYING" },
+            where: {
+              consumerName: row.handlerKey,
+              eventId: { in: ids },
+              status: { in: ["BLOCKED", "FAILED"] },
+              tenantId,
+            },
+          });
+          await transaction.outboxEvent.updateMany({
+            data: {
+              attemptCount: 0,
+              availableAt: new Date(),
+              failedAt: null,
+              lastError: null,
+              processedAt: null,
+            },
+            where: { id: { in: ids }, tenantId },
+          });
+        }
+      }
       const payload = buildAuditPayload({
         after: { handlerKey: row.handlerKey, status: row.status },
         before: { handlerKey: row.handlerKey, status: expected },

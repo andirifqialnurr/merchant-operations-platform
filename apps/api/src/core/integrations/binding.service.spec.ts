@@ -56,6 +56,7 @@ const kdsManifest: ModuleManifest = {
 class MemoryBindingRepository implements BindingRepository {
   readonly rows: BindingRecord[] = [];
   readonly audit: string[] = [];
+  readonly retries: string[] = [];
 
   private match(tenantId: string, key: BindingKey) {
     return this.rows.find(
@@ -114,12 +115,13 @@ class MemoryBindingRepository implements BindingRepository {
     id: string,
     expected: IntegrationBindingStatus,
     change: Parameters<BindingRepository["setStatus"]>[3],
-    options: { action: string },
+    options: { action: string; retryHeld?: boolean },
   ) {
     const row = this.rows.find((item) => item.tenantId === tenantId && item.id === id);
     if (!row || row.status !== expected) return null;
     Object.assign(row, change);
     this.audit.push(options.action);
+    if (options.retryHeld) this.retries.push(id);
     return row;
   }
 }
@@ -159,6 +161,22 @@ function setup(manifests: readonly ModuleManifest[] = [...MODULE_MANIFESTS, kdsM
 
 const after = new Date(INSTALLED_AT.getTime() + 60_000);
 const before = new Date(INSTALLED_AT.getTime() - 60_000);
+
+test("retry queues recovery without claiming delivery succeeded and preserves the effective window", async () => {
+  const { repository, service } = setup();
+  const [binding] = await service.ensureForModule(WORKSPACE, MODULES.kds, undefined, INSTALLED_AT);
+  await service.pause(WORKSPACE, binding!.id, "Repair kitchen configuration");
+  const result = await service.retry(WORKSPACE, binding!.id);
+  assert.equal(result.status, "ACTIVE");
+  assert.equal(result.health, "STALE");
+  assert.equal(result.effectiveFrom, INSTALLED_AT.toISOString());
+  assert.deepEqual(repository.retries, [binding!.id]);
+  assert.equal(repository.audit.at(-1), "integration_binding.retry");
+  await assert.rejects(service.retry("other-workspace", binding!.id), NotFoundException);
+  await service.disableForModule(WORKSPACE, MODULES.kds);
+  await assert.rejects(service.retry(WORKSPACE, binding!.id), ConflictException);
+  assert.equal(repository.retries.length, 1);
+});
 
 test("installing a module gives it one active binding per event it reacts to", async () => {
   const { repository, service } = setup();

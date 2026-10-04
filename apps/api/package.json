@@ -17,6 +17,7 @@
     "local:users:provision": "node --env-file=../../.env --import tsx src/cli/provision-local-users.ts",
     "typecheck": "tsc --noEmit",
     "test": "node --test scripts/*.test.mjs && tsx --test src/*.spec.ts src/**/*.spec.ts",
+    "test:integration": "node --env-file=../../.env --import tsx --test --test-concurrency=1 test/*.integration.test.mjs",
     "format:check": "prettier --check . --ignore-path ../../.gitignore"
   },
   "dependencies": {

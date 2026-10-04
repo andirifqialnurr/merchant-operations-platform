@@ -319,6 +319,20 @@ Platform
 
 Business template adalah preset, bukan fork codebase. Template boleh mengubah label, default navigation, seed, dan onboarding; template tidak boleh mengubah aturan keamanan atau membuat schema khusus tenant.
 
+### 6.5 Mata uang dasar workspace — IDR atau USD
+
+**Tambahan cakupan 4 Oktober 2026 atas permintaan user; direncanakan di M2-FT-10, belum diimplementasikan.** Dollar pada pilihan ini berarti dolar Amerika Serikat (`USD`).
+
+| ID | Requirement |
+|---|---|
+| CUR-001 | Pengguna dengan izin kelola organisasi dan cakupan semua lokasi dapat memilih satu mata uang dasar bisnis: Rupiah (`IDR`, bawaan) atau US Dollar (`USD`). Semua lokasi bisnis memakai pilihan yang sama. Bahasa tampilan tidak mengubah mata uang. |
+| CUR-002 | Pilihan dapat diubah selama workspace belum mempunyai data bernilai uang, termasuk harga katalog, draft/held cart tersimpan, shift, pesanan, tagihan, pembayaran/refund, mutasi kas, atau data keuangan. Keberadaan record tetap mengunci pilihan meskipun nominalnya nol atau record kemudian dinonaktifkan/dibatalkan. Backend memeriksa ulang syarat secara atomik saat menyimpan agar perubahan tidak berlomba dengan pencatatan data uang pertama. |
+| CUR-003 | Jika terkunci, mata uang tetap terlihat baca-saja disertai alasan; pengguna masih boleh mengubah nama bisnis. Tidak ada konversi otomatis, penggantian label mata uang pada nominal lama, atau penghapusan riwayat untuk membuka kunci. Memilih mata uang yang sama tidak dianggap perubahan. |
+| CUR-004 | Harga, pesanan, pembayaran, kembalian, refund, ringkasan shift, struk, dan event uang membawa mata uang yang konsisten. Data historis ditampilkan dengan mata uang record asal, bukan preferensi workspace saat dibaca. Nominal berbeda mata uang tidak dijumlahkan tanpa aturan konversi tersendiri. |
+| CUR-005 | Input dan format mendukung nominal USD pecahan sen tanpa floating-point pada penyimpanan/perhitungan uang. Nilai IDR lama tidak berubah skala. Label dan pesan tersedia dalam Indonesia/Inggris; perubahan pilihan diaudit. |
+
+Cakupan ini adalah pilihan satu mata uang dasar per workspace. Kurs, konversi saldo/histori, pembayaran dengan beberapa mata uang dalam satu bisnis, serta multi-currency accounting tidak termasuk task ini. Harga langganan platform tidak ikut berubah karena pilihan mata uang bisnis.
+
 ---
 
 ## 7. Pengguna dan peran

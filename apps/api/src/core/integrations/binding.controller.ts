@@ -31,6 +31,7 @@ import {
   SessionPermissionGuard,
 } from "../memberships/public.js";
 import { BindingService } from "./binding.service.js";
+import { Idempotent } from "../idempotency/public.js";
 import { commandOriginFromRequest } from "../../shared/command/command-origin.js";
 
 @ApiTags("Modules")
@@ -98,6 +99,28 @@ export class BindingController {
   ) {
     return integrationBindingSchema.parse(
       await this.service.resume(
+        headers[API_HEADERS.tenantId],
+        params.id,
+        this.mutationContext(access, headers),
+      ),
+    );
+  }
+
+  @ApiOperation({ summary: "Queue held deliveries of this integration for another attempt" })
+  @ApiHeader({ name: API_HEADERS.idempotencyKey, required: true })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/IntegrationBinding" } })
+  @RequirePermission(PERMISSIONS.organizationManage)
+  @HttpCode(200)
+  @Post(":id/retry")
+  @Idempotent()
+  async retry(
+    @RequestHeaders(new ZodValidationPipe(tenantRequestHeadersSchema))
+    headers: TenantRequestHeaders,
+    @Param(new ZodValidationPipe(entityIdParamsSchema)) params: { id: string },
+    @CurrentAccess() access: AuthorizationContext,
+  ) {
+    return integrationBindingSchema.parse(
+      await this.service.retry(
         headers[API_HEADERS.tenantId],
         params.id,
         this.mutationContext(access, headers),

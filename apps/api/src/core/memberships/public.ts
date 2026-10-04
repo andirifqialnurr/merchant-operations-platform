@@ -5,6 +5,7 @@ export { AccessService } from "./access.service.js";
 export {
   CurrentAccess,
   RequireAllOutlets,
+  RequireFeature,
   RequireModule,
   RequirePermission,
   SessionPermissionGuard,

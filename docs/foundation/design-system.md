@@ -393,6 +393,8 @@ Aturan:
 
 Jam selalu 24 jam. Zona waktu mengikuti lokasi, bukan bahasa. Format dihasilkan `Intl`, tidak dirangkai manual.
 
+**Target M2-FT-10 (belum diterapkan):** contoh uang di tabel adalah IDR. Pilihan mata uang dasar bisnis akan mendukung IDR/USD sesuai PRD Modular 6.5; bahasa hanya mengatur pemisah dan format. MoneyInput/MoneyDisplay serta struk menerima currency dan aturan skala yang sama: IDR lama tetap rupiah utuh, USD memakai sen dan dua digit pecahan. Prefix `Rp` pada kontrak MoneyInput 14.2 adalah tampilan IDR; untuk USD gunakan penanda USD yang jelas agar tidak ambigu. Pilihan currency di tab Bisnis adalah input hanya saat server mengizinkan; saat terkunci, tampilkan nilai baca-saja dan alasan di lokasi yang sama, tanpa menambahkan kartu bersarang.
+
 ### 11.3 Gaya bahasa
 
 - Istilah operasional yang umum: `Pesanan`, `Meja`, `Kasir`, `Dapur`, `Stok`, `Pengeluaran`.

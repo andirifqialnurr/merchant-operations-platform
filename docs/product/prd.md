@@ -115,6 +115,10 @@ Platform
 
 Jenis workspace: `BUSINESS` (R1) dan `PERSONAL` (fondasi sekarang, UI nanti). Business template (Cafe, Restaurant, Bakery/Retail, Cloud Kitchen, HC Only, Finance Only, Personal) hanya mengubah label, navigasi bawaan, dan onboarding — tidak mengubah skema atau aturan keamanan.
 
+### 5.1 Mata uang dasar bisnis (rencana M2)
+
+Tambahan permintaan user 4 Oktober 2026: satu bisnis dapat memilih **IDR atau USD (dolar AS)**, berlaku untuk seluruh outlet dan terpisah dari pilihan bahasa. Perubahan hanya tersedia sebelum ada data bernilai uang; setelah itu mata uang baca-saja dengan alasan, sementara nama bisnis tetap dapat diedit. Histori dan nominal lama tidak dikonversi atau diganti label. USD mendukung sen; skala IDR lama dipertahankan. Requirement rinci: PRD Modular 6.5 (`CUR-001`–`CUR-005`); alur: `flowchart.md` 12.1; implementasi: `M2-FT-10`. Status saat ini masih rencana, bukan fitur yang sudah tersedia.
+
 ---
 
 ## 6. Modul

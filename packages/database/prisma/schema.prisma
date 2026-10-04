@@ -909,6 +909,15 @@ model CoreModuleConfig {
   @@map("core_module_configs")
 }
 
+/// Operational rollout; never a substitute for entitlement or permission.
+model CoreFeatureFlag {
+  key     String @id @db.VarChar(120)
+  status  String @default("DISABLED") @db.VarChar(16)
+  rollout Json   @default("{}")
+
+  @@map("core_feature_flags")
+}
+
 /// That one handler dealt with one event, so a repeated delivery has one effect.
 model CoreInboxEvent {
   id              String           @id @default(dbgenerated("uuidv7()")) @db.Uuid

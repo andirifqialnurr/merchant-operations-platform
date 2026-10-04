@@ -10,9 +10,11 @@ import { Reflector } from "@nestjs/core";
 import type { AuthService } from "../auth/auth.service.js";
 import { SESSION_COOKIE_NAME } from "../auth/session-cookie.js";
 import type { EntitlementService } from "../entitlements/entitlement.service.js";
+import type { FeatureFlagService } from "../feature-flags/public.js";
 import type { AccessDescription, AccessService } from "./access.service.js";
 import {
   RequireAllOutlets,
+  RequireFeature,
   RequireModule,
   RequirePermission,
   SessionPermissionGuard,
@@ -47,16 +49,22 @@ class Routes {
 
   @RequirePermission(PERMISSIONS.paymentRefund)
   refund() {}
+
+  @RequirePermission(PERMISSIONS.orderCreate)
+  @RequireFeature("pos.pilot")
+  pilot() {}
 }
 
 type World = {
   access?: AccessDescription;
   entitled?: boolean;
   subscriptionUsable?: boolean;
+  featureEnabled?: boolean;
 };
 
 function run(world: World, handler: keyof Routes = "sell", outletId: string = IDS.outlet) {
   let entitlementLookups = 0;
+  let featureLookups = 0;
   const guard = new SessionPermissionGuard(
     {
       getSession: async () => ({ expiresAt: "2026-12-01T00:00:00.000Z", user: { id: IDS.user } }),
@@ -79,6 +87,15 @@ function run(world: World, handler: keyof Routes = "sell", outletId: string = ID
       },
     } as unknown as EntitlementService,
     new Reflector(),
+    undefined,
+    {
+      enabled: async (key: string, tenantId: string) => {
+        featureLookups += 1;
+        assert.equal(key, "pos.pilot");
+        assert.equal(tenantId, IDS.tenant);
+        return world.featureEnabled ?? false;
+      },
+    } as FeatureFlagService,
   );
   const request: { accessContext?: AuthorizationContext; headers: Record<string, string> } = {
     headers: {
@@ -94,6 +111,7 @@ function run(world: World, handler: keyof Routes = "sell", outletId: string = ID
   } as unknown as ExecutionContext;
   return {
     entitlementLookups: () => entitlementLookups,
+    featureLookups: () => featureLookups,
     request,
     result: guard.canActivate(context),
   };
@@ -114,6 +132,20 @@ test("lets a member with the module, the permission, and the location through", 
   const attempt = run({});
   assert.equal(await attempt.result, true);
   assert.deepEqual(attempt.request.accessContext, member);
+});
+
+test("feature rollout is enforced only after existing access checks and only on decorated routes", async () => {
+  assert.deepEqual(await refusal(run({}, "pilot").result), {
+    code: "FEATURE_DISABLED",
+    status: 403,
+  });
+  assert.equal(await run({ featureEnabled: true }, "pilot").result, true);
+  const ordinary = run({});
+  await ordinary.result;
+  assert.equal(ordinary.featureLookups(), 0);
+  const denied = run({ entitled: false, featureEnabled: true }, "pilot");
+  assert.deepEqual(await refusal(denied.result), { code: "ENTITLEMENT_REQUIRED", status: 403 });
+  assert.equal(denied.featureLookups(), 0);
 });
 
 test("a non-member is refused before the workspace's subscription is even read", async () => {

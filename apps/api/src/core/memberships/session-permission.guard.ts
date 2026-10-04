@@ -26,6 +26,7 @@ import {
   evaluateAccess,
 } from "../entitlements/public.js";
 import { AccessService } from "./access.service.js";
+import { FeatureFlagService } from "../feature-flags/public.js";
 import {
   DEVICE_AUTHENTICATOR,
   readDeviceCredential,
@@ -35,6 +36,7 @@ import {
 const REQUIRED_PERMISSION = "required-access-permission";
 const REQUIRED_MODULE = "required-entitlement-module";
 const REQUIRE_ALL_OUTLETS = "require-all-outlets";
+const REQUIRED_FEATURE = "required-feature-flag";
 
 type AuthorizedRequest = {
   accessContext?: AuthorizationContext;
@@ -45,6 +47,7 @@ export const RequirePermission = (permission: PermissionKey) =>
   SetMetadata(REQUIRED_PERMISSION, permission);
 export const RequireModule = (moduleKey: ModuleKey) => SetMetadata(REQUIRED_MODULE, moduleKey);
 export const RequireAllOutlets = () => SetMetadata(REQUIRE_ALL_OUTLETS, true);
+export const RequireFeature = (key: string) => SetMetadata(REQUIRED_FEATURE, key);
 
 export const CurrentAccess = createParamDecorator((_data: unknown, context: ExecutionContext) => {
   const request = context.switchToHttp().getRequest<AuthorizedRequest>();
@@ -59,6 +62,7 @@ export class SessionPermissionGuard implements CanActivate {
     @Inject(EntitlementService) private readonly entitlementService: EntitlementService,
     @Inject(Reflector) private readonly reflector: Reflector,
     @Optional() @Inject(DEVICE_AUTHENTICATOR) private readonly devices?: DeviceAuthenticator,
+    @Inject(FeatureFlagService) private readonly featureFlags?: FeatureFlagService,
   ) {}
 
   async canActivate(context: ExecutionContext) {
@@ -116,6 +120,10 @@ export class SessionPermissionGuard implements CanActivate {
     // Someone outside the workspace learns nothing about its subscription.
     if (!access.context) throw accessDenied("WORKSPACE_ACCESS_DENIED");
     const entitlement = await this.entitlementService.describeAccess(tenantId, moduleKey);
+    const featureFlag = this.reflector.getAllAndOverride<string | undefined>(REQUIRED_FEATURE, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
     // One decision, in the order of architecture.md 6.3, with one reason when refused.
     assertAccess(
@@ -138,6 +146,11 @@ export class SessionPermissionGuard implements CanActivate {
         },
       ),
     );
+    // Check only after subscription, permission and location have passed, so
+    // rollout configuration never leaks to a caller who lacks those rights.
+    if (featureFlag && !(await this.featureFlags?.enabled(featureFlag, tenantId))) {
+      throw accessDenied("FEATURE_DISABLED", { featureFlag });
+    }
     request.accessContext = device ? { ...access.context, deviceId: device.id } : access.context;
     return true;
   }

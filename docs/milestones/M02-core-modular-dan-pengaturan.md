@@ -31,15 +31,16 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 
 ### FT — Fitur produk
 
-- [ ] **M2-FT-01 Pengaturan organisasi** — ubah nama bisnis, brand, outlet (alamat, zona waktu, mata uang).
+- [x] **M2-FT-01 Pengaturan organisasi** — ubah nama bisnis, brand, outlet (alamat, zona waktu); tampilkan mata uang bisnis. Pemilihan IDR/USD ditangani task M2-FT-10 sesuai permintaan user 4 Oktober 2026. Implementasi nama/alamat/zona waktu serta test unit/API lokal tersedia; 3 E2E Organisasi lulus dari terminal user (8,2 detik). Padding form Bisnis diperbaiki setelah review user; review visual/state belum ditutup. Belum commit/push. Rincian dan batas verifikasi: `TODO.md` checkpoint 13.41. Ditutup 4 Oktober 2026: gate penuh, 3 e2e Organisasi, dan 24 kombinasi visual lulus (TODO 13.41, 13.43).
 - [x] **M2-FT-02 Pengguna dan undangan** `40427fb` — undang lewat email dengan peran dan lokasi; status menunggu; cabut akses.
 - [x] **M2-FT-03 Peran dan izin** `9f39c79` — daftar peran sistem dan kustom; atur izin per peran dengan bahasa yang mudah dimengerti.
 - [x] **M2-FT-04 Perangkat** `b4a3f62` — daftarkan perangkat POS/KDS dengan kode sekali pakai, lihat status terakhir terlihat, cabut. Secret tidak pernah tampil lagi setelah provisioning.
 - [x] **M2-FT-05 Langganan dan pemakaian** `324e534` — paket aktif, modul dan tier, pemakaian vs batas per dimensi; saat batas tercapai tombol tetap tampil dengan penjelasan dan ajakan upgrade.
-- [ ] **M2-FT-06 Integrasi antarmodul** — daftar binding (misalnya POS → Keuangan) dengan status `Aktif`/`Perlu setup`/`Gagal` dan tombol coba ulang.
+- [~] **M2-FT-06 Integrasi antarmodul** — endpoint recovery binding dan antre ulang event tertahan sudah diuji; daftar UI dengan status `Aktif`/`Perlu setup`/`Gagal` dan tombol coba ulang masih terbuka. TODO 13.42 mencatat hambatan izin tulis file web.
 - [x] **M2-FT-07 Gambar produk** `c045336` — unggah gambar produk di Catalog dan tampilkan di kartu produk POS.
 - [ ] **M2-FT-08 Persetujuan manager untuk refund** (dari `M1-FT-10`) — kasir tanpa izin refund meminta persetujuan manager dengan PIN (`flowchart.md` 5.4). PIN diatur dan direset di pengaturan pengguna (`M2-FT-02`). Selesai bila: PIN tersimpan ber-hash; salah PIN dibatasi; persetujuan diaudit dengan nama penyetuju.
 - [ ] **M2-FT-09 Pajak dan service charge per outlet** (dari `M1-FT-14`) — pola "harga sudah termasuk" atau "ditambahkan di struk" dan tarif per outlet, diatur di pengaturan outlet (`M2-FT-01`). Bawaan tetap mengikuti keputusan `M1-OD-01`: harga menu adalah harga akhir. Selesai bila: total pesanan, struk, dan ringkasan shift konsisten untuk kedua pola.
+- [ ] **M2-FT-10 Pilihan mata uang dasar IDR / USD** — permintaan user 4 Oktober 2026; PRD Modular 6.5 dan `flowchart.md` 12.1. Satu pilihan per workspace, dapat diubah sebelum ada data bernilai uang; data lama tetap utuh, tanpa konversi. Bergantung pada M2-FT-01. Rincian checkpoint dan acceptance di bagian 5.1.
 
 ### BE — Backend dan data
 
@@ -55,8 +56,8 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [x] **M2-BE-10 Inbox** `cc2e4e6` — `core_inbox_events`, unik per consumer dan event; handler idempotent.
 - [x] **M2-BE-11 Metering dan limit** `bd4c541` — `core_usage_dimensions` (25 dimensi), event pemakaian, counter, adjustment, notifikasi ambang; penegakan hard/soft/throttled sesuai `prd.md` 7.1.
 - [x] **M2-BE-12 Perangkat** `2c44692` — `core_devices` dengan kredensial ber-hash; sesi perangkat untuk POS/KDS terpisah dari sesi pengguna.
-- [ ] **M2-BE-13 Feature flag** — `core_feature_flags` dan pemeriksaan di guard.
-- [ ] **M2-BE-14 Idempotency generik** — interceptor yang memakai tabel `idempotency_keys` dengan hash permintaan, untuk endpoint yang belum punya kunci domain sendiri.
+- [x] **M2-BE-13 Feature flag** — `core_feature_flags` dan pemeriksaan di guard tersedia; test service/guard dan database sementara lulus. Penerapan migrasi development, generate Prisma, commit/push masih terbuka; TODO 13.44. Ditutup 4 Oktober 2026: migrasi diterapkan ke database pengembangan dan Prisma di-generate ulang.
+- [x] **M2-BE-14 Idempotency generik** — interceptor dan hash permintaan memakai tabel `idempotency_keys`; diterapkan pada recovery binding. Test unit serta HTTP/PostgreSQL lulus; wiring client, lint/format akhir, commit/push masih terbuka. Batas hasil mutasi yang belum pasti didokumentasikan di backend §10 dan TODO 13.45. Ditutup 4 Oktober 2026: gate penuh lulus; wiring client mengikuti M2-FT-06.
 - [x] **M2-BE-15 Penyimpanan berkas** `3b7a486` — URL unggah bertanda tangan ke object storage, validasi tipe dan ukuran, kunci objek per workspace.
 - [x] **M2-BE-16 Undangan pengguna** `b464917` — token undangan ber-hash dengan masa berlaku; penerimaan undangan membuat keanggotaan.
 - [x] **M2-BE-17 CommandContext** `b815343` — channel, perangkat, correlation, causation, client version pada setiap perintah dan event (`backend.md` 4.1).
@@ -98,7 +99,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [ ] **M2-QA-02 Pecah Catalog** — `kernels/catalog` + `modules/catalog-profile`, satu use case per file; repository 1.226 baris dipecah.
 - [x] **M2-QA-03 Pecah `packages/contracts`** `8ffd658` — satu file per domain dengan indeks ekspor.
 - [x] **M2-QA-04 Lint batas modul** `4380439` — aturan impor `backend.md` 3 dijalankan di lint dan CI.
-- [ ] **M2-QA-05 Integration test PostgreSQL sekali pakai** — database test terisolasi untuk repository dan constraint (gerbang TODO Tahap 9).
+- [~] **M2-QA-05 Integration test PostgreSQL sekali pakai** — harness database sementara yang menjalankan semua migrasi tersedia; test repository recovery binding dan constraint feature flag lulus. Cakupan repository/constraint lainnya dan gerbang TODO Tahap 9 belum ditutup.
 - [x] **M2-QA-06 Test kombinasi modul** `67ad6c3` — POS-only, POS dengan binding mati, POS dengan binding aktif tanpa penerima.
 
 ### OP — Operasional dan dokumentasi
@@ -120,6 +121,17 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 8. M2-BE-15, M2-SC-02, M2-DS-03, M2-AS-02, M2-FT-07.
 9. M2-BE-16, M2-AS-01, M2-UX-04, M2-FT-02, M2-FT-03, M2-DS-05, M2-FT-01, M2-UX-03, M2-FT-06.
 10. M2-BE-13, M2-BE-14, M2-QA-02, M2-QA-05, M2-OP-03, M2-OP-04.
+
+### 5.1 Checkpoint pilihan mata uang (M2-FT-10)
+
+Disisipkan setelah acceptance M2-FT-01, sebelum menutup pengaturan M2-UX-03. Ini rencana implementasi di milestone M2 yang aktif, bukan milestone baru atau klaim fitur selesai. Setiap checkpoint diperiksa sendiri dan memperbarui TODO.
+
+1. **Kontrak nominal dan kompatibilitas:** petakan semua parser/formatter serta default mata uang pada katalog, kasir, shift, struk, dan event. Tetapkan satu kontrak integer eksak: IDR lama tetap satu rupiah (`25000` → Rp25.000), USD satu sen (`1025` → USD 10,25). Jangan memakai formatter saat ini yang menganggap semua currency integer tanpa pecahan. Tulis test round-trip input `id`/`en`, nol, pecahan USD, angka besar, dan regresi nominal IDR; tidak mengubah skala record lama.
+2. **Syarat perubahan dan API:** server menyediakan currency dan kelayakan perubahan beserta kode alasan aman; validasi hanya IDR/USD, izin kelola organisasi dan semua lokasi, audit before/after. Periksa keberadaan data uang termasuk harga dan draft tersimpan, juga record nol/nonaktif/batal. Pengecekan dan update atomik terhadap pencatatan data uang pertama; uji konkurensi, tenant isolation, kegagalan tanpa partial write, pilihan tidak berubah, dan proteksi histori. Data mata uang historis di luar pilihan baru tidak boleh diam-diam dilabel ulang.
+3. **Form dan penerapan:** Select pada tab Bisnis dengan pilihan Rupiah (IDR) dan US Dollar (USD), konfirmasi perubahan untuk seluruh outlet, read-only beserta alasan bila terkunci, satu Simpan, label `id`/`en`. Teruskan currency dan skala nominal ke MoneyInput/MoneyDisplay, harga katalog, pesanan/draft, pembayaran/kembalian, refund, ringkasan shift, struk, dan event; historical read memakai currency record. Bahasa tidak menentukan mata uang. Modul Finance/Inventory berikutnya memakai kontrak ini tanpa menghidupkan modul baru pada task ini.
+4. **Acceptance end-to-end:** dua workspace terisolasi (IDR dan USD), simpan pilihan sebelum data uang pertama, pilihan terkunci sesudahnya, create pertama bersamaan dengan perubahan mata uang, harga/penjualan/refund/shift/struk konsisten sampai sen, serta nominal IDR lama tetap sama. Verifikasi keyboard, desktop/mobile, light/dark, dua bahasa, loading/error, tanpa izin dan read-only. Catat hasil serta commit hash sebelum mencentang M2-FT-10.
+
+Kurs, konversi histori, dan pembayaran lintas mata uang tetap di luar task ini. Kebijakan ini juga tidak mengubah mata uang tagihan langganan SaaS.
 
 ## 6. Referensi
 
