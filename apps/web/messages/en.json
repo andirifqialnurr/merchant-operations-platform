@@ -738,13 +738,15 @@
     "activated": "The role was activated.",
     "cancel": "Cancel",
     "closeSheet": "Close panel",
-    "createRole": "Create a role",
+    "comparisonCaption": "Permissions of each role",
     "created": "The role was created.",
+    "createRole": "Create a role",
     "deactivate": "Deactivate",
+    "deactivated": "The role was deactivated.",
     "deactivateDescription": "Members who hold this role lose its permissions at once. The role can be activated again later.",
     "deactivateTitle": "Deactivate the role {name}?",
-    "deactivated": "The role was deactivated.",
     "empty": "There are no roles yet.",
+    "granted": "Allowed",
     "group": {
       "business": "Business and devices",
       "catalog": "Catalog",
@@ -761,6 +763,7 @@
     "name": "Role name",
     "nameRequired": "Enter a role name of at least 2 letters or digits.",
     "newRole": "New role",
+    "notGranted": "Not allowed",
     "permission": {
       "access": {
         "membership": {
@@ -840,6 +843,9 @@
       "INACTIVE": "Inactive"
     },
     "systemNote": "Built-in roles are the same in every business and cannot be changed. Create your own role when you need a different set of permissions.",
-    "title": "Roles"
+    "title": "Roles",
+    "viewCompare": "Comparison",
+    "viewList": "List",
+    "views": "Role views"
   }
 }

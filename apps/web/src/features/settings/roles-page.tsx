@@ -10,8 +10,10 @@ import { DataTable, Panel } from "@merchant/ui/data-display";
 import { Badge, EmptyState, Skeleton } from "@merchant/ui/feedback";
 import { FormField, Input } from "@merchant/ui/form-field";
 import { ModuleAccessState } from "@merchant/ui/module-access-state";
+import { Tabs } from "@merchant/ui/navigation";
 import { AlertDialog, Sheet } from "@merchant/ui/overlay";
 import { PageHeader } from "@merchant/ui/page";
+import { PermissionMatrix } from "@merchant/ui/permission-matrix";
 import { Checkbox } from "@merchant/ui/selection-control";
 
 import { useWorkspace } from "@/features/workspace";
@@ -207,6 +209,35 @@ function RoleSheet({
   );
 }
 
+/** Every active role side by side, to see at a glance who may do what. */
+function RoleComparison({ roles }: Readonly<{ roles: readonly Role[] }>) {
+  const t = useTranslations("roles");
+  const roleName = useRoleName();
+  const active = roles.filter((role) => role.status === "ACTIVE");
+  return (
+    <PermissionMatrix
+      caption={t("comparisonCaption")}
+      columns={active.map((role) => ({ key: role.id, label: roleName(role) }))}
+      grantedLabel={t("granted")}
+      groups={PERMISSION_GROUPS.map((group) => ({
+        key: group.key,
+        label: t(`group.${group.key}`),
+        rows: group.permissions.map((permission) => ({
+          granted: new Set(
+            active
+              .filter((role) => role.permissionKeys.includes(permission))
+              .map((role) => role.id),
+          ),
+          key: permission,
+          label: t(`permission.${permission}` as never),
+        })),
+      }))}
+      notGrantedLabel={t("notGranted")}
+      permissionLabel={t("permissions")}
+    />
+  );
+}
+
 export function RolesPage() {
   const t = useTranslations("roles");
   const roleName = useRoleName();
@@ -218,6 +249,7 @@ export function RolesPage() {
   const query = useRoles(tenantId, canRead);
   const mutation = usePeopleMutation(tenantId);
   const [open, setOpen] = useState<string>();
+  const [view, setView] = useState<"compare" | "list">("list");
 
   if (!canRead) {
     return (
@@ -249,6 +281,17 @@ export function RolesPage() {
               ),
             }
           : {})}
+        tabs={
+          <Tabs
+            items={[
+              { label: t("viewList"), value: "list" },
+              { label: t("viewCompare"), value: "compare" },
+            ]}
+            label={t("views")}
+            onValueChange={(value) => setView(value === "compare" ? "compare" : "list")}
+            value={view}
+          />
+        }
         title={t("title")}
       />
       {query.isPending ? (
@@ -263,6 +306,10 @@ export function RolesPage() {
           onRetry={() => void query.refetch()}
           title={t("loadFailed")}
         />
+      ) : view === "compare" ? (
+        <Panel>
+          <RoleComparison roles={roles} />
+        </Panel>
       ) : (
         <Panel>
           <DataTable

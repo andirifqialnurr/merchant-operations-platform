@@ -738,13 +738,15 @@
     "activated": "Peran diaktifkan.",
     "cancel": "Batal",
     "closeSheet": "Tutup panel",
-    "createRole": "Buat peran",
+    "comparisonCaption": "Izin tiap peran",
     "created": "Peran dibuat.",
+    "createRole": "Buat peran",
     "deactivate": "Nonaktifkan",
+    "deactivated": "Peran dinonaktifkan.",
     "deactivateDescription": "Anggota yang memegang peran ini langsung kehilangan izinnya. Peran bisa diaktifkan lagi nanti.",
     "deactivateTitle": "Nonaktifkan peran {name}?",
-    "deactivated": "Peran dinonaktifkan.",
     "empty": "Belum ada peran.",
+    "granted": "Boleh",
     "group": {
       "business": "Bisnis dan perangkat",
       "catalog": "Katalog",
@@ -761,6 +763,7 @@
     "name": "Nama peran",
     "nameRequired": "Isi nama peran, minimal 2 huruf atau angka.",
     "newRole": "Peran baru",
+    "notGranted": "Tidak",
     "permission": {
       "access": {
         "membership": {
@@ -840,6 +843,9 @@
       "INACTIVE": "Nonaktif"
     },
     "systemNote": "Peran bawaan sama di semua bisnis dan tidak dapat diubah. Buat peran sendiri bila butuh susunan izin lain.",
-    "title": "Peran"
+    "title": "Peran",
+    "viewCompare": "Perbandingan",
+    "viewList": "Daftar",
+    "views": "Tampilan peran"
   }
 }

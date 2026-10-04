@@ -170,3 +170,21 @@ test("the owner reads what each role may do, in plain words, and built-in roles 
   await sheet.getByRole("button", { name: "Simpan" }).click();
   await expect(sheet.getByText("Pilih minimal satu izin.")).toBeVisible();
 });
+
+test("the owner compares the roles side by side without being able to change them there", async ({
+  page,
+}) => {
+  await openAs(page, "catalog.owner@local.test", "/settings/roles");
+  const main = page.getByRole("main");
+  await main.getByRole("tab", { name: "Perbandingan" }).click();
+
+  const matrix = main.getByRole("table", { name: "Izin tiap peran" });
+  await expect(matrix.getByRole("columnheader", { exact: true, name: "Kasir" })).toBeVisible();
+  const refund = matrix.getByRole("row", { name: /Mengembalikan uang/ });
+  // Roles are in the order of the list: Dapur, Kasir, Manajer, ...
+  await expect(refund.getByRole("cell").nth(1)).toHaveText("Tidak");
+  await expect(refund.getByRole("cell").nth(2)).toHaveText("Boleh");
+  await expect(matrix.getByRole("checkbox")).toHaveCount(0);
+  // Still one primary action on the page.
+  await expect(main.getByRole("button")).toHaveCount(1);
+});

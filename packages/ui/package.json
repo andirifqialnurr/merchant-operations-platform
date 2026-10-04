@@ -59,6 +59,7 @@
     "./usage-limit-state": "./src/components/usage-limit-state.tsx",
     "./device-status": "./src/components/device-status.tsx",
     "./file-upload": "./src/components/file-upload.tsx",
+    "./permission-matrix": "./src/components/permission-matrix.tsx",
     "./brand": "./src/components/brand.tsx",
     "./table-layout-canvas": "./src/components/table-layout-canvas.tsx",
     "./table-layout-tray": "./src/components/table-layout-tray.tsx",
