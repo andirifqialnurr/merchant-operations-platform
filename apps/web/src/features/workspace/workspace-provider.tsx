@@ -1,5 +1,6 @@
 "use client";
 
+import { MoneyCurrencyProvider } from "@merchant/ui/money-display";
 import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -85,7 +86,14 @@ export function WorkspaceProvider({
     };
   }, [queryClient, selection, workspaces]);
 
-  return <WorkspaceContextValue.Provider value={value}>{children}</WorkspaceContextValue.Provider>;
+  return (
+    <WorkspaceContextValue.Provider value={value}>
+      {/* Every amount on screen is in the currency of the active workspace. */}
+      <MoneyCurrencyProvider currency={value.workspace.tenant.currency}>
+        {children}
+      </MoneyCurrencyProvider>
+    </WorkspaceContextValue.Provider>
+  );
 }
 
 export function useWorkspace() {

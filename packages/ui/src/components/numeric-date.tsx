@@ -11,6 +11,7 @@ import {
 } from "react";
 import { IconCalendar, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { AppIcon } from "./app-icon";
+import { formatMoneyMinor, useMoneyCurrency } from "./money-display";
 
 /*
  * Label props default to Indonesian until the i18n checkpoint moves every
@@ -28,7 +29,10 @@ type NumericProps = Omit<
   value?: string | undefined;
 };
 export type MoneyInputProps = Omit<NumericProps, "allowDecimal" | "onValueChange" | "value"> & {
+  /** Defaults to the currency of the surrounding workspace. */
+  currency?: string;
   locale?: string;
+  /** The amount in minor units: 25000 for Rp25.000, 1025 for $10.25. */
   onValueChange?: (value: number | undefined) => void;
   value?: number;
 };
@@ -131,8 +135,14 @@ export function NumericInput({
   );
 }
 
+/**
+ * Digits fill the amount from the right, like a cash register: with two
+ * decimal places, typing 1, 0, 2, 5 gives 0.01, 0.10, 1.02, 10.25. The value
+ * is always a whole number of minor units, so nothing is rounded.
+ */
 export function MoneyInput({
   className,
+  currency: givenCurrency,
   invalid = false,
   locale = DEFAULT_LOCALE,
   onValueChange,
@@ -140,11 +150,12 @@ export function MoneyInput({
   value,
   ...props
 }: MoneyInputProps) {
-  const formatter = useMemo(() => new Intl.NumberFormat(locale), [locale]);
-  const display = value === undefined ? "" : `Rp${formatter.format(value)}`;
+  const workspaceCurrency = useMoneyCurrency();
+  const currency = givenCurrency ?? workspaceCurrency;
+  const display = value === undefined ? "" : formatMoneyMinor(value, { currency, locale });
   return (
     <NumericInput
-      placeholder="Rp0"
+      placeholder={formatMoneyMinor(0, { currency, locale })}
       {...props}
       className={classes("ui-numeric-input--money", className)}
       invalid={invalid}

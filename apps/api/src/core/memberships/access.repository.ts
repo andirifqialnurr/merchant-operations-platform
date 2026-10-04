@@ -67,7 +67,7 @@ export type WorkspaceContextRecord = {
     status: OrganizationUnitStatus;
   }>;
   permissionKeys: PermissionKey[];
-  tenant: { id: string; name: string; slug: string };
+  tenant: { currency: string; id: string; name: string; slug: string };
 };
 
 export type SystemRoleDefinition = {
@@ -405,6 +405,7 @@ export class PrismaAccessRepository implements AccessRepository {
         },
         tenant: {
           select: {
+            currency: true,
             id: true,
             name: true,
             outlets: {
@@ -437,6 +438,7 @@ export class PrismaAccessRepository implements AccessRepository {
         ),
       ].sort(),
       tenant: {
+        currency: membership.tenant.currency,
         id: membership.tenant.id,
         name: membership.tenant.name,
         slug: membership.tenant.slug,

@@ -146,6 +146,7 @@ class InMemoryAccessRepository implements AccessRepository {
             })),
           permissionKeys: authorization.permissionKeys,
           tenant: {
+            currency: "IDR",
             id: membership.tenantId,
             name: membership.tenantId === IDS.tenantA ? "Tenant A" : "Tenant B",
             slug: membership.tenantId === IDS.tenantA ? "tenant-a" : "tenant-b",

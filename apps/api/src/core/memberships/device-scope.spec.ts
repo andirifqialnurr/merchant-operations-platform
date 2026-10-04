@@ -161,14 +161,14 @@ test("the workspace list on a device shrinks to the device's outlet", () => {
       membershipId: owner.membershipId,
       outlets: [outlet(IDS.outlet, "Pusat"), outlet(IDS.otherOutlet, "Cabang")],
       permissionKeys: owner.permissionKeys,
-      tenant: { id: IDS.tenant, name: "Kopi Lokal", slug: "kopi-lokal" },
+      tenant: { currency: "IDR", id: IDS.tenant, name: "Kopi Lokal", slug: "kopi-lokal" },
     },
     {
       allOutlets: true,
       membershipId: "019f738d-e61f-7d46-92de-17b35f978008",
       outlets: [outlet("019f738d-e61f-7d46-92de-17b35f978009", "Lain")],
       permissionKeys: owner.permissionKeys,
-      tenant: { id: IDS.otherTenant, name: "Usaha Lain", slug: "usaha-lain" },
+      tenant: { currency: "IDR", id: IDS.otherTenant, name: "Usaha Lain", slug: "usaha-lain" },
     },
   ];
 

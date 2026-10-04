@@ -1,17 +1,15 @@
+import { formatMoneyMinor } from "@merchant/ui/money-display";
+
 const DEFAULT_LOCALE = "id-ID";
 
-/** Formats an integer minor-unit string as currency, e.g. "25000" -> "Rp25.000". */
+/**
+ * Formats a whole number of minor units as currency: "25000" in IDR is
+ * "Rp25.000" and "1025" in USD is "$10.25". Exact for any length.
+ */
 export function formatMoney(valueMinor: string, currency = "IDR", locale = DEFAULT_LOCALE) {
-  const amount = Number(valueMinor);
-  if (!Number.isSafeInteger(amount)) return `${valueMinor} ${currency}`;
-  return new Intl.NumberFormat(locale, {
-    currency,
-    currencyDisplay: "narrowSymbol",
-    maximumFractionDigits: 0,
-    style: "currency",
-  })
-    .format(amount)
-    .replace(/\s/g, "");
+  // Anything else is shown as it came rather than as a wrong amount.
+  if (!/^-?\d+$/.test(valueMinor)) return `${valueMinor} ${currency}`;
+  return formatMoneyMinor(valueMinor, { currency, locale }).replace(/\s/g, "");
 }
 
 export function slugify(value: string) {

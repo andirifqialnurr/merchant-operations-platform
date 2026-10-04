@@ -40,3 +40,11 @@ test("outlet address can be omitted, trimmed, or explicitly removed without acce
     assert.equal(updateOutletSchema.safeParse({ address }).success, false);
   }
 });
+
+test("a workspace runs in rupiah or US dollars, with fixed decimal places", async () => {
+  const { CURRENCY_MINOR_DIGITS, workspaceCurrencySchema } = await import("./money.ts");
+  assert.deepEqual(workspaceCurrencySchema.options, ["IDR", "USD"]);
+  assert.deepEqual(CURRENCY_MINOR_DIGITS, { IDR: 0, USD: 2 });
+  assert.equal(workspaceCurrencySchema.safeParse("EUR").success, false);
+  assert.equal(workspaceCurrencySchema.safeParse("usd").success, false);
+});

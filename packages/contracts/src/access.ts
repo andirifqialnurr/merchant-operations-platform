@@ -1,5 +1,6 @@
 import * as z from "zod";
 
+import { currencyCodeSchema } from "./money.ts";
 import { organizationRecordTimestampsSchema, uniqueIds, uniquePermissions } from "./internal.ts";
 import {
   organizationNameSchema,
@@ -180,6 +181,8 @@ export const workspaceContextSchema = z.object({
   outlets: z.array(workspaceOutletSchema),
   permissionKeys: z.array(permissionKeySchema),
   tenant: z.object({
+    /** Every amount of the workspace is in this currency. */
+    currency: currencyCodeSchema,
     id: z.uuid(),
     name: organizationNameSchema,
     slug: organizationSlugSchema,

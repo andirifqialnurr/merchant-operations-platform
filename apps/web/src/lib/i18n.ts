@@ -2,6 +2,8 @@
 
 import { useLocale, useTranslations } from "next-intl";
 
+import { useMoneyCurrency } from "@merchant/ui/money-display";
+
 import { formatLocale, isLocale } from "@/i18n/locale";
 import { ApiClientError } from "@/lib/api-client";
 
@@ -10,6 +12,8 @@ import { formatMoney } from "./format";
 /** Number and money formatting in the active language. */
 export function useFormat() {
   const active = useLocale();
+  // The language never decides the currency: that is the workspace's choice.
+  const workspaceCurrency = useMoneyCurrency();
   const locale = formatLocale(isLocale(active) ? active : "id");
   const dateTime = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" });
   const dateOnly = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
@@ -22,7 +26,8 @@ export function useFormat() {
     dateTime: (iso: string) => dateTime.format(new Date(iso)),
     /** BCP 47 tag for components that format on their own, e.g. MoneyInput. */
     locale,
-    money: (valueMinor: string, currency?: string) => formatMoney(valueMinor, currency, locale),
+    money: (valueMinor: string, currency = workspaceCurrency) =>
+      formatMoney(valueMinor, currency, locale),
     /** Time of day of an ISO timestamp in the device's time zone. */
     time: (iso: string) => timeOnly.format(new Date(iso)),
     /** A count with the language's digit grouping. */
