@@ -78,6 +78,17 @@ enum ModuleInstallationStatus {
   SUSPENDED
 }
 
+enum DeviceMode {
+  POS
+  KDS
+}
+
+enum DeviceStatus {
+  PENDING
+  ACTIVE
+  REVOKED
+}
+
 enum UsageEnforcement {
   HARD_COUNT
   SOFT_METERED
@@ -329,6 +340,7 @@ model Tenant {
   usageCounters                CoreUsageCounter[]
   usageAdjustments             CoreUsageAdjustment[]
   limitNotifications           CoreLimitNotification[]
+  devices                      CoreDevice[]
   catalogCategories            CatalogCategory[]
   catalogProducts              CatalogProduct[]
   catalogProductVariants       CatalogProductVariant[]
@@ -385,6 +397,7 @@ model Outlet {
   assignments        OutletAssignment[]
   catalogProducts    CatalogOutletProduct[]
   registerSessions   PosRegisterSession[]
+  devices            CoreDevice[]
   cashMovements      PosCashMovement[]
   orders             Order[]
   bills              Bill[]
@@ -1012,6 +1025,35 @@ model CoreLimitNotification {
 
   @@id([tenantId, dimensionKey, periodStart, threshold])
   @@map("core_limit_notifications")
+}
+
+/// A cashier tablet or kitchen screen registered for one outlet. It proves
+/// itself with a credential of its own, separate from any person's session.
+model CoreDevice {
+  id                  String       @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId            String       @map("tenant_id") @db.Uuid
+  outletId            String       @map("outlet_id") @db.Uuid
+  mode                DeviceMode
+  label               String       @db.VarChar(80)
+  status              DeviceStatus @default(PENDING)
+  /// SHA-256 of the one-time activation code; cleared when used.
+  activationCodeHash  String?      @unique @map("activation_code_hash") @db.Char(64)
+  activationExpiresAt DateTime?    @map("activation_expires_at") @db.Timestamptz(6)
+  /// SHA-256 of the device's secret; the secret itself is never stored.
+  credentialHash      String?      @unique @map("credential_hash") @db.Char(64)
+  activatedAt         DateTime?    @map("activated_at") @db.Timestamptz(6)
+  lastSeenAt          DateTime?    @map("last_seen_at") @db.Timestamptz(6)
+  revokedAt           DateTime?    @map("revoked_at") @db.Timestamptz(6)
+  revokedBy           String?      @map("revoked_by") @db.Uuid
+  createdBy           String?      @map("created_by") @db.Uuid
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
+  tenant              Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet              Outlet       @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
+
+  @@index([tenantId, outletId])
+  @@index([tenantId, status])
+  @@map("core_devices")
 }
 
 model AuditLog {

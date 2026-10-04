@@ -49,7 +49,7 @@ Dokumen terkait: [`architecture.md`](./architecture.md), [`backend.md`](./backen
 | Idempotency pada endpoint                                                                                                   | **Belum** (tabel ada, belum dipakai) | —                                                             |
 | Token QR ber-hash dengan rotasi                                                                                             | **Belum** (kontrak ada)              | —                                                             |
 | Akses support beralasan dan berbatas waktu                                                                                  | **Belum** (kontrak ada)              | —                                                             |
-| Registri perangkat dan kredensial perangkat                                                                                 | **Belum**                            | —                                                             |
+| Registri perangkat dan kredensial perangkat                                                                                 | **Ada**                              | `core/devices`, `core_devices`                                |
 | Lint batas modul                                                                                                            | **Belum** (kontrak ada)              | —                                                             |
 | Integration test PostgreSQL sekali pakai                                                                                    | **Belum**                            | —                                                             |
 | Upload berkas bertanda tangan                                                                                               | **Belum**                            | —                                                             |
@@ -223,6 +223,17 @@ Pembatasan dilakukan di DTO backend, bukan dengan menyembunyikan field di fronte
 - Perangkat POS/KDS didaftarkan dengan mode, lokasi, dan kredensial ber-hash.
 - Perangkat dapat dicabut tanpa menonaktifkan pengguna.
 - Permintaan dari perangkat tetap memiliki aktor atau identitas layanan yang dapat diaudit.
+
+Yang berjalan sejak 4 Oktober 2026 (`core/devices`):
+
+- **Pendaftaran:** orang dengan izin `device.manage` mendaftarkan perangkat untuk satu outlet aktif. Jawabannya memuat kode aktivasi 8 karakter (huruf dan angka yang tidak mudah tertukar), hanya sekali; berlaku 15 menit. Kode baru bisa diminta selama perangkat belum pernah aktif.
+- **Aktivasi:** perangkat mengirim kode ke `POST /device/activate` tanpa sesi pengguna. Kode salah, kedaluwarsa, atau sudah dipakai mendapat jawaban yang sama (`DEVICE_ACTIVATION_INVALID`); percobaan dibatasi 10 kali per 15 menit per alamat jaringan.
+- **Kredensial perangkat:** 32 byte acak, dikirim hanya sebagai cookie `merchant_device` (`HttpOnly`, `SameSite=Lax`, `Secure` di produksi), tidak pernah di body. Cookie ini terpisah dari cookie sesi pengguna: keluar-masuk pengguna tidak mengubahnya, dan mencabut perangkat tidak menyentuh pengguna.
+- **Pencabutan:** `POST /devices/:id/revoke` menghapus hash kredensial dan kode; permintaan berikutnya dari perangkat itu ditolak `DEVICE_NOT_ACTIVATED` dan cookienya dihapus.
+- **Yang disimpan:** hanya hash SHA-256 dari kode dan kredensial. Daftar perangkat tidak pernah memuat keduanya.
+- **CSRF:** permintaan tulis yang membawa cookie perangkat wajib menyertakan header CSRF, sama seperti cookie sesi.
+- **Audit:** `device.register`, `device.reissue_code`, `device.activate`, `device.revoke`. Aktivasi tercatat tanpa aktor pengguna karena dilakukan perangkat.
+- **Belum:** endpoint POS/KDS belum mewajibkan perangkat aktif dan belum mengisi `deviceId` pada event (menunggu `M2-UX-05`); masa sesi per surface adalah `M2-SC-01`.
 
 **Integrasi eksternal (nanti)**
 

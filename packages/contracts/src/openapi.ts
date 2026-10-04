@@ -147,6 +147,13 @@ import {
   holdCartSchema,
   resumedCartSchema,
 } from "./held-carts.ts";
+import {
+  activateDeviceSchema,
+  deviceActivationTicketSchema,
+  deviceListSchema,
+  deviceSchema,
+  registerDeviceSchema,
+} from "./devices.ts";
 
 export type ContractSchema = z.ZodType;
 
@@ -195,6 +202,11 @@ export const commonOpenApiSchemas = {
   ModuleEventHandlerRegistration: toOpenApiSchema(moduleEventHandlerRegistrationSchema),
   ModuleInstallStep: toOpenApiSchema(moduleInstallStepSchema),
   ModuleInstallation: toOpenApiSchema(moduleInstallationSchema),
+  ActivateDevice: toOpenApiSchema(activateDeviceSchema),
+  Device: toOpenApiSchema(deviceSchema),
+  DeviceActivationTicket: toOpenApiSchema(deviceActivationTicketSchema),
+  DeviceList: toOpenApiSchema(deviceListSchema),
+  RegisterDevice: toOpenApiSchema(registerDeviceSchema),
   ModuleInstallationList: toOpenApiSchema(moduleInstallationListSchema),
   WorkspaceNavigation: toOpenApiSchema(workspaceNavigationSchema),
   ModuleEntitlement: toOpenApiSchema(moduleEntitlementSchema),

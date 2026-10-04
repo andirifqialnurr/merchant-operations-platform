@@ -32,9 +32,11 @@ const UNKNOWN_IP = "unknown";
 export const RATE_LIMIT_SERVICE = Symbol("RATE_LIMIT_SERVICE");
 
 export const RATE_LIMIT_POLICIES: Record<
-  "merchantLogin" | "platformLogin" | "qrSubmit",
+  "deviceActivation" | "merchantLogin" | "platformLogin" | "qrSubmit",
   RateLimitPolicy
 > = {
+  // Codes are short, so guessing is held back per network address.
+  deviceActivation: { limit: 10, windowMs: 15 * 60 * 1_000 },
   merchantLogin: { limit: 5, windowMs: 15 * 60 * 1_000 },
   platformLogin: { limit: 5, windowMs: 15 * 60 * 1_000 },
   qrSubmit: { limit: 20, windowMs: 60 * 1_000 },
@@ -68,6 +70,10 @@ export function buildLoginRateLimitKey(input: LoginRateLimitKeyInput) {
 
 export function buildPlatformLoginRateLimitKey(input: LoginRateLimitKeyInput) {
   return `platform-login:${normalizeIp(input.ipAddress)}:${normalizeEmail(input.email)}`;
+}
+
+export function buildDeviceActivationRateLimitKey(ipAddress: string | undefined) {
+  return `device-activation:${normalizeIp(ipAddress)}`;
 }
 
 export function buildQrSubmitRateLimitKey(input: QrSubmitRateLimitKeyInput) {

@@ -4,6 +4,7 @@ export {
   InMemoryRateLimitService,
   RATE_LIMIT_POLICIES,
   RATE_LIMIT_SERVICE,
+  buildDeviceActivationRateLimitKey,
   buildLoginRateLimitKey,
   buildPlatformLoginRateLimitKey,
 } from "./rate-limit.service.js";

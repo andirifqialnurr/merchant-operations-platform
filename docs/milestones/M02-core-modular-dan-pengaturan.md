@@ -54,7 +54,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [x] **M2-BE-09 Dispatcher outbox** `cc2e4e6` — worker mengambil `outbox_events`, mengirim ke handler, retry dengan backoff, tanda gagal permanen.
 - [x] **M2-BE-10 Inbox** `cc2e4e6` — `core_inbox_events`, unik per consumer dan event; handler idempotent.
 - [x] **M2-BE-11 Metering dan limit** `bd4c541` — `core_usage_dimensions` (25 dimensi), event pemakaian, counter, adjustment, notifikasi ambang; penegakan hard/soft/throttled sesuai `prd.md` 7.1.
-- [ ] **M2-BE-12 Perangkat** — `core_devices` dengan kredensial ber-hash; sesi perangkat untuk POS/KDS terpisah dari sesi pengguna.
+- [x] **M2-BE-12 Perangkat** — `core_devices` dengan kredensial ber-hash; sesi perangkat untuk POS/KDS terpisah dari sesi pengguna.
 - [ ] **M2-BE-13 Feature flag** — `core_feature_flags` dan pemeriksaan di guard.
 - [ ] **M2-BE-14 Idempotency generik** — interceptor yang memakai tabel `idempotency_keys` dengan hash permintaan, untuk endpoint yang belum punya kunci domain sendiri.
 - [ ] **M2-BE-15 Penyimpanan berkas** — URL unggah bertanda tangan ke object storage, validasi tipe dan ukuran, kunci objek per workspace.

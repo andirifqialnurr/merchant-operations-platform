@@ -71,10 +71,12 @@ export function commandOriginFromEvent(event: {
 /** The envelope columns of an outbox event, taken from the command that caused it. */
 export function eventOrigin(origin: CommandOrigin | undefined, producer: ModuleKey) {
   return {
-    ...(origin?.deviceId
-      ? { actorId: origin.deviceId, actorType: "DEVICE" }
-      : origin?.actorId
-        ? { actorId: origin.actorId, actorType: "USER" }
+    // The person stays the actor on a device; the device is the actor only
+    // when nobody is signed in on it.
+    ...(origin?.actorId
+      ? { actorId: origin.actorId, actorType: "USER" }
+      : origin?.deviceId
+        ? { actorId: origin.deviceId, actorType: "DEVICE" }
         : { actorType: "SYSTEM" }),
     ...(origin?.causationId ? { causationId: origin.causationId } : {}),
     ...(origin?.channel ? { channel: origin.channel } : {}),

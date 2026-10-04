@@ -606,3 +606,30 @@ test("meters usage per tenant and counts each usage event once", () => {
     /PRIMARY KEY \("tenant_id", "dimension_key", "period_start", "threshold"\)/,
   );
 });
+
+test("keeps devices inside their tenant and stores only hashes of their secrets", () => {
+  const devices = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261004090000_core_devices/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  // The outlet of a device belongs to the same tenant.
+  assert.match(
+    devices,
+    /FOREIGN KEY [(]"tenant_id", "outlet_id"[)] REFERENCES "outlets"[(]"tenant_id", "id"[)]/,
+  );
+  assert.match(devices, /"activation_code_hash" CHAR[(]64[)]/);
+  assert.match(devices, /"credential_hash" CHAR[(]64[)]/);
+  // No column holds a readable code or credential.
+  assert.doesNotMatch(devices, /"(activation_code|credential|secret|token)" /);
+  // A revoked device keeps no secret that could still work.
+  assert.match(
+    devices,
+    /"status" <> 'REVOKED'\s+OR [(]"credential_hash" IS NULL AND "activation_code_hash" IS NULL/,
+  );
+  assert.match(devices, /UNIQUE INDEX "core_devices_credential_hash_key"/);
+  assert.match(devices, /UNIQUE INDEX "core_devices_activation_code_hash_key"/);
+  assert.match(schema, /model CoreDevice [{][^}]*credentialHash\s+String[?]\s+@unique/);
+});

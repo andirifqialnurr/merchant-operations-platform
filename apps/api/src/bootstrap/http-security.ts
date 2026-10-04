@@ -1,6 +1,7 @@
 import { API_HEADERS, apiErrorSchema } from "@merchant/contracts";
 
 import { SESSION_COOKIE_NAME } from "../core/auth/public.js";
+import { DEVICE_COOKIE_NAME } from "../core/devices/public.js";
 import { getRequestId } from "../core/observability/public.js";
 import { PLATFORM_SESSION_COOKIE_NAME } from "../core/platform/public.js";
 
@@ -24,7 +25,12 @@ type SecurityEnvironment = {
 export const CSRF_HEADER_NAME = "x-csrf-token";
 
 const UNSAFE_METHODS = new Set(["DELETE", "PATCH", "POST", "PUT"]);
-const SESSION_COOKIE_NAMES = new Set([SESSION_COOKIE_NAME, PLATFORM_SESSION_COOKIE_NAME]);
+// A device cookie is sent by the browser on its own, like a session cookie.
+const SESSION_COOKIE_NAMES = new Set([
+  SESSION_COOKIE_NAME,
+  PLATFORM_SESSION_COOKIE_NAME,
+  DEVICE_COOKIE_NAME,
+]);
 
 function readHeader(
   headers: Record<string, string | string[] | undefined> | undefined,

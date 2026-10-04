@@ -17,4 +17,5 @@ export * from "./menu.ts";
 export * from "./orders.ts";
 export * from "./billing.ts";
 export * from "./held-carts.ts";
+export * from "./devices.ts";
 export * from "./openapi.ts";

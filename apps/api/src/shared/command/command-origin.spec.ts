@@ -72,8 +72,16 @@ test("an event carries the origin of the command that announced it", () => {
     actorType: "SYSTEM",
     producer: "CORE_SUBSCRIPTION",
   });
-  // A device is the actor of what it sends, even when a person is signed in on it.
-  assert.deepEqual(eventOrigin({ actorId: USER, channel: "KDS", deviceId: DEVICE }, "KDS"), {
+  // A person signed in on a device stays the actor; the device is recorded next to them.
+  assert.deepEqual(eventOrigin({ actorId: USER, channel: "POS", deviceId: DEVICE }, "POS"), {
+    actorId: USER,
+    actorType: "USER",
+    channel: "POS",
+    deviceId: DEVICE,
+    producer: "POS",
+  });
+  // With nobody signed in, the device itself is the actor.
+  assert.deepEqual(eventOrigin({ channel: "KDS", deviceId: DEVICE }, "KDS"), {
     actorId: DEVICE,
     actorType: "DEVICE",
     channel: "KDS",

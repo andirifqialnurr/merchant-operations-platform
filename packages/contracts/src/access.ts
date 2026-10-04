@@ -15,6 +15,8 @@ export const PERMISSIONS = {
   catalogManage: "catalog.manage",
   catalogRead: "catalog.read",
   cashVarianceApprove: "cash_variance.approve",
+  deviceManage: "device.manage",
+  deviceRead: "device.read",
   financeDashboardView: "finance.dashboard.view",
   financeExpenseCreate: "finance.expense.create",
   financeReportExport: "finance.report.export",

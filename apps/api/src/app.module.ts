@@ -3,6 +3,7 @@ import { Module } from "@nestjs/common";
 import { AccessModule } from "./core/memberships/public.js";
 import { AuthModule } from "./core/auth/public.js";
 import { CatalogModule } from "./catalog/public.js";
+import { DeviceModule } from "./core/devices/public.js";
 import { EventsModule } from "./core/events/public.js";
 import { InstallationModule } from "./core/installations/public.js";
 import { ManifestModule } from "./core/manifest/public.js";
@@ -21,6 +22,7 @@ import { PlatformModule } from "./core/platform/public.js";
     AccessModule,
     AuthModule,
     CatalogModule,
+    DeviceModule,
     InstallationModule,
     MeteringModule,
     OrganizationModule,
