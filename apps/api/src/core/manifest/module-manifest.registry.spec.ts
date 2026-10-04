@@ -191,6 +191,8 @@ test("every event a unit writes is declared in its manifest, and nothing else", 
         else if (
           entry.name.endsWith(".ts") &&
           !entry.name.endsWith(".spec.ts") &&
+          // A handler names the event it listens to, not one it writes.
+          !entry.name.endsWith(".handler.ts") &&
           entry.name !== "manifest.ts"
         ) {
           for (const match of readFileSync(path, "utf8").matchAll(

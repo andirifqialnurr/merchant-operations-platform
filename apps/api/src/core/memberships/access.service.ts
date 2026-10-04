@@ -26,6 +26,7 @@ import {
   type RoleRecord,
   type SystemRoleDefinition,
 } from "./access.repository.js";
+import { LIMIT_GATE, NO_LIMITS, type LimitGate } from "../../shared/limits/limit-gate.js";
 
 const ALL_PERMISSIONS = Object.values(PERMISSIONS);
 
@@ -115,7 +116,10 @@ function toMembership(record: MembershipRecord) {
 
 @Injectable()
 export class AccessService {
-  constructor(@Inject(ACCESS_REPOSITORY) private readonly repository: AccessRepository) {}
+  constructor(
+    @Inject(ACCESS_REPOSITORY) private readonly repository: AccessRepository,
+    @Inject(LIMIT_GATE) private readonly limits: LimitGate = NO_LIMITS,
+  ) {}
 
   private async requireActiveTenant(tenantId: string) {
     const tenant = await this.repository.findTenant(tenantId);
@@ -151,6 +155,7 @@ export class AccessService {
     const parsed = createRoleSchema.parse(input);
     if (await this.repository.findRoleByCode(tenantId, parsed.code))
       throw conflict("ROLE_CODE_CONFLICT", "Kode role sudah digunakan pada tenant ini.");
+    await this.limits.assertCanAdd(tenantId, "core.roles.custom");
     try {
       return toRole(await this.repository.createRole(tenantId, parsed, context));
     } catch (error) {
@@ -203,6 +208,7 @@ export class AccessService {
     await this.requireActiveUser(parsed.userId);
     if (await this.repository.findMembershipByUser(tenantId, parsed.userId))
       throw conflict("MEMBERSHIP_CONFLICT", "User sudah menjadi anggota tenant ini.");
+    await this.limits.assertCanAdd(tenantId, "core.users.active");
     await Promise.all([
       this.requireActiveRoles(tenantId, parsed.roleIds),
       this.requireActiveOutlets(tenantId, parsed.outletIds),

@@ -941,3 +941,38 @@ test("marks an inactive outlet assignment as non-sellable without deleting it", 
   assert.equal(item?.sellable, false);
   assert.equal((await service.getSnapshot(TENANT_A)).outletProducts.length, 1);
 });
+
+test("asks the limit gate before a product is created, and creates nothing when refused", async () => {
+  const repository = new InMemoryCatalogRepository();
+  const asked: string[] = [];
+  let full = false;
+  const service = new CatalogService(repository, {
+    assertCanAdd: async (tenantId, dimensionKey) => {
+      asked.push(`${tenantId === TENANT_A ? "A" : "other"}:${dimensionKey}`);
+      if (full) throw new Error("LIMIT_REACHED");
+    },
+  });
+  const category = await service.createCategory(TENANT_A, {
+    displayOrder: 1,
+    name: "Minuman Kopi",
+    slug: "minuman-kopi",
+  });
+  const input = {
+    availability: "AVAILABLE" as const,
+    basePriceMinor: "25000",
+    categoryId: category.id,
+    currency: "IDR",
+    name: "Kopi Susu",
+    slug: "kopi-susu",
+  };
+  await service.createProduct(TENANT_A, input);
+  full = true;
+  await assert.rejects(
+    () => service.createProduct(TENANT_A, { ...input, name: "Teh", slug: "teh" }),
+    /LIMIT_REACHED/,
+  );
+
+  // Categories are not limited; each product creation asks once.
+  assert.deepEqual(asked, ["A:catalog.products.active", "A:catalog.products.active"]);
+  assert.equal((await service.getSnapshot(TENANT_A)).products.length, 1);
+});

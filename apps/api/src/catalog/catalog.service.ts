@@ -67,6 +67,7 @@ import {
   type CatalogRepository,
 } from "./catalog.repository.js";
 import { buildSellableMenu } from "./sellable-menu.js";
+import { LIMIT_GATE, NO_LIMITS, type LimitGate } from "../shared/limits/limit-gate.js";
 
 const notFound = (code: string, message: string) => new NotFoundException({ code, message });
 const conflict = (code: string, message: string) => new ConflictException({ code, message });
@@ -143,7 +144,10 @@ function toOutletProduct(record: CatalogOutletProductRecord): CatalogOutletProdu
 
 @Injectable()
 export class CatalogService {
-  constructor(@Inject(CATALOG_REPOSITORY) private readonly repository: CatalogRepository) {}
+  constructor(
+    @Inject(CATALOG_REPOSITORY) private readonly repository: CatalogRepository,
+    @Inject(LIMIT_GATE) private readonly limits: LimitGate = NO_LIMITS,
+  ) {}
 
   private async requireTenant(tenantId: string) {
     const tenant = await this.repository.findTenant(tenantId);
@@ -283,6 +287,7 @@ export class CatalogService {
     if (await this.repository.findProductBySlug(tenantId, parsed.slug)) {
       throw conflict("CATALOG_PRODUCT_SLUG_CONFLICT", "Product slug is already in use.");
     }
+    await this.limits.assertCanAdd(tenantId, "catalog.products.active");
     const record = await this.uniqueMutation(
       () => this.repository.createProduct(tenantId, parsed, context),
       "CATALOG_PRODUCT_SLUG_CONFLICT",

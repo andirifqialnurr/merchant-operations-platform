@@ -5,8 +5,11 @@ export const subscriptionManifest: ModuleManifest = {
   capabilities: [],
   capabilityTiers: {},
   displayName: "Subscription and Entitlement Core",
-  // Rebuilds the workspace's effective entitlements when a module is installed.
-  eventHandlers: [{ eventType: "module.installed.v1", handlerKey: "core.entitlement_projection" }],
+  // Rebuilds the effective entitlements when a module is installed, and counts completed sales.
+  eventHandlers: [
+    { eventType: "sale.completed.v1", handlerKey: "core.usage_pos_sales" },
+    { eventType: "module.installed.v1", handlerKey: "core.entitlement_projection" },
+  ],
   // Written by core/installations when a module finishes installing.
   eventsProduced: ["module.installed.v1", "usage.threshold_reached.v1"],
   internalDependencies: [MODULES.coreTenancy],

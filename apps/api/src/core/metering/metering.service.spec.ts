@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { BadRequestException } from "@nestjs/common";
+import { BadRequestException, HttpException } from "@nestjs/common";
 
 import type { ActorCommandOrigin } from "../../shared/command/command-origin.js";
 import type { EntitlementService } from "../entitlements/public.js";
@@ -12,7 +12,8 @@ import type {
   NewUsageEvent,
   UsageCounterRecord,
 } from "./metering.repository.js";
-import { MeteringService, UsageGaugeRegistry } from "./metering.service.js";
+import { UsageGaugeRegistry } from "../../shared/limits/limit-gate.js";
+import { MeteringService } from "./metering.service.js";
 import {
   thresholdQuantity,
   USAGE_DIMENSIONS,
@@ -323,13 +324,95 @@ test("a count of what exists comes from its owner, and is left out until the own
 
 test("counts and metered dimensions are not mixed up", async () => {
   const { gauges, service } = setup();
-  assert.throws(() => gauges.register(SALES, async () => 0n), /metered from events/);
-  assert.throws(() => gauges.register("nothing.like.this", async () => 0n), /Unknown usage/);
   gauges.register(PRODUCTS, async () => 0n);
   assert.throws(() => gauges.register(PRODUCTS, async () => 0n), /registered twice/);
+  service.onApplicationBootstrap();
   await assert.rejects(
     service.record(TENANT, { ...sale(1), dimensionKey: PRODUCTS }),
     /count of what exists/,
   );
   await assert.rejects(service.record(TENANT, sale(1, 0n)), /must be positive/);
+  await assert.rejects(service.assertCanAdd(TENANT, SALES), /not a hard count/);
+
+  // A gauge for a metered or unknown dimension stops the application from starting.
+  const metered = setup();
+  metered.gauges.register(SALES, async () => 0n);
+  assert.throws(() => metered.service.onApplicationBootstrap(), /metered from events/);
+  const unknown = setup();
+  unknown.gauges.register("nothing.like.this", async () => 0n);
+  assert.throws(() => unknown.service.onApplicationBootstrap(), /Unknown usage/);
+});
+
+const codeOf = async (action: () => Promise<unknown>) => {
+  try {
+    await action();
+    return "OK";
+  } catch (error) {
+    if (error instanceof HttpException) {
+      const body = error.getResponse() as { code: string; details?: Record<string, string> };
+      return `${error.getStatus()} ${body.code} ${body.details?.usage}/${body.details?.limit}`;
+    }
+    throw error;
+  }
+};
+
+test("a hard count refuses the next one when the limit is full, and only then", async () => {
+  let products = 48n;
+  const { gauges, service } = setup([{ dimensionKey: PRODUCTS, unlimited: false, value: 50n }]);
+  gauges.register(PRODUCTS, async () => products);
+
+  assert.equal(await codeOf(() => service.assertCanAdd(TENANT, PRODUCTS)), "OK");
+  products = 49n;
+  // The 50th still fits.
+  assert.equal(await codeOf(() => service.assertCanAdd(TENANT, PRODUCTS)), "OK");
+  // Two at once would not.
+  assert.equal(
+    await codeOf(() => service.assertCanAdd(TENANT, PRODUCTS, 2n)),
+    "409 LIMIT_REACHED 49/50",
+  );
+  products = 50n;
+  assert.equal(
+    await codeOf(() => service.assertCanAdd(TENANT, PRODUCTS)),
+    "409 LIMIT_REACHED 50/50",
+  );
+  // A downgrade can leave a workspace above its limit: nothing is deleted, adding is refused.
+  products = 70n;
+  assert.equal(
+    await codeOf(() => service.assertCanAdd(TENANT, PRODUCTS)),
+    "409 LIMIT_REACHED 70/50",
+  );
+});
+
+test("no limit, an unlimited one, or an unreported count lets the creation through", async () => {
+  const unlisted = setup([]);
+  unlisted.gauges.register(PRODUCTS, async () => 1_000n);
+  assert.equal(await codeOf(() => unlisted.service.assertCanAdd(TENANT, PRODUCTS)), "OK");
+
+  const unlimited = setup([{ dimensionKey: PRODUCTS, unlimited: true, value: null }]);
+  unlimited.gauges.register(PRODUCTS, async () => 1_000n);
+  assert.equal(await codeOf(() => unlimited.service.assertCanAdd(TENANT, PRODUCTS)), "OK");
+
+  const unreported = setup([{ dimensionKey: PRODUCTS, unlimited: false, value: 1n }]);
+  assert.equal(await codeOf(() => unreported.service.assertCanAdd(TENANT, PRODUCTS)), "OK");
+});
+
+test("a throttled dimension counts while there is room and refuses safely after", async () => {
+  const EXPORTS = "reports.exports.cycle";
+  const { repository, service } = setup([{ dimensionKey: EXPORTS, unlimited: false, value: 2n }]);
+  const job = (index: number): NewUsageEvent => ({
+    dimensionKey: EXPORTS,
+    idempotencyKey: `export-000000000-${index}`,
+    occurredAt: NOW,
+    quantity: 1n,
+    sourceType: "report_export",
+  });
+  assert.equal(await codeOf(() => service.consumeThrottled(TENANT, job(1))), "OK");
+  assert.equal(await codeOf(() => service.consumeThrottled(TENANT, job(2))), "OK");
+  assert.equal(
+    await codeOf(() => service.consumeThrottled(TENANT, job(3))),
+    "429 RATE_LIMITED 2/2",
+  );
+  // The refused job was not counted.
+  assert.equal(repository.events.length, 2);
+  await assert.rejects(service.consumeThrottled(TENANT, sale(1)), /not throttled/);
 });

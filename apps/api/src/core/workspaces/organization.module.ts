@@ -7,6 +7,7 @@ import {
   ORGANIZATION_REPOSITORY,
   PrismaOrganizationRepository,
 } from "./organization.repository.js";
+import { OrganizationUsageGauges } from "./organization.gauges.js";
 import { OrganizationService } from "./organization.service.js";
 
 @Module({
@@ -15,6 +16,7 @@ import { OrganizationService } from "./organization.service.js";
   imports: [AccessModule, AuthModule],
   providers: [
     OrganizationService,
+    OrganizationUsageGauges,
     PrismaOrganizationRepository,
     { provide: ORGANIZATION_REPOSITORY, useExisting: PrismaOrganizationRepository },
   ],

@@ -283,3 +283,37 @@ test("returns only brands and outlets owned by the requested tenant", async () =
     [outletB.id],
   );
 });
+
+test("asks the limit gate before a brand or an outlet is created", async () => {
+  const repository = new InMemoryOrganizationRepository();
+  const asked: string[] = [];
+  let full = false;
+  const service = new OrganizationService(repository, {
+    assertCanAdd: async (_tenantId, dimensionKey) => {
+      asked.push(dimensionKey);
+      if (full) throw new Error("LIMIT_REACHED");
+    },
+  });
+  const tenant = await service.createTenant({ name: "Tenant A", slug: "tenant-a" });
+  const brand = await service.createBrand(tenant.id, { name: "Brand A", slug: "brand-a" });
+  const outlet = { brandId: brand.id, code: "A-01", name: "Outlet A", timezone: "Asia/Jakarta" };
+  await service.createOutlet(tenant.id, outlet);
+  full = true;
+  await assert.rejects(
+    () => service.createOutlet(tenant.id, { ...outlet, code: "A-02" }),
+    /LIMIT_REACHED/,
+  );
+  await assert.rejects(
+    () => service.createBrand(tenant.id, { name: "Brand B", slug: "brand-b" }),
+    /LIMIT_REACHED/,
+  );
+
+  assert.deepEqual(asked, [
+    "core.business_units.active",
+    "core.locations.active",
+    "core.locations.active",
+    "core.business_units.active",
+  ]);
+  const snapshot = await service.getSnapshot(tenant.id);
+  assert.deepEqual([snapshot.brands.length, snapshot.outlets.length], [1, 1]);
+});

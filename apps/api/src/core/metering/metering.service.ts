@@ -1,8 +1,20 @@
 import { usageSummarySchema, type UsageMeter } from "@merchant/contracts";
-import { BadRequestException, Inject, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  type OnApplicationBootstrap,
+} from "@nestjs/common";
 
 import type { ActorCommandOrigin, CommandOrigin } from "../../shared/command/command-origin.js";
-import { EntitlementService } from "../entitlements/public.js";
+import {
+  USAGE_GAUGE_REGISTRY,
+  type LimitGate,
+  type UsageGaugeRegistry,
+} from "../../shared/limits/limit-gate.js";
+import { accessDenied, EntitlementService } from "../entitlements/public.js";
 import {
   METERING_REPOSITORY,
   type MeteringRepository,
@@ -20,38 +32,14 @@ import {
   type UsageDimension,
 } from "./usage-dimensions.js";
 
-/** Counts how many of something a workspace has right now, e.g. active products. */
-export type UsageGauge = (tenantId: string) => Promise<bigint>;
-
-/**
- * Hard-count dimensions are not added up from events: the owner of the data
- * counts what exists. Each owner registers its gauge when the application starts.
- */
-export class UsageGaugeRegistry {
-  private readonly gauges = new Map<string, UsageGauge>();
-
-  register(dimensionKey: string, gauge: UsageGauge) {
-    const dimension = usageDimension(dimensionKey);
-    if (!dimension) throw new Error(`Unknown usage dimension ${dimensionKey}.`);
-    if (isCycleDimension(dimension)) {
-      throw new Error(`${dimensionKey} is metered from events; it has no gauge.`);
-    }
-    if (this.gauges.has(dimensionKey)) {
-      throw new Error(`A gauge for ${dimensionKey} is registered twice.`);
-    }
-    this.gauges.set(dimensionKey, gauge);
-  }
-
-  get(dimensionKey: string) {
-    return this.gauges.get(dimensionKey);
-  }
-}
-
-export const USAGE_GAUGE_REGISTRY = Symbol("USAGE_GAUGE_REGISTRY");
-
-function cycleDimension(key: string): UsageDimension {
+function knownDimension(key: string): UsageDimension {
   const dimension = usageDimension(key);
   if (!dimension) throw new Error(`Unknown usage dimension ${key}.`);
+  return dimension;
+}
+
+function cycleDimension(key: string): UsageDimension {
+  const dimension = knownDimension(key);
   if (!isCycleDimension(dimension)) {
     throw new Error(`${key} is a count of what exists; it is not metered from events.`);
   }
@@ -60,12 +48,83 @@ function cycleDimension(key: string): UsageDimension {
 
 /** What a workspace uses against what its package allows (prd.md 7.1). */
 @Injectable()
-export class MeteringService {
+export class MeteringService implements LimitGate, OnApplicationBootstrap {
   constructor(
     @Inject(METERING_REPOSITORY) private readonly repository: MeteringRepository,
     @Inject(EntitlementService) private readonly entitlements: EntitlementService,
     @Inject(USAGE_GAUGE_REGISTRY) private readonly gauges: UsageGaugeRegistry,
   ) {}
+
+  /** A gauge for something that is not a hard count is a mistake in the code. */
+  onApplicationBootstrap() {
+    for (const key of this.gauges.keys()) {
+      if (isCycleDimension(knownDimension(key))) {
+        throw new Error(`${key} is metered from events; it has no gauge.`);
+      }
+    }
+  }
+
+  /**
+   * The gate for hard counts: refuses to add when the package's limit is
+   * full. No limit, an unlimited one, or a count nobody reports yet lets it
+   * through; what already exists is never touched.
+   */
+  async assertCanAdd(tenantId: string, dimensionKey: string, adding = 1n, now = new Date()) {
+    const dimension = knownDimension(dimensionKey);
+    if (dimension.enforcement !== "HARD_COUNT") {
+      throw new Error(`${dimensionKey} is not a hard count.`);
+    }
+    const { limit } = await this.limitOf(tenantId, dimensionKey, now);
+    if (!limit || limit.unlimited || limit.value === null) return;
+    const gauge = this.gauges.get(dimensionKey);
+    if (!gauge) return;
+    const used = await gauge(tenantId);
+    if (used + adding > limit.value) {
+      throw accessDenied("LIMIT_REACHED", {
+        dimensionKey,
+        limit: limit.value.toString(),
+        usage: used.toString(),
+      });
+    }
+  }
+
+  /**
+   * For throttled dimensions (exports, external API): counts the use when
+   * the cycle's quota has room and refuses with `RATE_LIMITED` when it is
+   * full. Nothing is lost by refusing: the caller can try again next cycle.
+   */
+  async consumeThrottled(tenantId: string, event: NewUsageEvent, context?: CommandOrigin) {
+    const dimension = knownDimension(event.dimensionKey);
+    if (dimension.enforcement !== "THROTTLED") {
+      throw new Error(`${event.dimensionKey} is not throttled.`);
+    }
+    const { cycle, limit } = await this.limitOf(tenantId, event.dimensionKey, event.occurredAt);
+    if (limit && !limit.unlimited && limit.value !== null) {
+      const period = usagePeriod(event.occurredAt, cycle);
+      const counter = (await this.repository.counters(tenantId, event.occurredAt)).find(
+        (item) =>
+          item.dimensionKey === event.dimensionKey &&
+          item.periodStart.getTime() === period.start.getTime(),
+      );
+      const used = counter?.quantity ?? 0n;
+      if (used + event.quantity > limit.value) {
+        throw new HttpException(
+          {
+            code: "RATE_LIMITED",
+            details: {
+              dimensionKey: event.dimensionKey,
+              limit: limit.value.toString(),
+              retryAfter: period.end.toISOString(),
+              usage: used.toString(),
+            },
+            message: "The quota for this period is used up.",
+          },
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
+    }
+    return this.record(tenantId, event, context);
+  }
 
   private async limitOf(tenantId: string, dimensionKey: string, now: Date) {
     const { cycle, limits } = await this.entitlements.limitsInForce(tenantId, now);

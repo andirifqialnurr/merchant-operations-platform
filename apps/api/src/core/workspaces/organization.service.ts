@@ -31,6 +31,7 @@ import {
   type OutletRecord,
   type TenantRecord,
 } from "./organization.repository.js";
+import { LIMIT_GATE, NO_LIMITS, type LimitGate } from "../../shared/limits/limit-gate.js";
 
 function notFound(code: string, message: string) {
   return new NotFoundException({ code, message });
@@ -81,6 +82,7 @@ export class OrganizationService {
   constructor(
     @Inject(ORGANIZATION_REPOSITORY)
     private readonly repository: OrganizationRepository,
+    @Inject(LIMIT_GATE) private readonly limits: LimitGate = NO_LIMITS,
   ) {}
 
   private async requireTenant(tenantId: string) {
@@ -177,6 +179,7 @@ export class OrganizationService {
     if (await this.repository.findBrandBySlug(tenantId, parsed.slug)) {
       throw conflict("BRAND_SLUG_CONFLICT", "Slug brand sudah digunakan pada tenant ini.");
     }
+    await this.limits.assertCanAdd(tenantId, "core.business_units.active");
 
     const brand = await this.runUniqueMutation(
       () => this.repository.createBrand(tenantId, parsed, context),
@@ -220,6 +223,7 @@ export class OrganizationService {
     if (await this.repository.findOutletByCode(tenantId, parsed.code)) {
       throw conflict("OUTLET_CODE_CONFLICT", "Kode outlet sudah digunakan pada tenant ini.");
     }
+    await this.limits.assertCanAdd(tenantId, "core.locations.active");
 
     const outlet = await this.runUniqueMutation(
       () => this.repository.createOutlet(tenantId, parsed, context),

@@ -70,10 +70,16 @@ export class BindingService implements BindingGate {
     return this.manifests.all().find((item) => item.eventsProduced.includes(eventType))?.key;
   }
 
-  /** The binding a handler needs, or undefined when it reacts to its own module. */
+  /**
+   * The binding a handler needs, or undefined when it needs none: it reacts
+   * to its own module, or it belongs to the platform core.
+   */
   private keyFor(handler: Pick<EventHandler, "consumerName" | "eventType" | "moduleKey">) {
     const source = this.sourceOf(handler.eventType);
     if (!source || source === handler.moduleKey) return undefined;
+    // The platform core is always on: its reactions (projections, metering)
+    // are not an integration a workspace can switch off.
+    if (handler.moduleKey.startsWith("CORE_")) return undefined;
     return {
       eventType: handler.eventType,
       handlerKey: handler.consumerName,

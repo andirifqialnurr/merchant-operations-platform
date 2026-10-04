@@ -463,3 +463,19 @@ test("a kitchen handler blocked by a setting marks the binding as blocked", asyn
   assert.equal(repository.rows[0]?.health, "BLOCKED");
   assert.match(repository.rows[0]?.lastError ?? "", /No station is set up/);
 });
+
+test("the platform core reacts to other modules' events without a binding", async () => {
+  const { repository, service } = setup();
+  // Metering belongs to the subscription core and counts sales announced by the bill core.
+  const metering: EventHandler = {
+    consumerName: "core.usage_pos_sales",
+    eventType: "sale.completed.v1",
+    handle: async () => undefined,
+    moduleKey: MODULES.coreSubscription,
+  };
+  assert.deepEqual(
+    await service.decide(metering, { ...event(after), eventType: "sale.completed.v1" }),
+    { action: "run" },
+  );
+  assert.equal(repository.rows.length, 0);
+});
