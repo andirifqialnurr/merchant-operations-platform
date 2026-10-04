@@ -274,3 +274,74 @@
     animation: none;
   }
 }
+
+/* Usage meter: one limited dimension, its usage against the limit. */
+.ui-usage-meter {
+  display: grid;
+  font-size: var(--text-label);
+  gap: var(--space-1-5);
+  inline-size: 100%;
+  text-align: start;
+}
+.ui-usage-meter__head,
+.ui-usage-meter__foot {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  justify-content: space-between;
+}
+.ui-usage-meter__label {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+.ui-usage-meter__value {
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.ui-usage-meter__bar {
+  background: var(--color-border-subtle);
+  border-radius: var(--foundation-radius-full);
+  block-size: var(--space-1-5);
+  overflow: hidden;
+}
+.ui-usage-meter__bar > span {
+  background: var(--color-action-primary);
+  block-size: 100%;
+  border-radius: inherit;
+  display: block;
+}
+.ui-usage-meter__foot {
+  color: var(--color-text-muted);
+  font-size: var(--text-caption);
+}
+.ui-usage-meter__level {
+  font-weight: 500;
+}
+/* A lone note stays at the end, where the reset date is expected. */
+.ui-usage-meter__note:only-child {
+  margin-inline-start: auto;
+}
+.ui-usage-meter[data-level="near"] .ui-usage-meter__bar > span,
+.ui-usage-meter[data-level="almost"] .ui-usage-meter__bar > span {
+  background: var(--color-status-warning-text);
+}
+.ui-usage-meter[data-level="near"] .ui-usage-meter__level,
+.ui-usage-meter[data-level="almost"] .ui-usage-meter__level {
+  color: var(--color-status-warning-text);
+}
+.ui-usage-meter[data-level="reached"] .ui-usage-meter__bar > span {
+  background: var(--color-status-danger-text);
+}
+.ui-usage-meter[data-level="reached"] .ui-usage-meter__level {
+  color: var(--color-status-danger-text);
+}
+
+/* Usage limit state: something new cannot be created because the limit is full. */
+.ui-usage-limit > svg {
+  color: var(--color-status-warning-text);
+}
+.ui-usage-limit > .ui-usage-meter {
+  margin-block-start: var(--space-2);
+  max-inline-size: 22rem;
+}

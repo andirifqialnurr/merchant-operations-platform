@@ -72,7 +72,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 ### DS — Design system dan komponen
 
 - [x] **M2-DS-01 `ModuleAccessState`** `c38ae7d` — varian per alasan; satu aksi relevan per varian.
-- [ ] **M2-DS-02 `UsageLimitState` dan meter pemakaian.**
+- [x] **M2-DS-02 `UsageLimitState` dan meter pemakaian.**
 - [ ] **M2-DS-03 `FileUpload`** — pilih, pratinjau, progres, error, ganti; label lewat props.
 - [ ] **M2-DS-04 Komponen perangkat** — `DeviceStatusBadge`, `NetworkSyncIndicator`, `StaleDataBanner`.
 - [ ] **M2-DS-05 Matriks izin** — tampilan izin per peran yang mudah dipindai.
