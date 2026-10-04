@@ -40,7 +40,11 @@ test("every module that brings a menu entry has a name and an icon in the web ap
 
   const known = readFileSync(join(here, "module-navigation.tsx"), "utf8");
   for (const key of keys) {
-    assert.ok(known.includes(`${key}: { icon:`), `${key} has no entry in MODULE_NAVIGATION`);
+    assert.match(
+      known,
+      new RegExp(`${key}: [{][^}]*icon:`),
+      `${key} has no entry in MODULE_NAVIGATION`,
+    );
     for (const locale of ["id", "en"]) {
       const { shell } = JSON.parse(readFileSync(join(messages, `${locale}.json`), "utf8")) as {
         shell: { moduleNav: Record<string, string> };
@@ -58,4 +62,23 @@ test("the dictionaries name no module that has no menu entry", () => {
     };
     assert.deepEqual(Object.keys(shell.moduleNav).sort(), keys, locale);
   }
+});
+
+test("settings come last and whole-business entries are hidden from outlet-scoped people", async () => {
+  const { arrangeNavigation } = await import("./module-navigation.tsx");
+  const entries = [
+    { moduleKey: MODULES.coreSubscription, path: "/settings/subscription" },
+    { moduleKey: MODULES.coreCatalog, path: "/catalog" },
+    { moduleKey: MODULES.pos, path: "/pos" },
+    // A module this build cannot name yet stays visible.
+    { moduleKey: MODULES.kds, path: "/kds" },
+  ];
+  assert.deepEqual(
+    arrangeNavigation(entries, true).map((entry) => entry.path),
+    ["/catalog", "/pos", "/kds", "/settings/subscription"],
+  );
+  assert.deepEqual(
+    arrangeNavigation(entries, false).map((entry) => entry.path),
+    ["/catalog", "/pos", "/kds"],
+  );
 });

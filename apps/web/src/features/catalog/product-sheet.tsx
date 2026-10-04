@@ -12,11 +12,12 @@ import { Sheet } from "@merchant/ui/overlay";
 import { Select } from "@merchant/ui/select";
 import { Switch } from "@merchant/ui/selection-control";
 
-import { merchantApi, nextCatalogStatus } from "@/lib/api-client";
+import { merchantApi, nextCatalogStatus, type ApiClientError } from "@/lib/api-client";
 import { slugify } from "@/lib/format";
 import { useFormat } from "@/lib/i18n";
 
 import type { CatalogMutation } from "./api";
+import { isLimitReached, LimitReachedState } from "@/shell/limit-reached-state";
 
 type Props = {
   canManage: boolean;
@@ -57,6 +58,7 @@ export function ProductSheet({
   const [variantName, setVariantName] = useState("");
   const [variantPrice, setVariantPrice] = useState<number | undefined>();
   const [modifierId, setModifierId] = useState("");
+  const [limitError, setLimitError] = useState<ApiClientError | undefined>();
   const busy = mutation.isPending;
   const readOnly = !canManage;
 
@@ -81,7 +83,13 @@ export function ProductSheet({
   );
 
   function run(action: () => Promise<unknown>, success: string, onSuccess?: () => void) {
-    mutation.mutate({ action, success }, onSuccess ? { onSuccess } : undefined);
+    mutation.mutate(
+      { action, success },
+      {
+        onError: (error) => setLimitError(isLimitReached(error) ? error : undefined),
+        ...(onSuccess ? { onSuccess } : {}),
+      },
+    );
   }
 
   function submit(event: FormEvent) {
@@ -125,7 +133,7 @@ export function ProductSheet({
     <Sheet
       closeLabel={t("closeSheet")}
       footer={
-        canManage ? (
+        canManage && !limitError ? (
           <>
             {product ? (
               <Button
@@ -157,7 +165,8 @@ export function ProductSheet({
       open
       title={product?.name ?? t("newProduct")}
     >
-      <div className="grid gap-6">
+      {limitError ? <LimitReachedState error={limitError} /> : null}
+      <div className="grid gap-6" hidden={Boolean(limitError)}>
         <form className="grid gap-4" id="product-form" noValidate onSubmit={submit}>
           <FormField
             {...(errors.name ? { error: errors.name } : {})}

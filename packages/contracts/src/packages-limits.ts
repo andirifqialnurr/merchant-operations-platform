@@ -2,7 +2,8 @@ import * as z from "zod";
 
 import { uniqueStrings } from "./internal.ts";
 import { idempotencyKeySchema } from "./http.ts";
-import { moduleKeySchema, moduleTierSchema } from "./entitlement.ts";
+import { moduleKeySchema, moduleTierSchema, subscriptionStatusSchema } from "./entitlement.ts";
+import { organizationNameSchema } from "./organization.ts";
 import { capabilityKeySchema } from "./module-manifest.ts";
 
 export const packageKeySchema = z
@@ -124,6 +125,25 @@ export const usageMeterSchema = z.object({
 
 export const usageSummarySchema = z.object({ meters: z.array(usageMeterSchema) });
 
+/**
+ * What a merchant sees about their own subscription: the package, the
+ * commercial modules it includes with their tiers, and usage against limits.
+ */
+export const subscriptionOverviewSchema = z.object({
+  meters: z.array(usageMeterSchema),
+  modules: z.array(z.object({ key: moduleKeySchema, tier: moduleTierSchema })),
+  subscription: z
+    .object({
+      /** When the current billing cycle ends; null for an open-ended cycle. */
+      cycleEndsAt: z.iso.datetime().nullable(),
+      endsAt: z.iso.datetime().nullable(),
+      graceEndsAt: z.iso.datetime().nullable(),
+      planName: organizationNameSchema,
+      status: subscriptionStatusSchema,
+    })
+    .nullable(),
+});
+
 export const limitErrorCodeSchema = z.enum([
   "ENTITLEMENT_REQUIRED",
   "INSTALLATION_SETUP_REQUIRED",
@@ -175,3 +195,5 @@ export type UsageMeter = z.infer<typeof usageMeterSchema>;
 export type UsageState = z.infer<typeof usageStateSchema>;
 
 export type UsageSummary = z.infer<typeof usageSummarySchema>;
+
+export type SubscriptionOverview = z.infer<typeof subscriptionOverviewSchema>;

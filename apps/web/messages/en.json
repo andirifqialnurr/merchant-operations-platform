@@ -8,7 +8,8 @@
     "loadFailed": "The page could not be loaded",
     "moduleNav": {
       "CORE_CATALOG": "Catalog",
-      "POS": "Cashier"
+      "POS": "Cashier",
+      "CORE_SUBSCRIPTION": "Subscription"
     },
     "navOrders": "Orders",
     "navSell": "Sell",
@@ -362,5 +363,175 @@
     "UNKNOWN_WITH_ID": "Something went wrong. Try again, or quote code {requestId} when contacting support.",
     "VALIDATION_ERROR": "Check your entries and try again.",
     "WORKSPACE_ACCESS_DENIED": "You are not an active member of this business."
+  },
+  "subscription": {
+    "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",
+    "accessDeniedTitle": "You do not have access",
+    "endsAt": "Valid until",
+    "graceEndsAt": "Grace period until",
+    "loadFailed": "The subscription could not be loaded",
+    "moduleName": {
+      "CAFE_PROFILE": "Cafe profile",
+      "CUSTOMER_BASIC": "Customers",
+      "FINANCE_BASIC": "Finance",
+      "INVENTORY_BASIC": "Inventory",
+      "KDS": "Kitchen display",
+      "POS": "Cashier",
+      "TABLE_SELF_ORDER": "Tables and self-order"
+    },
+    "modules": "Modules",
+    "noLimits": "This package does not limit usage.",
+    "noLimitsTitle": "No limits",
+    "noModules": "This package has no modules yet.",
+    "noModulesTitle": "No modules yet",
+    "noSubscription": "This business has no subscription yet.",
+    "noSubscriptionTitle": "Not subscribed",
+    "plan": "Package",
+    "planName": "Package name",
+    "status": {
+      "ACTIVE": "Active",
+      "CANCELED_AT_PERIOD_END": "Ends at period end",
+      "DRAFT": "Not started",
+      "GRACE": "Grace period",
+      "SUSPENDED": "Suspended",
+      "TERMINATED": "Ended",
+      "TRIAL": "Trial"
+    },
+    "statusLabel": "Status",
+    "tier": {
+      "ADVANCED": "Advanced",
+      "BASIC": "Basic",
+      "PRO": "Pro"
+    },
+    "title": "Subscription",
+    "usage": "Usage"
+  },
+  "usage": {
+    "level": {
+      "almost": "Almost full",
+      "near": "Close to the limit",
+      "over": "Over quota",
+      "reached": "Limit reached"
+    },
+    "limitReached": "This business's package is full for this. What already exists keeps working.",
+    "limitReachedAskOwner": "This business's package is full for this. Ask the business owner to add capacity.",
+    "limitReachedTitle": "Package limit reached",
+    "resetsOn": "Resets {date}",
+    "valueOf": "{used} of {limit}",
+    "valueUnlimited": "{used}, no limit",
+    "viewSubscription": "View subscription",
+    "dimensions": {
+      "api": {
+        "requests": {
+          "cycle": "API requests this period"
+        }
+      },
+      "catalog": {
+        "products": {
+          "active": "Active products"
+        }
+      },
+      "core": {
+        "business_units": {
+          "active": "Active brands"
+        },
+        "locations": {
+          "active": "Active outlets"
+        },
+        "roles": {
+          "custom": "Custom roles"
+        },
+        "storage": {
+          "gb": "Storage (GB)"
+        },
+        "users": {
+          "active": "Active users"
+        }
+      },
+      "customer": {
+        "profiles": {
+          "active": "Customer profiles"
+        }
+      },
+      "finance": {
+        "accounts": {
+          "active": "Finance accounts"
+        },
+        "transactions": {
+          "posted": {
+            "cycle": "Finance transactions this period"
+          }
+        }
+      },
+      "floor": {
+        "areas": {
+          "active_per_floor": "Areas per floor"
+        },
+        "floors": {
+          "active_per_location": "Floors per outlet"
+        },
+        "tables": {
+          "active_per_location": "Tables per outlet"
+        }
+      },
+      "hc": {
+        "attendance": {
+          "received": {
+            "cycle": "Attendance records this period"
+          }
+        },
+        "employees": {
+          "active": "Active employees"
+        }
+      },
+      "inventory": {
+        "items": {
+          "active": "Active stock items"
+        },
+        "movements": {
+          "posted": {
+            "cycle": "Stock movements this period"
+          }
+        },
+        "stock_locations": {
+          "active": "Stock locations"
+        }
+      },
+      "kds": {
+        "devices": {
+          "active": "Kitchen devices"
+        },
+        "stations": {
+          "active_per_location": "Kitchen stations per outlet"
+        },
+        "tickets": {
+          "created": {
+            "cycle": "Kitchen tickets this period"
+          }
+        }
+      },
+      "pos": {
+        "registers": {
+          "active": "Cashier devices"
+        },
+        "sales": {
+          "completed": {
+            "cycle": "Sales this period"
+          }
+        }
+      },
+      "reports": {
+        "exports": {
+          "cycle": "Report exports this period"
+        }
+      },
+      "self_order": {
+        "orders": {
+          "submitted": {
+            "cycle": "Self-orders this period"
+          }
+        }
+      }
+    }
   }
 }

@@ -35,7 +35,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [ ] **M2-FT-02 Pengguna dan undangan** — undang lewat email dengan peran dan lokasi; status menunggu; cabut akses.
 - [ ] **M2-FT-03 Peran dan izin** — daftar peran sistem dan kustom; atur izin per peran dengan bahasa yang mudah dimengerti.
 - [ ] **M2-FT-04 Perangkat** — daftarkan perangkat POS/KDS dengan kode sekali pakai, lihat status terakhir terlihat, cabut. Secret tidak pernah tampil lagi setelah provisioning.
-- [ ] **M2-FT-05 Langganan dan pemakaian** — paket aktif, modul dan tier, pemakaian vs batas per dimensi; saat batas tercapai tombol tetap tampil dengan penjelasan dan ajakan upgrade.
+- [x] **M2-FT-05 Langganan dan pemakaian** — paket aktif, modul dan tier, pemakaian vs batas per dimensi; saat batas tercapai tombol tetap tampil dengan penjelasan dan ajakan upgrade.
 - [ ] **M2-FT-06 Integrasi antarmodul** — daftar binding (misalnya POS → Keuangan) dengan status `Aktif`/`Perlu setup`/`Gagal` dan tombol coba ulang.
 - [ ] **M2-FT-07 Gambar produk** — unggah gambar produk di Catalog dan tampilkan di kartu produk POS.
 - [ ] **M2-FT-08 Persetujuan manager untuk refund** (dari `M1-FT-10`) — kasir tanpa izin refund meminta persetujuan manager dengan PIN (`flowchart.md` 5.4). PIN diatur dan direset di pengaturan pengguna (`M2-FT-02`). Selesai bila: PIN tersimpan ber-hash; salah PIN dibatasi; persetujuan diaudit dengan nama penyetuju.
@@ -64,7 +64,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 ### UX — Alur dan interaksi
 
 - [x] **M2-UX-01 Navigasi dari manifest** `dc02f64` — menu Backoffice disusun dari modul terpasang, entitlement, dan izin.
-- [~] **M2-UX-02 State akses modul** — membuka modul yang tidak dimiliki, belum dipasang, belum diatur, tanpa izin, atau kena limit menampilkan state yang tepat (`design-system.md` 16.1–16.2). Selesai (13.16): tidak dimiliki, belum dipasang/diatur, sedang disiapkan, dijeda, tanpa izin, langganan ditangguhkan. Sisa: state kena limit (menunggu `M2-DS-02` dan metering) dan aksi per state (menunggu halaman Pengaturan, `M2-UX-03`).
+- [~] **M2-UX-02 State akses modul** — membuka modul yang tidak dimiliki, belum dipasang, belum diatur, tanpa izin, atau kena limit menampilkan state yang tepat (`design-system.md` 16.1–16.2). Selesai (13.16): tidak dimiliki, belum dipasang/diatur, sedang disiapkan, dijeda, tanpa izin, langganan ditangguhkan. Selesai (13.24): state kena limit untuk pembuatan produk. Sisa: state kena limit di halaman pengaturan yang belum ada (brand, outlet, anggota, peran) dan aksi per state (menunggu halaman Pengaturan, `M2-UX-03`).
 - [ ] **M2-UX-03 Halaman Pengaturan** — Organisasi, Pengguna, Peran, Perangkat, Langganan, Integrasi sesuai `flowchart.md` 12, satu halaman per bagian.
 - [ ] **M2-UX-04 Alur undangan** — email undangan → halaman terima undangan → set kata sandi → masuk.
 - [ ] **M2-UX-05 Aktivasi perangkat POS** — layar aktivasi di perangkat dengan kode; sesudahnya POS terbuka di outlet perangkat.

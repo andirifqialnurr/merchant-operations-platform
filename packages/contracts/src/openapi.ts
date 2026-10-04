@@ -110,6 +110,7 @@ import {
   usageAdjustmentSchema,
   usageCounterSchema,
   usageEventSchema,
+  subscriptionOverviewSchema,
   usageSummarySchema,
 } from "./packages-limits.ts";
 import {
@@ -252,6 +253,7 @@ export const commonOpenApiSchemas = {
   UsageAdjustment: toOpenApiSchema(usageAdjustmentSchema),
   UsageCounter: toOpenApiSchema(usageCounterSchema),
   UsageEvent: toOpenApiSchema(usageEventSchema),
+  SubscriptionOverview: toOpenApiSchema(subscriptionOverviewSchema),
   UsageSummary: toOpenApiSchema(usageSummarySchema),
   ValidationError: toOpenApiSchema(validationErrorSchema),
 } as const;

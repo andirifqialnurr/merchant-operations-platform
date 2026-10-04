@@ -12,12 +12,18 @@ export function useFormat() {
   const active = useLocale();
   const locale = formatLocale(isLocale(active) ? active : "id");
   const dateTime = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" });
+  const dateOnly = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
+  const plainNumber = new Intl.NumberFormat(locale);
   return {
+    /** Date of an ISO timestamp in the device's time zone. */
+    date: (iso: string) => dateOnly.format(new Date(iso)),
     /** Date and time of an ISO timestamp in the device's time zone. */
     dateTime: (iso: string) => dateTime.format(new Date(iso)),
     /** BCP 47 tag for components that format on their own, e.g. MoneyInput. */
     locale,
     money: (valueMinor: string, currency?: string) => formatMoney(valueMinor, currency, locale),
+    /** A count with the language's digit grouping. */
+    number: (value: number) => plainNumber.format(value),
   };
 }
 

@@ -8,7 +8,8 @@
     "loadFailed": "Halaman tidak dapat dimuat",
     "moduleNav": {
       "CORE_CATALOG": "Katalog",
-      "POS": "Kasir"
+      "POS": "Kasir",
+      "CORE_SUBSCRIPTION": "Langganan"
     },
     "navOrders": "Pesanan",
     "navSell": "Jual",
@@ -362,5 +363,175 @@
     "UNKNOWN_WITH_ID": "Terjadi kesalahan. Coba lagi, atau sebutkan kode {requestId} saat menghubungi dukungan.",
     "VALIDATION_ERROR": "Periksa kembali isian Anda.",
     "WORKSPACE_ACCESS_DENIED": "Anda bukan anggota aktif bisnis ini."
+  },
+  "subscription": {
+    "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat langganan.",
+    "accessDeniedTitle": "Anda tidak punya akses",
+    "endsAt": "Berlaku sampai",
+    "graceEndsAt": "Masa tenggang sampai",
+    "loadFailed": "Langganan tidak dapat dimuat",
+    "moduleName": {
+      "CAFE_PROFILE": "Profil kafe",
+      "CUSTOMER_BASIC": "Pelanggan",
+      "FINANCE_BASIC": "Keuangan",
+      "INVENTORY_BASIC": "Stok",
+      "KDS": "Layar dapur",
+      "POS": "Kasir",
+      "TABLE_SELF_ORDER": "Meja dan pesan mandiri"
+    },
+    "modules": "Modul",
+    "noLimits": "Paket ini tidak membatasi pemakaian.",
+    "noLimitsTitle": "Tidak ada batas",
+    "noModules": "Paket ini belum memuat modul.",
+    "noModulesTitle": "Belum ada modul",
+    "noSubscription": "Bisnis ini belum punya langganan.",
+    "noSubscriptionTitle": "Belum berlangganan",
+    "plan": "Paket",
+    "planName": "Nama paket",
+    "status": {
+      "ACTIVE": "Aktif",
+      "CANCELED_AT_PERIOD_END": "Berakhir di akhir periode",
+      "DRAFT": "Belum dimulai",
+      "GRACE": "Masa tenggang",
+      "SUSPENDED": "Ditangguhkan",
+      "TERMINATED": "Berakhir",
+      "TRIAL": "Masa coba"
+    },
+    "statusLabel": "Status",
+    "tier": {
+      "ADVANCED": "Advanced",
+      "BASIC": "Basic",
+      "PRO": "Pro"
+    },
+    "title": "Langganan",
+    "usage": "Pemakaian"
+  },
+  "usage": {
+    "level": {
+      "almost": "Hampir habis",
+      "near": "Mendekati batas",
+      "over": "Melebihi kuota",
+      "reached": "Batas tercapai"
+    },
+    "limitReached": "Paket bisnis ini sudah penuh untuk bagian ini. Yang sudah ada tetap berfungsi.",
+    "limitReachedAskOwner": "Paket bisnis ini sudah penuh untuk bagian ini. Hubungi pemilik bisnis untuk menambah kapasitas.",
+    "limitReachedTitle": "Batas paket tercapai",
+    "resetsOn": "Reset {date}",
+    "valueOf": "{used} dari {limit}",
+    "valueUnlimited": "{used}, tanpa batas",
+    "viewSubscription": "Lihat langganan",
+    "dimensions": {
+      "api": {
+        "requests": {
+          "cycle": "Permintaan API periode ini"
+        }
+      },
+      "catalog": {
+        "products": {
+          "active": "Produk aktif"
+        }
+      },
+      "core": {
+        "business_units": {
+          "active": "Brand aktif"
+        },
+        "locations": {
+          "active": "Outlet aktif"
+        },
+        "roles": {
+          "custom": "Peran buatan sendiri"
+        },
+        "storage": {
+          "gb": "Penyimpanan (GB)"
+        },
+        "users": {
+          "active": "Pengguna aktif"
+        }
+      },
+      "customer": {
+        "profiles": {
+          "active": "Profil pelanggan"
+        }
+      },
+      "finance": {
+        "accounts": {
+          "active": "Akun keuangan"
+        },
+        "transactions": {
+          "posted": {
+            "cycle": "Transaksi keuangan periode ini"
+          }
+        }
+      },
+      "floor": {
+        "areas": {
+          "active_per_floor": "Area per lantai"
+        },
+        "floors": {
+          "active_per_location": "Lantai per outlet"
+        },
+        "tables": {
+          "active_per_location": "Meja per outlet"
+        }
+      },
+      "hc": {
+        "attendance": {
+          "received": {
+            "cycle": "Absensi periode ini"
+          }
+        },
+        "employees": {
+          "active": "Karyawan aktif"
+        }
+      },
+      "inventory": {
+        "items": {
+          "active": "Barang stok aktif"
+        },
+        "movements": {
+          "posted": {
+            "cycle": "Mutasi stok periode ini"
+          }
+        },
+        "stock_locations": {
+          "active": "Lokasi stok"
+        }
+      },
+      "kds": {
+        "devices": {
+          "active": "Perangkat dapur"
+        },
+        "stations": {
+          "active_per_location": "Station dapur per outlet"
+        },
+        "tickets": {
+          "created": {
+            "cycle": "Tiket dapur periode ini"
+          }
+        }
+      },
+      "pos": {
+        "registers": {
+          "active": "Perangkat kasir"
+        },
+        "sales": {
+          "completed": {
+            "cycle": "Penjualan periode ini"
+          }
+        }
+      },
+      "reports": {
+        "exports": {
+          "cycle": "Ekspor laporan periode ini"
+        }
+      },
+      "self_order": {
+        "orders": {
+          "submitted": {
+            "cycle": "Pesanan mandiri periode ini"
+          }
+        }
+      }
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { MODULES, type ModuleManifest } from "@merchant/contracts";
+import { MODULES, PERMISSIONS, type ModuleManifest } from "@merchant/contracts";
 
 /** Packages, subscriptions, overrides, and what they add up to for a tenant. */
 export const subscriptionManifest: ModuleManifest = {
@@ -16,9 +16,15 @@ export const subscriptionManifest: ModuleManifest = {
   key: MODULES.coreSubscription,
   limitDimensions: [],
   namespaces: [],
-  navigation: [],
+  navigation: [
+    {
+      label: "Subscription",
+      path: "/settings/subscription",
+      permissionKey: PERMISSIONS.organizationRead,
+    },
+  ],
   permissions: [],
-  routes: [],
+  routes: [{ path: "/settings/subscription", permissionKey: PERMISSIONS.organizationRead }],
   configSchemaVersion: 1,
   installSteps: [],
   settings: [],
