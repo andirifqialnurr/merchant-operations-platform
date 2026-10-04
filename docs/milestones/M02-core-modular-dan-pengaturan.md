@@ -81,7 +81,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 
 ### AS — Aset
 
-- [x] **M2-AS-01 Template email** — undangan dan reset kata sandi, dua bahasa, teks polos + HTML sederhana, memakai wordmark M1.
+- [x] **M2-AS-01 Template email** `f78663e` — undangan dan reset kata sandi, dua bahasa, teks polos + HTML sederhana, memakai wordmark M1.
 - [x] **M2-AS-02 Placeholder gambar produk** `5057659` — ikon netral saat gambar belum ada (tanpa teks), ukuran thumbnail yang dihasilkan saat unggah.
 
 ### SC — Keamanan dan privasi
