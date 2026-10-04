@@ -5,6 +5,7 @@ import {
   createRoleSchema,
   entityIdParamsSchema,
   membershipSchema,
+  sessionRevocationSchema,
   PERMISSIONS,
   roleSchema,
   tenantRequestHeadersSchema,
@@ -22,6 +23,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Headers,
   Inject,
   Param,
@@ -169,6 +171,27 @@ export class AccessController {
       await this.accessService.createMembership(
         headers[API_HEADERS.tenantId],
         input,
+        this.mutationContext(access, headers),
+      ),
+    );
+  }
+
+  @ApiOperation({ summary: "End every sign-in of a member; the membership stays" })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/SessionRevocation" } })
+  @RequirePermission(PERMISSIONS.accessMembershipManage)
+  @RequireAllOutlets()
+  @HttpCode(200)
+  @Post("memberships/:id/revoke-sessions")
+  async revokeMemberSessions(
+    @RequestHeaders(new ZodValidationPipe(tenantRequestHeadersSchema))
+    headers: TenantRequestHeaders,
+    @Param(new ZodValidationPipe(entityIdParamsSchema)) params: { id: string },
+    @CurrentAccess() access: AuthorizationContext,
+  ) {
+    return sessionRevocationSchema.parse(
+      await this.accessService.revokeMemberSessions(
+        headers[API_HEADERS.tenantId],
+        params.id,
         this.mutationContext(access, headers),
       ),
     );

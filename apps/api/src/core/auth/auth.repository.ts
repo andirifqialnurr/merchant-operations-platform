@@ -38,6 +38,8 @@ export interface AuthRepository {
   findActiveSession(tokenHash: string, now: Date): Promise<LoginSessionRecord | null>;
   findUserByEmail(email: string): Promise<AuthUserRecord | null>;
   revokeSession(tokenHash: string, revokedAt: Date): Promise<void>;
+  /** Ends every sign-in of the person, on every surface. Returns how many were ended. */
+  revokeUserSessions(userId: string, revokedAt: Date): Promise<number>;
   updatePreferences(
     userId: string,
     preferences: { locale?: string; theme?: string },
@@ -138,5 +140,13 @@ export class PrismaAuthRepository implements AuthRepository {
       data: { revokedAt },
       where: { revokedAt: null, tokenHash },
     });
+  }
+
+  async revokeUserSessions(userId: string, revokedAt: Date) {
+    const revoked = await getPrismaClient().loginSession.updateMany({
+      data: { revokedAt },
+      where: { expiresAt: { gt: revokedAt }, revokedAt: null, userId },
+    });
+    return revoked.count;
   }
 }

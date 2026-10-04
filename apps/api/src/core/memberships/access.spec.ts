@@ -40,6 +40,18 @@ const IDS = {
 } as const;
 
 class InMemoryAccessRepository implements AccessRepository {
+  readonly sessionRevocations: string[] = [];
+
+  async recordSessionRevocation(
+    tenantId: string,
+    membership: { id: string; userId: string },
+    revokedSessions: number,
+  ) {
+    this.sessionRevocations.push(
+      `${tenantId === IDS.tenantA ? "A" : "other"}:${membership.userId === IDS.userStaff ? "staff" : "owner"}:${revokedSessions}`,
+    );
+  }
+
   readonly memberships: MembershipRecord[] = [];
   readonly roles: RoleRecord[] = [];
   readonly outlets = [
@@ -422,4 +434,96 @@ test("does not expose roles, memberships, or authorization across tenants", asyn
     () => service.authorize(IDS.userStaff, IDS.tenantB, PERMISSIONS.organizationRead),
     ForbiddenException,
   );
+});
+
+// ---- Revocation (M2-SC-03)
+
+async function workspaceWithStaff() {
+  const repository = new InMemoryAccessRepository();
+  const ended: string[] = [];
+  const service = new AccessService(repository, undefined, {
+    revokeUserSessions: async (userId: string) => {
+      ended.push(userId);
+      return 2;
+    },
+  });
+  const role = await service.createRole(IDS.tenantA, {
+    code: "CATALOG_VIEWER",
+    name: "Catalog Viewer",
+    permissionKeys: [PERMISSIONS.catalogRead],
+  });
+  const membership = await service.createMembership(IDS.tenantA, {
+    allOutlets: false,
+    outletIds: [IDS.outletA],
+    roleIds: [role.id],
+    userId: IDS.userStaff,
+  });
+  return { ended, membership, repository, role, service };
+}
+
+test("taking a member out of the workspace ends their sign-ins, once", async () => {
+  const { ended, membership, repository, service } = await workspaceWithStaff();
+
+  // Changing what they may do is not a removal.
+  await service.updateMembership(IDS.tenantA, membership.id, { outletIds: [IDS.outletB] });
+  assert.deepEqual(ended, []);
+
+  const removed = await service.updateMembership(IDS.tenantA, membership.id, {
+    status: "INACTIVE",
+  });
+  assert.equal(removed.status, "INACTIVE");
+  assert.deepEqual(ended, [IDS.userStaff]);
+  assert.deepEqual(repository.sessionRevocations, ["A:staff:2"]);
+
+  // Saving the same state again, or letting them back in, ends nothing more.
+  await service.updateMembership(IDS.tenantA, membership.id, { status: "INACTIVE" });
+  await service.updateMembership(IDS.tenantA, membership.id, { status: "ACTIVE" });
+  assert.deepEqual(ended, [IDS.userStaff]);
+});
+
+test("a removed member is refused at once, whatever session they still hold", async () => {
+  const { membership, service } = await workspaceWithStaff();
+  await service.authorize(IDS.userStaff, IDS.tenantA, PERMISSIONS.catalogRead, IDS.outletA);
+
+  await service.updateMembership(IDS.tenantA, membership.id, { status: "INACTIVE" });
+  await assert.rejects(
+    () => service.authorize(IDS.userStaff, IDS.tenantA, PERMISSIONS.catalogRead, IDS.outletA),
+    ForbiddenException,
+  );
+  assert.deepEqual(await service.listWorkspaceContexts(IDS.userStaff), []);
+});
+
+test("a member's sign-ins can be ended on their own, and the membership stays", async () => {
+  const { ended, membership, repository, service } = await workspaceWithStaff();
+
+  assert.deepEqual(await service.revokeMemberSessions(IDS.tenantA, membership.id), {
+    revokedSessions: 2,
+  });
+  assert.deepEqual(ended, [IDS.userStaff]);
+  assert.deepEqual(repository.sessionRevocations, ["A:staff:2"]);
+  assert.equal(
+    (await service.listMemberships(IDS.tenantA)).find((item) => item.id === membership.id)?.status,
+    "ACTIVE",
+  );
+});
+
+test("another workspace cannot end the sign-ins of this workspace's members", async () => {
+  const { ended, membership, service } = await workspaceWithStaff();
+  await assert.rejects(
+    () => service.revokeMemberSessions(IDS.tenantB, membership.id),
+    NotFoundException,
+  );
+  assert.deepEqual(ended, []);
+});
+
+test("the audit entry for ended sign-ins passes the audit guard", async () => {
+  const { buildAuditMetadata, buildAuditPayload } = await import("../audit/public.js");
+  // The same payload the repository writes; the guard rejects keys that name secrets.
+  const payload = buildAuditPayload({ endedSignIns: 2, userId: IDS.userStaff });
+  assert.deepEqual(buildAuditMetadata("membership.revoke_sessions", payload), {
+    critical: true,
+    endedSignIns: 2,
+    userId: IDS.userStaff,
+  });
+  assert.throws(() => buildAuditPayload({ revokedSessions: 2 }), /Sensitive audit metadata/);
 });

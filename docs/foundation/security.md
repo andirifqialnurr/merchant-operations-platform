@@ -80,6 +80,13 @@ Temuan berikut berasal dari pembacaan kode pada 2 Oktober 2026 dan belum diverif
 - Kebijakan kata sandi: minimal 10 karakter; tanpa aturan komposisi yang memaksa; tolak kata sandi yang sangat umum.
 - Token sesi: 32 byte acak, dikirim hanya lewat cookie `HttpOnly`. Database menyimpan hash; token mentah tidak dapat dipulihkan dari database.
 - Pencabutan: logout mencabut sesi; mengganti kata sandi mencabut semua sesi lain; admin dapat mencabut sesi pengguna.
+- Pencabutan yang berjalan sejak 4 Oktober 2026:
+  - Menonaktifkan keanggotaan (`PATCH /access/memberships/:id` dengan `status: INACTIVE`) mengakhiri semua sesi orang itu di semua surface. Akses ke workspace itu sudah ditolak pada permintaan berikutnya karena keanggotaan diperiksa setiap permintaan.
+  - `POST /access/memberships/:id/revoke-sessions` (izin `access.membership.manage`) mengakhiri semua sesi seorang anggota tanpa mengubah keanggotaannya, misalnya saat HP hilang. Jawabannya jumlah sesi yang diakhiri.
+  - Mencabut perangkat menutup sesi yang dibuka di perangkat itu.
+  - Akun yang dinonaktifkan (`users.status = DISABLED`) tidak punya sesi yang berlaku dan tidak bisa masuk.
+  - Sesi bersifat per orang, bukan per workspace: orang yang sesinya diakhiri harus masuk lagi juga untuk workspace lain yang masih ia ikuti.
+  - Audit: `membership.revoke_sessions` dengan jumlah yang diakhiri (`endedSignIns`). Belum ada: ganti kata sandi dan pencabutan sesi lain saat itu terjadi (menunggu alur akun, `M2-UX-04`).
 - Sesi platform (`platform_session`) dan sesi merchant (`merchant_session`) memakai cookie, tabel, dan guard terpisah; tidak pernah saling diterima.
 - Pesan login gagal tidak membedakan "email tidak ada" dari "kata sandi salah".
 - Persetujuan manager di POS (PIN) tidak menggantikan identitas pengguna yang sedang masuk; keduanya dicatat di audit.

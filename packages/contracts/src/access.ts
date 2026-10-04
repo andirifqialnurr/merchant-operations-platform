@@ -108,6 +108,11 @@ export const createMembershipSchema = z
     path: ["outletIds"],
   });
 
+/** How many sign-ins were ended. */
+export const sessionRevocationSchema = z.object({
+  revokedSessions: z.number().int().min(0),
+});
+
 export const updateMembershipSchema = z
   .object({
     status: membershipStatusSchema.optional(),
@@ -183,3 +188,5 @@ export type Role = z.infer<typeof roleSchema>;
 export type UpdateMembership = z.infer<typeof updateMembershipSchema>;
 
 export type UpdateRole = z.infer<typeof updateRoleSchema>;
+
+export type SessionRevocation = z.infer<typeof sessionRevocationSchema>;

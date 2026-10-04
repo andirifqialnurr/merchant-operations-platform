@@ -17,6 +17,7 @@ export const CRITICAL_AUDIT_ACTIONS = [
   "integration_binding.resume",
   "membership.create",
   "membership.provision_owner",
+  "membership.revoke_sessions",
   "membership.update",
   "module_installation.activate",
   "module_installation.fail",

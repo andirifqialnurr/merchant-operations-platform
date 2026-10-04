@@ -154,6 +154,7 @@ import {
   deviceSchema,
   registerDeviceSchema,
 } from "./devices.ts";
+import { sessionRevocationSchema } from "./access.ts";
 
 export type ContractSchema = z.ZodType;
 
@@ -208,6 +209,7 @@ export const commonOpenApiSchemas = {
   DeviceList: toOpenApiSchema(deviceListSchema),
   RegisterDevice: toOpenApiSchema(registerDeviceSchema),
   ModuleInstallationList: toOpenApiSchema(moduleInstallationListSchema),
+  SessionRevocation: toOpenApiSchema(sessionRevocationSchema),
   WorkspaceNavigation: toOpenApiSchema(workspaceNavigationSchema),
   ModuleEntitlement: toOpenApiSchema(moduleEntitlementSchema),
   IntegrationBinding: toOpenApiSchema(integrationBindingSchema),

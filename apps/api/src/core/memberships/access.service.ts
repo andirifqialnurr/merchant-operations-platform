@@ -15,7 +15,7 @@ import {
   type UpdateMembership,
   type UpdateRole,
 } from "@merchant/contracts";
-import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Inject, Injectable, Optional, NotFoundException } from "@nestjs/common";
 
 import { accessDenied, assertAccess, evaluateAccess } from "../entitlements/public.js";
 import {
@@ -27,6 +27,10 @@ import {
   type SystemRoleDefinition,
 } from "./access.repository.js";
 import { LIMIT_GATE, NO_LIMITS, type LimitGate } from "../../shared/limits/limit-gate.js";
+import { AuthService } from "../auth/public.js";
+
+/** The part of sign-in handling this service needs. */
+type SessionRevoker = Pick<AuthService, "revokeUserSessions">;
 
 const ALL_PERMISSIONS = Object.values(PERMISSIONS);
 
@@ -119,6 +123,7 @@ export class AccessService {
   constructor(
     @Inject(ACCESS_REPOSITORY) private readonly repository: AccessRepository,
     @Inject(LIMIT_GATE) private readonly limits: LimitGate = NO_LIMITS,
+    @Optional() @Inject(AuthService) private readonly sessions?: SessionRevoker,
   ) {}
 
   private async requireActiveTenant(tenantId: string) {
@@ -239,9 +244,44 @@ export class AccessService {
       parsed.outletIds && parsed.allOutlets === undefined && current.allOutlets
         ? { ...parsed, allOutlets: false }
         : parsed;
-    return toMembership(
-      await this.repository.updateMembership(tenantId, membershipId, normalized, context),
+    const wasActive = current.status === "ACTIVE";
+    const updated = await this.repository.updateMembership(
+      tenantId,
+      membershipId,
+      normalized,
+      context,
     );
+    // Taking someone out of the workspace ends what they have open right now.
+    if (wasActive && updated.status !== "ACTIVE") {
+      await this.endSessions(tenantId, updated, context);
+    }
+    return toMembership(updated);
+  }
+
+  private async endSessions(
+    tenantId: string,
+    membership: { id: string; userId: string },
+    context?: AccessMutationContext,
+  ) {
+    const revokedSessions = (await this.sessions?.revokeUserSessions(membership.userId)) ?? 0;
+    await this.repository.recordSessionRevocation(tenantId, membership, revokedSessions, context);
+    return revokedSessions;
+  }
+
+  /**
+   * Ends every sign-in of a member, e.g. after a lost phone. The membership
+   * stays as it is, so the person can sign in again.
+   */
+  async revokeMemberSessions(
+    tenantId: string,
+    membershipId: string,
+    context?: AccessMutationContext,
+  ) {
+    await this.requireActiveTenant(tenantId);
+    const membership = await this.repository.findMembershipById(tenantId, membershipId);
+    if (!membership)
+      throw notFound("MEMBERSHIP_NOT_FOUND", "Membership tidak ditemukan pada tenant ini.");
+    return { revokedSessions: await this.endSessions(tenantId, membership, context) };
   }
 
   async provisionTenantOwner(tenantId: string, userId: string, context?: AccessMutationContext) {

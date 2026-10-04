@@ -72,6 +72,23 @@ class InMemoryAuthRepository implements AuthRepository {
     return session && !session.revokedAt && session.expiresAt > now ? session : null;
   }
 
+  async revokeUserSessions(userId: string, revokedAt: Date) {
+    let count = 0;
+    for (const session of this.sessions.values()) {
+      if (session.user.id === userId && !session.revokedAt && session.expiresAt > revokedAt) {
+        session.revokedAt = revokedAt;
+        count += 1;
+      }
+    }
+    return count;
+  }
+
+  /** For tests: what happens when the account itself is switched off. */
+  disableUser() {
+    this.user.status = "DISABLED";
+    for (const session of this.sessions.values()) session.user = this.sessionUser();
+  }
+
   async revokeSession(tokenHash: string, revokedAt: Date) {
     const session = this.sessions.get(tokenHash);
 
@@ -344,4 +361,34 @@ test("a backoffice session does not depend on any device", async () => {
   assert.ok(await service.getSession(login.token, DEVICE_CREDENTIAL));
   state.active = false;
   assert.ok(await service.getSession(login.token, DEVICE_CREDENTIAL));
+});
+
+// ---- Revocation (M2-SC-03)
+
+test("ending a person's sign-ins closes every one of them, on every surface", async () => {
+  const { authenticator } = tablet();
+  const service = new AuthService(await ownerRepository(), undefined, authenticator);
+  const laptop = await service.login(credentials);
+  const till = await service.login(credentials, { deviceCredential: DEVICE_CREDENTIAL });
+
+  assert.equal(await service.revokeUserSessions(USER_ID), 2);
+  await assert.rejects(() => service.getSession(laptop.token), UnauthorizedException);
+  await assert.rejects(
+    () => service.getSession(till.token, DEVICE_CREDENTIAL),
+    UnauthorizedException,
+  );
+  // Nothing is left to end, and the person can sign in again.
+  assert.equal(await service.revokeUserSessions(USER_ID), 0);
+  const again = await service.login(credentials);
+  assert.ok(await service.getSession(again.token));
+});
+
+test("switching off an account ends its sign-ins and refuses new ones", async () => {
+  const repository = await ownerRepository();
+  const service = new AuthService(repository);
+  const login = await service.login(credentials);
+
+  repository.disableUser();
+  await assert.rejects(() => service.getSession(login.token), UnauthorizedException);
+  await assert.rejects(() => service.login(credentials), UnauthorizedException);
 });

@@ -227,6 +227,12 @@ export class PrismaDeviceRepository implements DeviceRepository {
         where: { id, status: current.status, tenantId },
       });
       if (updated.count === 0) return null;
+      // Sign-ins opened on the device stop working without its credential
+      // anyway; closing them keeps the session list truthful.
+      await transaction.loginSession.updateMany({
+        data: { revokedAt: now },
+        where: { deviceId: id, revokedAt: null },
+      });
       const device = await transaction.coreDevice.findUniqueOrThrow({ select, where: { id } });
       await audit(transaction, "device.revoke", device, current.status, context);
       return device;

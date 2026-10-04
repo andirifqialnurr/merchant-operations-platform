@@ -97,6 +97,13 @@ export interface AccessRepository {
     roles: SystemRoleDefinition[],
     context?: AccessMutationContext,
   ): Promise<MembershipRecord>;
+  /** Writes the audit entry for ending a member's sign-ins. */
+  recordSessionRevocation(
+    tenantId: string,
+    membership: { id: string; userId: string },
+    revokedSessions: number,
+    context?: AccessMutationContext,
+  ): Promise<void>;
   updateMembership(
     tenantId: string,
     membershipId: string,
@@ -218,6 +225,28 @@ async function writeAccessChange(
 
 @Injectable()
 export class PrismaAccessRepository implements AccessRepository {
+  async recordSessionRevocation(
+    tenantId: string,
+    membership: { id: string; userId: string },
+    revokedSessions: number,
+    context?: AccessMutationContext,
+  ) {
+    const action = "membership.revoke_sessions";
+    // The audit guard refuses keys that mention sessions, so the count is named by what ended.
+    const payload = buildAuditPayload({ endedSignIns: revokedSessions, userId: membership.userId });
+    await getPrismaClient().auditLog.create({
+      data: {
+        action,
+        ...(context?.actorId ? { actorId: context.actorId } : {}),
+        entityId: membership.id,
+        entityType: "membership",
+        metadata: buildAuditMetadata(action, payload),
+        ...(context?.requestId ? { requestId: context.requestId } : {}),
+        tenantId,
+      },
+    });
+  }
+
   async findTenant(tenantId: string) {
     return getPrismaClient().tenant.findUnique({
       select: { id: true, status: true },

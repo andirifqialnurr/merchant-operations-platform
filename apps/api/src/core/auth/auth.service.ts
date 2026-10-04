@@ -170,6 +170,14 @@ export class AuthService {
     return this.getSession(token, deviceCredential);
   }
 
+  /**
+   * Ends every sign-in of a person at once, on every surface. They can sign
+   * in again; whether they still get anywhere is decided by their memberships.
+   */
+  async revokeUserSessions(userId: string, now = new Date()) {
+    return this.repository.revokeUserSessions(userId, now);
+  }
+
   async logout(token: string | undefined) {
     if (token) {
       await this.repository.revokeSession(hashSessionToken(token), new Date());
