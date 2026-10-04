@@ -32,7 +32,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 ### FT — Fitur produk
 
 - [ ] **M2-FT-01 Pengaturan organisasi** — ubah nama bisnis, brand, outlet (alamat, zona waktu, mata uang).
-- [x] **M2-FT-02 Pengguna dan undangan** — undang lewat email dengan peran dan lokasi; status menunggu; cabut akses.
+- [x] **M2-FT-02 Pengguna dan undangan** `40427fb` — undang lewat email dengan peran dan lokasi; status menunggu; cabut akses.
 - [ ] **M2-FT-03 Peran dan izin** — daftar peran sistem dan kustom; atur izin per peran dengan bahasa yang mudah dimengerti.
 - [x] **M2-FT-04 Perangkat** `b4a3f62` — daftarkan perangkat POS/KDS dengan kode sekali pakai, lihat status terakhir terlihat, cabut. Secret tidak pernah tampil lagi setelah provisioning.
 - [x] **M2-FT-05 Langganan dan pemakaian** `324e534` — paket aktif, modul dan tier, pemakaian vs batas per dimensi; saat batas tercapai tombol tetap tampil dengan penjelasan dan ajakan upgrade.
