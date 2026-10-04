@@ -6,6 +6,7 @@ import { CatalogModule } from "./catalog/public.js";
 import { EventsModule } from "./core/events/public.js";
 import { InstallationModule } from "./core/installations/public.js";
 import { ManifestModule } from "./core/manifest/public.js";
+import { MeteringModule } from "./core/metering/public.js";
 import { HealthController } from "./health.controller.js";
 import { MODULE_MANIFESTS } from "./module-manifests.js";
 import { PosSalesModule } from "./modules/pos-sales/public.js";
@@ -21,6 +22,7 @@ import { PlatformModule } from "./core/platform/public.js";
     AuthModule,
     CatalogModule,
     InstallationModule,
+    MeteringModule,
     OrganizationModule,
     PlatformModule,
     PosSalesModule,

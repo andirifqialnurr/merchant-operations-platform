@@ -569,3 +569,40 @@ test("removes free text from events written before the payload guard", () => {
   // Only events are touched; the audit trail keeps the reason.
   assert.doesNotMatch(cleanup, /audit_logs/);
 });
+
+test("meters usage per tenant and counts each usage event once", () => {
+  const metering = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261004080000_core_metering/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(
+    metering,
+    /UNIQUE INDEX "core_usage_events_tenant_id_dimension_key_idempotency_key_key"\s+ON "core_usage_events"\("tenant_id", "dimension_key", "idempotency_key"\)/,
+  );
+  // Every metering table belongs to a tenant; only the dimension catalog is platform data.
+  for (const table of [
+    "core_usage_events",
+    "core_usage_adjustments",
+    "core_usage_counters",
+    "core_limit_notifications",
+  ]) {
+    assert.match(
+      metering,
+      new RegExp(
+        `"${table}_tenant_id_fkey"[^;]*FOREIGN KEY [(]"tenant_id"[)] REFERENCES "tenants"`,
+      ),
+    );
+  }
+  assert.match(metering, /CHECK \("quantity" > 0\)/);
+  // A correction always says why and by whom.
+  assert.match(metering, /char_length\(btrim\("reason"\)\) >= 3/);
+  assert.match(metering, /"actor_id" UUID NOT NULL/);
+  // A threshold is announced once per period.
+  assert.match(
+    metering,
+    /PRIMARY KEY \("tenant_id", "dimension_key", "period_start", "threshold"\)/,
+  );
+});

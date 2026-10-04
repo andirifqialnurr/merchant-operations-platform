@@ -110,6 +110,7 @@ import {
   usageAdjustmentSchema,
   usageCounterSchema,
   usageEventSchema,
+  usageSummarySchema,
 } from "./packages-limits.ts";
 import {
   commandContextSchema,
@@ -251,6 +252,7 @@ export const commonOpenApiSchemas = {
   UsageAdjustment: toOpenApiSchema(usageAdjustmentSchema),
   UsageCounter: toOpenApiSchema(usageCounterSchema),
   UsageEvent: toOpenApiSchema(usageEventSchema),
+  UsageSummary: toOpenApiSchema(usageSummarySchema),
   ValidationError: toOpenApiSchema(validationErrorSchema),
 } as const;
 

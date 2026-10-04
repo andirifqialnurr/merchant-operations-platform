@@ -101,6 +101,29 @@ export const usageAdjustmentSchema = z.object({
   workspaceId: z.uuid(),
 });
 
+/** How a limited dimension behaves when the limit is reached (prd.md 7.1). */
+export const usageEnforcementSchema = limitEnforcementTypeSchema.exclude(["CAPABILITY_GATE"]);
+
+/** OK below 80%, NEAR from 80%, REACHED at the limit, OVER above it. */
+export const usageStateSchema = z.enum(["NEAR", "OK", "OVER", "REACHED"]);
+
+/** One dimension of a workspace: what is used against what the package allows. */
+export const usageMeterSchema = z.object({
+  dimensionKey: limitDimensionKeySchema,
+  enforcement: usageEnforcementSchema,
+  /** Null when the package does not cap this dimension. */
+  limit: usageQuantitySchema.nullable(),
+  /** Set for dimensions that add up over a billing cycle; null for counts of what exists. */
+  periodEnd: z.iso.datetime().nullable(),
+  periodStart: z.iso.datetime().nullable(),
+  state: usageStateSchema,
+  unit: z.string().trim().min(1).max(20),
+  unlimited: z.boolean(),
+  used: usageQuantitySchema,
+});
+
+export const usageSummarySchema = z.object({ meters: z.array(usageMeterSchema) });
+
 export const limitErrorCodeSchema = z.enum([
   "ENTITLEMENT_REQUIRED",
   "INSTALLATION_SETUP_REQUIRED",
@@ -146,3 +169,9 @@ export type UsageCounter = z.infer<typeof usageCounterSchema>;
 export type UsageEvent = z.infer<typeof usageEventSchema>;
 
 export type UsageQuantity = z.infer<typeof usageQuantitySchema>;
+
+export type UsageMeter = z.infer<typeof usageMeterSchema>;
+
+export type UsageState = z.infer<typeof usageStateSchema>;
+
+export type UsageSummary = z.infer<typeof usageSummarySchema>;

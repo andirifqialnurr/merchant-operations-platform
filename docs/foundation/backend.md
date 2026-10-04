@@ -67,15 +67,15 @@ Pola per modul saat ini: `*.controller.ts` → `*.service.ts` → `*.repository.
 
 ### 1.2 Yang perlu dibenahi
 
-| Temuan                                                                                                 | Dampak                                             | Perbaikan                                     |
-| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------- | --------------------------------------------- |
-| Semua folder sejajar di `src/`; tidak ada pemisahan core, kernel, modul                                | Batas modul tidak terlihat dan tidak dapat di-lint | Struktur target bagian 2                      |
-| `catalog.repository.ts` 1.226 baris, `catalog.service.ts` 667 baris, `catalog.controller.ts` 546 baris | Sulit diuji dan ditinjau                           | Pecah per use case (bagian 4)                 |
-| `packages/contracts/src/index.ts` satu file                                                            | Konflik merge, sulit dicari                        | Pecah per domain (bagian 7)                   |
-| Pesan error ditulis dalam Bahasa Indonesia di server                                                   | Tidak mendukung dua bahasa                         | Kode stabil + terjemahan di klien (bagian 9)  |
-| Rate limit di memori proses                                                                            | Tidak berlaku lintas instance                      | Pindah ke Redis saat lebih dari satu instance |
-| Belum ada metering                                                                                     | Limit paket belum ditegakkan dari pemakaian nyata  | Tahap B di `prd.md`                           |
-| Entitlement berupa boolean per modul                                                                   | Tidak mengenal tier, capability, limit             | Diganti evaluator entitlement efektif         |
+| Temuan                                                                                                 | Dampak                                                                                                                                             | Perbaikan                                     |
+| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| Semua folder sejajar di `src/`; tidak ada pemisahan core, kernel, modul                                | Batas modul tidak terlihat dan tidak dapat di-lint                                                                                                 | Struktur target bagian 2                      |
+| `catalog.repository.ts` 1.226 baris, `catalog.service.ts` 667 baris, `catalog.controller.ts` 546 baris | Sulit diuji dan ditinjau                                                                                                                           | Pecah per use case (bagian 4)                 |
+| `packages/contracts/src/index.ts` satu file                                                            | Konflik merge, sulit dicari                                                                                                                        | Pecah per domain (bagian 7)                   |
+| Pesan error ditulis dalam Bahasa Indonesia di server                                                   | Tidak mendukung dua bahasa                                                                                                                         | Kode stabil + terjemahan di klien (bagian 9)  |
+| Rate limit di memori proses                                                                            | Tidak berlaku lintas instance                                                                                                                      | Pindah ke Redis saat lebih dari satu instance |
+| Metering belum menegakkan semua limit                                                                  | Pemakaian per siklus sudah dicatat dan ambang diumumkan (`core/metering`); penolakan hard count dan throttling dikerjakan di checkpoint berikutnya | `M2-BE-11`                                    |
+| Entitlement berupa boolean per modul                                                                   | Tidak mengenal tier, capability, limit                                                                                                             | Diganti evaluator entitlement efektif         |
 
 ---
 

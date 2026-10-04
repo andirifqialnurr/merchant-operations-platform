@@ -384,6 +384,25 @@ export class EntitlementService {
     return rows;
   }
 
+  /**
+   * The limits in force for a workspace and its billing cycle, for metering.
+   * A workspace whose subscription cannot be used has no limits to measure against.
+   */
+  async limitsInForce(tenantId: string, now = new Date()) {
+    const state = await this.repository.getState(tenantId);
+    const usable =
+      state.tenant?.status === "ACTIVE" && isSubscriptionUsable(state.subscription, now);
+    return {
+      cycle: state.subscription
+        ? { endsAt: state.subscription.cycleEndsAt, startsAt: state.subscription.cycleStartsAt }
+        : null,
+      limits:
+        usable && state.subscription
+          ? effectiveLimits(state.subscription.limits, state.targetOverrides, now)
+          : [],
+    };
+  }
+
   /** Rebuilds the projection for every tenant; safe to run at any time. */
   async rebuildAllProjections(now = new Date()) {
     const tenantIds = await this.repository.listTenantIds();

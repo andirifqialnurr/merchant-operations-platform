@@ -78,6 +78,12 @@ enum ModuleInstallationStatus {
   SUSPENDED
 }
 
+enum UsageEnforcement {
+  HARD_COUNT
+  SOFT_METERED
+  THROTTLED
+}
+
 enum IntegrationBindingStatus {
   DRAFT
   SETUP_REQUIRED
@@ -319,6 +325,10 @@ model Tenant {
   moduleConfigs                CoreModuleConfig[]
   inboxEvents                  CoreInboxEvent[]
   integrationBindings          CoreIntegrationBinding[]
+  usageEvents                  CoreUsageEvent[]
+  usageCounters                CoreUsageCounter[]
+  usageAdjustments             CoreUsageAdjustment[]
+  limitNotifications           CoreLimitNotification[]
   catalogCategories            CatalogCategory[]
   catalogProducts              CatalogProduct[]
   catalogProductVariants       CatalogProductVariant[]
@@ -924,6 +934,84 @@ model CoreIntegrationBinding {
   @@index([tenantId, targetModuleKey])
   @@index([tenantId, status])
   @@map("core_integration_bindings")
+}
+
+/// What a package can limit. Platform data, the same for every tenant.
+model CoreUsageDimension {
+  key           String                  @id @db.VarChar(120)
+  unit          String                  @db.VarChar(20)
+  enforcement   UsageEnforcement
+  events        CoreUsageEvent[]
+  counters      CoreUsageCounter[]
+  adjustments   CoreUsageAdjustment[]
+  notifications CoreLimitNotification[]
+
+  @@map("core_usage_dimensions")
+}
+
+/// One thing that was used. The same idempotency key never counts twice.
+model CoreUsageEvent {
+  id              String             @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId        String             @map("tenant_id") @db.Uuid
+  dimensionKey    String             @map("dimension_key") @db.VarChar(120)
+  quantity        BigInt             @db.BigInt
+  sourceType      String             @map("source_type") @db.VarChar(120)
+  sourceReference String?            @map("source_reference") @db.VarChar(160)
+  idempotencyKey  String             @map("idempotency_key") @db.VarChar(255)
+  occurredAt      DateTime           @map("occurred_at") @db.Timestamptz(6)
+  receivedAt      DateTime           @default(now()) @map("received_at") @db.Timestamptz(6)
+  tenant          Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  dimension       CoreUsageDimension @relation(fields: [dimensionKey], references: [key], onDelete: Restrict)
+
+  @@unique([tenantId, dimensionKey, idempotencyKey])
+  @@index([tenantId, dimensionKey, occurredAt])
+  @@map("core_usage_events")
+}
+
+/// A correction by a person, with a reason, for one period.
+model CoreUsageAdjustment {
+  id           String             @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId     String             @map("tenant_id") @db.Uuid
+  dimensionKey String             @map("dimension_key") @db.VarChar(120)
+  periodStart  DateTime           @map("period_start") @db.Timestamptz(6)
+  delta        BigInt             @db.BigInt
+  reason       String             @db.VarChar(500)
+  actorId      String             @map("actor_id") @db.Uuid
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  tenant       Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  dimension    CoreUsageDimension @relation(fields: [dimensionKey], references: [key], onDelete: Restrict)
+
+  @@index([tenantId, dimensionKey, periodStart])
+  @@map("core_usage_adjustments")
+}
+
+/// The running total of a period; it can be rebuilt from events and adjustments.
+model CoreUsageCounter {
+  tenantId     String             @map("tenant_id") @db.Uuid
+  dimensionKey String             @map("dimension_key") @db.VarChar(120)
+  periodStart  DateTime           @map("period_start") @db.Timestamptz(6)
+  periodEnd    DateTime           @map("period_end") @db.Timestamptz(6)
+  quantity     BigInt             @default(0) @db.BigInt
+  calculatedAt DateTime           @default(now()) @map("calculated_at") @db.Timestamptz(6)
+  tenant       Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  dimension    CoreUsageDimension @relation(fields: [dimensionKey], references: [key], onDelete: Restrict)
+
+  @@id([tenantId, dimensionKey, periodStart])
+  @@map("core_usage_counters")
+}
+
+/// A threshold is announced once per period.
+model CoreLimitNotification {
+  tenantId     String             @map("tenant_id") @db.Uuid
+  dimensionKey String             @map("dimension_key") @db.VarChar(120)
+  periodStart  DateTime           @map("period_start") @db.Timestamptz(6)
+  threshold    Int
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  tenant       Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  dimension    CoreUsageDimension @relation(fields: [dimensionKey], references: [key], onDelete: Restrict)
+
+  @@id([tenantId, dimensionKey, periodStart, threshold])
+  @@map("core_limit_notifications")
 }
 
 model AuditLog {

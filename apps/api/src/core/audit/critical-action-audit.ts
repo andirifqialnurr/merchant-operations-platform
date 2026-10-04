@@ -34,6 +34,7 @@ export const CRITICAL_AUDIT_ACTIONS = [
   "subscription.replace",
   "tenant.create",
   "tenant.update",
+  "usage.adjust",
 ] as const;
 
 type AuditMetadataValue =
