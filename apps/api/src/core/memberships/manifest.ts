@@ -10,13 +10,19 @@ export const identityManifest: ModuleManifest = {
   key: MODULES.coreIdentity,
   limitDimensions: [],
   namespaces: [],
-  navigation: [],
+  navigation: [
+    {
+      label: "Users",
+      path: "/settings/users",
+      permissionKey: PERMISSIONS.accessMembershipManage,
+    },
+  ],
   permissions: [
     PERMISSIONS.accessRoleRead,
     PERMISSIONS.accessRoleManage,
     PERMISSIONS.accessMembershipManage,
   ],
-  routes: [],
+  routes: [{ path: "/settings/users", permissionKey: PERMISSIONS.accessMembershipManage }],
   configSchemaVersion: 1,
   eventHandlers: [],
   installSteps: [],

@@ -40,6 +40,17 @@ export type MembershipRecord = {
   userId: string;
 };
 
+export type MemberRecord = {
+  allOutlets: boolean;
+  displayName: string;
+  email: string;
+  membershipId: string;
+  outletIds: string[];
+  roleIds: string[];
+  status: MembershipStatus;
+  userId: string;
+};
+
 export type AuthorizationRecord = MembershipRecord & {
   permissionKeys: PermissionKey[];
   tenantStatus: OrganizationUnitStatus;
@@ -89,6 +100,8 @@ export interface AccessRepository {
   findTenant(tenantId: string): Promise<{ id: string; status: OrganizationUnitStatus } | null>;
   findUser(userId: string): Promise<{ id: string; status: "ACTIVE" | "DISABLED" } | null>;
   listRoles(tenantId: string): Promise<RoleRecord[]>;
+  /** Members with their name and email, for the people page only. */
+  listMembers(tenantId: string): Promise<MemberRecord[]>;
   listMemberships(tenantId: string): Promise<MembershipRecord[]>;
   listWorkspaceContexts(userId: string): Promise<WorkspaceContextRecord[]>;
   provisionTenantOwner(
@@ -339,6 +352,24 @@ export class PrismaAccessRepository implements AccessRepository {
       where: { tenantId },
     });
     return roles.map(mapRole);
+  }
+
+  async listMembers(tenantId: string) {
+    const memberships = await getPrismaClient().tenantMembership.findMany({
+      orderBy: [{ user: { displayName: "asc" } }, { createdAt: "asc" }],
+      select: { ...membershipSelect, user: { select: { displayName: true, email: true } } },
+      where: { tenantId },
+    });
+    return memberships.map((membership) => ({
+      allOutlets: membership.allOutlets,
+      displayName: membership.user.displayName,
+      email: membership.user.email,
+      membershipId: membership.id,
+      outletIds: membership.assignments.map((item) => item.outletId),
+      roleIds: membership.roles.map((item) => item.roleId),
+      status: membership.status,
+      userId: membership.userId,
+    }));
   }
 
   async listMemberships(tenantId: string) {

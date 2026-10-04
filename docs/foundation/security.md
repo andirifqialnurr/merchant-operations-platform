@@ -97,6 +97,8 @@ Temuan berikut berasal dari pembacaan kode pada 2 Oktober 2026 dan belum diverif
   - Mencabut perangkat menutup sesi yang dibuka di perangkat itu.
   - Akun yang dinonaktifkan (`users.status = DISABLED`) tidak punya sesi yang berlaku dan tidak bisa masuk.
   - Sesi bersifat per orang, bukan per workspace: orang yang sesinya diakhiri harus masuk lagi juga untuk workspace lain yang masih ia ikuti.
+  - Tidak seorang pun bisa mencabut aksesnya sendiri (`MEMBERSHIP_SELF_DEACTIVATE`); harus orang lain. Halaman Pengguna juga tidak menawarkan aksi itu pada baris sendiri.
+  - Nama dan email anggota hanya keluar lewat `GET /access/members` (izin `access.membership.manage`, semua outlet). Catatan keanggotaan biasa, audit, dan event tetap tanpa nama dan email.
   - Audit: `membership.revoke_sessions` dengan jumlah yang diakhiri (`endedSignIns`). Belum ada: ganti kata sandi dan pencabutan sesi lain saat itu terjadi (menunggu alur akun, `M2-UX-04`).
 - Sesi platform (`platform_session`) dan sesi merchant (`merchant_session`) memakai cookie, tabel, dan guard terpisah; tidak pernah saling diterima.
 - Pesan login gagal tidak membedakan "email tidak ada" dari "kata sandi salah".

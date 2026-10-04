@@ -55,6 +55,16 @@ import {
   updateCatalogProductVariantSchema,
   workspaceContextsSchema,
   acceptInvitationSchema,
+  createInvitationSchema,
+  invitationListSchema,
+  invitationSchema,
+  memberListSchema,
+  membershipSchema,
+  roleSchema,
+  sessionRevocationSchema,
+  updateMembershipSchema,
+  type CreateInvitation,
+  type UpdateMembership,
   activateDeviceSchema,
   invitationAcceptedSchema,
   invitationPreviewSchema,
@@ -100,6 +110,7 @@ import {
 } from "@merchant/contracts";
 
 type Schema<T> = { parse(value: unknown): T };
+const roleListSchema = roleSchema.array();
 /** For endpoints that answer 204 No Content. */
 const noContent: Schema<void> = { parse: () => undefined };
 
@@ -260,6 +271,45 @@ export const merchantApi = {
     apiRequest("/device/activate", deviceSchema, {
       body: JSON.stringify(activateDeviceSchema.parse({ code })),
       headers: { "Content-Type": "application/json" },
+      method: "POST",
+    }),
+  members: (tenantId: string) =>
+    apiRequest("/access/members", memberListSchema, { headers: tenantHeaders(tenantId) }),
+  roles: (tenantId: string) =>
+    apiRequest("/access/roles", roleListSchema, { headers: tenantHeaders(tenantId) }),
+  invitations: (tenantId: string) =>
+    apiRequest("/access/invitations", invitationListSchema, { headers: tenantHeaders(tenantId) }),
+  createInvitation: (tenantId: string, input: CreateInvitation) =>
+    jsonMutation(
+      "/access/invitations",
+      "POST",
+      input,
+      createInvitationSchema,
+      invitationSchema,
+      tenantHeaders(tenantId),
+    ),
+  resendInvitation: (tenantId: string, id: string) =>
+    apiRequest(`/access/invitations/${id}/resend`, invitationSchema, {
+      headers: tenantHeaders(tenantId),
+      method: "POST",
+    }),
+  revokeInvitation: (tenantId: string, id: string) =>
+    apiRequest(`/access/invitations/${id}/revoke`, invitationSchema, {
+      headers: tenantHeaders(tenantId),
+      method: "POST",
+    }),
+  updateMembership: (tenantId: string, id: string, input: UpdateMembership) =>
+    jsonMutation(
+      `/access/memberships/${id}`,
+      "PATCH",
+      input,
+      updateMembershipSchema,
+      membershipSchema,
+      tenantHeaders(tenantId),
+    ),
+  revokeMemberSessions: (tenantId: string, id: string) =>
+    apiRequest(`/access/memberships/${id}/revoke-sessions`, sessionRevocationSchema, {
+      headers: tenantHeaders(tenantId),
       method: "POST",
     }),
   devices: (tenantId: string) =>

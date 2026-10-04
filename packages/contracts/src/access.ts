@@ -94,6 +94,23 @@ export const membershipSchema = organizationRecordTimestampsSchema.extend({
   outletIds: z.array(z.uuid()),
 });
 
+/**
+ * A member of the workspace with who they are. Only for people who manage
+ * members: the plain membership (and every event) carries no name or email.
+ */
+export const memberSchema = z.object({
+  allOutlets: z.boolean(),
+  displayName: z.string().trim().min(1).max(160),
+  email: z.email().max(254),
+  membershipId: z.uuid(),
+  outletIds: z.array(z.uuid()),
+  roleIds: z.array(z.uuid()),
+  status: membershipStatusSchema,
+  userId: z.uuid(),
+});
+
+export const memberListSchema = z.object({ members: z.array(memberSchema) });
+
 export const createMembershipSchema = z
   .object({
     userId: z.uuid(),
@@ -192,3 +209,7 @@ export type UpdateMembership = z.infer<typeof updateMembershipSchema>;
 export type UpdateRole = z.infer<typeof updateRoleSchema>;
 
 export type SessionRevocation = z.infer<typeof sessionRevocationSchema>;
+
+export type Member = z.infer<typeof memberSchema>;
+
+export type MemberList = z.infer<typeof memberListSchema>;

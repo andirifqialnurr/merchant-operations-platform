@@ -154,7 +154,7 @@ import {
   deviceSchema,
   registerDeviceSchema,
 } from "./devices.ts";
-import { sessionRevocationSchema } from "./access.ts";
+import { memberListSchema, sessionRevocationSchema } from "./access.ts";
 import { fileUploadRequestSchema, fileUploadTicketSchema } from "./files.ts";
 import {
   acceptInvitationSchema,
@@ -227,6 +227,7 @@ export const commonOpenApiSchemas = {
   InvitationList: toOpenApiSchema(invitationListSchema),
   InvitationPreview: toOpenApiSchema(invitationPreviewSchema),
   InvitationTokenRequest: toOpenApiSchema(invitationTokenRequestSchema),
+  MemberList: toOpenApiSchema(memberListSchema),
   ModuleInstallationList: toOpenApiSchema(moduleInstallationListSchema),
   SessionRevocation: toOpenApiSchema(sessionRevocationSchema),
   WorkspaceNavigation: toOpenApiSchema(workspaceNavigationSchema),

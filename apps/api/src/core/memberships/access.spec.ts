@@ -9,7 +9,7 @@ import {
   type UpdateMembership,
   type UpdateRole,
 } from "@merchant/contracts";
-import { ForbiddenException, NotFoundException } from "@nestjs/common";
+import { ConflictException, ForbiddenException, NotFoundException } from "@nestjs/common";
 import type { ExecutionContext } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 
@@ -40,6 +40,21 @@ const IDS = {
 } as const;
 
 class InMemoryAccessRepository implements AccessRepository {
+  async listMembers(tenantId: string) {
+    return this.memberships
+      .filter((item) => item.tenantId === tenantId)
+      .map((item) => ({
+        allOutlets: item.allOutlets,
+        displayName: item.userId === IDS.userOwner ? "Pemilik" : "Staf",
+        email: item.userId === IDS.userOwner ? "pemilik@example.com" : "staf@example.com",
+        membershipId: item.id,
+        outletIds: item.outletIds,
+        roleIds: item.roleIds,
+        status: item.status,
+        userId: item.userId,
+      }));
+  }
+
   readonly sessionRevocations: string[] = [];
 
   async recordSessionRevocation(
@@ -526,4 +541,43 @@ test("the audit entry for ended sign-ins passes the audit guard", async () => {
     userId: IDS.userStaff,
   });
   assert.throws(() => buildAuditPayload({ revokedSessions: 2 }), /Sensitive audit metadata/);
+});
+
+// ---- The people page (M2-FT-02)
+
+test("the member list names people, and stays inside the workspace", async () => {
+  const { membership, service } = await workspaceWithStaff();
+
+  const { members } = await service.listMembers(IDS.tenantA);
+  assert.deepEqual(
+    members.map((item) => [item.membershipId, item.displayName, item.email, item.status]),
+    [[membership.id, "Staf", "staf@example.com", "ACTIVE"]],
+  );
+  assert.deepEqual((await service.listMembers(IDS.tenantB)).members, []);
+});
+
+test("nobody can take away their own access", async () => {
+  const { ended, membership, service } = await workspaceWithStaff();
+
+  await assert.rejects(
+    () =>
+      service.updateMembership(
+        IDS.tenantA,
+        membership.id,
+        { status: "INACTIVE" },
+        { actorId: IDS.userStaff },
+      ),
+    (error: unknown) =>
+      error instanceof ConflictException &&
+      (error.getResponse() as { code: string }).code === "MEMBERSHIP_SELF_DEACTIVATE",
+  );
+  assert.deepEqual(ended, []);
+  // Someone else can.
+  const removed = await service.updateMembership(
+    IDS.tenantA,
+    membership.id,
+    { status: "INACTIVE" },
+    { actorId: IDS.userOwner },
+  );
+  assert.equal(removed.status, "INACTIVE");
 });

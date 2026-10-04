@@ -10,7 +10,8 @@
       "CORE_CATALOG": "Catalog",
       "POS": "Cashier",
       "CORE_SUBSCRIPTION": "Subscription",
-      "CORE_TENANCY": "Settings"
+      "CORE_TENANCY": "Settings",
+      "CORE_IDENTITY": "Users"
     },
     "navOrders": "Orders",
     "navSell": "Sell",
@@ -35,7 +36,8 @@
     "themeSystem": "System",
     "workspace": "Business",
     "pageNav": {
-      "devices": "Devices"
+      "devices": "Devices",
+      "users": "Users"
     }
   },
   "access": {
@@ -356,6 +358,7 @@
     "LIMIT_REACHED": "The limit for this feature has been reached.",
     "LOCATION_SCOPE_DENIED": "You are not assigned to this location.",
     "MAIL_NOT_CONFIGURED": "Invitations cannot be sent because no mail service is set up yet.",
+    "MEMBERSHIP_SELF_DEACTIVATE": "You cannot remove your own access.",
     "MODULE_ALWAYS_INSTALLED": "Core modules are always installed.",
     "MODULE_INSTALLATION_CHANGED": "The module's status changed. Reload and try again.",
     "MODULE_INSTALLATION_INVALID_TRANSITION": "The module cannot be changed from its current status.",
@@ -654,5 +657,75 @@
     "signIn": "Sign in",
     "title": "Invitation to join",
     "workspace": "Business"
+  },
+  "users": {
+    "accessDenied": "Only people who manage members of all outlets can open this page.",
+    "accessDeniedTitle": "You do not have access",
+    "accessRemoved": "Access was removed.",
+    "accessRestored": "Access was restored.",
+    "activeNote": "Ending sessions makes this person sign in again. Removing access takes them out of this business.",
+    "allOutlets": "All outlets",
+    "cancel": "Cancel",
+    "closedNote": {
+      "EXPIRED": "This invitation expired before it was accepted. Invite again if it is still needed.",
+      "REVOKED": "This invitation was withdrawn."
+    },
+    "closeSheet": "Close panel",
+    "email": "Email",
+    "emailRequired": "Enter a valid email address.",
+    "emptyInvitations": "Invitations that were not accepted yet appear here.",
+    "emptyInvitationsTitle": "No open invitations",
+    "emptyMembers": "No members yet.",
+    "endSessions": "End sessions",
+    "inactiveNote": "This person has no access to this business.",
+    "invitationStatus": {
+      "ACCEPTED": "Accepted",
+      "EXPIRED": "Expired",
+      "PENDING": "Waiting to be accepted",
+      "REVOKED": "Withdrawn"
+    },
+    "invitationWithdrawn": "The invitation was withdrawn.",
+    "invitations": "Invitations",
+    "invite": "Invite a user",
+    "inviteTitle": "Invite a user",
+    "invited": "The invitation was sent.",
+    "loadFailed": "The users could not be loaded",
+    "memberStatus": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    },
+    "members": "Members",
+    "name": "Name",
+    "noRoles": "There are no roles yet.",
+    "outletRequired": "Choose at least one outlet, or all outlets.",
+    "outlets": "Outlets",
+    "pendingNote": "Waiting to be accepted. The link works until {date}.",
+    "removeAccess": "Remove access",
+    "removeDescription": "This person is signed out everywhere at once and can no longer open this business. Access can be restored later.",
+    "removeTitle": "Remove {name}'s access?",
+    "resend": "Send again",
+    "resent": "The invitation was sent again.",
+    "restoreAccess": "Restore access",
+    "role": "Role",
+    "roleName": {
+      "CASHIER": "Cashier",
+      "FINANCE_STAFF": "Finance staff",
+      "INVENTORY_STAFF": "Inventory staff",
+      "KITCHEN": "Kitchen",
+      "MANAGER": "Manager",
+      "OWNER": "Owner",
+      "WAITER": "Waiter"
+    },
+    "roleRequired": "Choose a role.",
+    "selectRole": "Choose a role",
+    "selfNote": "This is your own account. Only someone else can change your access.",
+    "sendInvitation": "Send invitation",
+    "sending": "Sending…",
+    "sessionsEnded": "Sessions were ended.",
+    "status": "Status",
+    "tabs": "User sections",
+    "title": "Users",
+    "validUntil": "Valid until",
+    "withdraw": "Withdraw invitation"
   }
 }

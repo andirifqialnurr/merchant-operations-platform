@@ -55,3 +55,61 @@ export function useDeviceMutation(tenantId: string) {
 }
 
 export type DeviceMutation = ReturnType<typeof useDeviceMutation>;
+
+export const peopleKeys = {
+  invitations: (tenantId: string) => ["people", tenantId, "invitations"] as const,
+  members: (tenantId: string) => ["people", tenantId, "members"] as const,
+  roles: (tenantId: string) => ["people", tenantId, "roles"] as const,
+};
+
+export function useMembers(tenantId: string, enabled: boolean) {
+  return useQuery({
+    enabled,
+    queryFn: () => merchantApi.members(tenantId),
+    queryKey: peopleKeys.members(tenantId),
+  });
+}
+
+export function useInvitations(tenantId: string, enabled: boolean) {
+  return useQuery({
+    enabled,
+    queryFn: () => merchantApi.invitations(tenantId),
+    queryKey: peopleKeys.invitations(tenantId),
+  });
+}
+
+export function useRoles(tenantId: string, enabled: boolean) {
+  return useQuery({
+    enabled,
+    queryFn: () => merchantApi.roles(tenantId),
+    queryKey: peopleKeys.roles(tenantId),
+  });
+}
+
+/**
+ * Runs one write about people, then refetches members, invitations, and the
+ * usage they count against. The screen changes after the server confirms.
+ */
+export function usePeopleMutation(tenantId: string) {
+  const queryClient = useQueryClient();
+  const notify = useToast();
+  const errorMessage = useErrorMessage();
+  return useMutation({
+    mutationFn: ({ action }: { action: () => Promise<unknown>; success: string }) => action(),
+    onError: (error) => {
+      // A full limit is explained where the person tried to add, with what to do next.
+      if (isLimitReached(error)) return;
+      notify({ message: errorMessage(error), tone: "danger" });
+    },
+    onSuccess: async (_result, { success }) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: peopleKeys.members(tenantId) }),
+        queryClient.invalidateQueries({ queryKey: peopleKeys.invitations(tenantId) }),
+        queryClient.invalidateQueries({ queryKey: subscriptionKey(tenantId) }),
+      ]);
+      notify({ message: success, tone: "success" });
+    },
+  });
+}
+
+export type PeopleMutation = ReturnType<typeof usePeopleMutation>;

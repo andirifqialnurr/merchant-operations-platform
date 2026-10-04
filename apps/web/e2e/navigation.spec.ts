@@ -12,7 +12,7 @@ async function menu(page: Page) {
 test("the owner's menu lists the installed modules they may open", async ({ page }) => {
   await openAs(page, "catalog.owner@local.test", "/catalog");
   // Daily modules first, settings last.
-  expect(await menu(page)).toEqual(["Katalog", "Kasir", "Perangkat", "Langganan"]);
+  expect(await menu(page)).toEqual(["Katalog", "Kasir", "Perangkat", "Pengguna", "Langganan"]);
   await expect(page.getByRole("link", { name: "Katalog" })).toHaveAttribute("aria-current", "page");
 });
 
@@ -103,4 +103,39 @@ test("an invitation link without a usable secret says so and asks for nothing", 
   await expect(page.locator('input[type="password"]')).toHaveCount(0);
   // The secret leaves the address once it was read.
   await expect(page).toHaveURL(/\/invite$/);
+});
+
+test("the owner sees the people of the business and the invite form says what is missing", async ({
+  page,
+}) => {
+  await openAs(page, "catalog.owner@local.test", "/settings/users");
+  const main = page.getByRole("main");
+  await expect(main.getByRole("heading", { level: 1, name: "Pengguna" })).toBeVisible();
+  const own = main.getByRole("row", { name: /catalog\.owner@local\.test/ });
+  await expect(own).toContainText("Pemilik");
+  await expect(own).toContainText("Semua outlet");
+  // One primary action on the page.
+  await expect(main.getByRole("button")).toHaveCount(1);
+
+  // Nobody can take away their own access: the row offers no action.
+  await own.click();
+  const sheet = page.getByRole("dialog");
+  await expect(sheet.getByText("Ini akun Anda sendiri.")).toBeVisible();
+  await expect(sheet.getByRole("button", { name: "Cabut akses" })).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await expect(sheet).toBeHidden();
+
+  await main.getByRole("button", { name: "Undang pengguna" }).click();
+  await sheet.getByRole("button", { name: "Kirim undangan" }).click();
+  await expect(sheet.getByText("Isi alamat email yang benar.")).toBeVisible();
+  await expect(sheet.getByText("Pilih peran.")).toBeVisible();
+  // A message goes away once the field is worked on.
+  await sheet.getByLabel("Email").fill("seseorang@example.com");
+  await expect(sheet.getByText("Isi alamat email yang benar.")).toHaveCount(0);
+});
+
+test("a cashier is told the people page is not theirs to open", async ({ page }) => {
+  await openAs(page, "pos.cashier@local.test", "/settings/users");
+  await expect(page.getByRole("heading", { name: "Anda tidak punya akses" })).toBeVisible();
+  await expect(page.getByRole("table")).toHaveCount(0);
 });

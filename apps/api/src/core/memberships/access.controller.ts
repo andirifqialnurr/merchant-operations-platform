@@ -4,6 +4,7 @@ import {
   createMembershipSchema,
   createRoleSchema,
   entityIdParamsSchema,
+  memberListSchema,
   membershipSchema,
   sessionRevocationSchema,
   PERMISSIONS,
@@ -159,6 +160,20 @@ export class AccessController {
     return membershipSchema
       .array()
       .parse(await this.accessService.listMemberships(headers[API_HEADERS.tenantId]));
+  }
+
+  @ApiOperation({ summary: "List the people of the workspace with their name and email" })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/MemberList" } })
+  @RequirePermission(PERMISSIONS.accessMembershipManage)
+  @RequireAllOutlets()
+  @Get("members")
+  async members(
+    @RequestHeaders(new ZodValidationPipe(tenantRequestHeadersSchema))
+    headers: TenantRequestHeaders,
+  ) {
+    return memberListSchema.parse(
+      await this.accessService.listMembers(headers[API_HEADERS.tenantId]),
+    );
   }
 
   @ApiOperation({ summary: "Create a tenant membership with roles and outlet scope" })

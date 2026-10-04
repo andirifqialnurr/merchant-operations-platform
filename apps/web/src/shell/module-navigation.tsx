@@ -7,6 +7,7 @@ import {
   IconPackage,
   IconReceipt2,
   IconSettings,
+  IconUsers,
   IconSquareRoundedLetterM,
 } from "@tabler/icons-react";
 
@@ -38,6 +39,8 @@ export const MODULE_NAVIGATION = {
     labelKey: "moduleNav.CORE_SUBSCRIPTION",
     wholeBusiness: true,
   },
+  // People and roles of the business; each page has its own entry in PAGE_NAVIGATION.
+  CORE_IDENTITY: { icon: IconUsers, labelKey: "moduleNav.CORE_IDENTITY", wholeBusiness: true },
   // Settings pages of the business; each page has its own entry in PAGE_NAVIGATION.
   CORE_TENANCY: { icon: IconSettings, labelKey: "moduleNav.CORE_TENANCY", wholeBusiness: true },
   POS: { icon: IconCashRegister, labelKey: "moduleNav.POS" },
@@ -57,6 +60,7 @@ export function isNavigableModule(moduleKey: ModuleKey): moduleKey is NavigableM
  */
 export const PAGE_NAVIGATION: Record<string, { icon: AppIconComponent; labelKey: string }> = {
   "/settings/devices": { icon: IconDeviceTablet, labelKey: "pageNav.devices" },
+  "/settings/users": { icon: IconUsers, labelKey: "pageNav.users" },
 };
 
 /** Settings come after the modules people work in every day. */

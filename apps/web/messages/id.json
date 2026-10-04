@@ -10,7 +10,8 @@
       "CORE_CATALOG": "Katalog",
       "POS": "Kasir",
       "CORE_SUBSCRIPTION": "Langganan",
-      "CORE_TENANCY": "Pengaturan"
+      "CORE_TENANCY": "Pengaturan",
+      "CORE_IDENTITY": "Pengguna"
     },
     "navOrders": "Pesanan",
     "navSell": "Jual",
@@ -35,7 +36,8 @@
     "themeSystem": "Sistem",
     "workspace": "Bisnis",
     "pageNav": {
-      "devices": "Perangkat"
+      "devices": "Perangkat",
+      "users": "Pengguna"
     }
   },
   "access": {
@@ -356,6 +358,7 @@
     "LIMIT_REACHED": "Batas untuk fitur ini sudah tercapai.",
     "LOCATION_SCOPE_DENIED": "Anda tidak ditugaskan ke lokasi ini.",
     "MAIL_NOT_CONFIGURED": "Undangan belum bisa dikirim karena layanan email belum diatur.",
+    "MEMBERSHIP_SELF_DEACTIVATE": "Anda tidak dapat mencabut akses Anda sendiri.",
     "MODULE_ALWAYS_INSTALLED": "Modul inti selalu terpasang.",
     "MODULE_INSTALLATION_CHANGED": "Status modul berubah. Muat ulang lalu coba lagi.",
     "MODULE_INSTALLATION_INVALID_TRANSITION": "Modul tidak bisa diubah dari status sekarang.",
@@ -654,5 +657,75 @@
     "signIn": "Masuk",
     "title": "Undangan bergabung",
     "workspace": "Bisnis"
+  },
+  "users": {
+    "accessDenied": "Hanya yang mengelola anggota seluruh outlet yang dapat membuka halaman ini.",
+    "accessDeniedTitle": "Anda tidak punya akses",
+    "accessRemoved": "Akses dicabut.",
+    "accessRestored": "Akses diaktifkan lagi.",
+    "activeNote": "Mengakhiri sesi membuat orang ini harus masuk lagi. Mencabut akses mengeluarkannya dari bisnis ini.",
+    "allOutlets": "Semua outlet",
+    "cancel": "Batal",
+    "closedNote": {
+      "EXPIRED": "Undangan ini kedaluwarsa sebelum diterima. Undang lagi bila masih diperlukan.",
+      "REVOKED": "Undangan ini sudah dicabut."
+    },
+    "closeSheet": "Tutup panel",
+    "email": "Email",
+    "emailRequired": "Isi alamat email yang benar.",
+    "emptyInvitations": "Undangan yang belum diterima muncul di sini.",
+    "emptyInvitationsTitle": "Tidak ada undangan terbuka",
+    "emptyMembers": "Belum ada anggota.",
+    "endSessions": "Akhiri sesi",
+    "inactiveNote": "Orang ini tidak punya akses ke bisnis ini.",
+    "invitationStatus": {
+      "ACCEPTED": "Diterima",
+      "EXPIRED": "Kedaluwarsa",
+      "PENDING": "Menunggu diterima",
+      "REVOKED": "Dicabut"
+    },
+    "invitationWithdrawn": "Undangan dicabut.",
+    "invitations": "Undangan",
+    "invite": "Undang pengguna",
+    "inviteTitle": "Undang pengguna",
+    "invited": "Undangan dikirim.",
+    "loadFailed": "Pengguna tidak dapat dimuat",
+    "memberStatus": {
+      "ACTIVE": "Aktif",
+      "INACTIVE": "Nonaktif"
+    },
+    "members": "Anggota",
+    "name": "Nama",
+    "noRoles": "Belum ada peran.",
+    "outletRequired": "Pilih minimal satu outlet, atau semua outlet.",
+    "outlets": "Outlet",
+    "pendingNote": "Menunggu diterima. Tautan berlaku sampai {date}.",
+    "removeAccess": "Cabut akses",
+    "removeDescription": "Orang ini langsung keluar dari semua perangkat dan tidak bisa membuka bisnis ini lagi. Akses bisa diaktifkan lagi nanti.",
+    "removeTitle": "Cabut akses {name}?",
+    "resend": "Kirim ulang",
+    "resent": "Undangan dikirim ulang.",
+    "restoreAccess": "Aktifkan lagi",
+    "role": "Peran",
+    "roleName": {
+      "CASHIER": "Kasir",
+      "FINANCE_STAFF": "Staf keuangan",
+      "INVENTORY_STAFF": "Staf stok",
+      "KITCHEN": "Dapur",
+      "MANAGER": "Manajer",
+      "OWNER": "Pemilik",
+      "WAITER": "Pelayan"
+    },
+    "roleRequired": "Pilih peran.",
+    "selectRole": "Pilih peran",
+    "selfNote": "Ini akun Anda sendiri. Akses Anda hanya bisa diubah oleh orang lain.",
+    "sendInvitation": "Kirim undangan",
+    "sending": "Mengirim…",
+    "sessionsEnded": "Sesi diakhiri.",
+    "status": "Status",
+    "tabs": "Bagian pengguna",
+    "title": "Pengguna",
+    "validUntil": "Berlaku sampai",
+    "withdraw": "Cabut undangan"
   }
 }

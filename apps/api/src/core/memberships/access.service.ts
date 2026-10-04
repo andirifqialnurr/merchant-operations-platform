@@ -2,6 +2,7 @@ import {
   authorizationContextSchema,
   createMembershipSchema,
   createRoleSchema,
+  memberListSchema,
   membershipSchema,
   PERMISSIONS,
   roleSchema,
@@ -199,6 +200,12 @@ export class AccessService {
       .then((memberships) => memberships.map(toMembership));
   }
 
+  /** The people of the workspace, with who they are. */
+  async listMembers(tenantId: string) {
+    await this.requireActiveTenant(tenantId);
+    return memberListSchema.parse({ members: await this.repository.listMembers(tenantId) });
+  }
+
   async listWorkspaceContexts(userId: string) {
     return workspaceContextsSchema.parse(await this.repository.listWorkspaceContexts(userId));
   }
@@ -238,6 +245,10 @@ export class AccessService {
     if (!current)
       throw notFound("MEMBERSHIP_NOT_FOUND", "Membership tidak ditemukan pada tenant ini.");
     const parsed = updateMembershipSchema.parse(input);
+    // Nobody locks themselves out: someone else has to take their access away.
+    if (parsed.status === "INACTIVE" && context?.actorId === current.userId) {
+      throw conflict("MEMBERSHIP_SELF_DEACTIVATE", "You cannot remove your own access.");
+    }
     if (parsed.roleIds) await this.requireActiveRoles(tenantId, parsed.roleIds);
     if (parsed.outletIds) await this.requireActiveOutlets(tenantId, parsed.outletIds);
     const normalized =
