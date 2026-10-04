@@ -17,6 +17,11 @@ export const tenancyManifest: ModuleManifest = {
   ],
   namespaces: ["core"],
   navigation: [
+    {
+      label: "Business and outlets",
+      path: "/settings/organization",
+      permissionKey: PERMISSIONS.organizationRead,
+    },
     { label: "Devices", path: "/settings/devices", permissionKey: PERMISSIONS.deviceRead },
   ],
   permissions: [
@@ -25,7 +30,10 @@ export const tenancyManifest: ModuleManifest = {
     PERMISSIONS.deviceRead,
     PERMISSIONS.deviceManage,
   ],
-  routes: [{ path: "/settings/devices", permissionKey: PERMISSIONS.deviceRead }],
+  routes: [
+    { path: "/settings/organization", permissionKey: PERMISSIONS.organizationRead },
+    { path: "/settings/devices", permissionKey: PERMISSIONS.deviceRead },
+  ],
   configSchemaVersion: 1,
   eventHandlers: [],
   installSteps: [],

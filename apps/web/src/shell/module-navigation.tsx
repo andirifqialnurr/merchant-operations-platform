@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   IconCashRegister,
+  IconBuildingStore,
   IconDeviceTablet,
   IconPackage,
   IconReceipt2,
@@ -61,6 +62,7 @@ export function isNavigableModule(moduleKey: ModuleKey): moduleKey is NavigableM
  */
 export const PAGE_NAVIGATION: Record<string, { icon: AppIconComponent; labelKey: string }> = {
   "/settings/devices": { icon: IconDeviceTablet, labelKey: "pageNav.devices" },
+  "/settings/organization": { icon: IconBuildingStore, labelKey: "pageNav.organization" },
   "/settings/roles": { icon: IconShieldCheck, labelKey: "pageNav.roles" },
   "/settings/users": { icon: IconUsers, labelKey: "pageNav.users" },
 };

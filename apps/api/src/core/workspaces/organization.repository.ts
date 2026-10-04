@@ -22,6 +22,7 @@ type RecordTimestamps = {
 };
 
 export type TenantRecord = RecordTimestamps & {
+  currency: string;
   id: string;
   name: string;
   slug: string;
@@ -43,6 +44,7 @@ export type OutletRecord = RecordTimestamps & {
   code: string;
   name: string;
   timezone: string;
+  address: string | null;
   status: OrganizationUnitStatus;
 };
 
@@ -94,6 +96,7 @@ export const ORGANIZATION_REPOSITORY = Symbol("ORGANIZATION_REPOSITORY");
 
 const tenantSelect = {
   createdAt: true,
+  currency: true,
   id: true,
   name: true,
   slug: true,
@@ -112,6 +115,7 @@ const brandSelect = {
 } as const;
 
 const outletSelect = {
+  address: true,
   brandId: true,
   code: true,
   createdAt: true,
@@ -125,6 +129,16 @@ const outletSelect = {
 
 type ChangeRecord = TenantRecord | BrandRecord | OutletRecord;
 type TransactionClient = Pick<DatabaseClient, "auditLog" | "outboxEvent">;
+
+/**
+ * The record as other modules may see it. An address is not carried by events
+ * (security.md 10); a handler that needs it reads the outlet by ID.
+ */
+function eventRecord(record: ChangeRecord) {
+  const rest: Record<string, unknown> = serializeRecord(record);
+  delete rest.address;
+  return rest;
+}
 
 function serializeRecord(record: ChangeRecord) {
   return {
@@ -169,7 +183,10 @@ async function writeChange(
       aggregateId: options.after.id,
       aggregateType: options.entityType,
       ...(options.outletId ? { outletId: options.outletId } : {}),
-      payload: safeEventPayload(payload),
+      payload: safeEventPayload({
+        after: eventRecord(options.after),
+        ...(options.before ? { before: eventRecord(options.before) } : {}),
+      }),
       tenantId: options.tenantId,
       type: `organization.${options.entityType}.${options.action.endsWith("create") ? "created" : "updated"}`,
     },
@@ -306,8 +323,9 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
 
   async createOutlet(tenantId: string, input: CreateOutlet, context?: MutationContext) {
     return getPrismaClient().$transaction(async (transaction) => {
+      const { address, ...fields } = input;
       const outlet = await transaction.outlet.create({
-        data: { ...input, tenantId },
+        data: { ...fields, ...(address ? { address } : {}), tenantId },
         select: outletSelect,
       });
       await writeChange(transaction, {
@@ -335,6 +353,7 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
       });
       const outlet = await transaction.outlet.update({
         data: {
+          ...(input.address !== undefined ? { address: input.address } : {}),
           ...(input.brandId !== undefined ? { brandId: input.brandId } : {}),
           ...(input.code !== undefined ? { code: input.code } : {}),
           ...(input.name !== undefined ? { name: input.name } : {}),

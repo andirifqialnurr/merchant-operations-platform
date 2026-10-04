@@ -1,12 +1,15 @@
 .ui-select {
   display: grid;
   gap: var(--space-1-5);
+  /* A long option label is cut with an ellipsis instead of widening the form. */
+  grid-template-columns: minmax(0, 1fr);
 }
 .ui-select__trigger {
   align-items: center;
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-control);
   border-radius: var(--foundation-radius-sm);
+  box-sizing: border-box;
   color: var(--color-text-primary);
   cursor: pointer;
   display: flex;

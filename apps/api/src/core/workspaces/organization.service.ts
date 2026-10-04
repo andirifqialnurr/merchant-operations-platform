@@ -125,6 +125,14 @@ export class OrganizationService {
     return brand;
   }
 
+  /** Active outlets of the workspace, optionally of one brand. */
+  private async activeOutlets(tenantId: string, brandId?: string) {
+    const snapshot = await this.repository.getSnapshot(tenantId);
+    return (snapshot?.outlets ?? []).filter(
+      (outlet) => outlet.status === "ACTIVE" && (!brandId || outlet.brandId === brandId),
+    );
+  }
+
   private async runUniqueMutation<T>(operation: () => Promise<T>, code: string, message: string) {
     try {
       return await operation();
@@ -199,6 +207,17 @@ export class OrganizationService {
     const current = await this.requireBrand(tenantId, brandId);
     const parsed = updateBrandSchema.parse(input);
 
+    if (parsed.status === "INACTIVE" && current.status === "ACTIVE") {
+      // Its outlets would keep selling under a brand nobody can choose any more.
+      if ((await this.activeOutlets(tenantId, brandId)).length > 0) {
+        throw conflict("BRAND_HAS_ACTIVE_OUTLETS", "Brand masih punya outlet aktif.");
+      }
+    }
+    if (parsed.status === "ACTIVE" && current.status !== "ACTIVE") {
+      // Coming back counts against the limit like a new one.
+      await this.limits.assertCanAdd(tenantId, "core.business_units.active");
+    }
+
     if (parsed.slug && parsed.slug !== current.slug) {
       const duplicate = await this.repository.findBrandBySlug(tenantId, parsed.slug);
 
@@ -247,7 +266,18 @@ export class OrganizationService {
     }
 
     const parsed = updateOutletSchema.parse(input);
-    await this.requireActiveBrand(tenantId, parsed.brandId ?? current.brandId);
+    // An inactive outlet may still be edited after its brand was deactivated.
+    // Moving it or making it active requires an active brand.
+    if (
+      (parsed.brandId && parsed.brandId !== current.brandId) ||
+      (parsed.status ?? current.status) === "ACTIVE"
+    ) {
+      await this.requireActiveBrand(tenantId, parsed.brandId ?? current.brandId);
+    }
+
+    if (parsed.status === "ACTIVE" && current.status !== "ACTIVE") {
+      await this.limits.assertCanAdd(tenantId, "core.locations.active");
+    }
 
     if (parsed.code && parsed.code !== current.code) {
       const duplicate = await this.repository.findOutletByCode(tenantId, parsed.code);

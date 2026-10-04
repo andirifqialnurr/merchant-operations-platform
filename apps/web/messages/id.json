@@ -38,7 +38,8 @@
     "pageNav": {
       "devices": "Perangkat",
       "users": "Pengguna",
-      "roles": "Peran"
+      "roles": "Peran",
+      "organization": "Bisnis dan outlet"
     }
   },
   "access": {
@@ -400,7 +401,11 @@
     "UNKNOWN": "Terjadi kesalahan. Coba lagi.",
     "UNKNOWN_WITH_ID": "Terjadi kesalahan. Coba lagi, atau sebutkan kode {requestId} saat menghubungi dukungan.",
     "VALIDATION_ERROR": "Periksa kembali isian Anda.",
-    "WORKSPACE_ACCESS_DENIED": "Anda bukan anggota aktif bisnis ini."
+    "WORKSPACE_ACCESS_DENIED": "Anda bukan anggota aktif bisnis ini.",
+    "BRAND_HAS_ACTIVE_OUTLETS": "Brand ini masih punya outlet aktif. Nonaktifkan atau pindahkan outletnya dulu.",
+    "BRAND_INACTIVE": "Brand ini nonaktif. Aktifkan brand dulu atau pilih brand lain.",
+    "BRAND_SLUG_CONFLICT": "Sudah ada brand dengan nama serupa.",
+    "OUTLET_CODE_CONFLICT": "Sudah ada outlet dengan nama serupa."
   },
   "subscription": {
     "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat langganan.",
@@ -847,5 +852,66 @@
     "viewCompare": "Perbandingan",
     "viewList": "Daftar",
     "views": "Tampilan peran"
+  },
+  "organization": {
+    "accessDenied": "Minta pemilik bisnis jika Anda perlu melihat data bisnis dan outlet.",
+    "accessDeniedTitle": "Anda tidak punya akses ke halaman ini",
+    "activate": "Aktifkan",
+    "activated": "Sudah aktif lagi.",
+    "address": "Alamat",
+    "addressTooShort": "Alamat terlalu pendek.",
+    "brand": "Brand",
+    "brandCreated": "Brand dibuat.",
+    "brandHasOutlets": "Brand ini masih punya outlet aktif. Nonaktifkan atau pindahkan outletnya dulu.",
+    "brandName": "Nama brand",
+    "brandRequired": "Pilih brand.",
+    "businessName": "Nama bisnis",
+    "cancel": "Batal",
+    "closeSheet": "Tutup",
+    "createBrand": "Tambah brand",
+    "createOutlet": "Tambah outlet",
+    "currency": "Mata uang",
+    "deactivate": "Nonaktifkan",
+    "deactivateBrandDescription": "Brand yang nonaktif tidak bisa dipilih untuk outlet baru. Anda bisa mengaktifkannya lagi kapan saja.",
+    "deactivateOutletDescription": "Outlet yang nonaktif tidak bisa dipakai untuk berjualan. Data lamanya tetap tersimpan dan outlet bisa diaktifkan lagi.",
+    "deactivateTitle": "Nonaktifkan {name}?",
+    "deactivated": "Sudah dinonaktifkan.",
+    "emptyBrands": "Belum ada brand.",
+    "emptyOutlets": "Belum ada outlet.",
+    "loadFailed": "Data bisnis tidak bisa dimuat",
+    "nameRequired": "Isi nama minimal 2 huruf atau angka.",
+    "newBrand": "Brand baru",
+    "newOutlet": "Outlet baru",
+    "noBrands": "Belum ada brand aktif.",
+    "optional": "opsional",
+    "outlet": "Outlet",
+    "outletCount": "Outlet aktif",
+    "outletCreated": "Outlet dibuat.",
+    "outletName": "Nama outlet",
+    "save": "Simpan",
+    "saved": "Perubahan disimpan.",
+    "saving": "Menyimpan…",
+    "selectBrand": "Pilih brand",
+    "status": "Status",
+    "statusName": {
+      "ACTIVE": "Aktif",
+      "INACTIVE": "Nonaktif"
+    },
+    "timeZone": "Zona waktu",
+    "timeZoneName": {
+      "Asia/Jakarta": "WIB — Waktu Indonesia Barat (Jakarta)",
+      "Asia/Jayapura": "WIT — Waktu Indonesia Timur (Jayapura)",
+      "Asia/Makassar": "WITA — Waktu Indonesia Tengah (Makassar)"
+    },
+    "timeZoneShort": {
+      "Asia/Jakarta": "WIB",
+      "Asia/Jayapura": "WIT",
+      "Asia/Makassar": "WITA"
+    },
+    "title": "Bisnis dan outlet",
+    "viewBrands": "Brand",
+    "viewBusiness": "Bisnis",
+    "viewOutlets": "Outlet",
+    "views": "Bagian bisnis"
   }
 }

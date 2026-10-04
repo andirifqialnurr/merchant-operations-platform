@@ -15,6 +15,7 @@ test("the owner's menu lists the installed modules they may open", async ({ page
   expect(await menu(page)).toEqual([
     "Katalog",
     "Kasir",
+    "Bisnis dan outlet",
     "Perangkat",
     "Pengguna",
     "Peran",

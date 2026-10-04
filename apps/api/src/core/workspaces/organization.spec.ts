@@ -54,6 +54,7 @@ class InMemoryOrganizationRepository implements OrganizationRepository {
     const tenant: TenantRecord = {
       ...input,
       createdAt: timestamp,
+      currency: "IDR",
       id: this.nextId("tenant"),
       status: "ACTIVE",
       updatedAt: timestamp,
@@ -121,10 +122,11 @@ class InMemoryOrganizationRepository implements OrganizationRepository {
 
   async createOutlet(
     tenantId: string,
-    input: { brandId: string; code: string; name: string; timezone: string },
+    input: { address?: string; brandId: string; code: string; name: string; timezone: string },
   ) {
     const timestamp = this.now();
     const outlet: OutletRecord = {
+      address: null,
       ...input,
       createdAt: timestamp,
       id: this.nextId("outlet"),
@@ -139,7 +141,9 @@ class InMemoryOrganizationRepository implements OrganizationRepository {
   async updateOutlet(
     tenantId: string,
     outletId: string,
-    input: Partial<Pick<OutletRecord, "brandId" | "code" | "name" | "status" | "timezone">>,
+    input: Partial<
+      Pick<OutletRecord, "address" | "brandId" | "code" | "name" | "status" | "timezone">
+    >,
   ) {
     const outlet = this.outlets.find(
       (candidate) => candidate.id === outletId && candidate.tenantId === tenantId,
@@ -316,4 +320,163 @@ test("asks the limit gate before a brand or an outlet is created", async () => {
   ]);
   const snapshot = await service.getSnapshot(tenant.id);
   assert.deepEqual([snapshot.brands.length, snapshot.outlets.length], [1, 1]);
+});
+
+test("an outlet keeps its address and time zone, and the address can be removed", async () => {
+  const service = new OrganizationService(new InMemoryOrganizationRepository());
+  const tenant = await service.createTenant({ name: "Tenant A", slug: "tenant-a" });
+  const brand = await service.createBrand(tenant.id, { name: "Brand A", slug: "brand-a" });
+  const outlet = await service.createOutlet(tenant.id, {
+    address: "  Jl. Merdeka No. 1, Bandung  ",
+    brandId: brand.id,
+    code: "A-01",
+    name: "Outlet A",
+    timezone: "Asia/Jakarta",
+  });
+  assert.equal(outlet.address, "Jl. Merdeka No. 1, Bandung");
+
+  const moved = await service.updateOutlet(tenant.id, outlet.id, {
+    address: "Jl. Sudirman No. 9, Makassar",
+    timezone: "Asia/Makassar",
+  });
+  assert.deepEqual(
+    [moved.address, moved.timezone],
+    ["Jl. Sudirman No. 9, Makassar", "Asia/Makassar"],
+  );
+
+  const cleared = await service.updateOutlet(tenant.id, outlet.id, { address: null });
+  assert.equal(cleared.address, null);
+  // The currency of the business is read, never sent with a change.
+  assert.equal((await service.getSnapshot(tenant.id)).tenant.currency, "IDR");
+});
+
+test("a brand with active outlets stays active and outlet reactivation checks its limit", async () => {
+  let full = false;
+  const service = new OrganizationService(new InMemoryOrganizationRepository(), {
+    assertCanAdd: async () => {
+      if (full) throw new Error("LIMIT_REACHED");
+    },
+  });
+  const tenant = await service.createTenant({ name: "Tenant A", slug: "tenant-a" });
+  const brand = await service.createBrand(tenant.id, { name: "Brand A", slug: "brand-a" });
+  await service.createOutlet(tenant.id, {
+    brandId: brand.id,
+    code: "A-01",
+    name: "Outlet A",
+    timezone: "Asia/Jakarta",
+  });
+
+  await assert.rejects(
+    () => service.updateBrand(tenant.id, brand.id, { status: "INACTIVE" }),
+    (error) => responseCode(error) === "BRAND_HAS_ACTIVE_OUTLETS",
+  );
+
+  const second = await service.createOutlet(tenant.id, {
+    brandId: brand.id,
+    code: "A-02",
+    name: "Outlet B",
+    timezone: "Asia/Jakarta",
+  });
+  const closed = await service.updateOutlet(tenant.id, second.id, { status: "INACTIVE" });
+  assert.equal(closed.status, "INACTIVE");
+
+  // Coming back counts against the limit like a new outlet.
+  full = true;
+  await assert.rejects(
+    () => service.updateOutlet(tenant.id, second.id, { status: "ACTIVE" }),
+    /LIMIT_REACHED/,
+  );
+  // Renaming an inactive outlet is not coming back.
+  const renamed = await service.updateOutlet(tenant.id, second.id, { name: "Outlet B2" });
+  assert.equal(renamed.name, "Outlet B2");
+});
+
+test("a workspace can have no active outlets without losing its records", async () => {
+  const service = new OrganizationService(new InMemoryOrganizationRepository());
+  const tenant = await service.createTenant({ name: "Tenant A", slug: "tenant-a" });
+  const brand = await service.createBrand(tenant.id, { name: "Brand A", slug: "brand-a" });
+  const outlet = await service.createOutlet(tenant.id, {
+    brandId: brand.id,
+    code: "A-01",
+    name: "Outlet A",
+    timezone: "Asia/Jakarta",
+  });
+  await service.updateOutlet(tenant.id, outlet.id, { status: "INACTIVE" });
+  await service.updateBrand(tenant.id, brand.id, { status: "INACTIVE" });
+  const snapshot = await service.getSnapshot(tenant.id);
+  assert.equal(snapshot.outlets.length, 1);
+  assert.equal(snapshot.outlets[0]?.status, "INACTIVE");
+  assert.equal(snapshot.brands[0]?.status, "INACTIVE");
+});
+
+test("reactivating a brand checks its limit without blocking edits to inactive outlets", async () => {
+  let full = false;
+  const asked: string[] = [];
+  const service = new OrganizationService(new InMemoryOrganizationRepository(), {
+    assertCanAdd: async (_tenantId, dimensionKey) => {
+      asked.push(dimensionKey);
+      if (full) throw new Error("LIMIT_REACHED");
+    },
+  });
+  const tenant = await service.createTenant({ name: "Tenant A", slug: "tenant-a" });
+  const brand = await service.createBrand(tenant.id, { name: "Brand A", slug: "brand-a" });
+  const other = await service.createBrand(tenant.id, { name: "Brand B", slug: "brand-b" });
+  const outlet = await service.createOutlet(tenant.id, {
+    brandId: brand.id,
+    code: "A-01",
+    name: "Outlet A",
+    timezone: "Asia/Jakarta",
+  });
+  await service.createOutlet(tenant.id, {
+    brandId: other.id,
+    code: "B-01",
+    name: "Outlet B",
+    timezone: "Asia/Jakarta",
+  });
+  await service.updateOutlet(tenant.id, outlet.id, { status: "INACTIVE" });
+  await service.updateBrand(tenant.id, brand.id, { status: "INACTIVE" });
+  full = true;
+  const renamed = await service.updateOutlet(tenant.id, outlet.id, {
+    brandId: brand.id,
+    name: "Outlet A2",
+  });
+  assert.equal(renamed.name, "Outlet A2");
+  assert.equal(renamed.status, "INACTIVE");
+  await assert.rejects(
+    () => service.updateOutlet(tenant.id, outlet.id, { status: "ACTIVE" }),
+    (error) => responseCode(error) === "BRAND_INACTIVE",
+  );
+  await assert.rejects(
+    () => service.updateBrand(tenant.id, brand.id, { status: "ACTIVE" }),
+    /LIMIT_REACHED/,
+  );
+  assert.equal(asked.at(-1), "core.business_units.active");
+  assert.equal((await service.getSnapshot(tenant.id)).brands[0]?.status, "INACTIVE");
+});
+
+test("moving an inactive outlet still requires an active brand in the same tenant", async () => {
+  const service = new OrganizationService(new InMemoryOrganizationRepository());
+  const tenant = await service.createTenant({ name: "Tenant A", slug: "tenant-a" });
+  const brand = await service.createBrand(tenant.id, { name: "Brand A", slug: "brand-a" });
+  const other = await service.createBrand(tenant.id, { name: "Brand B", slug: "brand-b" });
+  const outlet = await service.createOutlet(tenant.id, {
+    brandId: brand.id,
+    code: "A-01",
+    name: "Outlet A",
+    timezone: "Asia/Jakarta",
+  });
+  await service.updateOutlet(tenant.id, outlet.id, { status: "INACTIVE" });
+  await service.updateBrand(tenant.id, other.id, { status: "INACTIVE" });
+  await assert.rejects(
+    () => service.updateOutlet(tenant.id, outlet.id, { brandId: other.id }),
+    (error) => responseCode(error) === "BRAND_INACTIVE",
+  );
+  await assert.rejects(
+    () => service.updateOutlet(tenant.id, outlet.id, { brandId: IDS.tenantB }),
+    (error) => responseCode(error) === "BRAND_NOT_FOUND",
+  );
+  await service.updateBrand(tenant.id, other.id, { status: "ACTIVE" });
+  const moved = await service.updateOutlet(tenant.id, outlet.id, { brandId: other.id });
+  assert.equal(moved.brandId, other.id);
+  assert.equal(moved.status, "INACTIVE");
 });

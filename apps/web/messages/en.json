@@ -38,7 +38,8 @@
     "pageNav": {
       "devices": "Devices",
       "users": "Users",
-      "roles": "Roles"
+      "roles": "Roles",
+      "organization": "Business and outlets"
     }
   },
   "access": {
@@ -400,7 +401,11 @@
     "UNKNOWN": "Something went wrong. Try again.",
     "UNKNOWN_WITH_ID": "Something went wrong. Try again, or quote code {requestId} when contacting support.",
     "VALIDATION_ERROR": "Check your entries and try again.",
-    "WORKSPACE_ACCESS_DENIED": "You are not an active member of this business."
+    "WORKSPACE_ACCESS_DENIED": "You are not an active member of this business.",
+    "BRAND_HAS_ACTIVE_OUTLETS": "This brand still has active outlets. Deactivate or move them first.",
+    "BRAND_INACTIVE": "This brand is inactive. Activate it first or choose another brand.",
+    "BRAND_SLUG_CONFLICT": "A brand with a similar name already exists.",
+    "OUTLET_CODE_CONFLICT": "An outlet with a similar name already exists."
   },
   "subscription": {
     "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",
@@ -847,5 +852,66 @@
     "viewCompare": "Comparison",
     "viewList": "List",
     "views": "Role views"
+  },
+  "organization": {
+    "accessDenied": "Ask the business owner if you need to see the business and its outlets.",
+    "accessDeniedTitle": "You do not have access to this page",
+    "activate": "Activate",
+    "activated": "Active again.",
+    "address": "Address",
+    "addressTooShort": "The address is too short.",
+    "brand": "Brand",
+    "brandCreated": "Brand created.",
+    "brandHasOutlets": "This brand still has active outlets. Deactivate or move them first.",
+    "brandName": "Brand name",
+    "brandRequired": "Choose a brand.",
+    "businessName": "Business name",
+    "cancel": "Cancel",
+    "closeSheet": "Close",
+    "createBrand": "Add brand",
+    "createOutlet": "Add outlet",
+    "currency": "Currency",
+    "deactivate": "Deactivate",
+    "deactivateBrandDescription": "An inactive brand cannot be chosen for a new outlet. You can activate it again at any time.",
+    "deactivateOutletDescription": "An inactive outlet cannot be used for selling. Its past data is kept and it can be activated again.",
+    "deactivateTitle": "Deactivate {name}?",
+    "deactivated": "Deactivated.",
+    "emptyBrands": "No brands yet.",
+    "emptyOutlets": "No outlets yet.",
+    "loadFailed": "The business data could not be loaded",
+    "nameRequired": "Enter a name with at least 2 letters or digits.",
+    "newBrand": "New brand",
+    "newOutlet": "New outlet",
+    "noBrands": "No active brands yet.",
+    "optional": "optional",
+    "outlet": "Outlet",
+    "outletCount": "Active outlets",
+    "outletCreated": "Outlet created.",
+    "outletName": "Outlet name",
+    "save": "Save",
+    "saved": "Changes saved.",
+    "saving": "Saving…",
+    "selectBrand": "Choose a brand",
+    "status": "Status",
+    "statusName": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    },
+    "timeZone": "Time zone",
+    "timeZoneName": {
+      "Asia/Jakarta": "WIB — Western Indonesia Time (Jakarta)",
+      "Asia/Jayapura": "WIT — Eastern Indonesia Time (Jayapura)",
+      "Asia/Makassar": "WITA — Central Indonesia Time (Makassar)"
+    },
+    "timeZoneShort": {
+      "Asia/Jakarta": "WIB",
+      "Asia/Jayapura": "WIT",
+      "Asia/Makassar": "WITA"
+    },
+    "title": "Business and outlets",
+    "viewBrands": "Brands",
+    "viewBusiness": "Business",
+    "viewOutlets": "Outlets",
+    "views": "Parts of the business"
   }
 }

@@ -57,6 +57,20 @@ import {
   acceptInvitationSchema,
   createInvitationSchema,
   createRoleSchema,
+  brandSchema,
+  createBrandSchema,
+  createOutletSchema,
+  organizationSnapshotSchema,
+  outletSchema,
+  tenantSchema,
+  updateBrandSchema,
+  updateOutletSchema,
+  updateTenantSchema,
+  type CreateBrand,
+  type CreateOutlet,
+  type UpdateBrand,
+  type UpdateOutlet,
+  type UpdateTenant,
   updateRoleSchema,
   type CreateRole,
   type UpdateRole,
@@ -279,6 +293,53 @@ export const merchantApi = {
     }),
   members: (tenantId: string) =>
     apiRequest("/access/members", memberListSchema, { headers: tenantHeaders(tenantId) }),
+  organization: (tenantId: string) =>
+    apiRequest("/organization", organizationSnapshotSchema, { headers: tenantHeaders(tenantId) }),
+  updateTenant: (tenantId: string, input: UpdateTenant) =>
+    jsonMutation(
+      "/organization/tenant",
+      "PATCH",
+      input,
+      updateTenantSchema,
+      tenantSchema,
+      tenantHeaders(tenantId),
+    ),
+  createBrand: (tenantId: string, input: CreateBrand) =>
+    jsonMutation(
+      "/organization/brands",
+      "POST",
+      input,
+      createBrandSchema,
+      brandSchema,
+      tenantHeaders(tenantId),
+    ),
+  updateBrand: (tenantId: string, id: string, input: UpdateBrand) =>
+    jsonMutation(
+      `/organization/brands/${id}`,
+      "PATCH",
+      input,
+      updateBrandSchema,
+      brandSchema,
+      tenantHeaders(tenantId),
+    ),
+  createOutlet: (tenantId: string, input: CreateOutlet) =>
+    jsonMutation(
+      "/organization/outlets",
+      "POST",
+      input,
+      createOutletSchema,
+      outletSchema,
+      tenantHeaders(tenantId),
+    ),
+  updateOutlet: (tenantId: string, id: string, input: UpdateOutlet) =>
+    jsonMutation(
+      `/organization/outlets/${id}`,
+      "PATCH",
+      input,
+      updateOutletSchema,
+      outletSchema,
+      tenantHeaders(tenantId),
+    ),
   roles: (tenantId: string) =>
     apiRequest("/access/roles", roleListSchema, { headers: tenantHeaders(tenantId) }),
   createRole: (tenantId: string, input: CreateRole) =>

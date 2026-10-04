@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { workspacesKey } from "@/features/workspace";
 import { merchantApi } from "@/lib/api-client";
 import { useErrorMessage } from "@/lib/i18n";
 import { useToast } from "@/providers/toast-provider";
@@ -114,3 +115,42 @@ export function usePeopleMutation(tenantId: string) {
 }
 
 export type PeopleMutation = ReturnType<typeof usePeopleMutation>;
+
+export const organizationKey = (tenantId: string) => ["organization", tenantId] as const;
+
+/** The business, its brands, and its outlets. */
+export function useOrganization(tenantId: string, enabled: boolean) {
+  return useQuery({
+    enabled,
+    queryFn: () => merchantApi.organization(tenantId),
+    queryKey: organizationKey(tenantId),
+  });
+}
+
+/**
+ * Runs one write to the structure of the business, then refetches it, the
+ * usage it counts against, and the names shown in the shell.
+ */
+export function useOrganizationMutation(tenantId: string) {
+  const queryClient = useQueryClient();
+  const notify = useToast();
+  const errorMessage = useErrorMessage();
+  return useMutation({
+    mutationFn: ({ action }: { action: () => Promise<unknown>; success: string }) => action(),
+    onError: (error) => {
+      // A full limit is explained where the person tried to add, with what to do next.
+      if (isLimitReached(error)) return;
+      notify({ message: errorMessage(error), tone: "danger" });
+    },
+    onSuccess: async (_result, { success }) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: organizationKey(tenantId) }),
+        queryClient.invalidateQueries({ queryKey: subscriptionKey(tenantId) }),
+        queryClient.invalidateQueries({ queryKey: workspacesKey }),
+      ]);
+      notify({ message: success, tone: "success" });
+    },
+  });
+}
+
+export type OrganizationMutation = ReturnType<typeof useOrganizationMutation>;

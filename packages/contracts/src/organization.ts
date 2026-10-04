@@ -1,6 +1,7 @@
 import * as z from "zod";
 
 import { organizationRecordTimestampsSchema } from "./internal.ts";
+import { currencyCodeSchema } from "./money.ts";
 
 export const organizationUnitStatusSchema = z.enum(["ACTIVE", "INACTIVE"]);
 
@@ -27,9 +28,25 @@ export const timezoneSchema = z
   .trim()
   .min(3)
   .max(64)
-  .regex(/^(?:UTC|[A-Za-z_]+\/[A-Za-z0-9_+.-]+)$/);
+  .regex(/^(?:UTC|[A-Za-z_]+(?:\/[A-Za-z0-9_+.-]+)+)$/)
+  .refine(
+    (timezone) => {
+      try {
+        new Intl.DateTimeFormat("en", { timeZone: timezone });
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    { message: "Zona waktu IANA tidak valid." },
+  );
+
+/** Where an outlet is, as printed on a receipt. Belongs to the business, not to a person. */
+export const outletAddressSchema = z.string().trim().min(3).max(500);
 
 export const tenantSchema = organizationRecordTimestampsSchema.extend({
+  /** Set when the workspace is made; every amount of the business is in it. */
+  currency: currencyCodeSchema,
   id: z.uuid(),
   name: organizationNameSchema,
   slug: organizationSlugSchema,
@@ -51,6 +68,7 @@ export const outletSchema = organizationRecordTimestampsSchema.extend({
   code: outletCodeSchema,
   name: organizationNameSchema,
   timezone: timezoneSchema,
+  address: outletAddressSchema.nullable(),
   status: organizationUnitStatusSchema,
 });
 
@@ -85,6 +103,7 @@ export const createOutletSchema = z.object({
   code: outletCodeSchema,
   name: organizationNameSchema,
   timezone: timezoneSchema.default("Asia/Jakarta"),
+  address: outletAddressSchema.optional(),
 });
 
 export const updateOutletSchema = z
@@ -93,6 +112,8 @@ export const updateOutletSchema = z
     code: outletCodeSchema.optional(),
     name: organizationNameSchema.optional(),
     timezone: timezoneSchema.optional(),
+    /** Null removes the address. */
+    address: outletAddressSchema.nullable().optional(),
     status: organizationUnitStatusSchema.optional(),
   })
   .refine((value) => Object.keys(value).length > 0, { message: "Perubahan outlet wajib diisi." });
