@@ -18,6 +18,7 @@ import {
 } from "@nestjs/common";
 
 import type { ActorCommandOrigin, CommandOrigin } from "../../shared/command/command-origin.js";
+import type { DeviceAuthenticator } from "../../shared/devices/device-identity.js";
 import {
   LIMIT_GATE,
   NO_LIMITS,
@@ -80,7 +81,7 @@ function notFound() {
  * credential of its own, separate from the session of whoever uses it.
  */
 @Injectable()
-export class DeviceService implements OnModuleInit {
+export class DeviceService implements DeviceAuthenticator, OnModuleInit {
   constructor(
     @Inject(DEVICE_REPOSITORY) private readonly repository: DeviceRepository,
     @Optional()

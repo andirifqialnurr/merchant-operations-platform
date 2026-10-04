@@ -32,8 +32,15 @@ export type UserLocale = z.infer<typeof userLocaleSchema>;
 
 export type UserTheme = z.infer<typeof userThemeSchema>;
 
+/**
+ * What a session was opened for. A backoffice session belongs to a person on
+ * any browser; a POS or KDS session only works on the device it was opened on.
+ */
+export const sessionSurfaceSchema = z.enum(["BACKOFFICE", "KDS", "POS"]);
+
 export const authSessionSchema = z.object({
   expiresAt: z.iso.datetime(),
+  surface: sessionSurfaceSchema,
   user: authUserSchema,
 });
 
@@ -48,5 +55,7 @@ export type AuthLoginRequest = z.infer<typeof authLoginRequestSchema>;
 export type AuthLogoutResponse = z.infer<typeof authLogoutResponseSchema>;
 
 export type AuthSession = z.infer<typeof authSessionSchema>;
+
+export type SessionSurface = z.infer<typeof sessionSurfaceSchema>;
 
 export type AuthUser = z.infer<typeof authUserSchema>;

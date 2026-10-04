@@ -88,6 +88,7 @@ test("normalizes login input and validates session output", () => {
   assert.equal(
     authSessionSchema.safeParse({
       expiresAt: "2026-08-17T10:00:00.000Z",
+      surface: "BACKOFFICE",
       user: {
         displayName: "Pemilik Merchant",
         email: "owner@example.com",
@@ -102,6 +103,7 @@ test("normalizes login input and validates session output", () => {
   assert.equal(
     authSessionSchema.safeParse({
       expiresAt: "2026-08-17T10:00:00.000Z",
+      surface: "BACKOFFICE",
       user: {
         displayName: "Pemilik Merchant",
         email: "owner@example.com",

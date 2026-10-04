@@ -292,19 +292,25 @@ model PlatformLoginSession {
 }
 
 model LoginSession {
-  id         String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  userId     String    @map("user_id") @db.Uuid
-  tokenHash  String    @unique @map("token_hash") @db.Char(64)
-  expiresAt  DateTime  @map("expires_at") @db.Timestamptz(6)
-  revokedAt  DateTime? @map("revoked_at") @db.Timestamptz(6)
-  lastSeenAt DateTime  @default(now()) @map("last_seen_at") @db.Timestamptz(6)
-  ipAddress  String?   @map("ip_address") @db.VarChar(45)
-  userAgent  String?   @map("user_agent") @db.VarChar(512)
-  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String      @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId     String      @map("user_id") @db.Uuid
+  tokenHash  String      @unique @map("token_hash") @db.Char(64)
+  expiresAt  DateTime    @map("expires_at") @db.Timestamptz(6)
+  revokedAt  DateTime?   @map("revoked_at") @db.Timestamptz(6)
+  lastSeenAt DateTime    @default(now()) @map("last_seen_at") @db.Timestamptz(6)
+  ipAddress  String?     @map("ip_address") @db.VarChar(45)
+  userAgent  String?     @map("user_agent") @db.VarChar(512)
+  createdAt  DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  /// BACKOFFICE, or the mode of the device the session is bound to.
+  surface    String      @default("BACKOFFICE") @db.VarChar(20)
+  /// Set for POS and KDS sessions: they only work on this device.
+  deviceId   String?     @map("device_id") @db.Uuid
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  device     CoreDevice? @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
   @@index([userId, expiresAt])
   @@index([expiresAt, revokedAt])
+  @@index([deviceId])
   @@map("login_sessions")
 }
 
@@ -1030,26 +1036,27 @@ model CoreLimitNotification {
 /// A cashier tablet or kitchen screen registered for one outlet. It proves
 /// itself with a credential of its own, separate from any person's session.
 model CoreDevice {
-  id                  String       @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  tenantId            String       @map("tenant_id") @db.Uuid
-  outletId            String       @map("outlet_id") @db.Uuid
+  id                  String         @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId            String         @map("tenant_id") @db.Uuid
+  outletId            String         @map("outlet_id") @db.Uuid
   mode                DeviceMode
-  label               String       @db.VarChar(80)
-  status              DeviceStatus @default(PENDING)
+  label               String         @db.VarChar(80)
+  status              DeviceStatus   @default(PENDING)
   /// SHA-256 of the one-time activation code; cleared when used.
-  activationCodeHash  String?      @unique @map("activation_code_hash") @db.Char(64)
-  activationExpiresAt DateTime?    @map("activation_expires_at") @db.Timestamptz(6)
+  activationCodeHash  String?        @unique @map("activation_code_hash") @db.Char(64)
+  activationExpiresAt DateTime?      @map("activation_expires_at") @db.Timestamptz(6)
   /// SHA-256 of the device's secret; the secret itself is never stored.
-  credentialHash      String?      @unique @map("credential_hash") @db.Char(64)
-  activatedAt         DateTime?    @map("activated_at") @db.Timestamptz(6)
-  lastSeenAt          DateTime?    @map("last_seen_at") @db.Timestamptz(6)
-  revokedAt           DateTime?    @map("revoked_at") @db.Timestamptz(6)
-  revokedBy           String?      @map("revoked_by") @db.Uuid
-  createdBy           String?      @map("created_by") @db.Uuid
-  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt           DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
-  tenant              Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  outlet              Outlet       @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
+  credentialHash      String?        @unique @map("credential_hash") @db.Char(64)
+  activatedAt         DateTime?      @map("activated_at") @db.Timestamptz(6)
+  lastSeenAt          DateTime?      @map("last_seen_at") @db.Timestamptz(6)
+  revokedAt           DateTime?      @map("revoked_at") @db.Timestamptz(6)
+  revokedBy           String?        @map("revoked_by") @db.Uuid
+  createdBy           String?        @map("created_by") @db.Uuid
+  createdAt           DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
+  tenant              Tenant         @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet              Outlet         @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
+  loginSessions       LoginSession[]
 
   @@index([tenantId, outletId])
   @@index([tenantId, status])

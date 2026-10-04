@@ -9,7 +9,7 @@ import {
   type CreateLoginSessionInput,
   type LoginSessionRecord,
 } from "./auth.repository.js";
-import { AuthService, readSessionTtlHours } from "./auth.service.js";
+import { AuthService, readDeviceSessionTtlHours, readSessionTtlHours } from "./auth.service.js";
 import { hashPassword, hashSessionToken, verifyPassword } from "./password.js";
 import { InMemoryRateLimitService, RATE_LIMIT_POLICIES } from "../security/rate-limit.service.js";
 import {
@@ -54,8 +54,10 @@ class InMemoryAuthRepository implements AuthRepository {
 
   async createLoginSession(input: CreateLoginSessionInput) {
     const session = {
+      deviceId: input.deviceId ?? null,
       expiresAt: input.expiresAt,
       id: "019f738d-e61f-7d46-92de-17b35f970b92",
+      surface: input.surface,
       revokedAt: null,
       tokenHash: input.tokenHash,
       user: this.sessionUser(),
@@ -203,8 +205,14 @@ test("serializes secure session cookies and ignores malformed tokens", () => {
 
 test("bounds session lifetime configuration", () => {
   assert.equal(readSessionTtlHours("24"), 24);
-  assert.equal(readSessionTtlHours("0"), 720);
-  assert.equal(readSessionTtlHours("9999"), 720);
+  // Out of range falls back to the short default, never to the 30-day ceiling.
+  assert.equal(readSessionTtlHours("0"), 12);
+  assert.equal(readSessionTtlHours("9999"), 12);
+  assert.equal(readSessionTtlHours("720"), 720);
+  assert.equal(readSessionTtlHours(""), 12);
+  assert.equal(readDeviceSessionTtlHours(""), 16);
+  assert.equal(readDeviceSessionTtlHours("8"), 8);
+  assert.equal(readDeviceSessionTtlHours("721"), 16);
 });
 
 test("saves the signed-in user's language and theme and returns them in the session", async () => {
@@ -233,4 +241,107 @@ test("saves the signed-in user's language and theme and returns them in the sess
     () => service.updatePreferences(undefined, { locale: "id" }),
     UnauthorizedException,
   );
+});
+
+// ---- Session lifetime per surface (security.md SEC-F5)
+
+const DEVICE_ID = "019f738d-e61f-7d46-92de-17b35f970c01";
+const DEVICE_CREDENTIAL = "D".repeat(43);
+
+/** One registered cashier tablet that can be revoked. */
+function tablet() {
+  const state = { active: true };
+  const device = {
+    activatedAt: "2026-10-01T00:00:00.000Z",
+    activationExpiresAt: null,
+    createdAt: "2026-10-01T00:00:00.000Z",
+    id: DEVICE_ID,
+    label: "Kasir depan",
+    lastSeenAt: null,
+    mode: "POS" as const,
+    outletId: "019f738d-e61f-7d46-92de-17b35f970c02",
+    revokedAt: null,
+    status: "ACTIVE" as const,
+    workspaceId: "019f738d-e61f-7d46-92de-17b35f970c03",
+  };
+  return {
+    authenticator: {
+      authenticate: async (credential: string | undefined) =>
+        state.active && credential === DEVICE_CREDENTIAL ? device : undefined,
+    },
+    state,
+  };
+}
+
+async function ownerRepository() {
+  return new InMemoryAuthRepository({
+    displayName: "Pemilik Merchant",
+    email: "owner@example.com",
+    id: USER_ID,
+    locale: null,
+    passwordHash: await hashPassword("rahasia-kuat"),
+    status: "ACTIVE",
+    theme: null,
+  });
+}
+const credentials = { email: "owner@example.com", password: "rahasia-kuat" };
+const hoursUntil = (iso: string) => (new Date(iso).getTime() - Date.now()) / 3_600_000;
+
+test("a backoffice session lasts hours, not a month", async () => {
+  const service = new AuthService(await ownerRepository(), undefined, tablet().authenticator);
+  const { session } = await service.login(credentials);
+
+  assert.equal(session.surface, "BACKOFFICE");
+  const hours = hoursUntil(session.expiresAt);
+  assert.ok(hours > 11.9 && hours <= 12, `expected about 12 hours, got ${hours}`);
+});
+
+test("signing in on a registered device opens a session bound to that device", async () => {
+  const { authenticator } = tablet();
+  const service = new AuthService(await ownerRepository(), undefined, authenticator);
+  const login = await service.login(credentials, { deviceCredential: DEVICE_CREDENTIAL });
+
+  assert.equal(login.session.surface, "POS");
+  const hours = hoursUntil(login.session.expiresAt);
+  assert.ok(hours > 15.9 && hours <= 16, `expected about 16 hours, got ${hours}`);
+
+  // On the device it works.
+  assert.equal(
+    (await service.getSession(login.token, DEVICE_CREDENTIAL)).user.email,
+    "owner@example.com",
+  );
+  // Copied to a browser without the device's credential, or with another one, it does not.
+  await assert.rejects(() => service.getSession(login.token), UnauthorizedException);
+  await assert.rejects(
+    () => service.getSession(login.token, "E".repeat(43)),
+    UnauthorizedException,
+  );
+});
+
+test("revoking the device ends the sessions opened on it, and no others", async () => {
+  const { authenticator, state } = tablet();
+  const service = new AuthService(await ownerRepository(), undefined, authenticator);
+  const onDevice = await service.login(credentials, { deviceCredential: DEVICE_CREDENTIAL });
+  assert.ok(await service.getSession(onDevice.token, DEVICE_CREDENTIAL));
+
+  state.active = false;
+  await assert.rejects(
+    () => service.getSession(onDevice.token, DEVICE_CREDENTIAL),
+    UnauthorizedException,
+  );
+  // A sign-in on the revoked device is an ordinary backoffice session.
+  const afterwards = await service.login(credentials, { deviceCredential: DEVICE_CREDENTIAL });
+  assert.equal(afterwards.session.surface, "BACKOFFICE");
+  assert.ok(await service.getSession(afterwards.token));
+});
+
+test("a backoffice session does not depend on any device", async () => {
+  const { authenticator, state } = tablet();
+  const service = new AuthService(await ownerRepository(), undefined, authenticator);
+  const login = await service.login(credentials);
+
+  // The same person opening it on a device, or the device being revoked, changes nothing.
+  assert.ok(await service.getSession(login.token, DEVICE_CREDENTIAL));
+  state.active = false;
+  assert.ok(await service.getSession(login.token, DEVICE_CREDENTIAL));
 });

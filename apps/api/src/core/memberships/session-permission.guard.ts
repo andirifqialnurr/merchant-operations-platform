@@ -25,6 +25,7 @@ import {
   evaluateAccess,
 } from "../entitlements/public.js";
 import { AccessService } from "./access.service.js";
+import { readDeviceCredential } from "../../shared/devices/device-identity.js";
 
 const REQUIRED_PERMISSION = "required-access-permission";
 const REQUIRED_MODULE = "required-entitlement-module";
@@ -72,7 +73,10 @@ export class SessionPermissionGuard implements CanActivate {
     }
     const cookie = request.headers.cookie;
     const cookieHeader = Array.isArray(cookie) ? cookie[0] : cookie;
-    const session = await this.authService.getSession(readSessionToken(cookieHeader));
+    const session = await this.authService.getSession(
+      readSessionToken(cookieHeader),
+      readDeviceCredential(cookieHeader),
+    );
     const permission = this.reflector.getAllAndOverride<PermissionKey | undefined>(
       REQUIRED_PERMISSION,
       [context.getHandler(), context.getClass()],

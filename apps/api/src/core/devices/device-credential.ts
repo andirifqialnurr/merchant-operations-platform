@@ -1,9 +1,8 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 
-import { deviceCredentialSchema } from "@merchant/contracts";
+import { DEVICE_COOKIE_NAME } from "../../shared/devices/device-identity.js";
 
-/** Separate from the session cookie of the person using the device. */
-export const DEVICE_COOKIE_NAME = "merchant_device";
+export { DEVICE_COOKIE_NAME, readDeviceCredential } from "../../shared/devices/device-identity.js";
 
 /** Browsers cap cookie lifetimes at about 400 days; the device stays signed in until revoked. */
 const DEVICE_COOKIE_MAX_AGE_SECONDS = 400 * 24 * 60 * 60;
@@ -35,17 +34,6 @@ export function createDeviceCredential() {
 /** Codes and credentials are random and long, so a fast hash is enough to store them. */
 export function hashDeviceSecret(secret: string) {
   return createHash("sha256").update(secret).digest("hex");
-}
-
-export function readDeviceCredential(cookieHeader: string | undefined) {
-  if (!cookieHeader) return undefined;
-  for (const cookie of cookieHeader.split(";")) {
-    const separator = cookie.indexOf("=");
-    if (separator < 0 || cookie.slice(0, separator).trim() !== DEVICE_COOKIE_NAME) continue;
-    const parsed = deviceCredentialSchema.safeParse(cookie.slice(separator + 1).trim());
-    return parsed.success ? parsed.data : undefined;
-  }
-  return undefined;
 }
 
 export function serializeDeviceCookie(credential: string, secure: boolean) {

@@ -1,3 +1,4 @@
+import type { SessionSurface } from "@merchant/contracts";
 import { getPrismaClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
@@ -14,13 +15,18 @@ export type AuthUserRecord = {
 export type SessionUserRecord = Omit<AuthUserRecord, "passwordHash">;
 
 export type LoginSessionRecord = {
+  /** Set for a session bound to a device. */
+  deviceId: string | null;
   expiresAt: Date;
   id: string;
+  surface: string;
   user: SessionUserRecord;
 };
 
 export type CreateLoginSessionInput = {
+  deviceId?: string;
   expiresAt: Date;
+  surface: SessionSurface;
   ipAddress?: string;
   tokenHash: string;
   userAgent?: string;
@@ -71,15 +77,19 @@ export class PrismaAuthRepository implements AuthRepository {
     const [session] = await client.$transaction([
       client.loginSession.create({
         data: {
+          ...(input.deviceId ? { deviceId: input.deviceId } : {}),
           expiresAt: input.expiresAt,
           ...(input.ipAddress ? { ipAddress: input.ipAddress } : {}),
+          surface: input.surface,
           tokenHash: input.tokenHash,
           ...(input.userAgent ? { userAgent: input.userAgent } : {}),
           userId: input.userId,
         },
         select: {
+          deviceId: true,
           expiresAt: true,
           id: true,
+          surface: true,
           user: {
             select: sessionUserSelect,
           },
@@ -98,8 +108,10 @@ export class PrismaAuthRepository implements AuthRepository {
   async findActiveSession(tokenHash: string, now: Date) {
     return getPrismaClient().loginSession.findFirst({
       select: {
+        deviceId: true,
         expiresAt: true,
         id: true,
+        surface: true,
         user: {
           select: sessionUserSelect,
         },

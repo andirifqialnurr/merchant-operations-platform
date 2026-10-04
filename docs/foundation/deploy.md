@@ -11,15 +11,15 @@ Dokumen terkait: [`architecture.md`](./architecture.md), [`security.md`](./secur
 
 ## 1. Unit yang di-deploy
 
-| Unit | Sumber | Port | Perintah jalan | Catatan |
-|---|---|---|---|---|
-| Web | `apps/web` | 3000 (prod), 4000 (dev) | `next start` | Meneruskan `/api/*` ke API |
-| API | `apps/api` | 3001 | `node dist/main.js` | REST `/api/v1` + WebSocket |
-| Worker | `apps/worker` | — | `node --import tsx src/index.ts` | Dispatcher outbox dan job; dijalankan dari sumber karena memuat modul API |
-| PostgreSQL | — | 5432 | — | Satu database |
-| Redis | — | 6379 | — | Dipakai worker (BullMQ) dan rate limit API bila `RATE_LIMIT_STORE=redis`; lokal lewat `pnpm infra:up` |
-| Object storage | S3-compatible | — | — | Gambar produk, lampiran |
-| Storybook | `apps/storybook` | 6006 | Statis | Hanya internal |
+| Unit           | Sumber           | Port                    | Perintah jalan                   | Catatan                                                                                               |
+| -------------- | ---------------- | ----------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Web            | `apps/web`       | 3000 (prod), 4000 (dev) | `next start`                     | Meneruskan `/api/*` ke API                                                                            |
+| API            | `apps/api`       | 3001                    | `node dist/main.js`              | REST `/api/v1` + WebSocket                                                                            |
+| Worker         | `apps/worker`    | —                       | `node --import tsx src/index.ts` | Dispatcher outbox dan job; dijalankan dari sumber karena memuat modul API                             |
+| PostgreSQL     | —                | 5432                    | —                                | Satu database                                                                                         |
+| Redis          | —                | 6379                    | —                                | Dipakai worker (BullMQ) dan rate limit API bila `RATE_LIMIT_STORE=redis`; lokal lewat `pnpm infra:up` |
+| Object storage | S3-compatible    | —                       | —                                | Gambar produk, lampiran                                                                               |
+| Storybook      | `apps/storybook` | 6006                    | Statis                           | Hanya internal                                                                                        |
 
 Web, API, dan worker dibangun dari commit yang sama dan dirilis bersama.
 
@@ -42,12 +42,12 @@ pnpm db:setup                   # generate klien + jalankan migrasi
 pnpm dev                        # web :4000, api :3001, worker
 ```
 
-| Alamat | Isi |
-|---|---|
-| `http://localhost:4000` | Web |
-| `http://localhost:3001/api/v1/health` | Health API |
-| `http://localhost:3001/api/docs` | Swagger (dev) |
-| `pnpm --filter @merchant/storybook dev` → `:6006` | Storybook |
+| Alamat                                            | Isi           |
+| ------------------------------------------------- | ------------- |
+| `http://localhost:4000`                           | Web           |
+| `http://localhost:3001/api/v1/health`             | Health API    |
+| `http://localhost:3001/api/docs`                  | Swagger (dev) |
+| `pnpm --filter @merchant/storybook dev` → `:6006` | Storybook     |
 
 Platform user pertama:
 
@@ -60,18 +60,18 @@ Kredensial lokal dicatat di `CREDENTIALS.local.md` (tidak masuk repositori).
 
 ### 2.3 Perintah harian
 
-| Perintah | Fungsi |
-|---|---|
-| `pnpm lint` | ESLint semua paket + penjaga warna |
-| `pnpm typecheck` | TypeScript semua paket |
-| `pnpm test` | Unit dan kontrak |
-| `pnpm test:components` | Test komponen `packages/ui` |
-| `pnpm build` | Build semua |
-| `pnpm build:storybook` | Build Storybook |
-| `pnpm test:e2e` | Smoke Playwright Storybook |
-| `pnpm db:migrate` | Buat migrasi baru (dev) |
-| `pnpm db:deploy` | Jalankan migrasi tertunda |
-| `pnpm db:status` | Status migrasi |
+| Perintah               | Fungsi                             |
+| ---------------------- | ---------------------------------- |
+| `pnpm lint`            | ESLint semua paket + penjaga warna |
+| `pnpm typecheck`       | TypeScript semua paket             |
+| `pnpm test`            | Unit dan kontrak                   |
+| `pnpm test:components` | Test komponen `packages/ui`        |
+| `pnpm build`           | Build semua                        |
+| `pnpm build:storybook` | Build Storybook                    |
+| `pnpm test:e2e`        | Smoke Playwright Storybook         |
+| `pnpm db:migrate`      | Buat migrasi baru (dev)            |
+| `pnpm db:deploy`       | Jalankan migrasi tertunda          |
+| `pnpm db:status`       | Status migrasi                     |
 
 ### 2.4 Catatan Windows
 
@@ -82,12 +82,12 @@ Kredensial lokal dicatat di `CREDENTIALS.local.md` (tidak masuk repositori).
 
 `infrastructure/docker/compose.dev.yml` menyediakan Redis, object storage, dan (opsional) PostgreSQL agar lingkungan pengembang seragam. Aplikasi tetap dijalankan dengan `pnpm dev` di host. Nilai diambil dari `.env` di akar repo.
 
-| Perintah | Yang dijalankan |
-|---|---|
-| `pnpm infra:up` | Redis 8.2 (port 6379) dan object storage S3-compatible (port 9000); menunggu sampai keduanya sehat |
+| Perintah            | Yang dijalankan                                                                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm infra:up`     | Redis 8.2 (port 6379) dan object storage S3-compatible (port 9000); menunggu sampai keduanya sehat                              |
 | `pnpm infra:up:all` | Sama, ditambah PostgreSQL 18.2 untuk mesin yang belum punya PostgreSQL; butuh `POSTGRES_USER` dan `POSTGRES_PASSWORD` di `.env` |
-| `pnpm infra:status` | Status container |
-| `pnpm infra:down` | Menghentikan semuanya; data tetap di volume Docker |
+| `pnpm infra:status` | Status container                                                                                                                |
+| `pnpm infra:down`   | Menghentikan semuanya; data tetap di volume Docker                                                                              |
 
 Catatan:
 
@@ -100,12 +100,12 @@ Catatan:
 
 ## 3. Lingkungan
 
-| Lingkungan | Tujuan | Data | Deploy |
-|---|---|---|---|
-| Local | Pengembangan | Data uji lokal | Manual |
-| CI | Verifikasi otomatis | PostgreSQL sekali pakai | Setiap push dan PR |
-| Staging | Uji rilis, smoke, uji pilot internal | Data sintetis | Otomatis dari `main` |
-| Production | Pelanggan | Data nyata | Manual dengan persetujuan, dari tag |
+| Lingkungan | Tujuan                               | Data                    | Deploy                              |
+| ---------- | ------------------------------------ | ----------------------- | ----------------------------------- |
+| Local      | Pengembangan                         | Data uji lokal          | Manual                              |
+| CI         | Verifikasi otomatis                  | PostgreSQL sekali pakai | Setiap push dan PR                  |
+| Staging    | Uji rilis, smoke, uji pilot internal | Data sintetis           | Otomatis dari `main`                |
+| Production | Pelanggan                            | Data nyata              | Manual dengan persetujuan, dari tag |
 
 Staging dan produksi memakai database, object storage, dan secret yang terpisah. Data produksi tidak disalin ke staging tanpa penyamaran.
 
@@ -113,11 +113,11 @@ Staging dan produksi memakai database, object storage, dan secret yang terpisah.
 
 Produksi memakai VPS yang sudah tersedia, dengan Docker dan Nginx sebagai reverse proxy (keputusan D-10). Pekerjaan deploy dijadwalkan paling akhir, setelah modul Release 1 berjalan. Tabel berikut disimpan sebagai catatan pertimbangan.
 
-| Opsi | Kelebihan | Kekurangan |
-|---|---|---|
-| **A. Satu VPS + Docker Compose + Nginx** (dipilih) | Biaya rendah; WebSocket dan worker berjalan tanpa penyesuaian; semua unit dalam satu jaringan | Skala dan failover manual; backup harus dikelola sendiri |
-| B. Platform kontainer terkelola + PostgreSQL terkelola | Backup dan pemulihan titik-waktu bawaan; skala lebih mudah | Biaya lebih tinggi |
-| C. Web di platform serverless, API/worker di kontainer | Web cepat dirilis | Dua platform; rewrite `/api` dan WebSocket perlu konfigurasi origin yang hati-hati |
+| Opsi                                                   | Kelebihan                                                                                     | Kekurangan                                                                         |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| **A. Satu VPS + Docker Compose + Nginx** (dipilih)     | Biaya rendah; WebSocket dan worker berjalan tanpa penyesuaian; semua unit dalam satu jaringan | Skala dan failover manual; backup harus dikelola sendiri                           |
+| B. Platform kontainer terkelola + PostgreSQL terkelola | Backup dan pemulihan titik-waktu bawaan; skala lebih mudah                                    | Biaya lebih tinggi                                                                 |
+| C. Web di platform serverless, API/worker di kontainer | Web cepat dirilis                                                                             | Dua platform; rewrite `/api` dan WebSocket perlu konfigurasi origin yang hati-hati |
 
 PostgreSQL boleh berjalan sebagai kontainer di VPS yang sama untuk pilot, dengan syarat: volume data terpisah dari kontainer, backup harian dikirim **ke luar VPS**, dan uji restore dijalankan. Pindah ke PostgreSQL terkelola dipertimbangkan bila pilot membutuhkan pemulihan titik-waktu.
 
@@ -144,20 +144,21 @@ API tidak dibuka langsung ke internet kecuali jalur WebSocket; semua permintaan 
 
 ## 4. Variabel environment
 
-| Variabel | Dipakai oleh | Wajib | Keterangan |
-|---|---|---|---|
-| `NODE_ENV` | Semua | Ya | `production` mengaktifkan cookie `Secure` dan HSTS |
-| `DATABASE_URL` | API, worker, migrasi | Ya | PostgreSQL |
-| `API_URL` | Web | Ya | Alamat internal API untuk rewrite |
-| `API_PORT` | API | Tidak | Bawaan 3001 |
-| `WEB_URL` | API | Ya (prod) | Origin web |
-| `AUTH_SESSION_TTL_HOURS` | API | Tidak | Bawaan 720 |
-| `PLATFORM_SESSION_TTL_HOURS` | API | Tidak | Bawaan 12 |
-| `API_DOCS_ENABLED` | API | Tidak | Di produksi hanya aktif bila `true` dan tetap butuh sesi platform |
-| `REDIS_URL` | API, worker | Nanti | |
-| `OBJECT_STORAGE_ENDPOINT`, `_REGION`, `_BUCKET`, `_ACCESS_KEY`, `_SECRET_KEY` | API | Nanti | |
-| `PLATFORM_USER_EMAIL`, `_PASSWORD`, `_DISPLAY_NAME`, `_ROLE` | CLI provisioning | Sekali | Tidak disimpan di environment layanan |
-| `DATABASE_RESTORE_DRILL_DB` | Drill backup | Operasi | Database tujuan uji restore |
+| Variabel                                                                      | Dipakai oleh         | Wajib     | Keterangan                                                        |
+| ----------------------------------------------------------------------------- | -------------------- | --------- | ----------------------------------------------------------------- |
+| `NODE_ENV`                                                                    | Semua                | Ya        | `production` mengaktifkan cookie `Secure` dan HSTS                |
+| `DATABASE_URL`                                                                | API, worker, migrasi | Ya        | PostgreSQL                                                        |
+| `API_URL`                                                                     | Web                  | Ya        | Alamat internal API untuk rewrite                                 |
+| `API_PORT`                                                                    | API                  | Tidak     | Bawaan 3001                                                       |
+| `WEB_URL`                                                                     | API                  | Ya (prod) | Origin web                                                        |
+| `AUTH_SESSION_TTL_HOURS`                                                      | API                  | Tidak     | Masa sesi Backoffice. Bawaan 12, maksimum 720                     |
+| `AUTH_DEVICE_SESSION_TTL_HOURS`                                               | API                  | Tidak     | Masa sesi yang terikat perangkat POS/KDS. Bawaan 16, maksimum 720 |
+| `PLATFORM_SESSION_TTL_HOURS`                                                  | API                  | Tidak     | Bawaan 12                                                         |
+| `API_DOCS_ENABLED`                                                            | API                  | Tidak     | Di produksi hanya aktif bila `true` dan tetap butuh sesi platform |
+| `REDIS_URL`                                                                   | API, worker          | Nanti     |                                                                   |
+| `OBJECT_STORAGE_ENDPOINT`, `_REGION`, `_BUCKET`, `_ACCESS_KEY`, `_SECRET_KEY` | API                  | Nanti     |                                                                   |
+| `PLATFORM_USER_EMAIL`, `_PASSWORD`, `_DISPLAY_NAME`, `_ROLE`                  | CLI provisioning     | Sekali    | Tidak disimpan di environment layanan                             |
+| `DATABASE_RESTORE_DRILL_DB`                                                   | Drill backup         | Operasi   | Database tujuan uji restore                                       |
 
 Aturan: tidak ada secret di repositori, di image, atau di variabel yang diekspos ke browser (`NEXT_PUBLIC_*`). `.env.example` hanya berisi placeholder. Aplikasi harus gagal saat start bila variabel wajib tidak ada.
 
@@ -249,13 +250,13 @@ flowchart TD
 
 Kode lama dan baru berjalan bersamaan sesaat, sehingga migrasi harus kompatibel mundur:
 
-| Perubahan | Cara |
-|---|---|
-| Tambah kolom | Nullable atau dengan default; kode baru mulai mengisi |
-| Wajibkan kolom | Rilis 1: tambah nullable + isi. Rilis 2: perketat |
-| Ganti nama kolom | Rilis 1: tambah kolom baru + tulis ganda. Rilis 2: pindah baca. Rilis 3: hapus lama |
-| Hapus kolom/tabel | Hanya setelah tidak ada kode yang membacanya selama satu rilis |
-| Indeks pada tabel besar | `CREATE INDEX CONCURRENTLY` |
+| Perubahan               | Cara                                                                                |
+| ----------------------- | ----------------------------------------------------------------------------------- |
+| Tambah kolom            | Nullable atau dengan default; kode baru mulai mengisi                               |
+| Wajibkan kolom          | Rilis 1: tambah nullable + isi. Rilis 2: perketat                                   |
+| Ganti nama kolom        | Rilis 1: tambah kolom baru + tulis ganda. Rilis 2: pindah baca. Rilis 3: hapus lama |
+| Hapus kolom/tabel       | Hanya setelah tidak ada kode yang membacanya selama satu rilis                      |
+| Indeks pada tabel besar | `CREATE INDEX CONCURRENTLY`                                                         |
 
 Migrasi tidak pernah dijalankan saat pelanggan membeli modul; aktivasi modul hanya membuat baris data.
 
@@ -282,25 +283,25 @@ Migrasi tidak pernah dijalankan saat pelanggan membeli modul; aktivasi modul han
 
 ### 9.1 Health
 
-| Unit | Pemeriksaan |
-|---|---|
-| API | `GET /api/v1/health` |
-| Web | Halaman health ringan (akan dibuat) |
-| Worker | Detak dispatcher: waktu event terakhir diproses |
-| Database | Koneksi dan jeda replikasi bila ada |
+| Unit     | Pemeriksaan                                     |
+| -------- | ----------------------------------------------- |
+| API      | `GET /api/v1/health`                            |
+| Web      | Halaman health ringan (akan dibuat)             |
+| Worker   | Detak dispatcher: waktu event terakhir diproses |
+| Database | Koneksi dan jeda replikasi bila ada             |
 
 ### 9.2 Yang dipantau
 
-| Sinyal | Ambang awal |
-|---|---|
-| Rasio error 5xx API | >1% selama 5 menit |
-| Latensi API p95 | >1 detik |
-| Umur event outbox tertua | >60 detik |
-| Jumlah event `BLOCKED`/dead-letter | >0 baru |
-| Login gagal | Lonjakan tidak wajar |
-| Koneksi database | >80% batas |
-| Ruang disk dan penyimpanan objek | >80% |
-| Kedaluwarsa sertifikat TLS | <14 hari |
+| Sinyal                             | Ambang awal          |
+| ---------------------------------- | -------------------- |
+| Rasio error 5xx API                | >1% selama 5 menit   |
+| Latensi API p95                    | >1 detik             |
+| Umur event outbox tertua           | >60 detik            |
+| Jumlah event `BLOCKED`/dead-letter | >0 baru              |
+| Login gagal                        | Lonjakan tidak wajar |
+| Koneksi database                   | >80% batas           |
+| Ruang disk dan penyimpanan objek   | >80%                 |
+| Kedaluwarsa sertifikat TLS         | <14 hari             |
 
 Log terstruktur (JSON) dikirim ke satu tempat dengan request ID, workspace, dan lokasi. Pelacakan error untuk web dan API. Log tidak memuat secret atau data pribadi.
 

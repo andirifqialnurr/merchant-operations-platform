@@ -38,6 +38,7 @@ import {
   serializeSessionCookie,
   SESSION_COOKIE_NAME,
 } from "./session-cookie.js";
+import { readDeviceCredential } from "../../shared/devices/device-identity.js";
 
 type CookieResponse = {
   setHeader(name: string, value: string): void;
@@ -63,9 +64,12 @@ export class AuthController {
     @Body(new ZodValidationPipe(authLoginRequestSchema)) input: AuthLoginRequest,
     @Ip() ipAddress: string,
     @Headers("user-agent") userAgent: string | undefined,
+    @Headers("cookie") cookieHeader: string | undefined,
     @Res({ passthrough: true }) response: CookieResponse,
   ): Promise<AuthSession> {
+    const deviceCredential = readDeviceCredential(cookieHeader);
     const result = await this.authService.login(input, {
+      ...(deviceCredential ? { deviceCredential } : {}),
       ...(ipAddress ? { ipAddress } : {}),
       ...(userAgent ? { userAgent } : {}),
     });
@@ -85,7 +89,10 @@ export class AuthController {
   @Get("session")
   async session(@Headers("cookie") cookieHeader: string | undefined): Promise<AuthSession> {
     return authSessionSchema.parse(
-      await this.authService.getSession(readSessionToken(cookieHeader)),
+      await this.authService.getSession(
+        readSessionToken(cookieHeader),
+        readDeviceCredential(cookieHeader),
+      ),
     );
   }
 
@@ -101,7 +108,11 @@ export class AuthController {
     @Body(new ZodValidationPipe(updateUserPreferencesSchema)) input: UpdateUserPreferences,
   ): Promise<AuthSession> {
     return authSessionSchema.parse(
-      await this.authService.updatePreferences(readSessionToken(cookieHeader), input),
+      await this.authService.updatePreferences(
+        readSessionToken(cookieHeader),
+        input,
+        readDeviceCredential(cookieHeader),
+      ),
     );
   }
 

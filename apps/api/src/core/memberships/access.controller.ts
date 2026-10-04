@@ -53,6 +53,7 @@ import {
   SessionPermissionGuard,
 } from "./session-permission.guard.js";
 import { commandOriginFromRequest } from "../../shared/command/command-origin.js";
+import { readDeviceCredential } from "../../shared/devices/device-identity.js";
 
 @ApiTags("identity-access")
 @ApiCookieAuth(SESSION_COOKIE_NAME)
@@ -213,7 +214,10 @@ export class AccessWorkspaceController {
   })
   @Get("workspaces")
   async workspaces(@Headers("cookie") cookieHeader: string | undefined) {
-    const session = await this.authService.getSession(readSessionToken(cookieHeader));
+    const session = await this.authService.getSession(
+      readSessionToken(cookieHeader),
+      readDeviceCredential(cookieHeader),
+    );
     return workspaceContextsSchema.parse(
       await this.accessService.listWorkspaceContexts(session.user.id),
     );

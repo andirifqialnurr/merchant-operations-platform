@@ -633,3 +633,22 @@ test("keeps devices inside their tenant and stores only hashes of their secrets"
   assert.match(devices, /UNIQUE INDEX "core_devices_activation_code_hash_key"/);
   assert.match(schema, /model CoreDevice [{][^}]*credentialHash\s+String[?]\s+@unique/);
 });
+
+test("binds device sessions to their device and shortens the sessions that exist", () => {
+  const surface = readFileSync(
+    new URL(
+      "../../../packages/database/prisma/migrations/20261004100000_login_session_surface/migration.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(surface, /"surface" IN [(]'BACKOFFICE', 'POS', 'KDS'[)]/);
+  // A device session names its device; a backoffice session names none.
+  assert.match(surface, /[(]"surface" = 'BACKOFFICE'[)] = [(]"device_id" IS NULL[)]/);
+  // A device that is removed takes its sessions with it.
+  assert.match(
+    surface,
+    /FOREIGN KEY [(]"device_id"[)] REFERENCES "core_devices"[(]"id"[)] ON DELETE CASCADE/,
+  );
+  assert.match(surface, /LEAST[(]"expires_at", CURRENT_TIMESTAMP [+] INTERVAL '12 hours'[)]/);
+});

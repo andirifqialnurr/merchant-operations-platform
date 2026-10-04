@@ -19,12 +19,23 @@ import {
   type LoginSessionRecord,
 } from "./auth.repository.js";
 import { createSessionToken, hashSessionToken, verifyPassword } from "./password.js";
+import {
+  DEVICE_AUTHENTICATOR,
+  type DeviceAuthenticator,
+} from "../../shared/devices/device-identity.js";
 
-const DEFAULT_SESSION_TTL_HOURS = 24 * 30;
+/** A session never lasts longer than this, whatever the configuration says. */
+const MAX_SESSION_TTL_HOURS = 24 * 30;
+/** Backoffice: a person on any browser signs in again each working day. */
+const DEFAULT_SESSION_TTL_HOURS = 12;
+/** POS and KDS: long enough for a shift; useless without the device it was opened on. */
+const DEFAULT_DEVICE_SESSION_TTL_HOURS = 16;
 const DUMMY_PASSWORD_HASH =
   "argon2id$v=1$m=65536,t=3,p=1$MkuMgCmr3bxO5jWNrNI84A$0j31PhlaljELAIA0SThm25s-vr6s-j9l2VypOA9Wr6k";
 
 export type LoginMetadata = {
+  /** The credential of the device the person signs in on, if it sent one. */
+  deviceCredential?: string;
   ipAddress?: string;
   userAgent?: string;
 };
@@ -43,20 +54,28 @@ function invalidSession() {
   });
 }
 
-export function readSessionTtlHours(value = process.env.AUTH_SESSION_TTL_HOURS) {
-  if (!value) {
-    return DEFAULT_SESSION_TTL_HOURS;
-  }
-
+function readTtlHours(value: string | undefined, fallback: number) {
+  if (!value) return fallback;
   const parsed = Number(value);
-  return Number.isInteger(parsed) && parsed >= 1 && parsed <= DEFAULT_SESSION_TTL_HOURS
+  return Number.isInteger(parsed) && parsed >= 1 && parsed <= MAX_SESSION_TTL_HOURS
     ? parsed
-    : DEFAULT_SESSION_TTL_HOURS;
+    : fallback;
+}
+
+/** Lifetime of a backoffice session. */
+export function readSessionTtlHours(value = process.env.AUTH_SESSION_TTL_HOURS) {
+  return readTtlHours(value, DEFAULT_SESSION_TTL_HOURS);
+}
+
+/** Lifetime of a session bound to a POS or KDS device. */
+export function readDeviceSessionTtlHours(value = process.env.AUTH_DEVICE_SESSION_TTL_HOURS) {
+  return readTtlHours(value, DEFAULT_DEVICE_SESSION_TTL_HOURS);
 }
 
 function toAuthSession(session: LoginSessionRecord): AuthSession {
   return authSessionSchema.parse({
     expiresAt: session.expiresAt.toISOString(),
+    surface: session.surface,
     user: {
       displayName: session.user.displayName,
       email: session.user.email,
@@ -74,6 +93,7 @@ export class AuthService {
     @Optional()
     @Inject(RATE_LIMIT_SERVICE)
     private readonly rateLimit: RateLimitService = new InMemoryRateLimitService(),
+    @Optional() @Inject(DEVICE_AUTHENTICATOR) private readonly devices?: DeviceAuthenticator,
   ) {}
 
   async login(input: AuthLoginRequest, metadata: LoginMetadata = {}) {
@@ -95,10 +115,15 @@ export class AuthService {
       throw invalidCredentials();
     }
 
+    // Signing in on a registered device opens a session for that device only.
+    const device = await this.devices?.authenticate(metadata.deviceCredential);
+    const ttlHours = device ? readDeviceSessionTtlHours() : readSessionTtlHours();
     const token = createSessionToken();
-    const expiresAt = new Date(Date.now() + readSessionTtlHours() * 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + ttlHours * 60 * 60 * 1000);
     const session = await this.repository.createLoginSession({
+      ...(device ? { deviceId: device.id } : {}),
       expiresAt,
+      surface: device ? device.mode : "BACKOFFICE",
       ...(metadata.ipAddress ? { ipAddress: metadata.ipAddress.slice(0, 45) } : {}),
       tokenHash: hashSessionToken(token),
       ...(metadata.userAgent ? { userAgent: metadata.userAgent.slice(0, 512) } : {}),
@@ -108,7 +133,12 @@ export class AuthService {
     return { session: toAuthSession(session), token };
   }
 
-  async getSession(token: string | undefined) {
+  /**
+   * The session behind a token. A session bound to a device also needs that
+   * device's credential, still active: copied to another browser, or after
+   * the device is revoked, it is worth nothing.
+   */
+  async getSession(token: string | undefined, deviceCredential?: string) {
     if (!token) {
       throw invalidSession();
     }
@@ -118,18 +148,26 @@ export class AuthService {
     if (!session || session.user.status !== "ACTIVE") {
       throw invalidSession();
     }
+    if (session.deviceId) {
+      const device = await this.devices?.authenticate(deviceCredential);
+      if (device?.id !== session.deviceId) throw invalidSession();
+    }
 
     return toAuthSession(session);
   }
 
   /** Saves the signed-in user's language or theme and returns the updated session. */
-  async updatePreferences(token: string | undefined, input: UpdateUserPreferences) {
-    const session = await this.getSession(token);
+  async updatePreferences(
+    token: string | undefined,
+    input: UpdateUserPreferences,
+    deviceCredential?: string,
+  ) {
+    const session = await this.getSession(token, deviceCredential);
     await this.repository.updatePreferences(session.user.id, {
       ...(input.locale ? { locale: input.locale } : {}),
       ...(input.theme ? { theme: input.theme } : {}),
     });
-    return this.getSession(token);
+    return this.getSession(token, deviceCredential);
   }
 
   async logout(token: string | undefined) {
