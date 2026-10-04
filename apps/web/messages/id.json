@@ -632,5 +632,27 @@
     },
     "openPos": "Buka kasir",
     "title": "Aktifkan perangkat"
+  },
+  "invite": {
+    "createAndJoin": "Buat akun dan bergabung",
+    "email": "Email",
+    "existingAccount": "Email ini sudah punya akun. Setelah bergabung, masuk dengan kata sandi yang sudah ada.",
+    "failed": "Tidak dapat bergabung",
+    "hidePassword": "Sembunyikan kata sandi",
+    "invalidLink": "Tautan undangan ini tidak lengkap. Buka tautan dari email undangan.",
+    "invalidTitle": "Undangan tidak dapat dibuka",
+    "join": "Bergabung",
+    "joinedDescription": "Anda sekarang anggota {workspace}. Masuk untuk mulai.",
+    "joinedTitle": "Anda sudah bergabung",
+    "joining": "Memproses…",
+    "name": "Nama",
+    "nameRequired": "Isi nama, minimal 2 karakter.",
+    "password": "Kata sandi",
+    "passwordHint": "Minimal 8 karakter.",
+    "passwordRequired": "Kata sandi minimal 8 karakter.",
+    "showPassword": "Tampilkan kata sandi",
+    "signIn": "Masuk",
+    "title": "Undangan bergabung",
+    "workspace": "Bisnis"
   }
 }

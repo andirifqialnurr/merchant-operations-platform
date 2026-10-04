@@ -632,5 +632,27 @@
     },
     "openPos": "Open the cashier",
     "title": "Activate this device"
+  },
+  "invite": {
+    "createAndJoin": "Create account and join",
+    "email": "Email",
+    "existingAccount": "This email already has an account. After joining, sign in with your existing password.",
+    "failed": "Could not join",
+    "hidePassword": "Hide password",
+    "invalidLink": "This invitation link is incomplete. Open the link from the invitation email.",
+    "invalidTitle": "The invitation cannot be opened",
+    "join": "Join",
+    "joinedDescription": "You are now a member of {workspace}. Sign in to start.",
+    "joinedTitle": "You have joined",
+    "joining": "Working…",
+    "name": "Name",
+    "nameRequired": "Enter a name of at least 2 characters.",
+    "password": "Password",
+    "passwordHint": "At least 8 characters.",
+    "passwordRequired": "The password needs at least 8 characters.",
+    "showPassword": "Show password",
+    "signIn": "Sign in",
+    "title": "Invitation to join",
+    "workspace": "Business"
   }
 }

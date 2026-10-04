@@ -54,7 +54,12 @@ import {
   updateCatalogProductSchema,
   updateCatalogProductVariantSchema,
   workspaceContextsSchema,
+  acceptInvitationSchema,
   activateDeviceSchema,
+  invitationAcceptedSchema,
+  invitationPreviewSchema,
+  invitationTokenRequestSchema,
+  type AcceptInvitation,
   fileUploadRequestSchema,
   fileUploadTicketSchema,
   type FileUploadRequest,
@@ -225,6 +230,19 @@ export const merchantApi = {
       {},
     ),
   workspaces: () => apiRequest("/access/workspaces", workspaceContextsSchema),
+  /** The secret travels in the body, never in the address. */
+  invitationPreview: (token: string) =>
+    apiRequest("/invitations/preview", invitationPreviewSchema, {
+      body: JSON.stringify(invitationTokenRequestSchema.parse({ token })),
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+    }),
+  acceptInvitation: (input: AcceptInvitation) =>
+    apiRequest("/invitations/accept", invitationAcceptedSchema, {
+      body: JSON.stringify(acceptInvitationSchema.parse(input)),
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+    }),
   navigation: (tenantId: string) =>
     apiRequest("/modules/navigation", workspaceNavigationSchema, {
       headers: tenantHeaders(tenantId),

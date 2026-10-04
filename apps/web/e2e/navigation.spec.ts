@@ -87,3 +87,20 @@ test("a device that is not activated yet is asked for its code, without signing 
   await expect(page.getByText("Kode terdiri dari 8 huruf dan angka.")).toBeVisible();
   await expect(page.getByLabel("Kode aktivasi")).toHaveValue("ABC");
 });
+
+test("an invitation link without a usable secret says so and asks for nothing", async ({
+  page,
+}) => {
+  // No secret at all.
+  await page.goto("/invite");
+  await expect(page.getByRole("heading", { name: "Undangan tidak dapat dibuka" })).toBeVisible();
+  await expect(page.getByText("Tautan undangan ini tidak lengkap.")).toBeVisible();
+  await expect(page.getByRole("textbox")).toHaveCount(0);
+
+  // A well-formed secret that no invitation holds.
+  await page.goto(`/invite#token=${"w".repeat(43)}`);
+  await expect(page.getByText("Tautan undangan ini salah atau sudah tidak berlaku.")).toBeVisible();
+  await expect(page.locator('input[type="password"]')).toHaveCount(0);
+  // The secret leaves the address once it was read.
+  await expect(page).toHaveURL(/\/invite$/);
+});
