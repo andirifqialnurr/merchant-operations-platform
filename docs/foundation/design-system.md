@@ -632,6 +632,14 @@ Komponen domain dibangun dari primitive `packages/ui` dan tidak menggandakan But
 - Kartu memotong gambar dengan `object-fit: cover`; tidak ada versi potong khusus.
 - **Layar kasir:** kartu memakai area gambar bila setidaknya satu produk di menu punya gambar; menu tanpa gambar sama sekali tetap memakai kartu rapat tanpa area gambar.
 
+### 19.0a Email
+
+- Dua template (`apps/api/src/core/mail/mail-templates.ts`): undangan dan reset kata sandi, masing-masing `id` dan `en`, dalam teks polos dan HTML dengan kata-kata yang sama.
+- **Wordmark:** ikon produk M1 (`/icon-192.png` dari alamat web) di samping nama produk. Bila program email memblokir gambar, nama produk tetap terbaca.
+- **Warna:** hanya ink dan netral, sama dengan aplikasi; satu tombol ink. Tidak ada warna aksen.
+- **Susunan:** judul, satu atau dua kalimat, satu tombol, alamat tautan tertulis untuk program tanpa tombol, lalu masa berlaku (dengan zona waktu) dan apa yang harus dilakukan bila email tidak diharapkan.
+- **Teknis:** tabel dan gaya sebaris, lebar maksimum 520 px, tanpa skrip, stylesheet luar, atau form. Bahasa bawaan Indonesia.
+
 ### 19.1 Bersama
 
 | Komponen                                                       | Kontrak                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
