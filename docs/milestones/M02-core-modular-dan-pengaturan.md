@@ -57,7 +57,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [x] **M2-BE-12 Perangkat** `2c44692` — `core_devices` dengan kredensial ber-hash; sesi perangkat untuk POS/KDS terpisah dari sesi pengguna.
 - [ ] **M2-BE-13 Feature flag** — `core_feature_flags` dan pemeriksaan di guard.
 - [ ] **M2-BE-14 Idempotency generik** — interceptor yang memakai tabel `idempotency_keys` dengan hash permintaan, untuk endpoint yang belum punya kunci domain sendiri.
-- [x] **M2-BE-15 Penyimpanan berkas** — URL unggah bertanda tangan ke object storage, validasi tipe dan ukuran, kunci objek per workspace.
+- [x] **M2-BE-15 Penyimpanan berkas** `3b7a486` — URL unggah bertanda tangan ke object storage, validasi tipe dan ukuran, kunci objek per workspace.
 - [ ] **M2-BE-16 Undangan pengguna** — token undangan ber-hash dengan masa berlaku; penerimaan undangan membuat keanggotaan.
 - [x] **M2-BE-17 CommandContext** `b815343` — channel, perangkat, correlation, causation, client version pada setiap perintah dan event (`backend.md` 4.1).
 
@@ -87,7 +87,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 ### SC — Keamanan dan privasi
 
 - [x] **M2-SC-01 Masa sesi per surface** `379aa77` — Backoffice lebih pendek, POS/KDS terikat perangkat (`SEC-F5`).
-- [x] **M2-SC-02 Validasi unggah berkas** — tipe raster saja untuk gambar, batas ukuran, tanpa path traversal, URL bertanda tangan berumur pendek.
+- [x] **M2-SC-02 Validasi unggah berkas** `3b7a486` — tipe raster saja untuk gambar, batas ukuran, tanpa path traversal, URL bertanda tangan berumur pendek.
 - [x] **M2-SC-03 Pencabutan** `2415eb3` — mencabut perangkat atau pengguna mematikan sesi aktifnya.
 - [x] **M2-SC-04 Test alasan akses** `0ff8a37` — satu test per alasan gagal di guard.
 - [x] **M2-SC-05 Payload event aman** `634b639` — tidak ada PII atau secret di outbox; diuji.
