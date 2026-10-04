@@ -976,3 +976,85 @@ test("asks the limit gate before a product is created, and creates nothing when 
   assert.deepEqual(asked, ["A:catalog.products.active", "A:catalog.products.active"]);
   assert.equal((await service.getSnapshot(TENANT_A)).products.length, 1);
 });
+
+// ---- Product pictures (M2-FT-07)
+
+function pictureFiles(result: "image/jpeg" | "missing" | "not-an-image" = "image/jpeg") {
+  const checked: string[] = [];
+  return {
+    checked,
+    files: {
+      readUrl: (tenantId: string, _purpose: string, objectKey: string) =>
+        `https://storage.test/${objectKey}?tenant=${tenantId}`,
+      verifyUpload: async (tenantId: string, _purpose: string, objectKey: string) => {
+        checked.push(`${tenantId === TENANT_A ? "A" : "other"}:${objectKey}`);
+        if (result === "missing") throw new Error("FILE_NOT_FOUND");
+        if (result === "not-an-image") throw new Error("FILE_TYPE_NOT_ALLOWED");
+        return { contentType: result, objectKey, sizeBytes: 40_000 };
+      },
+    },
+  };
+}
+
+test("a picture is attached only after the stored file was checked, with its real type", async () => {
+  const repository = new InMemoryCatalogRepository();
+  const { checked, files } = pictureFiles("image/jpeg");
+  const service = new CatalogService(repository, undefined, files);
+  const product = await createProduct(service, TENANT_A);
+
+  const image = await service.createProductImage(TENANT_A, {
+    // The browser claimed WebP; the file turned out to be a JPEG.
+    contentType: "image/webp",
+    displayOrder: 0,
+    isPrimary: true,
+    objectKey: "tenants/a/catalog/product-images/kopi.webp",
+    productId: product.id,
+  });
+
+  assert.deepEqual(checked, ["A:tenants/a/catalog/product-images/kopi.webp"]);
+  assert.equal(image.contentType, "image/jpeg");
+  assert.equal((await service.getSnapshot(TENANT_A)).productImages.length, 1);
+});
+
+test("a file that is missing or is not an image attaches nothing", async () => {
+  for (const result of ["missing", "not-an-image"] as const) {
+    const repository = new InMemoryCatalogRepository();
+    const service = new CatalogService(repository, undefined, pictureFiles(result).files);
+    const product = await createProduct(service, TENANT_A);
+    await assert.rejects(
+      () =>
+        service.createProductImage(TENANT_A, {
+          contentType: "image/png",
+          displayOrder: 0,
+          isPrimary: true,
+          objectKey: "tenants/a/catalog/product-images/x.png",
+          productId: product.id,
+        }),
+      /FILE_/,
+    );
+    assert.equal((await service.getSnapshot(TENANT_A)).productImages.length, 0);
+  }
+});
+
+test("a picture's address is given for an active picture of this workspace only", async () => {
+  const repository = new InMemoryCatalogRepository();
+  const service = new CatalogService(repository, undefined, pictureFiles().files);
+  const product = await createProduct(service, TENANT_A);
+  const image = await service.createProductImage(TENANT_A, {
+    contentType: "image/jpeg",
+    displayOrder: 0,
+    isPrimary: true,
+    objectKey: "tenants/a/catalog/product-images/kopi.jpg",
+    productId: product.id,
+  });
+
+  assert.equal(
+    await service.productImageUrl(TENANT_A, image.id),
+    `https://storage.test/tenants/a/catalog/product-images/kopi.jpg?tenant=${TENANT_A}`,
+  );
+  // Another workspace asking for the same picture gets nothing.
+  assert.equal(await service.productImageUrl(TENANT_B, image.id), null);
+  // A removed picture has no address either.
+  await service.updateProductImage(TENANT_A, image.id, { status: "INACTIVE" });
+  assert.equal(await service.productImageUrl(TENANT_A, image.id), null);
+});

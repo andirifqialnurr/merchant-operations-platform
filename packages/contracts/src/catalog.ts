@@ -426,3 +426,13 @@ export type UpdateCatalogProductModifierGroup = z.infer<
 >;
 
 export type UpdateCatalogProductVariant = z.infer<typeof updateCatalogProductVariantSchema>;
+
+/** Address of a product picture for an image element: the workspace is part of the path. */
+export const catalogProductImageContentParamsSchema = z.object({
+  imageId: z.uuid(),
+  tenantId: z.uuid(),
+});
+
+export type CatalogProductImageContentParams = z.infer<
+  typeof catalogProductImageContentParamsSchema
+>;

@@ -630,6 +630,7 @@ Komponen domain dibangun dari primitive `packages/ui` dan tidak menggandakan But
 - **Satu ukuran tersimpan:** sisi terpanjang paling besar 800 px, bentuk asli dipertahankan, gambar kecil tidak diperbesar. Format WebP (JPEG bila browser tidak bisa menulis WebP), kualitas 0,82. Ukuran ini cukup untuk kartu selebar sekitar 260 px pada layar 3x.
 - **Dibuat saat unggah, di browser** (`apps/web/src/lib/image-thumbnail.ts`): gambar asli tidak pernah dikirim. Rotasi dari kamera HP ikut diterapkan.
 - Kartu memotong gambar dengan `object-fit: cover`; tidak ada versi potong khusus.
+- **Layar kasir:** kartu memakai area gambar bila setidaknya satu produk di menu punya gambar; menu tanpa gambar sama sekali tetap memakai kartu rapat tanpa area gambar.
 
 ### 19.1 Bersama
 

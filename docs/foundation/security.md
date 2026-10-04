@@ -231,7 +231,8 @@ Pembatasan dilakukan di DTO backend, bukan dengan menyembunyikan field di fronte
   - **Pemeriksaan sesudah unggah** (`verifyUpload`), sebelum berkas dipakai: berkas harus ada, tidak kosong, tidak melebihi batas, dan byte awalnya memang gambar bertipe yang diizinkan. Berkas yang gagal dihapus.
   - Secret storage tidak pernah keluar dari server; pesan error tidak memuat alamat, bucket, atau kredensial storage.
   - CORS bucket hanya membuka origin web (`WEB_URL`) untuk `PUT` dan `GET`; diatur dengan `pnpm --filter @merchant/api storage:cors`.
-  - Belum: pemindaian malware; pembersihan berkas yang diunggah tetapi tidak pernah dipakai; thumbnail.
+  - **Gambar produk (sejak 4 Oktober 2026):** `POST /catalog/product-images` memanggil `verifyUpload` sebelum gambar dilekatkan, dan menyimpan tipe yang ditemukan di berkas, bukan yang diklaim. Gambar ditampilkan lewat `GET /catalog/tenants/:tenantId/product-images/:imageId/content`: sesi diperiksa, pemanggil harus anggota aktif workspace itu, lalu dialihkan ke URL baca bertanda tangan. Workspace ada di alamat karena elemen gambar tidak bisa mengirim header.
+  - Belum: pemindaian malware; pembersihan berkas yang diunggah tetapi tidak dipakai atau sudah dihapus dari produk.
 - Gambar produk: hanya tipe raster yang diizinkan; kunci objek tidak boleh mengandung traversal jalur (aturan ini sudah ada di skema Catalog).
 - Berkas privat (lampiran keuangan, bukti absensi) hanya diakses melalui URL bertanda tangan berumur pendek.
 

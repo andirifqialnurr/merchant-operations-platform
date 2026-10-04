@@ -37,6 +37,7 @@ import { HeldCartsSheet, HoldCartSheet } from "./held-carts";
 import { PaidView } from "./paid-view";
 import { PaymentView } from "./payment-view";
 import { ProductOptionsSheet } from "./product-options-sheet";
+import { productImageUrl } from "@/lib/api-client";
 
 const ALL_CATEGORIES = "all";
 
@@ -58,6 +59,9 @@ function SellScreen({
   const [heldOpen, setHeldOpen] = useState(false);
   const notify = useToast();
   const heldCarts = useHeldCarts(tenantId, outletId);
+  // A menu without any picture keeps the dense tiles; one picture is enough to show them all
+  // with a picture area, so the grid stays even.
+  const hasPictures = menu.products.some((product) => product.imageId !== null);
   const heldCount = heldCarts.data?.heldCarts.length ?? 0;
   const [stage, setStage] = useState<"pay" | "sell">("sell");
   const [checkout, setCheckout] = useState<Checkout | undefined>();
@@ -166,14 +170,23 @@ function SellScreen({
               </Button>
             ) : null}
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+          <div
+            className={
+              hasPictures
+                ? "grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 xl:grid-cols-3"
+                : "grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4"
+            }
+          >
             {products.map((product) => (
               <ProductTile
                 key={product.id}
                 name={product.name}
                 onClick={() => pick(product)}
                 priceLabel={money(product.priceMinor)}
-                variant="compact"
+                {...(product.imageId
+                  ? { imageAlt: "", imageUrl: productImageUrl(tenantId, product.imageId) }
+                  : {})}
+                variant={hasPictures ? "default" : "compact"}
               />
             ))}
           </div>

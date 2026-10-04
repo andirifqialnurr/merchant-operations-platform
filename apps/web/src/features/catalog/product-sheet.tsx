@@ -19,6 +19,8 @@ import { useFormat } from "@/lib/i18n";
 import type { CatalogMutation } from "./api";
 import { isLimitReached, LimitReachedState } from "@/shell/limit-reached-state";
 
+import { ProductImageField } from "./product-image-field";
+
 type Props = {
   canManage: boolean;
   mutation: CatalogMutation;
@@ -242,6 +244,14 @@ export function ProductSheet({
 
         {product ? (
           <>
+            <Divider />
+            <ProductImageField
+              canManage={canManage}
+              mutation={mutation}
+              product={product}
+              snapshot={snapshot}
+              tenantId={tenantId}
+            />
             <Divider />
             <section className="grid gap-3">
               <SectionTitle>{t("variants")}</SectionTitle>

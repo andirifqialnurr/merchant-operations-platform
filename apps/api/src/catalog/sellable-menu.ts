@@ -32,6 +32,13 @@ export function buildSellableMenu(snapshot: CatalogSnapshotRecord, outletId: str
       .map((group) => [group.id, group]),
   );
 
+  // One picture per product: the active one marked as primary.
+  const mainImages = new Map(
+    snapshot.productImages
+      .filter((image) => image.status === "ACTIVE" && image.isPrimary)
+      .map((image) => [image.productId, image.id]),
+  );
+
   const menuProducts = snapshot.outletProducts
     .filter((assignment) => assignment.outletId === outletId && assignment.status === "ACTIVE")
     .flatMap((assignment) => {
@@ -79,6 +86,7 @@ export function buildSellableMenu(snapshot: CatalogSnapshotRecord, outletId: str
             categoryId: product.categoryId,
             currency: product.currency,
             id: product.id,
+            imageId: mainImages.get(product.id) ?? null,
             modifierGroups,
             name: product.name,
             priceMinor: assignment.priceOverrideMinor ?? product.basePriceMinor,

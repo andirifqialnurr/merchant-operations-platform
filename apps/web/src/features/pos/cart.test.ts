@@ -20,6 +20,7 @@ const latte: SellableMenuProduct = {
   categoryId: "c1",
   currency: "IDR",
   id: "latte",
+  imageId: null,
   modifierGroups: [
     {
       id: "size",
@@ -56,6 +57,7 @@ const toast: SellableMenuProduct = {
   categoryId: "c2",
   currency: "IDR",
   id: "toast",
+  imageId: null,
   modifierGroups: [],
   name: "Roti Bakar Cokelat",
   priceMinor: "18000",

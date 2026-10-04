@@ -27,6 +27,8 @@ export const sellableMenuProductSchema = z.object({
   categoryId: z.uuid(),
   currency: currencyCodeSchema,
   id: z.uuid(),
+  /** The product's main picture, when it has one. */
+  imageId: z.uuid().nullable(),
   modifierGroups: z.array(sellableMenuModifierGroupSchema),
   name: catalogNameSchema,
   /** Outlet price before any variant or modifier surcharge. */

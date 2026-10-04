@@ -254,3 +254,40 @@ test("drops optional groups without options and sold-out variants", () => {
     ["Latte"],
   );
 });
+
+test("names each product's main active picture, and none when it has none", () => {
+  const image = (
+    suffix: number,
+    productId: string,
+    isPrimary: boolean,
+    status: "ACTIVE" | "INACTIVE",
+  ) => ({
+    ...stamps,
+    altText: null,
+    contentType: "image/webp" as const,
+    displayOrder: 0,
+    height: 600,
+    id: id(suffix),
+    isPrimary,
+    objectKey: `tenants/${TENANT}/catalog/product-images/${suffix}.webp`,
+    productId,
+    status,
+    tenantId: TENANT,
+    width: 800,
+  });
+  const menu = sellableMenuSchema.parse(
+    buildSellableMenu(
+      snapshot({
+        productImages: [
+          image(3901, LATTE, false, "ACTIVE"),
+          image(3902, LATTE, true, "ACTIVE"),
+          // A removed picture is never shown, even if it was the main one.
+          image(3903, TOAST, true, "INACTIVE"),
+        ],
+      }),
+      OUTLET,
+    ),
+  );
+  assert.equal(menu.products.find((item) => item.name === "Latte")?.imageId, id(3902));
+  assert.equal(menu.products.find((item) => item.name === "Roti Bakar")?.imageId, null);
+});

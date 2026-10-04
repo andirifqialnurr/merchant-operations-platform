@@ -15,6 +15,7 @@ import {
   createCatalogOutletProductSchema,
   createCatalogProductSchema,
   createCatalogProductImageSchema,
+  productImageContentTypeSchema,
   createCatalogProductModifierGroupSchema,
   createCatalogProductVariantSchema,
   updateCatalogCategorySchema,
@@ -68,6 +69,10 @@ import {
 } from "./catalog.repository.js";
 import { buildSellableMenu } from "./sellable-menu.js";
 import { LIMIT_GATE, NO_LIMITS, type LimitGate } from "../shared/limits/limit-gate.js";
+import { FileStorageService } from "../core/files/public.js";
+
+/** The part of file storage the catalog needs. */
+type ProductImageFiles = Pick<FileStorageService, "readUrl" | "verifyUpload">;
 
 const notFound = (code: string, message: string) => new NotFoundException({ code, message });
 const conflict = (code: string, message: string) => new ConflictException({ code, message });
@@ -147,6 +152,8 @@ export class CatalogService {
   constructor(
     @Inject(CATALOG_REPOSITORY) private readonly repository: CatalogRepository,
     @Inject(LIMIT_GATE) private readonly limits: LimitGate = NO_LIMITS,
+    // Left out only by unit tests that are not about pictures.
+    @Inject(FileStorageService) private readonly files?: ProductImageFiles,
   ) {}
 
   private async requireTenant(tenantId: string) {
@@ -533,12 +540,29 @@ export class CatalogService {
     if (await this.repository.findProductImageByObjectKey(tenantId, parsed.objectKey)) {
       throw conflict("CATALOG_PRODUCT_IMAGE_KEY_CONFLICT", "Image object key is already in use.");
     }
+    // The file must be in this workspace's folder and really be an image; the
+    // type that is stored is the one found in the file, not the one claimed.
+    const stored = await this.files?.verifyUpload(
+      tenantId,
+      "CATALOG_PRODUCT_IMAGE",
+      parsed.objectKey,
+    );
+    const checked = stored
+      ? { ...parsed, contentType: productImageContentTypeSchema.parse(stored.contentType) }
+      : parsed;
     const record = await this.uniqueMutation(
-      () => this.repository.createProductImage(tenantId, parsed, context),
+      () => this.repository.createProductImage(tenantId, checked, context),
       "CATALOG_PRODUCT_IMAGE_KEY_CONFLICT",
       "Image object key is already in use.",
     );
     return toProductImage(record);
+  }
+
+  /** A short-lived address for showing an active picture; null when there is none. */
+  async productImageUrl(tenantId: string, imageId: string) {
+    const image = await this.repository.findProductImageById(tenantId, imageId);
+    if (!image || image.status !== "ACTIVE" || !this.files) return null;
+    return this.files.readUrl(tenantId, "CATALOG_PRODUCT_IMAGE", image.objectKey);
   }
 
   async updateProductImage(

@@ -1,5 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 
+import { solidPng } from "./png";
 import { openAs } from "./sign-in";
 
 // Names are unique per run so the test can be repeated on the same database.
@@ -125,4 +126,46 @@ test("an outlet-scoped manager sees only what their outlet sells", async ({ page
   await expect(page.getByRole("row", { name: new RegExp(PRODUCT + ".*Rp18.000") })).toBeVisible();
   await openRow(page, PRODUCT);
   await expect(sheet(page).getByLabel("Habis di outlet ini")).not.toBeChecked();
+});
+
+test("an owner adds a product picture, sees it, and removes it", async ({ page }) => {
+  // The picture goes straight to the object storage (`pnpm infra:up`).
+  const storage = await fetch("http://localhost:9000/").catch(() => null);
+  test.skip(!storage, "the local object storage is not running");
+
+  await openAs(page, "catalog.owner@local.test", "/catalog");
+  await page.getByPlaceholder("Cari produk").fill(PRODUCT);
+  await openRow(page, PRODUCT);
+  const field = sheet(page).getByRole("group", { name: "Gambar produk" });
+  await expect(field.getByRole("button", { name: "Pilih gambar" })).toBeVisible();
+  await expect(field.getByRole("img")).toHaveCount(0);
+
+  // Something that is not a picture is refused before anything is sent.
+  await field.locator('input[type="file"]').setInputFiles({
+    buffer: Buffer.from("bukan gambar"),
+    mimeType: "text/plain",
+    name: "catatan.txt",
+  });
+  await expect(field.getByRole("alert")).toContainText("Jenis berkas ini tidak diizinkan");
+
+  await field.locator('input[type="file"]').setInputFiles({
+    buffer: solidPng(1600, 1200),
+    mimeType: "image/png",
+    name: "produk.png",
+  });
+  await expect(page.getByText("Gambar disimpan.")).toBeVisible({ timeout: 30_000 });
+  const picture = field.getByRole("img", { name: PRODUCT });
+  await expect(picture).toBeVisible();
+  // Stored at the thumbnail size, whatever the size of the photo.
+  await expect
+    .poll(() => picture.evaluate((image: HTMLImageElement) => image.naturalWidth), {
+      timeout: 30_000,
+    })
+    .toBe(800);
+  await expect(field.getByRole("alert")).toHaveCount(0);
+
+  await field.getByRole("button", { name: "Hapus" }).click();
+  await expect(page.getByText("Gambar dihapus.")).toBeVisible();
+  await expect(field.getByRole("img")).toHaveCount(0);
+  await expect(field.getByRole("button", { name: "Pilih gambar" })).toBeVisible();
 });

@@ -32,6 +32,7 @@ const menu: SellableMenu = {
       categoryId: "019f738d-e61f-7d46-92de-17b35f974501",
       currency: "IDR",
       id: LATTE,
+      imageId: null,
       modifierGroups: [
         {
           id: "019f738d-e61f-7d46-92de-17b35f974601",
@@ -67,6 +68,7 @@ const menu: SellableMenu = {
       categoryId: "019f738d-e61f-7d46-92de-17b35f974501",
       currency: "IDR",
       id: TOAST,
+      imageId: null,
       modifierGroups: [],
       name: "Roti Bakar",
       priceMinor: "18000",

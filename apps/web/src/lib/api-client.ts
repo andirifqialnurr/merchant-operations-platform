@@ -55,6 +55,9 @@ import {
   updateCatalogProductVariantSchema,
   workspaceContextsSchema,
   activateDeviceSchema,
+  fileUploadRequestSchema,
+  fileUploadTicketSchema,
+  type FileUploadRequest,
   deviceActivationTicketSchema,
   deviceListSchema,
   deviceSchema,
@@ -193,6 +196,14 @@ function jsonMutation<TInput, TOutput>(
     headers: { ...headers, "Content-Type": "application/json" },
     method,
   });
+}
+
+/**
+ * Address of a product picture for an image element. The API answers with a
+ * redirect to a short-lived signed address, so this one never expires.
+ */
+export function productImageUrl(tenantId: string, imageId: string) {
+  return `/api/v1/catalog/tenants/${tenantId}/product-images/${imageId}/content`;
 }
 
 export const merchantApi = {
@@ -372,6 +383,15 @@ export const merchantApi = {
       input,
       updateCatalogProductModifierGroupSchema,
       catalogProductModifierGroupSchema,
+      tenantHeaders(tenantId),
+    ),
+  createUpload: (tenantId: string, input: FileUploadRequest) =>
+    jsonMutation(
+      "/files/uploads",
+      "POST",
+      input,
+      fileUploadRequestSchema,
+      fileUploadTicketSchema,
       tenantHeaders(tenantId),
     ),
   createProductImage: (tenantId: string, input: CreateCatalogProductImage) =>
