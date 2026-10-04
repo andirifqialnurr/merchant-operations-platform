@@ -54,8 +54,13 @@ import {
   updateCatalogProductSchema,
   updateCatalogProductVariantSchema,
   workspaceContextsSchema,
+  deviceActivationTicketSchema,
+  deviceListSchema,
+  deviceSchema,
+  registerDeviceSchema,
   subscriptionOverviewSchema,
   workspaceNavigationSchema,
+  type RegisterDevice,
   type AuthLoginRequest,
   type UpdateUserPreferences,
   type CancelOrder,
@@ -211,6 +216,27 @@ export const merchantApi = {
   navigation: (tenantId: string) =>
     apiRequest("/modules/navigation", workspaceNavigationSchema, {
       headers: tenantHeaders(tenantId),
+    }),
+  devices: (tenantId: string) =>
+    apiRequest("/devices", deviceListSchema, { headers: tenantHeaders(tenantId) }),
+  registerDevice: (tenantId: string, input: RegisterDevice) =>
+    jsonMutation(
+      "/devices",
+      "POST",
+      input,
+      registerDeviceSchema,
+      deviceActivationTicketSchema,
+      tenantHeaders(tenantId),
+    ),
+  reissueDeviceCode: (tenantId: string, deviceId: string) =>
+    apiRequest(`/devices/${deviceId}/activation-code`, deviceActivationTicketSchema, {
+      headers: tenantHeaders(tenantId),
+      method: "POST",
+    }),
+  revokeDevice: (tenantId: string, deviceId: string) =>
+    apiRequest(`/devices/${deviceId}/revoke`, deviceSchema, {
+      headers: tenantHeaders(tenantId),
+      method: "POST",
     }),
   subscription: (tenantId: string) =>
     apiRequest("/subscription", subscriptionOverviewSchema, { headers: tenantHeaders(tenantId) }),

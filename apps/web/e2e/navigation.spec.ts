@@ -12,7 +12,7 @@ async function menu(page: Page) {
 test("the owner's menu lists the installed modules they may open", async ({ page }) => {
   await openAs(page, "catalog.owner@local.test", "/catalog");
   // Daily modules first, settings last.
-  expect(await menu(page)).toEqual(["Katalog", "Kasir", "Langganan"]);
+  expect(await menu(page)).toEqual(["Katalog", "Kasir", "Perangkat", "Langganan"]);
   await expect(page.getByRole("link", { name: "Katalog" })).toHaveAttribute("aria-current", "page");
 });
 
@@ -45,4 +45,29 @@ test("a cashier is told the subscription is not theirs to see", async ({ page })
   await openAs(page, "pos.cashier@local.test", "/settings/subscription");
   await expect(page.getByRole("heading", { name: "Anda tidak punya akses" })).toBeVisible();
   await expect(page.getByRole("meter")).toHaveCount(0);
+});
+
+test("the owner opens the devices page and the form says what is missing", async ({ page }) => {
+  await openAs(page, "catalog.owner@local.test", "/settings/devices");
+  const main = page.getByRole("main");
+  await expect(main.getByRole("heading", { level: 1, name: "Perangkat" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Perangkat" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  // One primary action on the page.
+  await expect(main.getByRole("button")).toHaveCount(1);
+
+  await main.getByRole("button", { name: "Daftarkan perangkat" }).click();
+  const sheet = page.getByRole("dialog");
+  await sheet.getByRole("button", { name: "Daftarkan" }).click();
+  await expect(sheet.getByText("Isi nama perangkat, minimal 2 karakter.")).toBeVisible();
+  // Nothing was registered and no code is shown.
+  await expect(sheet.getByLabel("Kode aktivasi")).toHaveCount(0);
+});
+
+test("a cashier is told the devices are not theirs to manage", async ({ page }) => {
+  await openAs(page, "pos.cashier@local.test", "/settings/devices");
+  await expect(page.getByRole("heading", { name: "Anda tidak punya akses" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Daftarkan perangkat" })).toHaveCount(0);
 });

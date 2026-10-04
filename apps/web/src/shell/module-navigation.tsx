@@ -3,8 +3,10 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   IconCashRegister,
+  IconDeviceTablet,
   IconPackage,
   IconReceipt2,
+  IconSettings,
   IconSquareRoundedLetterM,
 } from "@tabler/icons-react";
 
@@ -36,6 +38,8 @@ export const MODULE_NAVIGATION = {
     labelKey: "moduleNav.CORE_SUBSCRIPTION",
     wholeBusiness: true,
   },
+  // Settings pages of the business; each page has its own entry in PAGE_NAVIGATION.
+  CORE_TENANCY: { icon: IconSettings, labelKey: "moduleNav.CORE_TENANCY", wholeBusiness: true },
   POS: { icon: IconCashRegister, labelKey: "moduleNav.POS" },
 } as const satisfies Partial<
   Record<ModuleKey, { icon: AppIconComponent; labelKey: string; wholeBusiness?: boolean }>
@@ -46,6 +50,14 @@ export type NavigableModule = keyof typeof MODULE_NAVIGATION;
 export function isNavigableModule(moduleKey: ModuleKey): moduleKey is NavigableModule {
   return moduleKey in MODULE_NAVIGATION;
 }
+
+/**
+ * Pages that have a name and icon of their own, because their module brings
+ * more than one page. A page not listed here is shown as its module.
+ */
+export const PAGE_NAVIGATION: Record<string, { icon: AppIconComponent; labelKey: string }> = {
+  "/settings/devices": { icon: IconDeviceTablet, labelKey: "pageNav.devices" },
+};
 
 /** Settings come after the modules people work in every day. */
 export function isSettingsPath(path: string) {

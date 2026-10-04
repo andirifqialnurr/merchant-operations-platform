@@ -34,7 +34,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [ ] **M2-FT-01 Pengaturan organisasi** — ubah nama bisnis, brand, outlet (alamat, zona waktu, mata uang).
 - [ ] **M2-FT-02 Pengguna dan undangan** — undang lewat email dengan peran dan lokasi; status menunggu; cabut akses.
 - [ ] **M2-FT-03 Peran dan izin** — daftar peran sistem dan kustom; atur izin per peran dengan bahasa yang mudah dimengerti.
-- [ ] **M2-FT-04 Perangkat** — daftarkan perangkat POS/KDS dengan kode sekali pakai, lihat status terakhir terlihat, cabut. Secret tidak pernah tampil lagi setelah provisioning.
+- [x] **M2-FT-04 Perangkat** — daftarkan perangkat POS/KDS dengan kode sekali pakai, lihat status terakhir terlihat, cabut. Secret tidak pernah tampil lagi setelah provisioning.
 - [x] **M2-FT-05 Langganan dan pemakaian** `324e534` — paket aktif, modul dan tier, pemakaian vs batas per dimensi; saat batas tercapai tombol tetap tampil dengan penjelasan dan ajakan upgrade.
 - [ ] **M2-FT-06 Integrasi antarmodul** — daftar binding (misalnya POS → Keuangan) dengan status `Aktif`/`Perlu setup`/`Gagal` dan tombol coba ulang.
 - [ ] **M2-FT-07 Gambar produk** — unggah gambar produk di Catalog dan tampilkan di kartu produk POS.

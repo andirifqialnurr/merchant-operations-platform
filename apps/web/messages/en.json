@@ -9,7 +9,8 @@
     "moduleNav": {
       "CORE_CATALOG": "Catalog",
       "POS": "Cashier",
-      "CORE_SUBSCRIPTION": "Subscription"
+      "CORE_SUBSCRIPTION": "Subscription",
+      "CORE_TENANCY": "Settings"
     },
     "navOrders": "Orders",
     "navSell": "Sell",
@@ -32,7 +33,10 @@
     "themeDark": "Dark",
     "themeLight": "Light",
     "themeSystem": "System",
-    "workspace": "Business"
+    "workspace": "Business",
+    "pageNav": {
+      "devices": "Devices"
+    }
   },
   "access": {
     "retry": "Try again",
@@ -538,5 +542,55 @@
         }
       }
     }
+  },
+  "devices": {
+    "accessDenied": "Only the owner or a manager of all outlets can see the devices.",
+    "accessDeniedTitle": "You do not have access",
+    "activatedAt": "Activated {date}.",
+    "cancel": "Cancel",
+    "closeSheet": "Close panel",
+    "codeInstruction": "Enter this code on the device that will be used.",
+    "codeLabel": "Activation code",
+    "codeReissued": "A new code was created.",
+    "codeShownOnce": "This code will not be shown again.",
+    "codeValidUntil": "Valid until {time}.",
+    "device": "Device",
+    "done": "Done",
+    "empty": "Register a cashier tablet or a kitchen screen to start.",
+    "emptyTitle": "No devices yet",
+    "label": "Device name",
+    "labelRequired": "Enter a device name of at least 2 characters.",
+    "lastSeen": "Last seen",
+    "loadFailed": "The devices could not be loaded",
+    "mode": "Type",
+    "modeName": {
+      "KDS": "Kitchen display",
+      "POS": "Cashier"
+    },
+    "neverSeen": "Never",
+    "newCode": "Create a new code",
+    "newDevice": "New device",
+    "noOutlet": "There is no active outlet yet.",
+    "outlet": "Outlet",
+    "outletRequired": "Choose an outlet.",
+    "pendingExpired": "The activation code has expired. Create a new code to activate.",
+    "pendingUntil": "Waiting for activation. The code is valid until {time}.",
+    "register": "Register",
+    "registerDevice": "Register a device",
+    "registered": "The device was registered.",
+    "revoke": "Revoke",
+    "revokeDescription": "The device stops working at once and the sessions on it end. This cannot be undone.",
+    "revokeTitle": "Revoke {label}?",
+    "revoked": "The device was revoked.",
+    "revokedAt": "Revoked {date}.",
+    "saving": "Saving…",
+    "selectOutlet": "Choose an outlet",
+    "status": "Status",
+    "statusName": {
+      "ACTIVE": "Active",
+      "PENDING": "Waiting for activation",
+      "REVOKED": "Revoked"
+    },
+    "title": "Devices"
   }
 }

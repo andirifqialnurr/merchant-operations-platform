@@ -9,7 +9,8 @@
     "moduleNav": {
       "CORE_CATALOG": "Katalog",
       "POS": "Kasir",
-      "CORE_SUBSCRIPTION": "Langganan"
+      "CORE_SUBSCRIPTION": "Langganan",
+      "CORE_TENANCY": "Pengaturan"
     },
     "navOrders": "Pesanan",
     "navSell": "Jual",
@@ -32,7 +33,10 @@
     "themeDark": "Gelap",
     "themeLight": "Terang",
     "themeSystem": "Sistem",
-    "workspace": "Bisnis"
+    "workspace": "Bisnis",
+    "pageNav": {
+      "devices": "Perangkat"
+    }
   },
   "access": {
     "retry": "Coba lagi",
@@ -538,5 +542,55 @@
         }
       }
     }
+  },
+  "devices": {
+    "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat perangkat.",
+    "accessDeniedTitle": "Anda tidak punya akses",
+    "activatedAt": "Diaktifkan {date}.",
+    "cancel": "Batal",
+    "closeSheet": "Tutup panel",
+    "codeInstruction": "Masukkan kode ini di perangkat yang akan dipakai.",
+    "codeLabel": "Kode aktivasi",
+    "codeReissued": "Kode baru dibuat.",
+    "codeShownOnce": "Kode ini tidak akan ditampilkan lagi.",
+    "codeValidUntil": "Berlaku sampai {time}.",
+    "device": "Perangkat",
+    "done": "Selesai",
+    "empty": "Daftarkan tablet kasir atau layar dapur untuk mulai.",
+    "emptyTitle": "Belum ada perangkat",
+    "label": "Nama perangkat",
+    "labelRequired": "Isi nama perangkat, minimal 2 karakter.",
+    "lastSeen": "Terakhir terlihat",
+    "loadFailed": "Perangkat tidak dapat dimuat",
+    "mode": "Jenis",
+    "modeName": {
+      "KDS": "Layar dapur",
+      "POS": "Kasir"
+    },
+    "neverSeen": "Belum pernah",
+    "newCode": "Buat kode baru",
+    "newDevice": "Perangkat baru",
+    "noOutlet": "Belum ada outlet aktif.",
+    "outlet": "Outlet",
+    "outletRequired": "Pilih outlet.",
+    "pendingExpired": "Kode aktivasi sudah kedaluwarsa. Buat kode baru untuk mengaktifkan.",
+    "pendingUntil": "Menunggu aktivasi. Kode berlaku sampai {time}.",
+    "register": "Daftarkan",
+    "registerDevice": "Daftarkan perangkat",
+    "registered": "Perangkat didaftarkan.",
+    "revoke": "Cabut",
+    "revokeDescription": "Perangkat langsung berhenti bisa dipakai dan sesi di perangkat itu berakhir. Ini tidak dapat dibatalkan.",
+    "revokeTitle": "Cabut {label}?",
+    "revoked": "Perangkat dicabut.",
+    "revokedAt": "Dicabut {date}.",
+    "saving": "Menyimpan…",
+    "selectOutlet": "Pilih outlet",
+    "status": "Status",
+    "statusName": {
+      "ACTIVE": "Aktif",
+      "PENDING": "Menunggu aktivasi",
+      "REVOKED": "Dicabut"
+    },
+    "title": "Perangkat"
   }
 }

@@ -14,6 +14,7 @@ export function useFormat() {
   const dateTime = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" });
   const dateOnly = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
   const plainNumber = new Intl.NumberFormat(locale);
+  const timeOnly = new Intl.DateTimeFormat(locale, { timeStyle: "short" });
   return {
     /** Date of an ISO timestamp in the device's time zone. */
     date: (iso: string) => dateOnly.format(new Date(iso)),
@@ -22,6 +23,8 @@ export function useFormat() {
     /** BCP 47 tag for components that format on their own, e.g. MoneyInput. */
     locale,
     money: (valueMinor: string, currency?: string) => formatMoney(valueMinor, currency, locale),
+    /** Time of day of an ISO timestamp in the device's time zone. */
+    time: (iso: string) => timeOnly.format(new Date(iso)),
     /** A count with the language's digit grouping. */
     number: (value: number) => plainNumber.format(value),
   };

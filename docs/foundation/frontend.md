@@ -182,6 +182,8 @@ apiRequest(path, {
 });
 ```
 
+Menu Backoffice datang dari `GET /modules/navigation`. Nama dan ikon entri dicari per halaman dulu (`PAGE_NAVIGATION` di `shell/module-navigation.tsx`), lalu per modul (`MODULE_NAVIGATION`), karena satu modul bisa membawa beberapa halaman pengaturan. Halaman pengaturan ditaruh setelah modul harian, dan entri milik seluruh bisnis disembunyikan dari pengguna satu outlet.
+
 Klien API bertanggung jawab atas: `credentials: "include"`; header konteks; header `x-request-id`; header `x-client-channel` (`WEB`) dan `x-client-version`; header `x-csrf-token` untuk metode tidak aman; `Idempotency-Key`; validasi response; dan pemetaan error menjadi `ApiClientError { code, status, details, requestId }`.
 
 Halaman dan komponen tidak pernah memanggil `fetch` langsung.
