@@ -623,6 +623,14 @@ Semua chart memakai **ApexCharts** melalui wrapper `Chart` di `packages/ui` (sud
 
 Komponen domain dibangun dari primitive `packages/ui` dan tidak menggandakan Button, Badge, Dialog, atau Input. Kontrak perilakunya tetap; hanya tampilannya mengikuti token baru.
 
+### 19.0 Gambar produk
+
+- **Belum ada gambar:** ikon netral (`IconPhoto`) di atas latar `bg.surface-subtle`, tanpa teks. Nama produk sudah tertulis tepat di bawahnya.
+- **Gambar gagal dimuat:** ikon `IconPhotoOff`, juga tanpa teks. Kartu tetap bisa ditekan.
+- **Satu ukuran tersimpan:** sisi terpanjang paling besar 800 px, bentuk asli dipertahankan, gambar kecil tidak diperbesar. Format WebP (JPEG bila browser tidak bisa menulis WebP), kualitas 0,82. Ukuran ini cukup untuk kartu selebar sekitar 260 px pada layar 3x.
+- **Dibuat saat unggah, di browser** (`apps/web/src/lib/image-thumbnail.ts`): gambar asli tidak pernah dikirim. Rotasi dari kamera HP ikut diterapkan.
+- Kartu memotong gambar dengan `object-fit: cover`; tidak ada versi potong khusus.
+
 ### 19.1 Bersama
 
 | Komponen                                                       | Kontrak                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |

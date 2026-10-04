@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
@@ -115,5 +115,31 @@ describe("CategoryRail", () => {
 
     const results = await axe(container);
     expect(results.violations).toEqual([]);
+  });
+});
+
+describe("ProductTile picture placeholder", () => {
+  it("shows a neutral icon and no text while a product has no picture", () => {
+    const { container } = render(<ProductTile name="Kopi susu" priceLabel="Rp18.000" />);
+    const placeholder = container.querySelector(".ui-product-tile__image-fallback");
+    expect(placeholder).toHaveAttribute("data-image", "none");
+    expect(placeholder).toHaveAttribute("aria-hidden", "true");
+    expect(placeholder?.querySelector("svg")).not.toBeNull();
+    expect(placeholder?.textContent).toBe("");
+    expect(container.querySelector("img")).toBeNull();
+  });
+
+  it("marks a picture that failed to load, still without text", () => {
+    const { container } = render(
+      <ProductTile
+        imageUrl="https://files.test/missing.webp"
+        name="Kopi susu"
+        priceLabel="Rp18.000"
+      />,
+    );
+    fireEvent.error(container.querySelector("img")!);
+    const placeholder = container.querySelector(".ui-product-tile__image-fallback");
+    expect(placeholder).toHaveAttribute("data-image", "failed");
+    expect(placeholder?.textContent).toBe("");
   });
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import { type ButtonHTMLAttributes, type ReactNode, useEffect, useState } from "react";
-import { IconPhotoOff } from "@tabler/icons-react";
+import { IconPhoto, IconPhotoOff } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
 
@@ -95,8 +95,14 @@ export function ProductTile({
           ) : imageUrl && !imageFailed ? (
             <img alt={imageAlt} onError={() => setImageFailed(true)} src={imageUrl} />
           ) : (
-            <span aria-hidden="true" className="ui-product-tile__image-fallback">
-              <AppIcon icon={IconPhotoOff} size="lg" />
+            // No picture yet is a neutral icon; a picture that failed to load is marked as such.
+            // Neither carries text: the name of the product is right below.
+            <span
+              aria-hidden="true"
+              className="ui-product-tile__image-fallback"
+              data-image={imageUrl ? "failed" : "none"}
+            >
+              <AppIcon icon={imageUrl ? IconPhotoOff : IconPhoto} size="lg" />
             </span>
           )}
         </span>
