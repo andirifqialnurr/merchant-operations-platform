@@ -52,7 +52,7 @@ Dokumen terkait: [`architecture.md`](./architecture.md), [`backend.md`](./backen
 | Registri perangkat dan kredensial perangkat                                                                                 | **Ada**                              | `core/devices`, `core_devices`                                |
 | Lint batas modul                                                                                                            | **Belum** (kontrak ada)              | —                                                             |
 | Integration test PostgreSQL sekali pakai                                                                                    | **Belum**                            | —                                                             |
-| Upload berkas bertanda tangan                                                                                               | **Belum**                            | —                                                             |
+| Upload berkas bertanda tangan                                                                                               | **Ada**                              | `core/files`                                                  |
 | Row-level security PostgreSQL                                                                                               | **Belum diputuskan** (`SCH-02`)      | —                                                             |
 
 ---
@@ -222,6 +222,16 @@ Pembatasan dilakukan di DTO backend, bukan dengan menyembunyikan field di fronte
 **Berkas**
 
 - Upload melalui URL bertanda tangan ke object storage; API memvalidasi kepemilikan, tipe, dan ukuran.
+- Yang berjalan sejak 4 Oktober 2026 (`core/files`):
+  - `POST /files/uploads` menjawab URL unggah bertanda tangan untuk satu berkas. Izin mengikuti tujuan berkas (gambar produk: `catalog.manage`).
+  - **Kunci objek dibuat server**: `tenants/{workspace}/{folder tujuan}/{uuid}.{ekstensi}`. Nama berkas dari pengguna tidak pernah dipakai, jadi tidak ada jalan untuk path traversal. Kunci di luar folder workspace sendiri diperlakukan seperti berkas yang tidak ada.
+  - **Tipe:** hanya gambar raster (JPEG, PNG, WebP, AVIF). SVG dan tipe lain ditolak saat meminta tiket, dan lagi saat berkas diperiksa.
+  - **Ukuran:** paling besar 5 MB untuk gambar produk. Tipe dan ukuran ikut ditandatangani, sehingga storage menolak unggahan dengan tipe atau ukuran lain.
+  - **Umur URL:** 5 menit, untuk unggah maupun baca.
+  - **Pemeriksaan sesudah unggah** (`verifyUpload`), sebelum berkas dipakai: berkas harus ada, tidak kosong, tidak melebihi batas, dan byte awalnya memang gambar bertipe yang diizinkan. Berkas yang gagal dihapus.
+  - Secret storage tidak pernah keluar dari server; pesan error tidak memuat alamat, bucket, atau kredensial storage.
+  - CORS bucket hanya membuka origin web (`WEB_URL`) untuk `PUT` dan `GET`; diatur dengan `pnpm --filter @merchant/api storage:cors`.
+  - Belum: pemindaian malware; pembersihan berkas yang diunggah tetapi tidak pernah dipakai; thumbnail.
 - Gambar produk: hanya tipe raster yang diizinkan; kunci objek tidak boleh mengandung traversal jalur (aturan ini sudah ada di skema Catalog).
 - Berkas privat (lampiran keuangan, bukti absensi) hanya diakses melalui URL bertanda tangan berumur pendek.
 

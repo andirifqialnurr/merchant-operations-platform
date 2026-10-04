@@ -82,12 +82,13 @@ Kredensial lokal dicatat di `CREDENTIALS.local.md` (tidak masuk repositori).
 
 `infrastructure/docker/compose.dev.yml` menyediakan Redis, object storage, dan (opsional) PostgreSQL agar lingkungan pengembang seragam. Aplikasi tetap dijalankan dengan `pnpm dev` di host. Nilai diambil dari `.env` di akar repo.
 
-| Perintah            | Yang dijalankan                                                                                                                 |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm infra:up`     | Redis 8.2 (port 6379) dan object storage S3-compatible (port 9000); menunggu sampai keduanya sehat                              |
-| `pnpm infra:up:all` | Sama, ditambah PostgreSQL 18.2 untuk mesin yang belum punya PostgreSQL; butuh `POSTGRES_USER` dan `POSTGRES_PASSWORD` di `.env` |
-| `pnpm infra:status` | Status container                                                                                                                |
-| `pnpm infra:down`   | Menghentikan semuanya; data tetap di volume Docker                                                                              |
+| Perintah                                   | Yang dijalankan                                                                                                                           |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm infra:up`                            | Redis 8.2 (port 6379) dan object storage S3-compatible (port 9000); menunggu sampai keduanya sehat                                        |
+| `pnpm infra:up:all`                        | Sama, ditambah PostgreSQL 18.2 untuk mesin yang belum punya PostgreSQL; butuh `POSTGRES_USER` dan `POSTGRES_PASSWORD` di `.env`           |
+| `pnpm infra:status`                        | Status container                                                                                                                          |
+| `pnpm infra:down`                          | Menghentikan semuanya; data tetap di volume Docker                                                                                        |
+| `pnpm --filter @merchant/api storage:cors` | Mengizinkan browser dari `WEB_URL` mengunggah ke dan membaca dari bucket. Jalankan sekali per lingkungan, dan lagi bila `WEB_URL` berubah |
 
 Catatan:
 
@@ -144,21 +145,22 @@ API tidak dibuka langsung ke internet kecuali jalur WebSocket; semua permintaan 
 
 ## 4. Variabel environment
 
-| Variabel                                                                      | Dipakai oleh         | Wajib     | Keterangan                                                        |
-| ----------------------------------------------------------------------------- | -------------------- | --------- | ----------------------------------------------------------------- |
-| `NODE_ENV`                                                                    | Semua                | Ya        | `production` mengaktifkan cookie `Secure` dan HSTS                |
-| `DATABASE_URL`                                                                | API, worker, migrasi | Ya        | PostgreSQL                                                        |
-| `API_URL`                                                                     | Web                  | Ya        | Alamat internal API untuk rewrite                                 |
-| `API_PORT`                                                                    | API                  | Tidak     | Bawaan 3001                                                       |
-| `WEB_URL`                                                                     | API                  | Ya (prod) | Origin web                                                        |
-| `AUTH_SESSION_TTL_HOURS`                                                      | API                  | Tidak     | Masa sesi Backoffice. Bawaan 12, maksimum 720                     |
-| `AUTH_DEVICE_SESSION_TTL_HOURS`                                               | API                  | Tidak     | Masa sesi yang terikat perangkat POS/KDS. Bawaan 16, maksimum 720 |
-| `PLATFORM_SESSION_TTL_HOURS`                                                  | API                  | Tidak     | Bawaan 12                                                         |
-| `API_DOCS_ENABLED`                                                            | API                  | Tidak     | Di produksi hanya aktif bila `true` dan tetap butuh sesi platform |
-| `REDIS_URL`                                                                   | API, worker          | Nanti     |                                                                   |
-| `OBJECT_STORAGE_ENDPOINT`, `_REGION`, `_BUCKET`, `_ACCESS_KEY`, `_SECRET_KEY` | API                  | Nanti     |                                                                   |
-| `PLATFORM_USER_EMAIL`, `_PASSWORD`, `_DISPLAY_NAME`, `_ROLE`                  | CLI provisioning     | Sekali    | Tidak disimpan di environment layanan                             |
-| `DATABASE_RESTORE_DRILL_DB`                                                   | Drill backup         | Operasi   | Database tujuan uji restore                                       |
+| Variabel                                                                      | Dipakai oleh         | Wajib                   | Keterangan                                                                       |
+| ----------------------------------------------------------------------------- | -------------------- | ----------------------- | -------------------------------------------------------------------------------- |
+| `NODE_ENV`                                                                    | Semua                | Ya                      | `production` mengaktifkan cookie `Secure` dan HSTS                               |
+| `DATABASE_URL`                                                                | API, worker, migrasi | Ya                      | PostgreSQL                                                                       |
+| `API_URL`                                                                     | Web                  | Ya                      | Alamat internal API untuk rewrite                                                |
+| `API_PORT`                                                                    | API                  | Tidak                   | Bawaan 3001                                                                      |
+| `WEB_URL`                                                                     | API                  | Ya (prod)               | Origin web                                                                       |
+| `AUTH_SESSION_TTL_HOURS`                                                      | API                  | Tidak                   | Masa sesi Backoffice. Bawaan 12, maksimum 720                                    |
+| `AUTH_DEVICE_SESSION_TTL_HOURS`                                               | API                  | Tidak                   | Masa sesi yang terikat perangkat POS/KDS. Bawaan 16, maksimum 720                |
+| `PLATFORM_SESSION_TTL_HOURS`                                                  | API                  | Tidak                   | Bawaan 12                                                                        |
+| `API_DOCS_ENABLED`                                                            | API                  | Tidak                   | Di produksi hanya aktif bila `true` dan tetap butuh sesi platform                |
+| `REDIS_URL`                                                                   | API, worker          | Nanti                   |                                                                                  |
+| `OBJECT_STORAGE_ENDPOINT`, `_REGION`, `_BUCKET`, `_ACCESS_KEY`, `_SECRET_KEY` | API                  | Ya, untuk unggah berkas |                                                                                  |
+| `OBJECT_STORAGE_PUBLIC_ENDPOINT`                                              | API                  | Tidak                   | Alamat storage yang dipakai browser, bila berbeda dari `OBJECT_STORAGE_ENDPOINT` |
+| `PLATFORM_USER_EMAIL`, `_PASSWORD`, `_DISPLAY_NAME`, `_ROLE`                  | CLI provisioning     | Sekali                  | Tidak disimpan di environment layanan                                            |
+| `DATABASE_RESTORE_DRILL_DB`                                                   | Drill backup         | Operasi                 | Database tujuan uji restore                                                      |
 
 Aturan: tidak ada secret di repositori, di image, atau di variabel yang diekspos ke browser (`NEXT_PUBLIC_*`). `.env.example` hanya berisi placeholder. Aplikasi harus gagal saat start bila variabel wajib tidak ada.
 

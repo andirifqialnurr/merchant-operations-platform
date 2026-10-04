@@ -155,6 +155,7 @@ import {
   registerDeviceSchema,
 } from "./devices.ts";
 import { sessionRevocationSchema } from "./access.ts";
+import { fileUploadRequestSchema, fileUploadTicketSchema } from "./files.ts";
 
 export type ContractSchema = z.ZodType;
 
@@ -208,6 +209,8 @@ export const commonOpenApiSchemas = {
   DeviceActivationTicket: toOpenApiSchema(deviceActivationTicketSchema),
   DeviceList: toOpenApiSchema(deviceListSchema),
   RegisterDevice: toOpenApiSchema(registerDeviceSchema),
+  FileUploadRequest: toOpenApiSchema(fileUploadRequestSchema),
+  FileUploadTicket: toOpenApiSchema(fileUploadTicketSchema),
   ModuleInstallationList: toOpenApiSchema(moduleInstallationListSchema),
   SessionRevocation: toOpenApiSchema(sessionRevocationSchema),
   WorkspaceNavigation: toOpenApiSchema(workspaceNavigationSchema),
