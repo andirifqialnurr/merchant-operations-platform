@@ -25,6 +25,7 @@ export function CartPanel({
   onQuantityChange,
   onRemove,
   totalMinor,
+  totalNote,
 }: Readonly<{
   lines: readonly CartLineView[];
   onHold: () => void;
@@ -34,6 +35,8 @@ export function CartPanel({
   onQuantityChange: (key: string, quantity: number) => void;
   onRemove: (key: string) => void;
   totalMinor: bigint;
+  /** Says what the total holds beyond the lines above, e.g. tax and service. */
+  totalNote?: string;
 }>) {
   const t = useTranslations("pos");
   const { locale } = useFormat();
@@ -120,6 +123,9 @@ export function CartPanel({
           <span className="text-label font-semibold">{t("total")}</span>
           <MoneyDisplay amountMinor={totalMinor} locale={locale} variant="summary" />
         </div>
+        {totalNote ? (
+          <p className="m-0 text-caption text-foreground-secondary">{totalNote}</p>
+        ) : null}
         <div className="flex gap-2">
           <Button onClick={onHold} size="lg" variant="secondary">
             {t("hold")}

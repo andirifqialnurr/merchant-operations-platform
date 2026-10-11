@@ -128,12 +128,16 @@ class InMemoryOrganizationRepository implements OrganizationRepository {
 
   async createOutlet(
     tenantId: string,
-    input: { address?: string; brandId: string; code: string; name: string; timezone: string },
+    input: Parameters<OrganizationRepository["createOutlet"]>[1],
   ) {
     const timestamp = this.now();
+    const { address, charges, ...fields } = input;
     const outlet: OutletRecord = {
-      address: null,
-      ...input,
+      address: address ?? null,
+      chargesIncluded: charges?.included ?? true,
+      serviceChargeRateBp: charges?.serviceChargeRateBp ?? 0,
+      taxRateBp: charges?.taxRateBp ?? 0,
+      ...fields,
       createdAt: timestamp,
       id: this.nextId("outlet"),
       status: "ACTIVE",
@@ -147,15 +151,18 @@ class InMemoryOrganizationRepository implements OrganizationRepository {
   async updateOutlet(
     tenantId: string,
     outletId: string,
-    input: Partial<
-      Pick<OutletRecord, "address" | "brandId" | "code" | "name" | "status" | "timezone">
-    >,
+    { charges, ...input }: Parameters<OrganizationRepository["updateOutlet"]>[2],
   ) {
     const outlet = this.outlets.find(
       (candidate) => candidate.id === outletId && candidate.tenantId === tenantId,
     );
     assert.ok(outlet);
     Object.assign(outlet, input, { updatedAt: this.now() });
+    if (charges) {
+      outlet.chargesIncluded = charges.included;
+      outlet.serviceChargeRateBp = charges.serviceChargeRateBp;
+      outlet.taxRateBp = charges.taxRateBp;
+    }
     return outlet;
   }
 
@@ -517,4 +524,31 @@ test("the currency is chosen between rupiah and US dollars until money data exis
   // Sending the currency it already has is not a change, so the name is saved.
   const renamed = await service.updateTenant(tenant.id, { currency: "USD", name: "Tenant B" });
   assert.deepEqual([renamed.currency, renamed.name], ["USD", "Tenant B"]);
+});
+
+test("an outlet starts with the menu price as the final price and keeps the charges it is given", async () => {
+  const service = new OrganizationService(new InMemoryOrganizationRepository());
+  const tenant = await service.createTenant({ name: "Tenant A", slug: "tenant-a" });
+  const brand = await service.createBrand(tenant.id, { name: "Brand A", slug: "brand-a" });
+  const outlet = await service.createOutlet(tenant.id, {
+    brandId: brand.id,
+    code: "A-01",
+    name: "Outlet A",
+    timezone: "Asia/Jakarta",
+  });
+  assert.deepEqual(outlet.charges, { included: true, serviceChargeRateBp: 0, taxRateBp: 0 });
+  assert.deepEqual(await service.outletCharges(tenant.id, outlet.id), outlet.charges);
+
+  const charges = { included: false, serviceChargeRateBp: 500, taxRateBp: 1100 };
+  const changed = await service.updateOutlet(tenant.id, outlet.id, { charges });
+  assert.deepEqual(changed.charges, charges);
+  assert.deepEqual(await service.outletCharges(tenant.id, outlet.id), charges);
+  // Renaming leaves the charges alone.
+  const renamed = await service.updateOutlet(tenant.id, outlet.id, { name: "Outlet B" });
+  assert.deepEqual(renamed.charges, charges);
+  await assert.rejects(() =>
+    service.updateOutlet(tenant.id, outlet.id, {
+      charges: { included: true, serviceChargeRateBp: 0, taxRateBp: 6000 },
+    }),
+  );
 });

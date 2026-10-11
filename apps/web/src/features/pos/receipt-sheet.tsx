@@ -7,6 +7,8 @@ import type { PaymentMethod, Receipt as ReceiptData } from "@merchant/contracts"
 import { Button } from "@merchant/ui/button";
 import { ErrorState, Skeleton } from "@merchant/ui/feedback";
 import { Receipt, type ReceiptPaper, type ReceiptRow } from "@merchant/ui/receipt";
+
+import { ratePercent } from "./charges";
 import { SegmentedControl } from "@merchant/ui/selection-control";
 import { Sheet } from "@merchant/ui/sheet";
 
@@ -60,7 +62,7 @@ function ReceiptContent({
   receipt,
 }: Readonly<{ copy: boolean; paper: ReceiptPaper; receipt: ReceiptData }>) {
   const t = useTranslations("pos");
-  const { dateTime, money } = useFormat();
+  const { dateTime, locale, money } = useFormat();
   const { outlet, workspace } = useWorkspace();
   const { bill, order, payment, sale } = receipt;
 
@@ -69,14 +71,51 @@ function ReceiptContent({
     ...(bill.discountMinor !== "0"
       ? [{ label: t("discount"), value: `-${money(bill.discountMinor)}` }]
       : []),
-    ...(bill.taxMinor !== "0" ? [{ label: t("tax"), value: money(bill.taxMinor) }] : []),
-    ...(bill.serviceChargeMinor !== "0"
-      ? [{ label: t("serviceCharge"), value: money(bill.serviceChargeMinor) }]
+    // Service first, tax after: tax is charged on price plus service.
+    ...(!bill.chargesIncluded && bill.serviceChargeMinor !== "0"
+      ? [
+          {
+            label: t("serviceChargeRate", { rate: ratePercent(bill.serviceChargeRateBp, locale) }),
+            value: money(bill.serviceChargeMinor),
+          },
+        ]
+      : []),
+    ...(!bill.chargesIncluded && bill.taxMinor !== "0"
+      ? [
+          {
+            label: t("taxRate", { rate: ratePercent(bill.taxRateBp, locale) }),
+            value: money(bill.taxMinor),
+          },
+        ]
       : []),
     ...(bill.roundingMinor !== "0"
       ? [{ label: t("rounding"), value: money(bill.roundingMinor) }]
       : []),
   ];
+  // Already in the menu prices: the lines above add up to the total, and what
+  // part of it is service and tax is told underneath.
+  const inside: ReceiptRow[] = bill.chargesIncluded
+    ? [
+        ...(bill.serviceChargeMinor !== "0"
+          ? [
+              {
+                label: t("includesServiceCharge", {
+                  rate: ratePercent(bill.serviceChargeRateBp, locale),
+                }),
+                value: money(bill.serviceChargeMinor),
+              },
+            ]
+          : []),
+        ...(bill.taxMinor !== "0"
+          ? [
+              {
+                label: t("includesTax", { rate: ratePercent(bill.taxRateBp, locale) }),
+                value: money(bill.taxMinor),
+              },
+            ]
+          : []),
+      ]
+    : [];
 
   return (
     <Receipt
@@ -125,6 +164,7 @@ function ReceiptContent({
           ? [{ label: t("subtotal"), value: money(bill.subtotalMinor) }, ...adjustments]
           : []),
         { emphasis: true, label: t("total"), value: money(bill.totalMinor) },
+        ...inside,
       ]}
     />
   );

@@ -88,6 +88,11 @@ export const posOrderSummarySchema = z.object({
   saleNumber: z.number().int().min(1).nullable(),
   status: orderStatusSchema,
   subtotalMinor: moneyMinorSchema,
+  /**
+   * What the customer pays or paid: the bill total once paid, otherwise the
+   * menu prices with the outlet's tax and service as they are now.
+   */
+  totalMinor: moneyMinorSchema,
 });
 
 export const posOrderListSchema = z.object({ orders: z.array(posOrderSummarySchema) });

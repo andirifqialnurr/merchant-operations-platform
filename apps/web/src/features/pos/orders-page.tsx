@@ -197,7 +197,7 @@ function OrderSheet({
 
           <div className="flex items-baseline justify-between gap-3">
             <span className="text-label font-semibold">{t("total")}</span>
-            <MoneyDisplay amountMinor={order.subtotalMinor} locale={locale} variant="summary" />
+            <MoneyDisplay amountMinor={summary.totalMinor} locale={locale} variant="summary" />
           </div>
 
           {order.cancelReason ? (
@@ -331,7 +331,7 @@ function OrdersForOutlet({
             `#${order.orderNumber}`,
             dateTime(order.createdAt),
             order.itemCount,
-            <MoneyDisplay amountMinor={order.subtotalMinor} key="total" locale={locale} />,
+            <MoneyDisplay amountMinor={order.totalMinor} key="total" locale={locale} />,
             <OrderState key="state" order={order} />,
           ])}
         />

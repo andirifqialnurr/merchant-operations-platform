@@ -1,5 +1,6 @@
 import * as z from "zod";
 
+import { outletChargesSchema } from "./charges.ts";
 import { organizationRecordTimestampsSchema } from "./internal.ts";
 import { currencyCodeSchema, workspaceCurrencySchema } from "./money.ts";
 
@@ -69,6 +70,7 @@ export const outletSchema = organizationRecordTimestampsSchema.extend({
   name: organizationNameSchema,
   timezone: timezoneSchema,
   address: outletAddressSchema.nullable(),
+  charges: outletChargesSchema,
   status: organizationUnitStatusSchema,
 });
 
@@ -106,6 +108,8 @@ export const createOutletSchema = z.object({
   name: organizationNameSchema,
   timezone: timezoneSchema.default("Asia/Jakarta"),
   address: outletAddressSchema.optional(),
+  /** Left out, the menu price is the final price. */
+  charges: outletChargesSchema.optional(),
 });
 
 export const updateOutletSchema = z
@@ -116,6 +120,8 @@ export const updateOutletSchema = z
     timezone: timezoneSchema.optional(),
     /** Null removes the address. */
     address: outletAddressSchema.nullable().optional(),
+    /** Applies to bills made from now on; bills already made keep theirs. */
+    charges: outletChargesSchema.optional(),
     status: organizationUnitStatusSchema.optional(),
   })
   .refine((value) => Object.keys(value).length > 0, { message: "Perubahan outlet wajib diisi." });

@@ -7,6 +7,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { IconPlus } from "@tabler/icons-react";
 
 import {
+  computeCharges,
+  CURRENCY_MINOR_DIGITS,
+  formatRatePercent,
+  NO_CHARGES,
+  parseRatePercent,
   PERMISSIONS,
   WORKSPACE_CURRENCIES,
   workspaceCurrencySchema,
@@ -14,6 +19,7 @@ import {
   type OrganizationSnapshot,
   type Outlet,
   type Tenant,
+  type WorkspaceCurrency,
 } from "@merchant/contracts";
 import { Button } from "@merchant/ui/button";
 import { DataTable, Panel } from "@merchant/ui/data-display";
@@ -27,6 +33,7 @@ import { Select } from "@merchant/ui/select";
 
 import { useWorkspace } from "@/features/workspace";
 import { ApiClientError, merchantApi } from "@/lib/api-client";
+import { useFormat } from "@/lib/i18n";
 import { isLimitReached, LimitReachedState } from "@/shell/limit-reached-state";
 import { RequestErrorState } from "@/shell/request-error-state";
 
@@ -347,6 +354,12 @@ function OutletSheet({
   tenantId: string;
 }>) {
   const t = useTranslations("organization");
+  const { currency, locale, money } = useFormat();
+  // A round menu price for the worked example: Rp100.000, or 100 in a currency with cents.
+  const example =
+    currency === "IDR"
+      ? 100_000n
+      : 100n * 10n ** BigInt(CURRENCY_MINOR_DIGITS[currency as WorkspaceCurrency] ?? 2);
   const activeBrands = brands.filter(
     (brand) => brand.status === "ACTIVE" || brand.id === outlet?.brandId,
   );
@@ -356,7 +369,27 @@ function OutletSheet({
   );
   const [address, setAddress] = useState(outlet?.address ?? "");
   const [timezone, setTimezone] = useState<string>(outlet?.timezone ?? OUTLET_TIME_ZONES[0]);
-  const [errors, setErrors] = useState<{ address?: string; brand?: string; name?: string }>({});
+  const decimalMark = locale.startsWith("id") ? "," : ".";
+  const saved = outlet?.charges ?? NO_CHARGES;
+  const [chargesIncluded, setChargesIncluded] = useState(saved.included);
+  // Typed as a percentage; kept as text so "5," on the way to "5,5" is not thrown away.
+  const [taxRate, setTaxRate] = useState(formatRatePercent(saved.taxRateBp, decimalMark));
+  const [serviceRate, setServiceRate] = useState(
+    formatRatePercent(saved.serviceChargeRateBp, decimalMark),
+  );
+  const taxRateBp = parseRatePercent(taxRate || "0");
+  const serviceChargeRateBp = parseRatePercent(serviceRate || "0");
+  const charges =
+    taxRateBp === undefined || serviceChargeRateBp === undefined
+      ? undefined
+      : { included: chargesIncluded, serviceChargeRateBp, taxRateBp };
+  const [errors, setErrors] = useState<{
+    address?: string;
+    brand?: string;
+    name?: string;
+    serviceRate?: string;
+    taxRate?: string;
+  }>({});
   const [limitError, setLimitError] = useState<ApiClientError>();
   const [confirming, setConfirming] = useState(false);
   const busy = mutation.isPending;
@@ -381,9 +414,11 @@ function OutletSheet({
         : {}),
       ...(brandId ? {} : { brand: t("brandRequired") }),
       ...(place.length > 0 && place.length < 3 ? { address: t("addressTooShort") } : {}),
+      ...(taxRateBp === undefined ? { taxRate: t("rateInvalid") } : {}),
+      ...(serviceChargeRateBp === undefined ? { serviceRate: t("rateInvalid") } : {}),
     };
     setErrors(next);
-    if (Object.keys(next).length > 0 || !brandId) return;
+    if (Object.keys(next).length > 0 || !brandId || !charges) return;
     mutation.mutate(
       outlet
         ? {
@@ -391,6 +426,7 @@ function OutletSheet({
               merchantApi.updateOutlet(tenantId, outlet.id, {
                 address: place || null,
                 ...(brandId !== outlet.brandId ? { brandId } : {}),
+                charges,
                 name: name.trim(),
                 timezone,
               }),
@@ -401,6 +437,7 @@ function OutletSheet({
               merchantApi.createOutlet(tenantId, {
                 ...(place ? { address: place } : {}),
                 brandId,
+                charges,
                 code: outletCodeFromName(name),
                 name: name.trim(),
                 timezone,
@@ -531,6 +568,75 @@ function OutletSheet({
                 value={timezone}
               />
             </div>
+            <fieldset className="m-0 grid grid-cols-[minmax(0,1fr)] gap-4 border-0 border-t border-line-default p-0 pt-5">
+              <legend className="p-0 text-label font-semibold">{t("chargesTitle")}</legend>
+              <div className="grid grid-cols-[minmax(0,1fr)] gap-1.5">
+                <span className="text-label">{t("chargesMode")}</span>
+                <Select
+                  disabled={!canManage}
+                  emptyLabel={t("chargesMode")}
+                  label={t("chargesMode")}
+                  onValueChange={(value) => setChargesIncluded(value === "included")}
+                  options={[
+                    { label: t("chargesIncluded"), value: "included" },
+                    { label: t("chargesAdded"), value: "added" },
+                  ]}
+                  placeholder={t("chargesMode")}
+                  value={chargesIncluded ? "included" : "added"}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <FormField
+                  {...(errors.serviceRate ? { error: errors.serviceRate } : {})}
+                  htmlFor="outlet-service-rate"
+                  label={t("serviceRate")}
+                >
+                  <Input
+                    id="outlet-service-rate"
+                    inputMode="decimal"
+                    maxLength={5}
+                    onChange={(event) => {
+                      setServiceRate(event.target.value);
+                      clear("serviceRate");
+                    }}
+                    readOnly={!canManage}
+                    suffix="%"
+                    value={serviceRate}
+                  />
+                </FormField>
+                <FormField
+                  {...(errors.taxRate ? { error: errors.taxRate } : {})}
+                  htmlFor="outlet-tax-rate"
+                  label={t("taxRate")}
+                >
+                  <Input
+                    id="outlet-tax-rate"
+                    inputMode="decimal"
+                    maxLength={5}
+                    onChange={(event) => {
+                      setTaxRate(event.target.value);
+                      clear("taxRate");
+                    }}
+                    readOnly={!canManage}
+                    suffix="%"
+                    value={taxRate}
+                  />
+                </FormField>
+              </div>
+              {/* Worked out with the same rule as the cashier and the receipt; never sent. */}
+              {charges && (charges.serviceChargeRateBp > 0 || charges.taxRateBp > 0) ? (
+                <p className="m-0 text-caption text-foreground-secondary">
+                  {t(charges.included ? "chargesExampleIncluded" : "chargesExampleAdded", {
+                    menu: money(example.toString()),
+                    service: money(computeCharges(example, charges).serviceChargeMinor.toString()),
+                    tax: money(computeCharges(example, charges).taxMinor.toString()),
+                    total: money(computeCharges(example, charges).totalMinor.toString()),
+                  })}
+                </p>
+              ) : (
+                <p className="m-0 text-caption text-foreground-secondary">{t("chargesNone")}</p>
+              )}
+            </fieldset>
           </form>
         )}
       </Sheet>

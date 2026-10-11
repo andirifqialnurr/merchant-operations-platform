@@ -1,4 +1,5 @@
 import {
+  computeCharges,
   posOrderListSchema,
   receiptSchema,
   type CancelOrder,
@@ -9,6 +10,7 @@ import { ConflictException, Inject, Injectable, NotFoundException } from "@nestj
 
 import { BillingService } from "../../../kernels/billing-payment-ledger/public.js";
 import { OrderIntakeService } from "../../../kernels/order-intake/public.js";
+import { OrganizationService } from "../../../core/workspaces/public.js";
 import type { ShiftMutationContext } from "./register-session.repository.js";
 import { ShiftService } from "./shift.service.js";
 
@@ -33,6 +35,7 @@ export class PosOrdersService {
     @Inject(OrderIntakeService) private readonly orders: OrderIntakeService,
     @Inject(BillingService) private readonly billing: BillingService,
     @Inject(ShiftService) private readonly shifts: ShiftService,
+    @Inject(OrganizationService) private readonly organization: OrganizationService,
   ) {}
 
   async list(tenantId: string, outletId: string) {
@@ -42,10 +45,13 @@ export class PosOrdersService {
       ORDER_LIST_HOURS,
       ORDER_LIST_LIMIT,
     );
-    const paid = await this.billing.paidOrders(
-      tenantId,
-      orders.map((order) => order.id),
-    );
+    const [paid, charges] = await Promise.all([
+      this.billing.paidOrders(
+        tenantId,
+        orders.map((order) => order.id),
+      ),
+      this.organization.outletCharges(tenantId, outletId),
+    ]);
     return posOrderListSchema.parse({
       orders: orders.map((order) => ({
         createdAt: order.createdAt,
@@ -56,6 +62,11 @@ export class PosOrdersService {
         saleNumber: paid.get(order.id)?.saleNumber ?? null,
         status: order.status,
         subtotalMinor: order.subtotalMinor,
+        // A paid order shows what was paid, whatever the rates are today.
+        totalMinor: (
+          paid.get(order.id)?.totalMinor ??
+          computeCharges(BigInt(order.subtotalMinor), charges).totalMinor
+        ).toString(),
       })),
     });
   }

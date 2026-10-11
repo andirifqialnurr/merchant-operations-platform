@@ -327,7 +327,12 @@
     "approverRequired": "Choose an approver.",
     "noApprovers": "Nobody can approve yet",
     "noApproversHint": "A refund needs the approval of someone who may refund at this outlet and has set an approval PIN.",
-    "selectApprover": "Choose an approver"
+    "selectApprover": "Choose an approver",
+    "includesServiceCharge": "Includes service charge ({rate}%)",
+    "includesTax": "Includes tax ({rate}%)",
+    "serviceChargeRate": "Service charge ({rate}%)",
+    "taxRate": "Tax ({rate}%)",
+    "totalWithCharges": "Includes service charge and tax."
   },
   "errors": {
     "API_REQUEST_FAILED": "The service could not process the request. Try again.",
@@ -434,7 +439,8 @@
     "APPROVAL_PIN_LOCKED": "This PIN is locked for a while after too many wrong tries.",
     "APPROVAL_PIN_NOT_SET": "This person has not set an approval PIN.",
     "APPROVAL_PIN_TOO_SIMPLE": "This PIN is too easy to guess. Do not use one repeated digit or a run.",
-    "REFUND_APPROVAL_REQUIRED": "This refund needs the approval of someone who may refund."
+    "REFUND_APPROVAL_REQUIRED": "This refund needs the approval of someone who may refund.",
+    "ORDER_TOTAL_CHANGED": "The total of this order changed. Check it again before taking payment."
   },
   "subscription": {
     "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",
@@ -958,7 +964,17 @@
     "currencyName": {
       "IDR": "Rupiah",
       "USD": "US Dollar"
-    }
+    },
+    "chargesAdded": "Added on the receipt",
+    "chargesExampleAdded": "Example: menu {menu} + service charge {service} + tax {tax} = the customer pays {total}.",
+    "chargesExampleIncluded": "Example: the customer pays {total}; inside it are service charge {service} and tax {tax}.",
+    "chargesIncluded": "Menu prices already include them",
+    "chargesMode": "How they are charged",
+    "chargesNone": "Without tax and service charge, the menu price is the final price.",
+    "chargesTitle": "Tax and service charge",
+    "rateInvalid": "Enter a number from 0 to 50 with at most 2 decimals.",
+    "serviceRate": "Service charge",
+    "taxRate": "Tax"
   },
   "integrations": {
     "accessDenied": "Ask the business owner if you need to see the integrations between modules.",

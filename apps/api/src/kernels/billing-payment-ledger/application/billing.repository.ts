@@ -1,9 +1,16 @@
-import type { BillStatus, PaymentMethod, PaymentStatus, SaleStatus } from "@merchant/contracts";
+import type {
+  BillStatus,
+  OutletCharges,
+  PaymentMethod,
+  PaymentStatus,
+  SaleStatus,
+} from "@merchant/contracts";
 import { type ActorCommandOrigin } from "../../../shared/command/command-origin.js";
 
 export type BillingMutationContext = ActorCommandOrigin;
 
 export type BillRecord = {
+  chargesIncluded: boolean;
   currency: string;
   discountMinor: bigint;
   id: string;
@@ -11,9 +18,11 @@ export type BillRecord = {
   paidMinor: bigint;
   roundingMinor: bigint;
   serviceChargeMinor: bigint;
+  serviceChargeRateBp: number;
   status: BillStatus;
   subtotalMinor: bigint;
   taxMinor: bigint;
+  taxRateBp: number;
   totalMinor: bigint;
 };
 
@@ -38,6 +47,8 @@ export type SaleRecord = {
 export type CheckoutRecord = { bill: BillRecord; payment: PaymentRecord; sale: SaleRecord };
 
 export type FullPayment = {
+  /** The charges of the outlet when the bill is made, kept on the bill. */
+  charges: OutletCharges;
   currency: string;
   idempotencyKey: string;
   method: PaymentMethod;
@@ -46,7 +57,10 @@ export type FullPayment = {
   reference: string | null;
   /** The open shift the money is taken in. */
   registerSessionId: string;
+  serviceChargeMinor: bigint;
+  /** The amount before service and tax. */
   subtotalMinor: bigint;
+  taxMinor: bigint;
   tenantId: string;
   tenderedMinor: bigint | null;
   totalMinor: bigint;
@@ -82,7 +96,7 @@ export type RefundOutcome =
   | { kind: "exceeds_refundable"; refundableMinor: bigint }
   | { kind: "shift_not_open" };
 
-export type PaidOrderState = { saleNumber: number; saleStatus: SaleStatus };
+export type PaidOrderState = { saleNumber: number; saleStatus: SaleStatus; totalMinor: bigint };
 
 export type FullPaymentOutcome =
   | { checkout: CheckoutRecord; kind: "recorded" }

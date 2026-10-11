@@ -138,6 +138,7 @@ import {
   checkoutSchema,
   payOrderSchema,
   receiptSchema,
+  posChargesSchema,
   refundOrderSchema,
   saleRefundsSchema,
 } from "./billing.ts";
@@ -234,6 +235,7 @@ export const commonOpenApiSchemas = {
   InvitationPreview: toOpenApiSchema(invitationPreviewSchema),
   InvitationTokenRequest: toOpenApiSchema(invitationTokenRequestSchema),
   MemberList: toOpenApiSchema(memberListSchema),
+  PosCharges: toOpenApiSchema(posChargesSchema),
   ApprovalPinStatus: toOpenApiSchema(approvalPinStatusSchema),
   ApproverList: toOpenApiSchema(approverListSchema),
   SetApprovalPin: toOpenApiSchema(setApprovalPinSchema),

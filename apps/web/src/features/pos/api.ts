@@ -62,6 +62,21 @@ export function useHeldCarts(tenantId: string, outletId: string) {
   });
 }
 
+export const chargesKeys = {
+  outlet: (tenantId: string, outletId: string) => ["pos", tenantId, "charges", outletId] as const,
+};
+
+/**
+ * Tax and service of the outlet. Undefined until loaded: a total is never
+ * shown, or charged, on a guess.
+ */
+export function useOutletCharges(tenantId: string, outletId: string) {
+  return useQuery({
+    queryFn: async () => (await merchantApi.posCharges(tenantId, outletId)).charges,
+    queryKey: chargesKeys.outlet(tenantId, outletId),
+  });
+}
+
 export const menuKeys = {
   outlet: (tenantId: string, outletId: string) => ["pos", tenantId, "menu", outletId] as const,
 };

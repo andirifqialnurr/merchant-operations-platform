@@ -1,6 +1,7 @@
 import * as z from "zod";
 
 import { approvalSchema } from "./access.ts";
+import { chargeRateBpSchema, outletChargesSchema } from "./charges.ts";
 import {
   currencyCodeSchema,
   moneyMinorSchema,
@@ -33,6 +34,8 @@ export const saleStatusSchema = z.enum([
 
 /** What is owed for an order. The total is always derived from its parts. */
 export const billSchema = z.object({
+  /** True when tax and service were inside the menu prices; they are then part of the subtotal shown to the customer. */
+  chargesIncluded: z.boolean(),
   currency: currencyCodeSchema,
   discountMinor: moneyMinorSchema,
   id: z.uuid(),
@@ -40,9 +43,11 @@ export const billSchema = z.object({
   paidMinor: moneyMinorSchema,
   roundingMinor: signedMoneyMinorSchema,
   serviceChargeMinor: moneyMinorSchema,
+  serviceChargeRateBp: chargeRateBpSchema,
   status: billStatusSchema,
   subtotalMinor: moneyMinorSchema,
   taxMinor: moneyMinorSchema,
+  taxRateBp: chargeRateBpSchema,
   totalMinor: moneyMinorSchema,
 });
 
@@ -80,15 +85,34 @@ export const checkoutSchema = z.object({
  */
 const paymentReferenceSchema = z.string().trim().min(1).max(120);
 
+/** The total the cashier saw. Sent so a change of rates in between is noticed, not charged silently. */
+const expectedTotal = { expectedTotalMinor: moneyMinorSchema.optional() };
+
+/** What the cashier screen needs to show the total before paying. */
+export const posChargesSchema = z.object({ charges: outletChargesSchema });
+
 export const payOrderSchema = z.discriminatedUnion("method", [
-  z.object({ method: z.literal("CASH"), tenderedMinor: positiveMoneyMinorSchema }),
   z.object({
+    method: z.literal("CASH"),
+    tenderedMinor: positiveMoneyMinorSchema,
+    ...expectedTotal,
+  }),
+  z.object({
+    ...expectedTotal,
     method: z.literal("MERCHANT_QRIS"),
     /** Optional trace number the cashier read from the payment notification. */
     reference: paymentReferenceSchema.optional(),
   }),
-  z.object({ method: z.literal("TRANSFER"), reference: paymentReferenceSchema.optional() }),
-  z.object({ method: z.literal("EDC"), reference: paymentReferenceSchema.optional() }),
+  z.object({
+    ...expectedTotal,
+    method: z.literal("TRANSFER"),
+    reference: paymentReferenceSchema.optional(),
+  }),
+  z.object({
+    ...expectedTotal,
+    method: z.literal("EDC"),
+    reference: paymentReferenceSchema.optional(),
+  }),
 ]);
 
 export type Bill = z.infer<typeof billSchema>;

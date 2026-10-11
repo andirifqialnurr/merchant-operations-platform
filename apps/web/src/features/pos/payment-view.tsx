@@ -18,7 +18,8 @@ import { ApiClientError, merchantApi } from "@/lib/api-client";
 import { useErrorMessage, useFormat } from "@/lib/i18n";
 import { useToast } from "@/providers/toast-provider";
 
-import { menuKeys, orderKeys, shiftKeys } from "./api";
+import { chargesKeys, menuKeys, orderKeys, shiftKeys, useOutletCharges } from "./api";
+import { payable, ratePercent } from "./charges";
 
 type Method = "CASH" | "EDC" | "MERCHANT_QRIS" | "TRANSFER";
 
@@ -74,11 +75,15 @@ export function PaymentView({
   // One key per order, so a retried confirmation never charges twice.
   const [payKey] = useState(() => crypto.randomUUID());
 
-  const totalMinor = order
+  const charges = useOutletCharges(tenantId, outletId);
+  // The sum of menu prices; tax and service of the outlet come on top or are inside it.
+  const menuTotalMinor = order
     ? BigInt(order.subtotalMinor)
     : source.kind === "cart"
       ? source.cartTotalMinor
       : 0n;
+  const due = charges.data ? payable(menuTotalMinor, charges.data) : undefined;
+  const totalMinor = due?.totalMinor ?? menuTotalMinor;
   const tenderedMinor = tendered === undefined ? undefined : BigInt(tendered);
   const tenderedTooLow = tenderedMinor === undefined || tenderedMinor < totalMinor;
   const changeMinor =
@@ -103,18 +108,24 @@ export function PaymentView({
           return undefined;
         }
       }
-      if (!current) return undefined;
-      const due = BigInt(current.subtotalMinor);
-      if (method === "CASH" && (tenderedMinor === undefined || tenderedMinor < due)) {
+      if (!current || !charges.data) return undefined;
+      const owed = payable(BigInt(current.subtotalMinor), charges.data).totalMinor;
+      if (method === "CASH" && (tenderedMinor === undefined || tenderedMinor < owed)) {
         return undefined;
       }
+      // The server refuses when its total differs from the one shown here.
+      const expectedTotalMinor = owed.toString();
       const checkout = await merchantApi.payOrder(
         tenantId,
         outletId,
         current.id,
         method === "CASH"
-          ? { method, tenderedMinor: String(tenderedMinor) }
-          : { method, ...(reference.trim() ? { reference: reference.trim() } : {}) },
+          ? { expectedTotalMinor, method, tenderedMinor: String(tenderedMinor) }
+          : {
+              expectedTotalMinor,
+              method,
+              ...(reference.trim() ? { reference: reference.trim() } : {}),
+            },
         payKey,
       );
       return { checkout, order: current };
@@ -122,6 +133,9 @@ export function PaymentView({
     onError: (error) => {
       notify({ message: errorMessage(error), tone: "danger" });
       void queryClient.invalidateQueries({ queryKey: orderKeys.list(tenantId, outletId) });
+      if (error instanceof ApiClientError && error.code === "ORDER_TOTAL_CHANGED") {
+        void queryClient.invalidateQueries({ queryKey: chargesKeys.outlet(tenantId, outletId) });
+      }
       if (error instanceof ApiClientError && error.code.startsWith("ORDER_")) {
         void queryClient.invalidateQueries({ queryKey: menuKeys.outlet(tenantId, outletId) });
       }
@@ -148,9 +162,35 @@ export function PaymentView({
     <div className="mx-auto grid w-full max-w-md gap-6">
       <h1 className="m-0 text-heading-lg">{t("payment")}</h1>
 
-      <div className="flex items-baseline justify-between gap-3 border-b border-line-default pb-4">
-        <span className="text-label font-semibold">{t("total")}</span>
-        <MoneyDisplay amountMinor={totalMinor} locale={locale} variant="total" />
+      <div className="grid gap-2 border-b border-line-default pb-4">
+        {due?.added && charges.data ? (
+          <dl className="m-0 grid gap-1 text-body-sm text-foreground-secondary">
+            <div className="flex items-baseline justify-between gap-3">
+              <dt>{t("subtotal")}</dt>
+              <dd className="m-0">{money(due.parts.baseMinor.toString())}</dd>
+            </div>
+            {due.parts.serviceChargeMinor > 0n ? (
+              <div className="flex items-baseline justify-between gap-3">
+                <dt>
+                  {t("serviceChargeRate", {
+                    rate: ratePercent(charges.data.serviceChargeRateBp, locale),
+                  })}
+                </dt>
+                <dd className="m-0">{money(due.parts.serviceChargeMinor.toString())}</dd>
+              </div>
+            ) : null}
+            {due.parts.taxMinor > 0n ? (
+              <div className="flex items-baseline justify-between gap-3">
+                <dt>{t("taxRate", { rate: ratePercent(charges.data.taxRateBp, locale) })}</dt>
+                <dd className="m-0">{money(due.parts.taxMinor.toString())}</dd>
+              </div>
+            ) : null}
+          </dl>
+        ) : null}
+        <div className="flex items-baseline justify-between gap-3">
+          <span className="text-label font-semibold">{t("total")}</span>
+          <MoneyDisplay amountMinor={totalMinor} locale={locale} variant="total" />
+        </div>
       </div>
 
       {repriced ? <Alert tone="warning">{t("priceChanged")}</Alert> : null}
@@ -218,6 +258,8 @@ export function PaymentView({
 
       <div className="grid gap-2">
         <Button
+          // No payment on a total that is not known yet.
+          disabled={!charges.data}
           fullWidth
           loading={confirm.isPending}
           loadingLabel={t("confirming")}

@@ -327,7 +327,12 @@
     "approverRequired": "Pilih penyetuju.",
     "noApprovers": "Belum ada yang bisa menyetujui",
     "noApproversHint": "Refund perlu disetujui orang yang punya izin refund di outlet ini dan sudah mengatur PIN persetujuan.",
-    "selectApprover": "Pilih penyetuju"
+    "selectApprover": "Pilih penyetuju",
+    "includesServiceCharge": "Termasuk service charge ({rate}%)",
+    "includesTax": "Termasuk pajak ({rate}%)",
+    "serviceChargeRate": "Service charge ({rate}%)",
+    "taxRate": "Pajak ({rate}%)",
+    "totalWithCharges": "Sudah termasuk service charge dan pajak."
   },
   "errors": {
     "API_REQUEST_FAILED": "Layanan tidak dapat memproses permintaan. Coba lagi.",
@@ -434,7 +439,8 @@
     "APPROVAL_PIN_LOCKED": "PIN ini dikunci sementara karena terlalu sering salah.",
     "APPROVAL_PIN_NOT_SET": "Orang ini belum mengatur PIN persetujuan.",
     "APPROVAL_PIN_TOO_SIMPLE": "PIN terlalu mudah ditebak. Jangan pakai angka kembar atau berurutan.",
-    "REFUND_APPROVAL_REQUIRED": "Refund ini perlu persetujuan orang yang punya izin refund."
+    "REFUND_APPROVAL_REQUIRED": "Refund ini perlu persetujuan orang yang punya izin refund.",
+    "ORDER_TOTAL_CHANGED": "Total pesanan ini berubah. Periksa lagi sebelum menerima pembayaran."
   },
   "subscription": {
     "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat langganan.",
@@ -958,7 +964,17 @@
     "currencyName": {
       "IDR": "Rupiah",
       "USD": "Dolar AS"
-    }
+    },
+    "chargesAdded": "Ditambahkan di struk",
+    "chargesExampleAdded": "Contoh: menu {menu} + service charge {service} + pajak {tax} = pelanggan membayar {total}.",
+    "chargesExampleIncluded": "Contoh: pelanggan membayar {total}; di dalamnya service charge {service} dan pajak {tax}.",
+    "chargesIncluded": "Harga menu sudah termasuk",
+    "chargesMode": "Cara mengenakan",
+    "chargesNone": "Tanpa pajak dan service charge, harga menu adalah harga akhir.",
+    "chargesTitle": "Pajak dan service charge",
+    "rateInvalid": "Isi angka 0 sampai 50, paling banyak 2 angka di belakang koma.",
+    "serviceRate": "Service charge",
+    "taxRate": "Pajak"
   },
   "integrations": {
     "accessDenied": "Minta pemilik bisnis jika Anda perlu melihat integrasi antarmodul.",

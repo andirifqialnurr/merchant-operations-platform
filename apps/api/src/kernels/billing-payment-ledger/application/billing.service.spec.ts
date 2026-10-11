@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import test from "node:test";
 
-import type { PaymentMethod } from "@merchant/contracts";
+import { NO_CHARGES, type PaymentMethod } from "@merchant/contracts";
 import { ConflictException } from "@nestjs/common";
 
 import { billTotal, cashChange } from "../domain/bill-total.js";
@@ -42,7 +42,11 @@ class InMemoryBillingRepository implements BillingRepository {
           (item) =>
             [
               item.bill.orderId,
-              { saleNumber: item.sale.saleNumber, saleStatus: item.sale.status },
+              {
+                saleNumber: item.sale.saleNumber,
+                saleStatus: item.sale.status,
+                totalMinor: item.bill.totalMinor,
+              },
             ] as const,
         ),
     );
@@ -124,16 +128,19 @@ class InMemoryBillingRepository implements BillingRepository {
     const now = new Date();
     const checkout = {
       bill: {
+        chargesIncluded: payment.charges.included,
         currency: payment.currency,
         discountMinor: 0n,
         id: randomUUID(),
         orderId: payment.orderId,
         paidMinor: payment.totalMinor,
         roundingMinor: 0n,
-        serviceChargeMinor: 0n,
+        serviceChargeMinor: payment.serviceChargeMinor,
+        serviceChargeRateBp: payment.charges.serviceChargeRateBp,
         status: "PAID" as const,
         subtotalMinor: payment.subtotalMinor,
-        taxMinor: 0n,
+        taxMinor: payment.taxMinor,
+        taxRateBp: payment.charges.taxRateBp,
         totalMinor: payment.totalMinor,
       },
       key: payment.idempotencyKey,
@@ -177,7 +184,13 @@ function order(overrides: Partial<PayableOrder> = {}): PayableOrder {
 }
 
 const context = { actorId: ACTOR };
-const base = { outletId: OUTLET, registerSessionId: SHIFT, tenantId: TENANT };
+// The M1 rule unless a test says otherwise: the menu price is the final price.
+const base = {
+  charges: NO_CHARGES,
+  outletId: OUTLET,
+  registerSessionId: SHIFT,
+  tenantId: TENANT,
+};
 const cash = (tenderedMinor: string) => ({ method: "CASH" as const, tenderedMinor });
 
 async function rejectsWithCode(promise: Promise<unknown>, code: string) {
@@ -316,7 +329,7 @@ test("refuses an order cancelled while it was being paid, and reports paid order
   assert.equal(await service.isOrderPaid(TENANT, raced.id), false);
   assert.deepEqual(
     [...(await service.paidOrders(TENANT, [paidOrder.id, raced.id]))],
-    [[paidOrder.id, { saleNumber: 1, saleStatus: "COMPLETED" }]],
+    [[paidOrder.id, { saleNumber: 1, saleStatus: "COMPLETED", totalMinor: 64_000n }]],
   );
 });
 
@@ -449,4 +462,97 @@ test("refunds part then the rest of a sale, never more, and counts cash refunds"
     ),
     "ORDER_NOT_PAID",
   );
+});
+
+test("tax and service added on the receipt raise the total; the bill keeps every part", async () => {
+  const { service } = setup();
+  const charges = { included: false, serviceChargeRateBp: 500, taxRateBp: 1000 };
+  const paid = await service.payOrderInFull(
+    {
+      ...base,
+      charges,
+      idempotencyKey: "added-1",
+      order: order({ subtotalMinor: "100000" }),
+      pay: cash("120000"),
+    },
+    context,
+  );
+  assert.deepEqual(
+    [
+      paid.bill.subtotalMinor,
+      paid.bill.serviceChargeMinor,
+      paid.bill.taxMinor,
+      paid.bill.totalMinor,
+      paid.payment.amountMinor,
+      paid.payment.changeMinor,
+    ],
+    ["100000", "5000", "10500", "115500", "115500", "4500"],
+  );
+  assert.deepEqual(
+    [paid.bill.chargesIncluded, paid.bill.serviceChargeRateBp, paid.bill.taxRateBp],
+    [false, 500, 1000],
+  );
+  // Cash that covers the menu price but not the total is not enough.
+  await rejectsWithCode(
+    service.payOrderInFull(
+      {
+        ...base,
+        charges,
+        idempotencyKey: "added-2",
+        order: order({ subtotalMinor: "100000" }),
+        pay: cash("100000"),
+      },
+      context,
+    ),
+    "PAYMENT_TENDERED_INSUFFICIENT",
+  );
+});
+
+test("tax and service already in the price leave the total alone and are taken out of it", async () => {
+  const { service } = setup();
+  const paid = await service.payOrderInFull(
+    {
+      ...base,
+      charges: { included: true, serviceChargeRateBp: 500, taxRateBp: 1000 },
+      idempotencyKey: "included-1",
+      order: order({ subtotalMinor: "115500" }),
+      pay: cash("115500"),
+    },
+    context,
+  );
+  assert.deepEqual(
+    [
+      paid.bill.subtotalMinor,
+      paid.bill.serviceChargeMinor,
+      paid.bill.taxMinor,
+      paid.bill.totalMinor,
+      paid.payment.changeMinor,
+      paid.bill.chargesIncluded,
+    ],
+    ["100000", "5000", "10500", "115500", "0", true],
+  );
+});
+
+test("a total other than the one the cashier saw is not charged", async () => {
+  const { repository, service } = setup();
+  const charges = { included: false, serviceChargeRateBp: 0, taxRateBp: 1100 };
+  const input = {
+    ...base,
+    charges,
+    idempotencyKey: "seen-1",
+    order: order({ subtotalMinor: "50000" }),
+  };
+  await rejectsWithCode(
+    service.payOrderInFull(
+      { ...input, pay: { ...cash("60000"), expectedTotalMinor: "50000" } },
+      context,
+    ),
+    "ORDER_TOTAL_CHANGED",
+  );
+  assert.equal(repository.checkouts.length, 0);
+  const paid = await service.payOrderInFull(
+    { ...input, pay: { ...cash("60000"), expectedTotalMinor: "55500" } },
+    context,
+  );
+  assert.equal(paid.bill.totalMinor, "55500");
 });

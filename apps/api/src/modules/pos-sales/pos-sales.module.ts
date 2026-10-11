@@ -5,6 +5,7 @@ import { AuthModule } from "../../core/auth/public.js";
 import { CatalogModule } from "../../catalog/public.js";
 import { BillingPaymentLedgerModule } from "../../kernels/billing-payment-ledger/public.js";
 import { OrderIntakeModule } from "../../kernels/order-intake/public.js";
+import { OrganizationModule } from "../../core/workspaces/public.js";
 import { HeldCartController } from "./adapters/held-cart.controller.js";
 import { MenuController } from "./adapters/menu.controller.js";
 import { OrderController } from "./adapters/order.controller.js";
@@ -21,7 +22,14 @@ import { ShiftService } from "./application/shift.service.js";
 /** POS & Sales. Owns pos_register_sessions and pos_cash_movements. */
 @Module({
   controllers: [HeldCartController, MenuController, OrderController, ShiftController],
-  imports: [AccessModule, AuthModule, BillingPaymentLedgerModule, CatalogModule, OrderIntakeModule],
+  imports: [
+    AccessModule,
+    AuthModule,
+    BillingPaymentLedgerModule,
+    CatalogModule,
+    OrderIntakeModule,
+    OrganizationModule,
+  ],
   providers: [
     CheckoutService,
     HeldCartService,

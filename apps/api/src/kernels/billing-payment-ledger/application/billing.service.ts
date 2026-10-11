@@ -1,4 +1,6 @@
 import {
+  computeCharges,
+  type OutletCharges,
   checkoutSchema,
   saleRefundsSchema,
   type Checkout,
@@ -33,6 +35,7 @@ export function toCheckout({ bill, payment, sale }: CheckoutRecord): Checkout {
     payment.tenderedMinor === null ? null : cashChange(payment.tenderedMinor, payment.amountMinor);
   return checkoutSchema.parse({
     bill: {
+      chargesIncluded: bill.chargesIncluded,
       currency: bill.currency,
       discountMinor: bill.discountMinor.toString(),
       id: bill.id,
@@ -40,9 +43,11 @@ export function toCheckout({ bill, payment, sale }: CheckoutRecord): Checkout {
       paidMinor: bill.paidMinor.toString(),
       roundingMinor: bill.roundingMinor.toString(),
       serviceChargeMinor: bill.serviceChargeMinor.toString(),
+      serviceChargeRateBp: bill.serviceChargeRateBp,
       status: bill.status,
       subtotalMinor: bill.subtotalMinor.toString(),
       taxMinor: bill.taxMinor.toString(),
+      taxRateBp: bill.taxRateBp,
       totalMinor: bill.totalMinor.toString(),
     },
     payment: {
@@ -97,6 +102,8 @@ export class BillingService {
 
   async payOrderInFull(
     input: {
+      /** How the outlet charges tax and service right now. */
+      charges: OutletCharges;
       idempotencyKey: string;
       order: PayableOrder;
       outletId: string;
@@ -128,12 +135,26 @@ export class BillingService {
       throw conflict("ORDER_CANCELED", "A canceled order cannot be paid.");
     }
 
-    // Tax, service charge, discount, and rounding are not configured yet, so
-    // the amount due is the subtotal; the bill still stores each part.
-    const subtotalMinor = BigInt(order.subtotalMinor);
-    const totalMinor = billTotal({ subtotalMinor });
+    // The order holds the sum of menu prices. Service and tax are either
+    // added to it or taken out of it, as the outlet is set up at this moment;
+    // the bill keeps each part. Discount and rounding are not configured yet.
+    const parts = computeCharges(BigInt(order.subtotalMinor), input.charges);
+    const subtotalMinor = parts.baseMinor;
+    const totalMinor = billTotal({
+      serviceChargeMinor: parts.serviceChargeMinor,
+      subtotalMinor,
+      taxMinor: parts.taxMinor,
+    });
     if (totalMinor <= 0n) {
       throw conflict("BILL_NOTHING_TO_PAY", "This order has nothing to pay.");
+    }
+    // The cashier was shown another total, e.g. the rates changed meanwhile.
+    if (pay.expectedTotalMinor !== undefined && BigInt(pay.expectedTotalMinor) !== totalMinor) {
+      throw new ConflictException({
+        code: "ORDER_TOTAL_CHANGED",
+        details: { totalMinor: totalMinor.toString() },
+        message: "The total of this order changed. Check it again before taking payment.",
+      });
     }
 
     const tenderedMinor = pay.method === "CASH" ? BigInt(pay.tenderedMinor) : null;
@@ -143,6 +164,7 @@ export class BillingService {
 
     const outcome = await this.billing.recordFullPayment(
       {
+        charges: input.charges,
         currency: order.currency,
         idempotencyKey,
         method: pay.method,
@@ -150,7 +172,9 @@ export class BillingService {
         outletId,
         reference: pay.method === "CASH" ? null : (pay.reference ?? null),
         registerSessionId: input.registerSessionId,
+        serviceChargeMinor: parts.serviceChargeMinor,
         subtotalMinor,
+        taxMinor: parts.taxMinor,
         tenantId,
         tenderedMinor,
         totalMinor,

@@ -1,5 +1,6 @@
 import type {
   CreateBrand,
+  OutletCharges,
   CreateOutlet,
   CreateTenant,
   OrganizationUnitStatus,
@@ -45,6 +46,9 @@ export type OutletRecord = RecordTimestamps & {
   name: string;
   timezone: string;
   address: string | null;
+  chargesIncluded: boolean;
+  taxRateBp: number;
+  serviceChargeRateBp: number;
   status: OrganizationUnitStatus;
 };
 
@@ -149,15 +153,29 @@ const brandSelect = {
 const outletSelect = {
   address: true,
   brandId: true,
+  chargesIncluded: true,
   code: true,
   createdAt: true,
   id: true,
   name: true,
+  serviceChargeRateBp: true,
   status: true,
+  taxRateBp: true,
   tenantId: true,
   timezone: true,
   updatedAt: true,
 } as const;
+
+/** The three columns an outlet keeps its charges in. */
+function chargeColumns(charges: OutletCharges | undefined) {
+  return charges
+    ? {
+        chargesIncluded: charges.included,
+        serviceChargeRateBp: charges.serviceChargeRateBp,
+        taxRateBp: charges.taxRateBp,
+      }
+    : {};
+}
 
 type ChangeRecord = TenantRecord | BrandRecord | OutletRecord;
 type TransactionClient = Pick<DatabaseClient, "auditLog" | "outboxEvent">;
@@ -367,9 +385,14 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
 
   async createOutlet(tenantId: string, input: CreateOutlet, context?: MutationContext) {
     return getPrismaClient().$transaction(async (transaction) => {
-      const { address, ...fields } = input;
+      const { address, charges, ...fields } = input;
       const outlet = await transaction.outlet.create({
-        data: { ...fields, ...(address ? { address } : {}), tenantId },
+        data: {
+          ...fields,
+          ...(address ? { address } : {}),
+          ...chargeColumns(charges),
+          tenantId,
+        },
         select: outletSelect,
       });
       await writeChange(transaction, {
@@ -399,6 +422,7 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
         data: {
           ...(input.address !== undefined ? { address: input.address } : {}),
           ...(input.brandId !== undefined ? { brandId: input.brandId } : {}),
+          ...chargeColumns(input.charges),
           ...(input.code !== undefined ? { code: input.code } : {}),
           ...(input.name !== undefined ? { name: input.name } : {}),
           ...(input.status !== undefined ? { status: input.status } : {}),

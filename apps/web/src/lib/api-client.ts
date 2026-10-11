@@ -57,6 +57,7 @@ import {
   acceptInvitationSchema,
   createInvitationSchema,
   createRoleSchema,
+  posChargesSchema,
   approvalPinStatusSchema,
   approverListSchema,
   setApprovalPinSchema,
@@ -737,6 +738,11 @@ export const merchantApi = {
       [API_HEADERS.idempotencyKey]: idempotencyKey,
     }),
   /** The caller keeps one key per payment attempt so a retry never charges twice. */
+  /** How this outlet charges tax and service, to show a total before paying. */
+  posCharges: (tenantId: string, outletId: string) =>
+    apiRequest("/pos/orders/charges", posChargesSchema, {
+      headers: outletHeaders(tenantId, outletId),
+    }),
   payOrder: (
     tenantId: string,
     outletId: string,

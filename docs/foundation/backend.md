@@ -390,6 +390,16 @@ Aturan:
 
 ---
 
+### 7.1 Pajak dan service charge per outlet
+
+Satu fungsi, `computeCharges` di `packages/contracts/src/charges.ts`, memecah jumlah harga menu menjadi dasar, service charge, pajak, dan total. API memakainya saat membuat tagihan; layar kasir dan form outlet memakainya untuk menampilkan total sebelum bayar. Karena fungsinya sama, angka di layar dan di tagihan tidak bisa berbeda.
+
+- Tarif disimpan dalam basis poin bilangan bulat (1100 = 11%). Semua hitungan memakai `bigint`; pembagian dibulatkan setengah ke atas.
+- **Ditambahkan di struk:** service = harga menu × tarif service; pajak = (harga menu + service) × tarif pajak; total = jumlah ketiganya.
+- **Sudah termasuk:** total = harga menu. Pajak dikeluarkan dulu dari total, lalu service dari sisanya; dasar adalah sisanya. Ketiganya selalu berjumlah persis total.
+- Tarif dibaca saat membayar dan disalin ke tagihan. Permintaan bayar membawa `expectedTotalMinor`; bila berbeda dari hitungan server, permintaan ditolak `ORDER_TOTAL_CHANGED` dan tidak ada yang ditagih.
+- Bawaan outlet (sudah termasuk, kedua tarif 0) adalah keputusan `M1-OD-01`: harga menu adalah harga akhir.
+
 ## 8. Persistence
 
 - Hanya `adapters/persistence` yang mengimpor klien Prisma.

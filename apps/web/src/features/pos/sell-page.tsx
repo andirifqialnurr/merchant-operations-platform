@@ -22,7 +22,8 @@ import { RequestErrorState } from "@/shell/request-error-state";
 import { useFormat } from "@/lib/i18n";
 import { useToast } from "@/providers/toast-provider";
 
-import { useCurrentShift, useHeldCarts, useMenu } from "./api";
+import { useCurrentShift, useHeldCarts, useMenu, useOutletCharges } from "./api";
+import { payable } from "./charges";
 import {
   addLine,
   removeLine,
@@ -67,6 +68,10 @@ function SellScreen({
   const [checkout, setCheckout] = useState<Checkout | undefined>();
 
   const view = useMemo(() => viewCart(cart, menu.products), [cart, menu.products]);
+  const charges = useOutletCharges(tenantId, outletId);
+  // What the customer will pay; the menu total until the outlet's charges are known.
+  const due = charges.data ? payable(view.totalMinor, charges.data) : undefined;
+  const payableMinor = due?.totalMinor ?? view.totalMinor;
   const products =
     categoryId === ALL_CATEGORIES
       ? menu.products
@@ -142,7 +147,8 @@ function SellScreen({
       onNoteChange={(key, note) => changeCart(setLineNote(cart, key, note))}
       onQuantityChange={(key, quantity) => changeCart(setLineQuantity(cart, key, quantity))}
       onRemove={(key) => changeCart(removeLine(cart, key))}
-      totalMinor={view.totalMinor}
+      {...(due?.added ? { totalNote: t("totalWithCharges") } : {})}
+      totalMinor={payableMinor}
     />
   );
 
@@ -202,7 +208,7 @@ function SellScreen({
       {view.itemCount > 0 ? (
         <div className="fixed inset-x-0 bottom-0 z-10 border-t border-line-default bg-surface p-3 lg:hidden">
           <Button fullWidth onClick={() => setCartOpen(true)} size="lg">
-            {t("cartSummary", { count: view.itemCount })} · {money(view.totalMinor.toString())}
+            {t("cartSummary", { count: view.itemCount })} · {money(payableMinor.toString())}
           </Button>
         </div>
       ) : null}

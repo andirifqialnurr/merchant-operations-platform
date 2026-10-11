@@ -13,6 +13,7 @@ import {
   type CreateBrand,
   type CreateOutlet,
   type CreateTenant,
+  type OutletCharges,
   type OrganizationSnapshot,
   type Outlet,
   type Tenant,
@@ -63,8 +64,10 @@ function toBrand(record: BrandRecord): Brand {
 }
 
 function toOutlet(record: OutletRecord): Outlet {
+  const { chargesIncluded, serviceChargeRateBp, taxRateBp, ...rest } = record;
   return outletSchema.parse({
-    ...record,
+    ...rest,
+    charges: { included: chargesIncluded, serviceChargeRateBp, taxRateBp },
     createdAt: record.createdAt.toISOString(),
     updatedAt: record.updatedAt.toISOString(),
   });
@@ -308,6 +311,17 @@ export class OrganizationService {
       "Kode outlet sudah digunakan pada tenant ini.",
     );
     return toOutlet(outlet);
+  }
+
+  /** How this outlet charges tax and service right now; read when a bill is made. */
+  async outletCharges(tenantId: string, outletId: string): Promise<OutletCharges> {
+    const outlet = await this.repository.findOutletById(tenantId, outletId);
+    if (!outlet) throw notFound("OUTLET_NOT_FOUND", "Outlet tidak ditemukan pada tenant ini.");
+    return {
+      included: outlet.chargesIncluded,
+      serviceChargeRateBp: outlet.serviceChargeRateBp,
+      taxRateBp: outlet.taxRateBp,
+    };
   }
 
   async getSnapshot(tenantId: string) {

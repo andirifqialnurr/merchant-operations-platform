@@ -44,7 +44,8 @@ test("organization tabs and details survive reload and forms show missing fields
   await expect(page).toHaveURL(/tab=outlets&id=[\da-f-]+$/);
   await page.reload();
   await expect(sheet.getByLabel("Nama outlet")).toBeVisible();
-  await expect(sheet.getByRole("textbox")).toHaveCount(2);
+  // Name, address, and the two rates.
+  await expect(sheet.getByRole("textbox")).toHaveCount(4);
   // Select uses a button that opens a listbox; Combobox is a separate component.
   for (const label of ["Brand", "Zona waktu"]) {
     const select = sheet.getByLabel(label, { exact: true }).getByRole("button");
@@ -159,4 +160,46 @@ test("the currency is chosen only until the business has a price or a transactio
   } finally {
     await page.evaluate(() => localStorage.removeItem("merchant-operations-context"));
   }
+});
+
+test("an outlet's tax and service charge start at the final-price rule and show a worked example", async ({
+  page,
+}) => {
+  // Nothing is saved: other tests rely on this outlet charging menu prices only.
+  await openAs(page, "catalog.owner@local.test", "/settings/organization?tab=outlets");
+  await page.getByRole("row", { name: /Kopi Lokal Pusat/ }).click();
+  const sheet = page.getByRole("dialog");
+  const mode = sheet.getByLabel("Cara mengenakan", { exact: true }).getByRole("button");
+  await expect(mode).toHaveText("Harga menu sudah termasuk");
+  await expect(sheet.getByLabel("Service charge", { exact: true })).toHaveValue("0");
+  await expect(sheet.getByLabel("Pajak", { exact: true })).toHaveValue("0");
+  await expect(
+    sheet.getByText("Tanpa pajak dan service charge, harga menu adalah harga akhir."),
+  ).toBeVisible();
+
+  // The example is worked out with the rule the cashier and the receipt use.
+  await mode.click();
+  await page.getByRole("option", { name: "Ditambahkan di struk" }).click();
+  await sheet.getByLabel("Service charge", { exact: true }).fill("5");
+  await sheet.getByLabel("Pajak", { exact: true }).fill("10");
+  await expect(
+    sheet.getByText(
+      "Contoh: menu Rp100.000 + service charge Rp5.000 + pajak Rp10.500 = pelanggan membayar Rp115.500.",
+    ),
+  ).toBeVisible();
+  await mode.click();
+  await page.getByRole("option", { name: "Harga menu sudah termasuk" }).click();
+  await expect(
+    sheet.getByText(
+      "Contoh: pelanggan membayar Rp100.000; di dalamnya service charge Rp4.329 dan pajak Rp9.091.",
+    ),
+  ).toBeVisible();
+
+  // A rate that is not a rate is refused at its field, before anything is sent.
+  await sheet.getByLabel("Pajak", { exact: true }).fill("75");
+  await sheet.getByRole("button", { name: "Simpan" }).click();
+  await expect(
+    sheet.getByText("Isi angka 0 sampai 50, paling banyak 2 angka di belakang koma."),
+  ).toBeVisible();
+  await expect(sheet).toBeVisible();
 });

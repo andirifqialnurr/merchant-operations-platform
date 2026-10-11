@@ -1,6 +1,7 @@
 // One file per domain; this index is the package's only entry point.
 export * from "./http.ts";
 export * from "./money.ts";
+export * from "./charges.ts";
 export * from "./auth.ts";
 export * from "./platform.ts";
 export * from "./organization.ts";

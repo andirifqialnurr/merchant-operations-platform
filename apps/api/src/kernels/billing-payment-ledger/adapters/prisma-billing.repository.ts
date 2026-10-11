@@ -16,6 +16,7 @@ import { eventOrigin } from "../../../shared/command/command-origin.js";
 import { safeEventPayload } from "../../../shared/command/event-payload.js";
 
 const billSelect = {
+  chargesIncluded: true,
   currency: true,
   discountMinor: true,
   id: true,
@@ -23,9 +24,11 @@ const billSelect = {
   paidMinor: true,
   roundingMinor: true,
   serviceChargeMinor: true,
+  serviceChargeRateBp: true,
   status: true,
   subtotalMinor: true,
   taxMinor: true,
+  taxRateBp: true,
   totalMinor: true,
 } as const;
 
@@ -114,6 +117,7 @@ export class PrismaBillingRepository implements BillingRepository {
     const { actor, ...payment } = paid;
     return {
       bill: {
+        chargesIncluded: bill.chargesIncluded,
         currency: bill.currency,
         discountMinor: bill.discountMinor,
         id: bill.id,
@@ -121,9 +125,11 @@ export class PrismaBillingRepository implements BillingRepository {
         paidMinor: bill.paidMinor,
         roundingMinor: bill.roundingMinor,
         serviceChargeMinor: bill.serviceChargeMinor,
+        serviceChargeRateBp: bill.serviceChargeRateBp,
         status: bill.status,
         subtotalMinor: bill.subtotalMinor,
         taxMinor: bill.taxMinor,
+        taxRateBp: bill.taxRateBp,
         totalMinor: bill.totalMinor,
       },
       cashierName: actor.displayName,
@@ -135,7 +141,11 @@ export class PrismaBillingRepository implements BillingRepository {
   async paidOrders(tenantId: string, orderIds: readonly string[]) {
     if (orderIds.length === 0) return new Map<string, PaidOrderState>();
     const bills = await getPrismaClient().bill.findMany({
-      select: { orderId: true, sale: { select: { saleNumber: true, status: true } } },
+      select: {
+        orderId: true,
+        sale: { select: { saleNumber: true, status: true } },
+        totalMinor: true,
+      },
       where: { orderId: { in: [...orderIds] }, status: "PAID", tenantId },
     });
     return new Map(
@@ -144,7 +154,11 @@ export class PrismaBillingRepository implements BillingRepository {
           ? [
               [
                 bill.orderId,
-                { saleNumber: bill.sale.saleNumber, saleStatus: bill.sale.status },
+                {
+                  saleNumber: bill.sale.saleNumber,
+                  saleStatus: bill.sale.status,
+                  totalMinor: bill.totalMinor,
+                },
               ] as const,
             ]
           : [],
@@ -336,10 +350,15 @@ export class PrismaBillingRepository implements BillingRepository {
           (
             await transaction.bill.create({
               data: {
+                chargesIncluded: payment.charges.included,
                 currency: payment.currency,
                 orderId: payment.orderId,
                 outletId,
+                serviceChargeMinor: payment.serviceChargeMinor,
+                serviceChargeRateBp: payment.charges.serviceChargeRateBp,
                 subtotalMinor: payment.subtotalMinor,
+                taxMinor: payment.taxMinor,
+                taxRateBp: payment.charges.taxRateBp,
                 tenantId,
                 totalMinor: payment.totalMinor,
               },

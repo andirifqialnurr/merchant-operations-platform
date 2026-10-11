@@ -11,6 +11,7 @@ import {
   posOrderListSchema,
   receiptSchema,
   approverListSchema,
+  posChargesSchema,
   refundOrderSchema,
   saleRefundsSchema,
   PERMISSIONS,
@@ -155,6 +156,24 @@ export class OrderController {
         commandOriginFromRequest(access.userId, headers, access.deviceId),
       ),
     );
+  }
+
+  @ApiOperation({
+    summary: "How this outlet charges tax and service, to show a total before paying",
+  })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/PosCharges" } })
+  @RequirePermission(PERMISSIONS.orderCreate)
+  @Get("charges")
+  async charges(
+    @RequestHeaders(new ZodValidationPipe(requestContextHeadersSchema))
+    headers: RequestContextHeaders,
+  ) {
+    return posChargesSchema.parse({
+      charges: await this.checkout.outletCharges(
+        headers[API_HEADERS.tenantId],
+        headers[API_HEADERS.outletId],
+      ),
+    });
   }
 
   @ApiOperation({ summary: "People who can approve a refund at this outlet with their PIN" })
