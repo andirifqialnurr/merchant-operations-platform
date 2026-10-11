@@ -14,6 +14,7 @@ import { useWorkspace } from "@/features/workspace";
 import {
   arrangeNavigation,
   isNavigableModule,
+  isSettingsPath,
   MODULE_NAVIGATION,
   PAGE_NAVIGATION,
   UNKNOWN_MODULE_ICON,
@@ -37,7 +38,7 @@ export function BackofficeShell({
 
   // The menu comes from the API: modules in the subscription, installed, and
   // within the user's permissions. Until it arrives the menu is simply empty.
-  const navigation = arrangeNavigation(entries.data?.entries ?? [], workspace.allOutlets).map(
+  const items = arrangeNavigation(entries.data?.entries ?? [], workspace.allOutlets).map(
     (entry) => {
       const known =
         PAGE_NAVIGATION[entry.path] ??
@@ -59,11 +60,14 @@ export function BackofficeShell({
       context={<ShellContext />}
       labels={{
         closeNavigation: t("closeNavigation"),
+        // Settings of the business sit apart from the modules people work in every day.
+        moreNavigation: t("settingsNavigation"),
         navigation: t("navigation"),
         openNavigation: t("openNavigation"),
         skipToContent: t("skipToContent"),
       }}
-      navigation={navigation}
+      footerNavigation={items.filter((item) => isSettingsPath(item.href))}
+      navigation={items.filter((item) => !isSettingsPath(item.href))}
       renderLink={(_item, props) => <Link {...props} />}
     >
       {children}

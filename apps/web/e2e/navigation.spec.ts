@@ -6,7 +6,12 @@ import { openAs } from "./sign-in";
 async function menu(page: Page) {
   const navigation = page.getByRole("navigation", { name: "Navigasi utama" });
   await expect(navigation.getByRole("link").first()).toBeVisible();
-  return navigation.getByRole("link").allInnerTexts();
+  // Settings follow in a group of their own.
+  const settings = page.getByRole("navigation", { name: "Pengaturan" });
+  return [
+    ...(await navigation.getByRole("link").allInnerTexts()),
+    ...(await settings.getByRole("link").allInnerTexts()),
+  ];
 }
 
 test("the owner's menu lists the installed modules they may open", async ({ page }) => {

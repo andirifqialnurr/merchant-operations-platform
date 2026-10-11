@@ -51,6 +51,13 @@
   border-top: 1px solid var(--color-border-subtle);
   margin-block-start: auto;
 }
+.ui-app-shell__footer-heading {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  margin: 0;
+  padding: var(--space-3) var(--space-5) 0;
+}
 .ui-app-shell__main {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);

@@ -19,7 +19,7 @@ import { SegmentedControl } from "./selection-control";
 export type AppShellLabels = {
   /** Close button of the mobile navigation drawer. */
   closeNavigation: string;
-  /** Accessible name of the bottom navigation group; required with footerNavigation. */
+  /** Name of the bottom navigation group, shown above it; required with footerNavigation. */
   moreNavigation?: string;
   /** Accessible name of the navigation landmark and title of the mobile drawer. */
   navigation: string;
@@ -70,6 +70,12 @@ export function AppShell({
         />
         {footerNavigation.length ? (
           <div className="ui-app-shell__footer-navigation">
+            {/* The group is named for the eye too; the landmark below carries the same name. */}
+            {labels.moreNavigation && !collapsed ? (
+              <p aria-hidden="true" className="ui-app-shell__footer-heading">
+                {labels.moreNavigation}
+              </p>
+            ) : null}
             <Sidebar
               {...linkProps}
               {...navigateProps}

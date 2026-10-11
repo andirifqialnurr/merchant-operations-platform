@@ -41,7 +41,11 @@
       "roles": "Peran",
       "organization": "Bisnis dan outlet",
       "integrations": "Integrasi"
-    }
+    },
+    "settingsLoadFailed": "Pengaturan tidak bisa dimuat",
+    "settingsNavigation": "Pengaturan",
+    "settingsNoAccess": "Minta pemilik bisnis jika Anda perlu mengubah pengaturan bisnis.",
+    "settingsNoAccessTitle": "Anda tidak punya akses ke pengaturan"
   },
   "access": {
     "retry": "Coba lagi",

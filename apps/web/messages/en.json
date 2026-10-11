@@ -41,7 +41,11 @@
       "roles": "Roles",
       "organization": "Business and outlets",
       "integrations": "Integrations"
-    }
+    },
+    "settingsLoadFailed": "The settings could not be loaded",
+    "settingsNavigation": "Settings",
+    "settingsNoAccess": "Ask the business owner if you need to change the settings of the business.",
+    "settingsNoAccessTitle": "You do not have access to the settings"
   },
   "access": {
     "retry": "Try again",
