@@ -160,6 +160,8 @@ Modul produk (dijual)
   business-finance, human-capital, customer, analytics, personal-finance (nanti)
 ```
 
+**Yang sudah ada di kode (12 Oktober 2026).** Core: semua unit di daftar di atas, di `apps/api/src/core/` (`auth`, `workspaces`, `memberships`, `entitlements`, `installations`, `integrations`, `metering`, `devices`, `audit`, `idempotency`, `events`, juga `files`, `mail`, `feature-flags`, `platform`, `security`, `observability`, `manifest`). Kernel: `order-intake` dan `billing-payment-ledger`; `catalog` masih di `apps/api/src/catalog` sampai dipecah. Modul produk: `pos-sales`. Sisanya dibangun di milestone masing-masing.
+
 Rantai konfigurasi:
 
 ```text
@@ -184,6 +186,8 @@ Provisioning idempotent. Suspend dan uninstall tidak menghapus data. Aktivasi ul
 
 `DRAFT`, `SETUP_REQUIRED`, `ACTIVE`, `PAUSED`, `ERROR`, `DISABLED`. Binding menyimpan modul sumber, event dan versinya, modul target, handler, konfigurasi pemetaan, waktu efektif, dan status kesehatan. Menambah modul tidak memproses data lama secara otomatis.
 
+Dalam kode: binding dibuat saat modul tujuan dipasang, dari `eventHandlers` di manifestnya, dan dimatikan (`DISABLED`, tidak dihapus) saat modul dilepas. Handler milik core tidak memakai binding. Pemilik melihat statusnya di Pengaturan → Integrasi dan bisa mencoba ulang event yang tertahan; langkah operatornya ada di `runbook.md` 2.
+
 ### 6.3 Urutan pemeriksaan akses
 
 ```text
@@ -194,7 +198,7 @@ Provisioning idempotent. Suspend dan uninstall tidak menghapus data. Aktivasi ul
 5. Tier dan capability ter-entitle
 6. Pengguna punya izin
 7. Lokasi dalam cakupan pengguna
-8. Feature flag membuka fitur
+8. Feature flag membuka fitur (hanya pada route bertanda `RequireFeature`; flag yang tidak ada berarti tertutup)
 9. Limit (hanya untuk pembuatan resource)
 ```
 
@@ -223,6 +227,7 @@ handler: cek inbox (workspace_id, consumer, event_id) -> proses -> catat
 ```
 
 - Kegagalan konsumen tidak membatalkan transaksi sumber.
+- Dispatcher mengambil 20 event per putaran dengan kunci baris (`SKIP LOCKED`), mencoba ulang dengan jeda membesar dari 2 detik sampai 15 menit, dan berhenti setelah 8 percobaan (`failed_at` terisi; event disimpan). Angka ini ada di `DEFAULT_DISPATCHER_OPTIONS`.
 - Coba ulang hanya untuk error sementara; error konfigurasi masuk `BLOCKED` dengan alasan aman dan dapat dicoba ulang setelah diperbaiki.
 - Perubahan payload yang memutus kompatibilitas membuat versi event baru.
 - Payload adalah kontrak, bukan salinan baris database; tanpa secret, token, atau PII yang tidak dibutuhkan.
@@ -233,7 +238,7 @@ handler: cek inbox (workspace_id, consumer, event_id) -> proses -> catat
 | ---------------------------------------------------- | -------------------- | ------------------------------------- |
 | `order.submitted.v1`                                 | Order/POS/Self-Order | KDS, laporan                          |
 | `order.accepted.v1`                                  | Order                | Inventory                             |
-| `order.cancelled.v1`                                 | Order                | KDS, Inventory, laporan               |
+| `order.canceled.v1`                                  | Order                | KDS, Inventory, laporan               |
 | `kitchen_ticket.started.v1`                          | KDS                  | Order, Inventory                      |
 | `kitchen_ticket.ready.v1`                            | KDS                  | Order, Customer, POS                  |
 | `kitchen_ticket.served.v1`                           | KDS                  | Order                                 |
@@ -246,6 +251,8 @@ handler: cek inbox (workspace_id, consumer, event_id) -> proses -> catat
 | `attendance.approved.v1`                             | HC                   | Laporan, payroll (nanti)              |
 | `schedule.published.v1`                              | HC                   | Notifikasi                            |
 | `module.installed.v1`, `subscription.changed.v1`     | Core                 | Projection entitlement                |
+
+Yang sudah dihasilkan kode pada 12 Oktober 2026: `order.submitted.v1`, `order.canceled.v1`, `sale.completed.v1`, `sale.refunded.v1`, `payment.recorded.v1`, `shift.opened.v1`, `shift.closed.v1`, `module.installed.v1`, `usage.threshold_reached.v1`, serta event perubahan data induk tanpa versi (`organization.*`, `identity.*`, `subscription.*`, `catalog.*`). Konsumen yang sudah ada hanya milik core: penghitung pemakaian penjualan POS dan proyeksi entitlement. Event lain di tabel ini muncul bersama modulnya.
 
 ## 8. Kepemilikan data
 
