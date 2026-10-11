@@ -107,7 +107,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [x] **M2-OP-01 Compose lokal** `dccb19f` — PostgreSQL, Redis, object storage lokal (MinIO) untuk pengembangan.
 - [x] **M2-OP-02 Redis dan BullMQ** `3fd9486` — untuk worker dan rate limit lintas instance (`SEC-F3`).
 - [x] **M2-OP-03 Runbook** `6cc8c10` — provisioning workspace dan paket; binding gagal dan coba ulang event; antrean outbox menumpuk. Selesai 12 Oktober 2026: `docs/foundation/runbook.md` (TODO 13.52).
-- [x] **M2-OP-04 Perbarui dokumen** — `schema.md` B.1–B.2 menjadi "berjalan"; `architecture.md` 6–7; `backend.md` 1. Selesai 12 Oktober 2026 (TODO 13.55).
+- [x] **M2-OP-04 Perbarui dokumen** `4c8bcdc` — `schema.md` B.1–B.2 menjadi "berjalan"; `architecture.md` 6–7; `backend.md` 1. Selesai 12 Oktober 2026 (TODO 13.55).
 
 ## 5. Urutan checkpoint yang disarankan
 
