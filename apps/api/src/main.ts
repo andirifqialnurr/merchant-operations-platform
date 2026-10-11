@@ -13,7 +13,7 @@ import {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const port = Number(process.env.API_PORT ?? 3001);
+  const port = Number(process.env.API_PORT ?? 4001);
 
   app.use(createRequestObservabilityMiddleware());
   app.use(createSecurityHeadersMiddleware());

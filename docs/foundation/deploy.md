@@ -14,7 +14,7 @@ Dokumen terkait: [`architecture.md`](./architecture.md), [`security.md`](./secur
 | Unit           | Sumber           | Port                    | Perintah jalan                   | Catatan                                                                                               |
 | -------------- | ---------------- | ----------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | Web            | `apps/web`       | 3000 (prod), 4000 (dev) | `next start`                     | Meneruskan `/api/*` ke API                                                                            |
-| API            | `apps/api`       | 3001                    | `node dist/main.js`              | REST `/api/v1` + WebSocket                                                                            |
+| API            | `apps/api`       | 4001                    | `node dist/main.js`              | REST `/api/v1` + WebSocket                                                                            |
 | Worker         | `apps/worker`    | —                       | `node --import tsx src/index.ts` | Dispatcher outbox dan job; dijalankan dari sumber karena memuat modul API                             |
 | PostgreSQL     | —                | 5432                    | —                                | Satu database                                                                                         |
 | Redis          | —                | 6379                    | —                                | Dipakai worker (BullMQ) dan rate limit API bila `RATE_LIMIT_STORE=redis`; lokal lewat `pnpm infra:up` |
@@ -39,14 +39,14 @@ Web, API, dan worker dibangun dari commit yang sama dan dirilis bersama.
 pnpm install --frozen-lockfile
 cp .env.example .env            # isi DATABASE_URL
 pnpm db:setup                   # generate klien + jalankan migrasi
-pnpm dev                        # web :4000, api :3001, worker
+pnpm dev                        # web :4000, api :4001, worker
 ```
 
 | Alamat                                            | Isi           |
 | ------------------------------------------------- | ------------- |
 | `http://localhost:4000`                           | Web           |
-| `http://localhost:3001/api/v1/health`             | Health API    |
-| `http://localhost:3001/api/docs`                  | Swagger (dev) |
+| `http://localhost:4001/api/v1/health`             | Health API    |
+| `http://localhost:4001/api/docs`                  | Swagger (dev) |
 | `pnpm --filter @merchant/storybook dev` → `:6006` | Storybook     |
 
 Platform user pertama:
@@ -130,7 +130,7 @@ Topologi opsi A:
 flowchart LR
     U[Pengguna] -->|HTTPS| RP[Nginx + TLS]
     RP --> WEB[web :3000]
-    WEB -->|/api/* internal| API[api :3001]
+    WEB -->|/api/* internal| API[api :4001]
     RP -->|/socket.io| API
     API --> PG[(PostgreSQL)]
     WK[worker] --> PG
@@ -150,7 +150,7 @@ API tidak dibuka langsung ke internet kecuali jalur WebSocket; semua permintaan 
 | `NODE_ENV`                                                                    | Semua                | Ya                      | `production` mengaktifkan cookie `Secure` dan HSTS                               |
 | `DATABASE_URL`                                                                | API, worker, migrasi | Ya                      | PostgreSQL                                                                       |
 | `API_URL`                                                                     | Web                  | Ya                      | Alamat internal API untuk rewrite                                                |
-| `API_PORT`                                                                    | API                  | Tidak                   | Bawaan 3001                                                                      |
+| `API_PORT`                                                                    | API                  | Tidak                   | Bawaan 4001                                                                      |
 | `WEB_URL`                                                                     | API                  | Ya (prod)               | Origin web                                                                       |
 | `AUTH_SESSION_TTL_HOURS`                                                      | API                  | Tidak                   | Masa sesi Backoffice. Bawaan 12, maksimum 720                                    |
 | `AUTH_DEVICE_SESSION_TTL_HOURS`                                               | API                  | Tidak                   | Masa sesi yang terikat perangkat POS/KDS. Bawaan 16, maksimum 720                |
