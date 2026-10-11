@@ -1,6 +1,6 @@
 # M2 — Core modular dan pengaturan
 
-**Status:** Berjalan
+**Status:** Berjalan — semua task selesai 12 Oktober 2026; menunggu tinjauan pengguna. Satu kriteria belum bisa dipastikan (CI, lihat bagian 3)
 **Tahap PRD:** B (Core modular)
 **Bergantung pada:** M1
 
@@ -18,14 +18,14 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 
 ## 3. Kriteria selesai
 
-- [ ] Provisioning workspace dengan paket berversi dan provisioning satu modul sama-sama idempotent.
-- [ ] Untuk setiap aksi, API membedakan alasan gagal: langganan, instalasi, capability, izin, lokasi, feature flag, limit.
-- [ ] UI menampilkan `ModuleAccessState` dan `UsageLimitState` yang sesuai alasan, bukan error umum.
-- [ ] Event dari outbox dikirim worker ke handler terdaftar; event ganda tidak diproses dua kali (inbox).
-- [ ] POS-only tetap berjalan tanpa error ketika tidak ada modul penerima event.
-- [ ] Downgrade dan suspend tidak menghapus riwayat; batas hard menolak pembuatan baru tanpa mematikan data lama.
-- [ ] Lint batas modul aktif di CI dan lulus.
-- [ ] Owner dapat mengundang pengguna, mengatur peran dan cakupan lokasi, mendaftarkan dan mencabut perangkat POS, serta melihat pemakaian vs batas.
+- [x] Provisioning workspace dengan paket berversi dan provisioning satu modul sama-sama idempotent. _Bukti:_ test `provisioning a workspace installs what it is entitled to and can be repeated` dan `two requests installing the same module end with one installation` (`core/installations`).
+- [x] Untuk setiap aksi, API membedakan alasan gagal: langganan, instalasi, capability, izin, lokasi, feature flag, limit. _Bukti:_ test evaluator akses (`core/entitlements`): capability, lokasi, feature flag, dan limit masing-masing ditolak dengan kode sendiri; `every reason maps to its own code and the documented status`; `when several things fail, the most fundamental reason is reported`.
+- [x] UI menampilkan `ModuleAccessState` dan `UsageLimitState` yang sesuai alasan, bukan error umum. _Bukti:_ e2e `navigation.spec.ts` (tanpa izin, modul tidak dimiliki) dan `settings.spec.ts` (batas paket pada empat form tambah, dengan pemakaian dan jalan ke Langganan); TODO 13.16, 13.24, 13.50.
+- [x] Event dari outbox dikirim worker ke handler terdaftar; event ganda tidak diproses dua kali (inbox). _Bukti:_ test dispatcher (`a handler runs once and its result is recorded in the inbox`, `an event delivered a second time has no second effect`); `pnpm --filter @merchant/worker smoke` mengirim event dari outbox lokal ke dua handler core.
+- [x] POS-only tetap berjalan tanpa error ketika tidak ada modul penerima event. _Bukti:_ M2-QA-06 (`POS with an active binding but no receiver in code: the event is still done`, dan empat kombinasi lain); e2e kasir berjalan di workspace lokal yang hanya punya POS.
+- [x] Downgrade dan suspend tidak menghapus riwayat; batas hard menolak pembuatan baru tanpa mematikan data lama. _Bukti:_ `suspending keeps the installation and resuming reuses it`, `uninstalling keeps the row`, `a hard count refuses the next one when the limit is full, and only then`. Pemeriksaan kode: mengganti atau menangguhkan langganan hanya menghapus proyeksi `core_effective_entitlements`, yang dihitung ulang; tidak ada penghapusan data bisnis. Belum ada test yang menjalankan downgrade paket nyata dari ujung ke ujung.
+- [ ] Lint batas modul aktif di CI dan lulus. _Belum bisa dipastikan:_ lint batas modul berjalan di `pnpm lint` dan lulus secara lokal, dan `.github/workflows/ci.yml` menjalankannya, tetapi workflow itu belum pernah berjalan: GitHub menolak memulai job karena akun terkunci akibat masalah tagihan (pesan GitHub pada run pertama, 12 Oktober 2026). Centang setelah satu run hijau.
+- [x] Owner dapat mengundang pengguna, mengatur peran dan cakupan lokasi, mendaftarkan dan mencabut perangkat POS, serta melihat pemakaian vs batas. _Bukti:_ e2e dan pemeriksaan browser halaman Pengguna, Peran, Perangkat, dan Langganan (TODO 13.31–13.39). Catatan: undangan menghasilkan tautan, tetapi belum terkirim lewat email sampai layanan email dipilih.
 
 ## 4. Task
 
