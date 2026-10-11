@@ -95,7 +95,8 @@ function useDismiss(
       if (!rootRef.current?.contains(event.target as Node)) onDismissRef.current("outside");
     }
     function onKeyDown(event: globalThis.KeyboardEvent) {
-      if (event.key === "Escape") onDismissRef.current("escape");
+      // A control inside that used Escape for itself (an open list) marks it as handled.
+      if (event.key === "Escape" && !event.defaultPrevented) onDismissRef.current("escape");
     }
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
@@ -127,7 +128,8 @@ function Overlay({
     document.body.style.overflow = "hidden";
     const timer = window.setTimeout(() => focusable(panelRef.current!)[0]?.focus(), 0);
     function escape(event: KeyboardEvent | globalThis.KeyboardEvent) {
-      if (event.key === "Escape") onCloseRef.current();
+      // A control inside that used Escape for itself (an open list) marks it as handled.
+      if (event.key === "Escape" && !event.defaultPrevented) onCloseRef.current();
     }
     document.addEventListener("keydown", escape);
     return () => {

@@ -775,7 +775,10 @@
     "approvalPinResetDescription": "PIN lamanya langsung tidak berlaku. Orang ini mengatur PIN baru sendiri dari menu akun.",
     "approvalPinResetDone": "PIN direset.",
     "approvalPinResetTitle": "Reset PIN persetujuan {name}?",
-    "approvalPinSet": "Sudah diatur"
+    "approvalPinSet": "Sudah diatur",
+    "noOutlets": "Belum ada outlet.",
+    "outletsSelected": "{count} outlet dipilih",
+    "selectOutlets": "Pilih outlet"
   },
   "roles": {
     "accessDenied": "Hanya yang boleh melihat peran seluruh outlet yang dapat membuka halaman ini.",

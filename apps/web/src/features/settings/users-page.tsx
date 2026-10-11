@@ -19,6 +19,7 @@ import { ModuleAccessState } from "@merchant/ui/module-access-state";
 import { Tabs } from "@merchant/ui/navigation";
 import { AlertDialog, Sheet } from "@merchant/ui/overlay";
 import { PageHeader } from "@merchant/ui/page";
+import { MultiSelect } from "@merchant/ui/multi-select";
 import { Select } from "@merchant/ui/select";
 import { Checkbox } from "@merchant/ui/selection-control";
 
@@ -199,23 +200,21 @@ function InviteSheet({
                 clear("outlets");
               }}
             />
-            {allOutlets
-              ? null
-              : outlets.map((outlet) => (
-                  <Checkbox
-                    checked={outletIds.includes(outlet.id)}
-                    key={outlet.id}
-                    label={outlet.name}
-                    onChange={(event) => {
-                      setOutletIds((current) =>
-                        event.target.checked
-                          ? [...current, outlet.id]
-                          : current.filter((id) => id !== outlet.id),
-                      );
-                      clear("outlets");
-                    }}
-                  />
-                ))}
+            {/* A business can have many outlets: a list to pick from, not a wall of boxes. */}
+            {allOutlets ? null : (
+              <MultiSelect
+                emptyLabel={t("noOutlets")}
+                label={t("outlets")}
+                onValuesChange={(values) => {
+                  setOutletIds(values);
+                  clear("outlets");
+                }}
+                options={outlets.map((outlet) => ({ label: outlet.name, value: outlet.id }))}
+                placeholder={t("selectOutlets")}
+                selectedLabel={(count) => t("outletsSelected", { count })}
+                values={outletIds}
+              />
+            )}
             {errors.outlets ? (
               <p className="m-0 text-caption text-danger" role="alert">
                 {errors.outlets}

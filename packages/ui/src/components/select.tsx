@@ -182,6 +182,8 @@ function Menu({
   id,
   menuRef,
   mobileSheet,
+  multiple,
+  onKeyDown,
   open,
   style,
 }: {
@@ -189,6 +191,9 @@ function Menu({
   id: string;
   menuRef: RefObject<HTMLDivElement | null>;
   mobileSheet?: boolean;
+  /** Several options can be on at once. */
+  multiple?: boolean;
+  onKeyDown?: (event: KeyboardEvent<HTMLDivElement>) => void;
   open: boolean;
   style: CSSProperties | undefined;
 }) {
@@ -196,7 +201,9 @@ function Menu({
   const menu = (
     <div
       className={classes("ui-select__menu", mobileSheet && "ui-select__menu--sheet")}
+      aria-multiselectable={multiple || undefined}
       id={id}
+      onKeyDown={onKeyDown}
       ref={menuRef}
       role="listbox"
       style={style}
@@ -236,7 +243,11 @@ export function Select({
   function onKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     const enabled = options.filter((option) => !option.disabled);
     const current = enabled.findIndex((option) => option.value === selectedValue);
-    if (event.key === "Escape") setOpen(false);
+    if (event.key === "Escape" && open) {
+      // Used up here, so a sheet or dialog around the field stays open.
+      event.preventDefault();
+      setOpen(false);
+    }
     if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
       event.preventDefault();
       if (!open) setOpen(true);
@@ -373,7 +384,10 @@ export function Combobox({
             autoFocus
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={(event) => {
-              if (event.key === "Escape") setOpen(false);
+              if (event.key === "Escape") {
+                event.preventDefault();
+                setOpen(false);
+              }
               if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
                 event.preventDefault();
                 const enabled = filtered.filter((option) => !option.disabled);
@@ -405,6 +419,173 @@ export function Combobox({
           options={filtered}
           selectedValue={selectedValue}
         />
+      </Menu>
+    </div>
+  );
+}
+
+export type MultiSelectProps = Omit<CommonProps, "defaultValue" | "onValueChange" | "value"> & {
+  onValuesChange: (values: string[]) => void;
+  /** Shown on the trigger when more are chosen than fit by name, e.g. "3 outlet dipilih". */
+  selectedLabel: (count: number) => string;
+  values: readonly string[];
+};
+
+/** How many chosen names the trigger spells out before it switches to a count. */
+const NAMED_SELECTIONS = 2;
+
+/**
+ * Choosing several of a list that would be too long as checkboxes. The menu
+ * stays open while options are switched on and off; the trigger names what is
+ * chosen, or counts it when there are many. Values keep the order of the options.
+ */
+export function MultiSelect({
+  className,
+  disabled = false,
+  emptyLabel,
+  error,
+  label,
+  onValuesChange,
+  options,
+  placeholder,
+  selectedLabel,
+  size = "md",
+  values,
+}: MultiSelectProps) {
+  const id = useId();
+  const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const { anchorRef, menuRef, style } = useAnchoredMenu(open, () => setOpen(false));
+  const chosen = options.filter((option) => values.includes(option.value));
+
+  function toggle(option: SelectOption) {
+    if (option.disabled) return;
+    const next = new Set(values);
+    if (next.has(option.value)) next.delete(option.value);
+    else next.add(option.value);
+    onValuesChange(options.filter((item) => next.has(item.value)).map((item) => item.value));
+  }
+
+  function close() {
+    setOpen(false);
+    triggerRef.current?.focus();
+  }
+
+  /** Arrow keys walk the options; Space and Enter switch the focused one, as on any button. */
+  function onMenuKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      close();
+      return;
+    }
+    if (event.key === "Tab") {
+      setOpen(false);
+      return;
+    }
+    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const items = [
+      ...(menuRef.current?.querySelectorAll<HTMLButtonElement>('[role="option"]:not(:disabled)') ??
+        []),
+    ];
+    if (items.length === 0) return;
+    const current = items.indexOf(document.activeElement as HTMLButtonElement);
+    const next =
+      event.key === "Home"
+        ? 0
+        : event.key === "End"
+          ? items.length - 1
+          : (current + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+    items[next]?.focus();
+  }
+
+  useEffect(() => {
+    if (!open) return;
+    // Opening with the keyboard lands on the first option, ready for the arrows.
+    menuRef.current?.querySelector<HTMLButtonElement>('[role="option"]:not(:disabled)')?.focus();
+  }, [menuRef, open]);
+
+  return (
+    <div
+      aria-label={label}
+      className={classes(
+        "ui-select",
+        `ui-select--${size}`,
+        error && "ui-select--invalid",
+        className,
+      )}
+      ref={anchorRef}
+    >
+      <button
+        aria-controls={id}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        className="ui-select__trigger"
+        disabled={disabled}
+        onClick={() => setOpen((current) => !current)}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowDown" && !open) {
+            event.preventDefault();
+            setOpen(true);
+          }
+          if (event.key === "Escape" && open) {
+            event.preventDefault();
+            setOpen(false);
+          }
+        }}
+        ref={triggerRef}
+        type="button"
+      >
+        <span className={chosen.length ? undefined : "ui-select__placeholder"}>
+          {chosen.length === 0
+            ? placeholder
+            : chosen.length <= NAMED_SELECTIONS
+              ? chosen.map((option) => option.label).join(", ")
+              : selectedLabel(chosen.length)}
+        </span>
+        <AppIcon icon={IconChevronDown} size={size === "sm" ? "sm" : "md"} />
+      </button>
+      {error ? (
+        <p className="ui-select__error" role="alert">
+          {error}
+        </p>
+      ) : null}
+      <Menu
+        id={id}
+        menuRef={menuRef}
+        mobileSheet
+        multiple
+        onKeyDown={onMenuKeyDown}
+        open={open}
+        style={style}
+      >
+        {options.length === 0 ? (
+          <p className="ui-select__status">{emptyLabel}</p>
+        ) : (
+          options.map((option) => {
+            const selected = values.includes(option.value);
+            return (
+              <button
+                aria-label={option.ariaLabel}
+                aria-selected={selected}
+                className="ui-select__option"
+                disabled={option.disabled}
+                key={option.value}
+                onClick={() => toggle(option)}
+                role="option"
+                title={option.disabledReason}
+                type="button"
+              >
+                <span>
+                  <span>{option.label}</span>
+                  {option.description ? <small>{option.description}</small> : null}
+                  {option.disabledReason ? <small>{option.disabledReason}</small> : null}
+                </span>
+                {selected ? <AppIcon icon={IconCheck} size="sm" /> : null}
+              </button>
+            );
+          })
+        )}
       </Menu>
     </div>
   );

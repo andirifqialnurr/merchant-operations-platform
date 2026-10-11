@@ -105,3 +105,33 @@ test("a full package is explained where a brand, outlet, person, or role is adde
   await sheet.getByRole("button", { name: "Simpan" }).click();
   await expectLimitExplained(page);
 });
+
+test("outlets for a new person are picked from a list, and Escape closes only the list", async ({
+  page,
+}) => {
+  // Nothing is sent: the form is filled in and left.
+  await openAs(page, "catalog.owner@local.test", "/settings/users");
+  await page.getByRole("main").getByRole("button", { name: "Undang pengguna" }).click();
+  const sheet = page.getByRole("dialog");
+  await sheet.getByLabel("Email").fill("seseorang@example.com");
+
+  const outlets = sheet.getByLabel("Outlet", { exact: true }).getByRole("button");
+  await expect(outlets).toHaveText("Pilih outlet");
+  await outlets.focus();
+  await page.keyboard.press("ArrowDown");
+  await expect(page.getByRole("listbox")).toHaveAttribute("aria-multiselectable", "true");
+  await page.keyboard.press("Space");
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Space");
+  await expect(outlets).toHaveText("Kopi Lokal Pusat, Kopi Lokal Timur");
+
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("listbox")).toHaveCount(0);
+  // The sheet and what was typed in it are still there.
+  await expect(sheet.getByLabel("Email")).toHaveValue("seseorang@example.com");
+  await expect(outlets).toBeFocused();
+
+  // Everybody at every outlet: the list is not needed and goes away.
+  await sheet.getByText("Semua outlet", { exact: true }).click();
+  await expect(sheet.getByLabel("Outlet", { exact: true })).toHaveCount(0);
+});

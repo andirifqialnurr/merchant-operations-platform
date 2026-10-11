@@ -78,7 +78,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [x] **M2-DS-04 Komponen perangkat** `94ea01b` — `DeviceStatusBadge`, `NetworkSyncIndicator`, `StaleDataBanner`.
 - [x] **M2-DS-05 Matriks izin** `e9e7e0d` — tampilan izin per peran yang mudah dipindai.
 - [x] **M2-DS-06 `PinInput`** `892ba0d` (dari `M1-DS-08`) — isian PIN bertopeng untuk persetujuan manager; label lewat props. Selesai 11 Oktober 2026 (TODO 13.51).
-- [ ] **M2-DS-07 `MultiSelect`** (dari `M1-DS-09`) — hanya bila ada layar yang membutuhkannya.
+- [x] **M2-DS-07 `MultiSelect`** (dari `M1-DS-09`) — hanya bila ada layar yang membutuhkannya. Dipakai untuk memilih outlet di form undangan pengguna. Selesai 12 Oktober 2026 (TODO 13.58).
 
 ### AS — Aset
 

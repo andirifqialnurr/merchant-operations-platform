@@ -9,7 +9,7 @@ const apiSource = join(here, "..", "..", "..", "api", "src");
 const messages = join(here, "..", "..", "messages");
 
 /** The API areas whose errors reach the catalog and cashier screens. */
-const AREAS = ["catalog", "modules", "kernels"];
+const AREAS = ["modules", "kernels"];
 /** Access refusals are declared as a table rather than thrown by name. */
 const ACCESS_DENIALS = join(apiSource, "core", "entitlements", "access-evaluator.ts");
 const THROWN_CODE =

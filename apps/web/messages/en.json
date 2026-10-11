@@ -775,7 +775,10 @@
     "approvalPinResetDescription": "The old PIN stops working at once. This person sets a new PIN themselves from the account menu.",
     "approvalPinResetDone": "PIN reset.",
     "approvalPinResetTitle": "Reset the approval PIN of {name}?",
-    "approvalPinSet": "Set"
+    "approvalPinSet": "Set",
+    "noOutlets": "No outlets yet.",
+    "outletsSelected": "{count} outlets chosen",
+    "selectOutlets": "Choose outlets"
   },
   "roles": {
     "accessDenied": "Only people who may see the roles of all outlets can open this page.",

@@ -19,6 +19,7 @@
     "./selection-control": "./src/components/selection-control.tsx",
     "./select": "./src/components/select.tsx",
     "./combobox": "./src/components/select.tsx",
+    "./multi-select": "./src/components/select.tsx",
     "./numeric-date": "./src/components/numeric-date.tsx",
     "./number-input": "./src/components/numeric-date.tsx",
     "./money-input": "./src/components/numeric-date.tsx",
