@@ -40,7 +40,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [x] **M2-FT-07 Gambar produk** `c045336` — unggah gambar produk di Catalog dan tampilkan di kartu produk POS.
 - [ ] **M2-FT-08 Persetujuan manager untuk refund** (dari `M1-FT-10`) — kasir tanpa izin refund meminta persetujuan manager dengan PIN (`flowchart.md` 5.4). PIN diatur dan direset di pengaturan pengguna (`M2-FT-02`). Selesai bila: PIN tersimpan ber-hash; salah PIN dibatasi; persetujuan diaudit dengan nama penyetuju.
 - [ ] **M2-FT-09 Pajak dan service charge per outlet** (dari `M1-FT-14`) — pola "harga sudah termasuk" atau "ditambahkan di struk" dan tarif per outlet, diatur di pengaturan outlet (`M2-FT-01`). Bawaan tetap mengikuti keputusan `M1-OD-01`: harga menu adalah harga akhir. Selesai bila: total pesanan, struk, dan ringkasan shift konsisten untuk kedua pola.
-- [ ] **M2-FT-10 Pilihan mata uang dasar IDR / USD** — permintaan user 4 Oktober 2026; PRD Modular 6.5 dan `flowchart.md` 12.1. Satu pilihan per workspace, dapat diubah sebelum ada data bernilai uang; data lama tetap utuh, tanpa konversi. Bergantung pada M2-FT-01. Rincian checkpoint dan acceptance di bagian 5.1.
+- [x] **M2-FT-10 Pilihan mata uang dasar IDR / USD** — permintaan user 4 Oktober 2026; PRD Modular 6.5 dan `flowchart.md` 12.1. Satu pilihan per workspace, dapat diubah sebelum ada data bernilai uang; data lama tetap utuh, tanpa konversi. Bergantung pada M2-FT-01. Rincian checkpoint dan acceptance di bagian 5.1. Selesai 11 Oktober 2026 (TODO 13.47–13.49).
 
 ### BE — Backend dan data
 

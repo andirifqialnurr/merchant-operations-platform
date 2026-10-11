@@ -441,9 +441,9 @@ flowchart TD
 
 Saat batas hard tercapai (misalnya jumlah pengguna), tombol tambah tetap terlihat tetapi membuka penjelasan batas dan ajakan upgrade — bukan error umum.
 
-### 12.1 Pilih mata uang bisnis — IDR / USD (rencana M2-FT-10)
+### 12.1 Pilih mata uang bisnis — IDR / USD
 
-Sumber cakupan: PRD Modular 6.5 (`CUR-001`–`CUR-005`). Satu pilihan per workspace, bukan per outlet. Alur ini belum tersedia pada implementasi M2-FT-01.
+Sumber cakupan: PRD Modular 6.5 (`CUR-001`–`CUR-005`). Satu pilihan per workspace, bukan per outlet. Tersedia sejak M2-FT-10 (TODO 13.47–13.49).
 
 ```mermaid
 flowchart TD

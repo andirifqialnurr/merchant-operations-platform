@@ -849,7 +849,8 @@ test("normalizes catalog defaults and preserves exact minor-unit prices", () => 
     slug: "Kopi-Susu",
   });
   assert.equal(product.basePriceMinor, "25000");
-  assert.equal(product.currency, "IDR");
+  // The currency is not defaulted here any more: the workspace decides it.
+  assert.equal(product.currency, undefined);
   assert.equal(product.availability, "AVAILABLE");
   assert.equal(
     createCatalogProductSchema.safeParse({ ...product, basePriceMinor: "-1" }).success,

@@ -40,11 +40,11 @@ Operational navigation hanya menampilkan module installation yang aktif dan user
 
 ### 0.3 Responsive contract
 
-| Class | Width CSS | Baseline QA |
-|---|---:|---:|
-| Small (S) | `320–767px` | `390×844` |
-| Medium (M) | `768–1279px` | `1024×768` |
-| Large (L) | `>=1280px` | `1440×900` |
+| Class      |    Width CSS | Baseline QA |
+| ---------- | -----------: | ----------: |
+| Small (S)  |  `320–767px` |   `390×844` |
+| Medium (M) | `768–1279px` |  `1024×768` |
+| Large (L)  |   `>=1280px` |  `1440×900` |
 
 Responsive adalah baseline kualitas, bukan capability/add-on. Capability yang dimiliki user harus usable di S/M/L. Business logic/API/permission/audit/limit tidak berubah karena viewport.
 
@@ -198,9 +198,9 @@ Status Basic: `AVAILABLE`, `OCCUPIED`, `CLOSING`, `CLEANING`, `INACTIVE`. `RESER
 
 ### 7.5 Responsive
 
-| Mode | Small | Medium | Large |
-|---|---|---|---|
-| Live Table | Pannable view + list fallback | Touch pan/zoom + collapsible detail | Full canvas + docked context |
+| Mode        | Small                                                      | Medium                              | Large                                  |
+| ----------- | ---------------------------------------------------------- | ----------------------------------- | -------------------------------------- |
+| Live Table  | Pannable view + list fallback                              | Touch pan/zoom + collapsible detail | Full canvas + docked context           |
 | Edit Layout | Simplified edit via sheet/form; precision drag tidak wajib | Touch canvas + collapsible property | Canvas + palette + persistent property |
 
 Move Table pada S memakai source/destination selection. Status/action tidak bergantung pada fill warna tile.
@@ -426,17 +426,17 @@ Future capability dapat memiliki locked/roadmap state. Jangan menyediakan produc
 
 Paket tidak menentukan komponen secara langsung; ia memilih module tier dan limit.
 
-| Package | Module composition utama |
-|---|---|
-| Profile | Catalog/Profile Basic terbatas |
-| POS Basic | Catalog Basic + POS Basic |
-| Cafe Digital | POS Basic + Floor/Self-Order Basic + KDS Basic + customer context |
+| Package         | Module composition utama                                                 |
+| --------------- | ------------------------------------------------------------------------ |
+| Profile         | Catalog/Profile Basic terbatas                                           |
+| POS Basic       | Catalog Basic + POS Basic                                                |
+| Cafe Digital    | POS Basic + Floor/Self-Order Basic + KDS Basic + customer context        |
 | Cafe Operations | Cafe Digital + Inventory Basic + Business Finance Basic + Customer Basic |
-| Cafe Growth | Pro pada modul operasional utama + Pro Analytics sesuai delivery |
-| Enterprise | Custom snapshot dari capability yang benar-benar available |
-| HC Only | HC tier terpilih + Core |
-| Finance Only | Business Finance tier terpilih + Finance Core |
-| KDS Only | KDS tier + Order Intake Lite/manual/API sesuai entitlement |
+| Cafe Growth     | Pro pada modul operasional utama + Pro Analytics sesuai delivery         |
+| Enterprise      | Custom snapshot dari capability yang benar-benar available               |
+| HC Only         | HC tier terpilih + Core                                                  |
+| Finance Only    | Business Finance tier terpilih + Finance Core                            |
+| KDS Only        | KDS tier + Order Intake Lite/manual/API sesuai entitlement               |
 
 Responsive S/M/L selalu included ketika capability web terkait tersedia. Limit floor/user/device/transaction/employee berasal dari package/standalone/add-on effective state dan tidak diduplikasi di file ini.
 

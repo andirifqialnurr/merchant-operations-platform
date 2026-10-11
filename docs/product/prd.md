@@ -6,12 +6,12 @@
 
 Dokumen ini adalah pintu masuk untuk memahami cakupan produk. Ia merangkum tiga dokumen rinci dan mencatat keputusan baru tanggal 2 Oktober 2026.
 
-| Butuh | Baca |
-|---|---|
-| Gambaran cakupan, peran, modul, rilis | Dokumen ini |
+| Butuh                                                                    | Baca                                                                                       |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| Gambaran cakupan, peran, modul, rilis                                    | Dokumen ini                                                                                |
 | Requirement bernomor (`POS-001`, `FLOOR-012`, …) dan acceptance criteria | [`CAFE-COMPANION-PRD-V2-MODULAR-PLATFORM.md`](./CAFE-COMPANION-PRD-V2-MODULAR-PLATFORM.md) |
-| Kunci capability per tier | [`CAFE-COMPANION-MODULE-TIERS-V1.md`](./CAFE-COMPANION-MODULE-TIERS-V1.md) |
-| Angka limit paket dan add-on | [`CAFE-COMPANION-PACKAGES-LIMITS-V1.md`](./CAFE-COMPANION-PACKAGES-LIMITS-V1.md) |
+| Kunci capability per tier                                                | [`CAFE-COMPANION-MODULE-TIERS-V1.md`](./CAFE-COMPANION-MODULE-TIERS-V1.md)                 |
+| Angka limit paket dan add-on                                             | [`CAFE-COMPANION-PACKAGES-LIMITS-V1.md`](./CAFE-COMPANION-PACKAGES-LIMITS-V1.md)           |
 
 Bila ringkasan di sini berbeda dari dokumen rinci, dokumen rinci berlaku — kecuali untuk keputusan di bagian 2, yang menggantikan isi lama.
 
@@ -23,18 +23,18 @@ Cafe Companion Pro adalah platform operasional modular untuk usaha, dengan fokus
 
 ## 2. Keputusan baru (2 Oktober 2026)
 
-| ID | Keputusan | Menggantikan |
-|---|---|---|
+| ID   | Keputusan                                                                                                          | Menggantikan                                                      |
+| ---- | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
 | D-01 | Tema visual **Calm Neutral**: monokrom abu netral dan tinta, tanpa warna aksen; warna hanya untuk status dan chart | Warm Operational (cream, espresso, amber) pada PRD V2 bagian 33.1 |
-| D-02 | Font **Geist Sans** (sudah terpasang); Geist Mono terbatas | DM Sans + Fraunces |
-| D-03 | Ikon **Tabler Icons** melalui satu wrapper | Lucide |
-| D-04 | Chart **ApexCharts** melalui wrapper | — (ditegaskan) |
-| D-05 | UI tersedia dalam **Bahasa Indonesia dan Inggris**; pengguna dapat mengganti | Indonesia saja (PRD V2 bagian 35.6) |
-| D-06 | Mode **terang, gelap, dan system** wajib pada semua surface | — (ditegaskan) |
-| D-07 | Aturan halaman minimalis: judul tanpa deskripsi, satu aksi utama, satu fakta satu lokasi | — (baru) |
-| D-08 | UI di-*reslice* dari kondisi kode saat ini; tech stack tidak diganti | — |
-| D-09 | Bahasa bawaan mengikuti bahasa browser; pilihan pengguna yang tersimpan tetap diutamakan | — |
-| D-10 | Hosting produksi: VPS milik sendiri dengan Docker dan Nginx sebagai reverse proxy; dikerjakan paling akhir | — |
+| D-02 | Font **Geist Sans** (sudah terpasang); Geist Mono terbatas                                                         | DM Sans + Fraunces                                                |
+| D-03 | Ikon **Tabler Icons** melalui satu wrapper                                                                         | Lucide                                                            |
+| D-04 | Chart **ApexCharts** melalui wrapper                                                                               | — (ditegaskan)                                                    |
+| D-05 | UI tersedia dalam **Bahasa Indonesia dan Inggris**; pengguna dapat mengganti                                       | Indonesia saja (PRD V2 bagian 35.6)                               |
+| D-06 | Mode **terang, gelap, dan system** wajib pada semua surface                                                        | — (ditegaskan)                                                    |
+| D-07 | Aturan halaman minimalis: judul tanpa deskripsi, satu aksi utama, satu fakta satu lokasi                           | — (baru)                                                          |
+| D-08 | UI di-_reslice_ dari kondisi kode saat ini; tech stack tidak diganti                                               | —                                                                 |
+| D-09 | Bahasa bawaan mengikuti bahasa browser; pilihan pengguna yang tersimpan tetap diutamakan                           | —                                                                 |
+| D-10 | Hosting produksi: VPS milik sendiri dengan Docker dan Nginx sebagai reverse proxy; dikerjakan paling akhir         | —                                                                 |
 
 Rincian D-01 sampai D-07 dan D-09 ada di [`../foundation/design-system.md`](../foundation/design-system.md).
 
@@ -69,26 +69,26 @@ Microservices; message broker eksternal; database per modul atau per pelanggan; 
 
 ### 4.1 Peran platform
 
-| Peran | Tujuan |
-|---|---|
-| Platform Owner | Mengelola platform, paket, kebijakan penagihan, akses admin |
-| Platform Admin | Mengelola workspace, langganan, modul, limit, dukungan |
+| Peran            | Tujuan                                                                 |
+| ---------------- | ---------------------------------------------------------------------- |
+| Platform Owner   | Mengelola platform, paket, kebijakan penagihan, akses admin            |
+| Platform Admin   | Mengelola workspace, langganan, modul, limit, dukungan                 |
 | Platform Support | Membantu pelanggan dengan akses beralasan, berbatas waktu, dan diaudit |
 
 ### 4.2 Peran workspace
 
-| Peran | Cakupan umum | Surface utama |
-|---|---|---|
-| Owner | Semua modul yang dibeli dan konfigurasi workspace | Backoffice |
-| Manager | Operasi lokasi yang ditugaskan dan persetujuan tertentu | Backoffice, POS |
-| Cashier | Pesanan, pembayaran manual, shift kas | POS |
-| Kitchen | Antrean dan status produksi | KDS |
-| Waiter | Meja, pesanan, permintaan pelanggan | POS |
-| Inventory Staff | Stok, penerimaan, penyesuaian | Backoffice |
-| Finance Staff | Pemasukan, pengeluaran, rekonsiliasi, laporan | Backoffice |
-| HR Admin | Karyawan, jadwal, absensi, cuti | Backoffice |
-| Employee | Layanan mandiri HC | Backoffice (web) |
-| Tamu | Melihat menu, memesan, melihat status | Customer |
+| Peran           | Cakupan umum                                            | Surface utama    |
+| --------------- | ------------------------------------------------------- | ---------------- |
+| Owner           | Semua modul yang dibeli dan konfigurasi workspace       | Backoffice       |
+| Manager         | Operasi lokasi yang ditugaskan dan persetujuan tertentu | Backoffice, POS  |
+| Cashier         | Pesanan, pembayaran manual, shift kas                   | POS              |
+| Kitchen         | Antrean dan status produksi                             | KDS              |
+| Waiter          | Meja, pesanan, permintaan pelanggan                     | POS              |
+| Inventory Staff | Stok, penerimaan, penyesuaian                           | Backoffice       |
+| Finance Staff   | Pemasukan, pengeluaran, rekonsiliasi, laporan           | Backoffice       |
+| HR Admin        | Karyawan, jadwal, absensi, cuti                         | Backoffice       |
+| Employee        | Layanan mandiri HC                                      | Backoffice (web) |
+| Tamu            | Melihat menu, memesan, melihat status                   | Customer         |
 
 `User` (identitas login) dan `Employee` (data kepegawaian) adalah entitas berbeda. Karyawan dapat ada tanpa akun login.
 
@@ -107,11 +107,11 @@ Platform
     └── Integration Binding
 ```
 
-| Internal | Label kafe | Label HC-only |
-|---|---|---|
-| Workspace | Bisnis | Perusahaan |
-| Business Unit | Brand | Unit |
-| Location | Outlet | Cabang |
+| Internal      | Label kafe | Label HC-only |
+| ------------- | ---------- | ------------- |
+| Workspace     | Bisnis     | Perusahaan    |
+| Business Unit | Brand      | Unit          |
+| Location      | Outlet     | Cabang        |
 
 Jenis workspace: `BUSINESS` (R1) dan `PERSONAL` (fondasi sekarang, UI nanti). Business template (Cafe, Restaurant, Bakery/Retail, Cloud Kitchen, HC Only, Finance Only, Personal) hanya mengubah label, navigasi bawaan, dan onboarding — tidak mengubah skema atau aturan keamanan.
 
@@ -133,33 +133,33 @@ Catalog Kernel, Order Intake Kernel, Bill & Payment Ledger, Finance Core, Report
 
 ### 6.3 Modul produk
 
-| Modul | Fungsi Basic (R1) | Mandiri | Terhubung opsional ke |
-|---|---|---|---|
-| Catalog & Profile | Kategori, produk, varian, modifier, harga per lokasi, ketersediaan, profil publik | Ya | POS, Self-Order, Inventory |
-| POS & Sales | Keranjang, pesanan, pembayaran manual (tunai, QRIS merchant, transfer, EDC), struk, shift kas, refund sederhana | Ya | KDS, Inventory, Finance, Customer |
-| Floor & Self-Order | Lantai → area → meja, editor tata letak, tampilan meja langsung, sesi meja, pindah meja, QR per meja, pesan dari meja | Ya (paket digital) | POS, KDS |
-| KDS | Antrean ticket, terima → siapkan → siap → sajikan, timer, peringatan ticket baru, input manual | Ya | POS, Self-Order |
-| Inventory | Item, satuan, stok masuk/keluar, penyesuaian, opname, waste, transfer, pembelian sederhana, resep | Ya | Catalog, POS, Finance |
-| Business Finance | Akun, pemasukan, pengeluaran, transfer, buku kas, rekonsiliasi manual, estimasi laba | Ya | POS, Inventory |
-| Human Capital | Karyawan, departemen, shift, jadwal mingguan, absensi web, cuti | Ya | Finance (nanti) |
-| Customer | Nama, telepon, catatan, riwayat kunjungan | Ya | POS |
-| Reports | Laporan dasar melekat pada tiap modul | — | Analytics lintas modul (nanti) |
-| Personal Finance | — (nanti) | Ya | — |
+| Modul              | Fungsi Basic (R1)                                                                                                     | Mandiri            | Terhubung opsional ke             |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------- | ------------------ | --------------------------------- |
+| Catalog & Profile  | Kategori, produk, varian, modifier, harga per lokasi, ketersediaan, profil publik                                     | Ya                 | POS, Self-Order, Inventory        |
+| POS & Sales        | Keranjang, pesanan, pembayaran manual (tunai, QRIS merchant, transfer, EDC), struk, shift kas, refund sederhana       | Ya                 | KDS, Inventory, Finance, Customer |
+| Floor & Self-Order | Lantai → area → meja, editor tata letak, tampilan meja langsung, sesi meja, pindah meja, QR per meja, pesan dari meja | Ya (paket digital) | POS, KDS                          |
+| KDS                | Antrean ticket, terima → siapkan → siap → sajikan, timer, peringatan ticket baru, input manual                        | Ya                 | POS, Self-Order                   |
+| Inventory          | Item, satuan, stok masuk/keluar, penyesuaian, opname, waste, transfer, pembelian sederhana, resep                     | Ya                 | Catalog, POS, Finance             |
+| Business Finance   | Akun, pemasukan, pengeluaran, transfer, buku kas, rekonsiliasi manual, estimasi laba                                  | Ya                 | POS, Inventory                    |
+| Human Capital      | Karyawan, departemen, shift, jadwal mingguan, absensi web, cuti                                                       | Ya                 | Finance (nanti)                   |
+| Customer           | Nama, telepon, catatan, riwayat kunjungan                                                                             | Ya                 | POS                               |
+| Reports            | Laporan dasar melekat pada tiap modul                                                                                 | —                  | Analytics lintas modul (nanti)    |
+| Personal Finance   | — (nanti)                                                                                                             | Ya                 | —                                 |
 
 Setiap modul memiliki tier **Basic, Pro, Advanced**. Tier menentukan fitur; paket, add-on, dan override menentukan kapasitas.
 
 ### 6.4 Perilaku kombinasi
 
-| Modul aktif | Perilaku |
-|---|---|
-| POS saja | Pesanan, penjualan, pembayaran, dan shift lengkap; event tanpa penerima tidak menimbulkan error |
-| POS + KDS | Pesanan yang dikirim otomatis menjadi ticket dapur; status dapur kembali ke pesanan |
-| POS + Finance | Penjualan dan pembayaran tercatat otomatis sesuai pemetaan akun |
-| POS + Inventory | Stok berkurang sesuai resep dan titik potong yang dikonfigurasi |
-| KDS saja | Ticket dari input manual atau API; tanpa POS |
-| Inventory saja | Buku stok, opname, dan penerimaan tanpa Catalog |
-| Finance saja | Pemasukan, pengeluaran, buku kas tanpa POS |
-| HC saja | Tanpa istilah menu, meja, atau outlet |
+| Modul aktif     | Perilaku                                                                                        |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| POS saja        | Pesanan, penjualan, pembayaran, dan shift lengkap; event tanpa penerima tidak menimbulkan error |
+| POS + KDS       | Pesanan yang dikirim otomatis menjadi ticket dapur; status dapur kembali ke pesanan             |
+| POS + Finance   | Penjualan dan pembayaran tercatat otomatis sesuai pemetaan akun                                 |
+| POS + Inventory | Stok berkurang sesuai resep dan titik potong yang dikonfigurasi                                 |
+| KDS saja        | Ticket dari input manual atau API; tanpa POS                                                    |
+| Inventory saja  | Buku stok, opname, dan penerimaan tanpa Catalog                                                 |
+| Finance saja    | Pemasukan, pengeluaran, buku kas tanpa POS                                                      |
+| HC saja         | Tanpa istilah menu, meja, atau outlet                                                           |
 
 Aturan inti: **banyak pintu masuk, satu use case.** Ticket dapur dari POS, input manual, dan API eksternal diproses oleh logika yang sama.
 
@@ -167,27 +167,27 @@ Aturan inti: **banyak pintu masuk, satu use case.** Ticket dapur dari POS, input
 
 ## 7. Paket
 
-| Paket | Isi | Ketersediaan |
-|---|---|---|
-| Profile | Profil dan menu publik | R1 |
-| POS Basic | Catalog + POS | R1 |
-| Cafe Digital | POS Basic + Floor/Self-Order + KDS | R1 setelah POS dan KDS stabil |
-| Cafe Operations | Cafe Digital + Inventory + Finance + Customer | R1 bertahap |
-| Cafe Growth | Tier Pro pada modul utama + Analytics | R1+ |
-| Enterprise | Komposisi dan limit khusus | Kontrak |
-| Catalog / POS / KDS / Inventory / Finance / HC / Customer Only | Satu modul + Core | Basic R1 |
-| Personal Finance | Workspace pribadi | Nanti |
+| Paket                                                          | Isi                                           | Ketersediaan                  |
+| -------------------------------------------------------------- | --------------------------------------------- | ----------------------------- |
+| Profile                                                        | Profil dan menu publik                        | R1                            |
+| POS Basic                                                      | Catalog + POS                                 | R1                            |
+| Cafe Digital                                                   | POS Basic + Floor/Self-Order + KDS            | R1 setelah POS dan KDS stabil |
+| Cafe Operations                                                | Cafe Digital + Inventory + Finance + Customer | R1 bertahap                   |
+| Cafe Growth                                                    | Tier Pro pada modul utama + Analytics         | R1+                           |
+| Enterprise                                                     | Komposisi dan limit khusus                    | Kontrak                       |
+| Catalog / POS / KDS / Inventory / Finance / HC / Customer Only | Satu modul + Core                             | Basic R1                      |
+| Personal Finance                                               | Workspace pribadi                             | Nanti                         |
 
 Paket adalah preset berversi, bukan versi aplikasi berbeda. Versi paket yang sudah dipublikasikan tidak berubah; pelanggan lama memakai snapshot versinya. Angka limit masih baseline dan belum merupakan harga.
 
 ### 7.1 Limit
 
-| Jenis | Contoh | Saat tercapai |
-|---|---|---|
-| Hard count | Pengguna, lokasi, perangkat, meja, produk, karyawan | Menolak pembuatan baru; yang lama tetap berfungsi |
-| Soft metered | Penjualan, ticket, mutasi stok, transaksi finance, absensi | Tetap diproses; workspace ditandai melebihi kuota |
-| Throttled | Ekspor, API eksternal | Ditunda atau ditolak dengan aman |
-| Capability gate | Split bill, gabung meja, budget, absensi mobile | Butuh tier atau add-on yang sesuai |
+| Jenis           | Contoh                                                     | Saat tercapai                                     |
+| --------------- | ---------------------------------------------------------- | ------------------------------------------------- |
+| Hard count      | Pengguna, lokasi, perangkat, meja, produk, karyawan        | Menolak pembuatan baru; yang lama tetap berfungsi |
+| Soft metered    | Penjualan, ticket, mutasi stok, transaksi finance, absensi | Tetap diproses; workspace ditandai melebihi kuota |
+| Throttled       | Ekspor, API eksternal                                      | Ditunda atau ditolak dengan aman                  |
+| Capability gate | Split bill, gabung meja, budget, absensi mobile            | Butuh tier atau add-on yang sesuai                |
 
 Refund, pembalikan, koreksi stok, check-out absensi, penutupan sesi meja, dan ekspor data tidak pernah diblokir kuota. Penurunan paket tidak menghapus data.
 
@@ -231,12 +231,12 @@ Setiap syarat yang gagal menghasilkan alasan berbeda di API dan UI. Menyembunyik
 
 ### 9.3 Privasi per surface
 
-| Surface | Tidak boleh menerima |
-|---|---|
-| KDS | Harga, HPP, pembayaran, telepon pelanggan |
-| POS | HPP, laba |
-| Customer | ID internal meja/sesi, koordinat tata letak, token mentah |
-| Karyawan (HC) | Data karyawan lain tanpa izin |
+| Surface       | Tidak boleh menerima                                      |
+| ------------- | --------------------------------------------------------- |
+| KDS           | Harga, HPP, pembayaran, telepon pelanggan                 |
+| POS           | HPP, laba                                                 |
+| Customer      | ID internal meja/sesi, koordinat tata letak, token mentah |
+| Karyawan (HC) | Data karyawan lain tanpa izin                             |
 
 ### 9.4 UI
 
@@ -247,25 +247,25 @@ Setiap syarat yang gagal menghasilkan alasan berbeda di API dan UI. Menyembunyik
 
 ### 9.5 Kinerja
 
-| Area | Target kondisi normal |
-|---|---|
-| API baca p95 | ≤500 ms |
-| API perintah p95 | ≤1 detik |
-| Konfirmasi kirim/selesai POS p95 | ≤2 detik |
-| Rambatan event antarmodul p99 | ≤5 detik |
-| Ketersediaan bulanan | 99,5% |
+| Area                             | Target kondisi normal |
+| -------------------------------- | --------------------- |
+| API baca p95                     | ≤500 ms               |
+| API perintah p95                 | ≤1 detik              |
+| Konfirmasi kirim/selesai POS p95 | ≤2 detik              |
+| Rambatan event antarmodul p99    | ≤5 detik              |
+| Ketersediaan bulanan             | 99,5%                 |
 
 ---
 
 ## 10. Surface dan shell
 
-| Shell | Pengguna | Karakter |
-|---|---|---|
-| Backoffice | Owner, manager, staf | Navigasi mengikuti modul aktif; tabel dan form |
-| POS | Kasir, pelayan | Layar penuh, sentuh, transaksi cepat |
-| KDS | Dapur | Kios, terbaca dari jarak, tombol besar |
-| Customer | Tamu | HP dulu, aman untuk publik |
-| Platform Admin | Operator SaaS | Tabel padat, konfigurasi langganan |
+| Shell          | Pengguna             | Karakter                                       |
+| -------------- | -------------------- | ---------------------------------------------- |
+| Backoffice     | Owner, manager, staf | Navigasi mengikuti modul aktif; tabel dan form |
+| POS            | Kasir, pelayan       | Layar penuh, sentuh, transaksi cepat           |
+| KDS            | Dapur                | Kios, terbaca dari jarak, tombol besar         |
+| Customer       | Tamu                 | HP dulu, aman untuk publik                     |
+| Platform Admin | Operator SaaS        | Tabel padat, konfigurasi langganan             |
 
 Inventory, Finance, HC, Customer, dan Reports berada di Backoffice. Alur per layar ada di [`../foundation/flowchart.md`](../foundation/flowchart.md).
 
@@ -275,31 +275,31 @@ Inventory, Finance, HC, Customer, dan Reports berada di Backoffice. Alur per lay
 
 ### 11.1 Posisi saat ini
 
-| Area | Status |
-|---|---|
-| Login, sesi, organisasi, peran/izin, langganan/entitlement, audit, outbox | Berjalan (API + database) |
-| Catalog | Berjalan dari database sampai halaman Backoffice, dengan AppShell, dua bahasa, dan terang/gelap |
-| Kontrak modular (manifest, instalasi, binding, limit, event, command context, QR token, support access, batas modul) | Tersedia sebagai kontrak tipe; belum ada tabel dan API |
-| POS | Berjalan dari database sampai layar kasir: shift dan kas, jual, bayar (tunai, QRIS, transfer, EDC), struk, refund, batal, catatan item, tahan pesanan. Belum: pajak per outlet, persetujuan PIN manager, makan di tempat, gambar produk |
-| KDS, Inventory | Komponen UI ada; halaman hanya placeholder di mode development; belum ada API dan tabel |
-| Floor, Finance, HC, Customer, Reports, Platform Admin | Sebagian komponen UI ada; belum ada halaman, API, dan tabel |
-| Bank warna | Sudah mengikuti D-01 |
-| Komponen UI, ikon, dua bahasa | Komponen dasar, shell, dan komponen POS mengikuti D-03 sampai D-07; label lewat props dan kamus `id`/`en`. Komponen domain lain (Floor, KDS, Inventory, Finance, Customer, Platform) dibenahi di milestone masing-masing |
+| Area                                                                                                                 | Status                                                                                                                                                                                                                                  |
+| -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Login, sesi, organisasi, peran/izin, langganan/entitlement, audit, outbox                                            | Berjalan (API + database)                                                                                                                                                                                                               |
+| Catalog                                                                                                              | Berjalan dari database sampai halaman Backoffice, dengan AppShell, dua bahasa, dan terang/gelap                                                                                                                                         |
+| Kontrak modular (manifest, instalasi, binding, limit, event, command context, QR token, support access, batas modul) | Tersedia sebagai kontrak tipe; belum ada tabel dan API                                                                                                                                                                                  |
+| POS                                                                                                                  | Berjalan dari database sampai layar kasir: shift dan kas, jual, bayar (tunai, QRIS, transfer, EDC), struk, refund, batal, catatan item, tahan pesanan. Belum: pajak per outlet, persetujuan PIN manager, makan di tempat, gambar produk |
+| KDS, Inventory                                                                                                       | Komponen UI ada; halaman hanya placeholder di mode development; belum ada API dan tabel                                                                                                                                                 |
+| Floor, Finance, HC, Customer, Reports, Platform Admin                                                                | Sebagian komponen UI ada; belum ada halaman, API, dan tabel                                                                                                                                                                             |
+| Bank warna                                                                                                           | Sudah mengikuti D-01                                                                                                                                                                                                                    |
+| Komponen UI, ikon, dua bahasa                                                                                        | Komponen dasar, shell, dan komponen POS mengikuti D-03 sampai D-07; label lewat props dan kamus `id`/`en`. Komponen domain lain (Floor, KDS, Inventory, Finance, Customer, Platform) dibenahi di milestone masing-masing                |
 
 ### 11.2 Urutan pengerjaan
 
-| Tahap | Isi | Selesai bila |
-|---|---|---|
-| A. Fondasi UI | Bank warna (selesai), komponen dibenahi satu per satu, Tabler, i18n, AppShell, PageHeader, FilterBar, state akses modul | Halaman Catalog memakai shell dan aturan baru di S/M/L, terang/gelap, `id`/`en` |
-| B. Core modular | Tabel dan API instalasi, binding, paket berversi, limit, inbox | Provisioning idempotent; alasan akses dibedakan |
-| C. Catalog + POS | Order, bill, payment, sale, shift | POS-only menyelesaikan transaksi dari awal sampai akhir |
-| D. KDS | Ticket, input manual, intake dari POS | KDS-only dan POS+KDS memakai use case yang sama |
-| E. Floor + Self-Order + Customer | Tata letak, sesi meja, QR, alur tamu | Pindah meja menjaga identitas sesi dan pesanan |
-| F. Inventory | Buku stok, opname, penerimaan, resep, konsumsi | Inventory-only dan terintegrasi lulus |
-| G. Business Finance | Finance Core, buku kas, binding POS | Tidak ada pendapatan ganda |
-| H. Human Capital | Karyawan, jadwal, absensi, cuti | HC-only tanpa istilah F&B |
-| I. Platform Admin + Reports | Package Builder, limit, laporan dasar | — |
-| J. Hardening + pilot | Uji beban, uji isolasi, backup/restore, aksesibilitas | Pilot 2–3 merchant |
+| Tahap                            | Isi                                                                                                                     | Selesai bila                                                                    |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| A. Fondasi UI                    | Bank warna (selesai), komponen dibenahi satu per satu, Tabler, i18n, AppShell, PageHeader, FilterBar, state akses modul | Halaman Catalog memakai shell dan aturan baru di S/M/L, terang/gelap, `id`/`en` |
+| B. Core modular                  | Tabel dan API instalasi, binding, paket berversi, limit, inbox                                                          | Provisioning idempotent; alasan akses dibedakan                                 |
+| C. Catalog + POS                 | Order, bill, payment, sale, shift                                                                                       | POS-only menyelesaikan transaksi dari awal sampai akhir                         |
+| D. KDS                           | Ticket, input manual, intake dari POS                                                                                   | KDS-only dan POS+KDS memakai use case yang sama                                 |
+| E. Floor + Self-Order + Customer | Tata letak, sesi meja, QR, alur tamu                                                                                    | Pindah meja menjaga identitas sesi dan pesanan                                  |
+| F. Inventory                     | Buku stok, opname, penerimaan, resep, konsumsi                                                                          | Inventory-only dan terintegrasi lulus                                           |
+| G. Business Finance              | Finance Core, buku kas, binding POS                                                                                     | Tidak ada pendapatan ganda                                                      |
+| H. Human Capital                 | Karyawan, jadwal, absensi, cuti                                                                                         | HC-only tanpa istilah F&B                                                       |
+| I. Platform Admin + Reports      | Package Builder, limit, laporan dasar                                                                                   | —                                                                               |
+| J. Hardening + pilot             | Uji beban, uji isolasi, backup/restore, aksesibilitas                                                                   | Pilot 2–3 merchant                                                              |
 
 Setiap tahap dipecah menjadi checkpoint kecil yang dapat di-push sendiri sesuai `AGENTS.md`.
 
@@ -317,38 +317,38 @@ Aplikasi mobile HC dan antrean absensi offline; Personal Finance; pembayaran ter
 
 ## 13. Risiko utama
 
-| Risiko | Mitigasi |
-|---|---|
-| Cakupan terlalu luas | Rilis bertahap; paket tidak dijual sebelum modulnya selesai |
-| Logika ganda untuk mode mandiri dan terintegrasi | Banyak adapter, satu use case; uji batas modul |
-| Event ganda | Inbox, referensi sumber unik, handler idempotent |
-| Pendapatan dihitung dua kali di Finance | Pisahkan pengakuan pendapatan dari pergerakan pembayaran |
-| Data pribadi dan bisnis bocor | Isolasi workspace, pemeriksaan keanggotaan, uji otomatis |
-| UI kembali ramai | Aturan halaman di design system bagian 4 dan checklist review |
-| Menu disembunyikan tetapi API terbuka | Pemeriksaan entitlement dan izin di backend |
+| Risiko                                           | Mitigasi                                                      |
+| ------------------------------------------------ | ------------------------------------------------------------- |
+| Cakupan terlalu luas                             | Rilis bertahap; paket tidak dijual sebelum modulnya selesai   |
+| Logika ganda untuk mode mandiri dan terintegrasi | Banyak adapter, satu use case; uji batas modul                |
+| Event ganda                                      | Inbox, referensi sumber unik, handler idempotent              |
+| Pendapatan dihitung dua kali di Finance          | Pisahkan pengakuan pendapatan dari pergerakan pembayaran      |
+| Data pribadi dan bisnis bocor                    | Isolasi workspace, pemeriksaan keanggotaan, uji otomatis      |
+| UI kembali ramai                                 | Aturan halaman di design system bagian 4 dan checklist review |
+| Menu disembunyikan tetapi API terbuka            | Pemeriksaan entitlement dan izin di backend                   |
 
 ## 14. Keputusan terbuka
 
-| ID | Pertanyaan | Batas waktu |
-|---|---|---|
-| OD-01 | Nama produk tetap Cafe Companion Pro atau lebih generik? | Sebelum peluncuran publik |
-| OD-02 | HC Basic dijual pada R1 atau beta sesudahnya? | Sebelum roadmap dikunci |
-| OD-04 | KDS Only bawaan memakai input manual atau API? | Sebelum paket dipublikasikan |
-| OD-05 | Titik potong stok bawaan per template? | Sebelum pilot integrasi |
-| OD-06 | Pengakuan pendapatan Basic saat penjualan selesai atau pembayaran dikonfirmasi? | Sebelum integrasi Finance |
-| OD-08 | Masa simpan audit, bukti absensi, data pelanggan, lampiran? | Sebelum produksi |
-| OD-12 | Harga paket dan add-on? | Setelah pilot |
+| ID    | Pertanyaan                                                                      | Batas waktu                  |
+| ----- | ------------------------------------------------------------------------------- | ---------------------------- |
+| OD-01 | Nama produk tetap Cafe Companion Pro atau lebih generik?                        | Sebelum peluncuran publik    |
+| OD-02 | HC Basic dijual pada R1 atau beta sesudahnya?                                   | Sebelum roadmap dikunci      |
+| OD-04 | KDS Only bawaan memakai input manual atau API?                                  | Sebelum paket dipublikasikan |
+| OD-05 | Titik potong stok bawaan per template?                                          | Sebelum pilot integrasi      |
+| OD-06 | Pengakuan pendapatan Basic saat penjualan selesai atau pembayaran dikonfirmasi? | Sebelum integrasi Finance    |
+| OD-08 | Masa simpan audit, bukti absensi, data pelanggan, lampiran?                     | Sebelum produksi             |
+| OD-12 | Harga paket dan add-on?                                                         | Setelah pilot                |
 
 ## 15. Peta dokumen
 
-| Dokumen | Isi |
-|---|---|
-| [`prd.md`](./prd.md) | Dokumen ini |
-| [`../foundation/design-system.md`](../foundation/design-system.md) | Tema, komponen, aturan halaman |
-| [`../foundation/flowchart.md`](../foundation/flowchart.md) | Alur interaksi pengguna |
-| [`../foundation/architecture.md`](../foundation/architecture.md) | Batas teknis dan keputusan arsitektur |
-| [`../foundation/schema.md`](../foundation/schema.md) | Skema database saat ini dan target |
-| [`../foundation/backend.md`](../foundation/backend.md) | Struktur dan aturan kode backend |
-| [`../foundation/frontend.md`](../foundation/frontend.md) | Struktur dan aturan kode frontend |
-| [`../foundation/security.md`](../foundation/security.md) | Kontrol keamanan dan privasi |
-| [`../foundation/deploy.md`](../foundation/deploy.md) | Lingkungan, build, rilis, operasi |
+| Dokumen                                                            | Isi                                   |
+| ------------------------------------------------------------------ | ------------------------------------- |
+| [`prd.md`](./prd.md)                                               | Dokumen ini                           |
+| [`../foundation/design-system.md`](../foundation/design-system.md) | Tema, komponen, aturan halaman        |
+| [`../foundation/flowchart.md`](../foundation/flowchart.md)         | Alur interaksi pengguna               |
+| [`../foundation/architecture.md`](../foundation/architecture.md)   | Batas teknis dan keputusan arsitektur |
+| [`../foundation/schema.md`](../foundation/schema.md)               | Skema database saat ini dan target    |
+| [`../foundation/backend.md`](../foundation/backend.md)             | Struktur dan aturan kode backend      |
+| [`../foundation/frontend.md`](../foundation/frontend.md)           | Struktur dan aturan kode frontend     |
+| [`../foundation/security.md`](../foundation/security.md)           | Kontrol keamanan dan privasi          |
+| [`../foundation/deploy.md`](../foundation/deploy.md)               | Lingkungan, build, rilis, operasi     |

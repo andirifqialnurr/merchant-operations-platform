@@ -23,40 +23,40 @@ Source route web telah diperiksa ulang pada 5 Agustus 2026. Server tidak sedang 
 
 Empat area membuat audit lama tidak lagi cukup:
 
-| Area | Keputusan terbaru | Dampak audit |
-|---|---|---|
-| Platform modular | Workspace + module installation + integration binding + tier/capability/limit | Route tidak cukup dinilai dari visual; access/setup/limit state wajib diuji |
-| Floor/Table | `Location -> Floor -> Area -> Table -> Table Session`, 3 shapes, QR, move, Pro merge/split | Table route perlu editor + live operation + responsive S/M/L |
-| HC/Finance standalone | HC Basic R1 simple dan Business Finance dapat standalone | App harus mampu shell/navigation non-F&B tanpa dependency POS |
-| Responsive | S `320–767`, M `768–1279`, L `>=1280` | Semua R1 web capability perlu baseline + boundary QA |
-| Visual identity | Cream/espresso/amber + DM Sans + Fraunces terbatas | Operational Teal/Geist bukan lagi target visual |
+| Area                  | Keputusan terbaru                                                                          | Dampak audit                                                                |
+| --------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| Platform modular      | Workspace + module installation + integration binding + tier/capability/limit              | Route tidak cukup dinilai dari visual; access/setup/limit state wajib diuji |
+| Floor/Table           | `Location -> Floor -> Area -> Table -> Table Session`, 3 shapes, QR, move, Pro merge/split | Table route perlu editor + live operation + responsive S/M/L                |
+| HC/Finance standalone | HC Basic R1 simple dan Business Finance dapat standalone                                   | App harus mampu shell/navigation non-F&B tanpa dependency POS               |
+| Responsive            | S `320–767`, M `768–1279`, L `>=1280`                                                      | Semua R1 web capability perlu baseline + boundary QA                        |
+| Visual identity       | Cream/espresso/amber + DM Sans + Fraunces terbatas                                         | Operational Teal/Geist bukan lagi target visual                             |
 
 ## 3. Source-of-truth map
 
-| Pertanyaan | Dokumen |
-|---|---|
+| Pertanyaan                                   | Dokumen                                                |
+| -------------------------------------------- | ------------------------------------------------------ |
 | Produk/module/integration/architecture scope | `../product/CAFE-COMPANION-PRD-V2-MODULAR-PLATFORM.md` |
-| Capability Basic/Pro/Advanced | `../product/CAFE-COMPANION-MODULE-TIERS-V1.md` |
-| Package/limit/add-on/enforcement | `../product/CAFE-COMPANION-PACKAGES-LIMITS-V1.md` |
-| Technical boundary | `architecture.md` |
-| Token/component/layout/responsive | `design-system.md` |
-| Module -> screen/component/data guard | `design-system-modules.md` |
-| Actual implementation gap | File audit ini setelah source diverifikasi |
+| Capability Basic/Pro/Advanced                | `../product/CAFE-COMPANION-MODULE-TIERS-V1.md`         |
+| Package/limit/add-on/enforcement             | `../product/CAFE-COMPANION-PACKAGES-LIMITS-V1.md`      |
+| Technical boundary                           | `architecture.md`                                      |
+| Token/component/layout/responsive            | `design-system.md`                                     |
+| Module -> screen/component/data guard        | `design-system-modules.md`                             |
+| Actual implementation gap                    | File audit ini setelah source diverifikasi             |
 
 ## 4. Observed route snapshot — source 5 Agustus 2026
 
-| Route | Status source | Evidence dan gap utama |
-|---|---|---|
-| `/` | `PARTIAL` | Device-mode shell dan navigasi ke POS/KDS/Catalog/Inventory tersedia, tetapi context masih tenant/outlet lama, navigation statis, dan belum entitlement/installation-aware. |
-| `/design-system` | `PARTIAL` dev/reference | Reference hub tersedia, tetapi masih mendeskripsikan Calm Commerce/Operational Teal dan Geist, bukan Warm Operational/DM Sans/Fraunces terbaru. |
-| `/color-bank` | `PARTIAL` dev/reference | Color bank light/dark tersedia, tetapi preset dan semantic target belum diselaraskan ke cream/espresso/amber. |
-| `/typography` | `PARTIAL` dev/reference | Typography bank tersedia dengan Geist; migrasi ke DM Sans dan Fraunces terbatas belum dilakukan. |
-| `/foundation` | `PARTIAL` dev/reference | Preview spacing/radius/shadow/icon tersedia; ini bukan source-of-truth dokumentasi dan belum menjadi responsive/component state lab terbaru. |
-| `/backoffice/catalog` | `PARTIAL` business route | Login/session, workspace context, permission, API read/mutation, loading/empty/error, category/product/composition/outlet assignment tersedia. Masih memakai tenant/outlet terminology, shell/navigasi tunggal, dan belum membedakan entitlement, installation, feature flag, tier, serta limit state. |
-| `/pos` | `PLACEHOLDER` | Hanya penjelasan surface, server acknowledgement, dan link navigasi; belum ada catalog/cart/order/payment/shift flow. |
-| `/kds` | `PLACEHOLDER` | Hanya penjelasan read model/acknowledgement dan link; belum ada ticket queue, lifecycle, timer, reconnect, atau history. |
-| `/inventory` | `PLACEHOLDER` | Hanya penjelasan mutation acknowledgement dan link; belum ada item, balance, movement, stocktake, waste, transfer, atau receiving flow. |
-| Floor/Table, Finance, HC, Customer/Self-Order, Reports, Settings, Platform Admin | `NOT_STARTED` sebagai web route | Tidak ditemukan `page.tsx` aktif untuk surface tersebut pada source web saat audit. Component/domain/backend readiness harus dinilai terpisah dan tidak dianggap route complete. |
+| Route                                                                            | Status source                   | Evidence dan gap utama                                                                                                                                                                                                                                                                                 |
+| -------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `/`                                                                              | `PARTIAL`                       | Device-mode shell dan navigasi ke POS/KDS/Catalog/Inventory tersedia, tetapi context masih tenant/outlet lama, navigation statis, dan belum entitlement/installation-aware.                                                                                                                            |
+| `/design-system`                                                                 | `PARTIAL` dev/reference         | Reference hub tersedia, tetapi masih mendeskripsikan Calm Commerce/Operational Teal dan Geist, bukan Warm Operational/DM Sans/Fraunces terbaru.                                                                                                                                                        |
+| `/color-bank`                                                                    | `PARTIAL` dev/reference         | Color bank light/dark tersedia, tetapi preset dan semantic target belum diselaraskan ke cream/espresso/amber.                                                                                                                                                                                          |
+| `/typography`                                                                    | `PARTIAL` dev/reference         | Typography bank tersedia dengan Geist; migrasi ke DM Sans dan Fraunces terbatas belum dilakukan.                                                                                                                                                                                                       |
+| `/foundation`                                                                    | `PARTIAL` dev/reference         | Preview spacing/radius/shadow/icon tersedia; ini bukan source-of-truth dokumentasi dan belum menjadi responsive/component state lab terbaru.                                                                                                                                                           |
+| `/backoffice/catalog`                                                            | `PARTIAL` business route        | Login/session, workspace context, permission, API read/mutation, loading/empty/error, category/product/composition/outlet assignment tersedia. Masih memakai tenant/outlet terminology, shell/navigasi tunggal, dan belum membedakan entitlement, installation, feature flag, tier, serta limit state. |
+| `/pos`                                                                           | `PLACEHOLDER`                   | Hanya penjelasan surface, server acknowledgement, dan link navigasi; belum ada catalog/cart/order/payment/shift flow.                                                                                                                                                                                  |
+| `/kds`                                                                           | `PLACEHOLDER`                   | Hanya penjelasan read model/acknowledgement dan link; belum ada ticket queue, lifecycle, timer, reconnect, atau history.                                                                                                                                                                               |
+| `/inventory`                                                                     | `PLACEHOLDER`                   | Hanya penjelasan mutation acknowledgement dan link; belum ada item, balance, movement, stocktake, waste, transfer, atau receiving flow.                                                                                                                                                                |
+| Floor/Table, Finance, HC, Customer/Self-Order, Reports, Settings, Platform Admin | `NOT_STARTED` sebagai web route | Tidak ditemukan `page.tsx` aktif untuk surface tersebut pada source web saat audit. Component/domain/backend readiness harus dinilai terpisah dan tidak dianggap route complete.                                                                                                                       |
 
 Kesimpulan implementasi: fondasi backend/API/security/reliability lebih maju daripada pengalaman UI. Checkpoint berikutnya harus menyelaraskan foundation visual dan shell/module state sebelum route business di-reslice.
 
@@ -64,16 +64,16 @@ Kesimpulan implementasi: fondasi backend/API/security/reliability lebih maju dar
 
 Komponen berikut sudah pernah tercatat tersedia/siap secara design/component bank. Re-audit harus memastikan API, token, dan behavior masih sesuai `design-system.md` terbaru.
 
-| Area | Component/story yang pernah tercatat | Gap terbaru yang perlu dicek |
-|---|---|---|
-| POS | `PosCatalog`, `PosCart`, `PosShift`, `Receipt` | S/M/L + hold/resume + module/limit states |
-| KDS | `KdsTicket` + timer/SLA/reconnect/history | Standalone intake + 1/2–3/multi-column behavior |
-| Inventory | `InventoryItemUnit`, `InventoryStock`, `InventoryOperations`, `InventoryOrderFlow`, `RecipeBom` | Standalone + correction/limit states |
-| Floor/QR | `FloorSelector`, `TableTile`, `TableLayoutCanvas`, `TableLayoutTools`, `TableLayoutTray`, `TableQr`, `CustomerQrContext` | AreaSelector, 3 shapes, chairs, session/move, live view/list fallback, tier gating |
-| Finance | `FinanceMetric`, `FinanceBasicSummary`, `FinanceProfitEstimate`, `FinanceReconciliationSummary`, `FinanceValidatedReport` | Finance-only, tier states, S/M/L, estimate labeling |
-| Customer | `CustomerBasicProfile`, `CustomerOrderSurface`, `CustomerQrContext` | safe public DTO + mobile flow + waiter/bill actions |
-| Platform | `PlatformTenantSubscriptionMaster`, `PlatformEntitlementMatrix`, `PlatformSupportAudit` | workspace terminology + package version/installation/binding/usage state |
-| HC | Belum tercatat pada audit lama | Component bank baru wajib dibuat untuk Employee/Schedule/Attendance/Leave |
+| Area      | Component/story yang pernah tercatat                                                                                      | Gap terbaru yang perlu dicek                                                       |
+| --------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| POS       | `PosCatalog`, `PosCart`, `PosShift`, `Receipt`                                                                            | S/M/L + hold/resume + module/limit states                                          |
+| KDS       | `KdsTicket` + timer/SLA/reconnect/history                                                                                 | Standalone intake + 1/2–3/multi-column behavior                                    |
+| Inventory | `InventoryItemUnit`, `InventoryStock`, `InventoryOperations`, `InventoryOrderFlow`, `RecipeBom`                           | Standalone + correction/limit states                                               |
+| Floor/QR  | `FloorSelector`, `TableTile`, `TableLayoutCanvas`, `TableLayoutTools`, `TableLayoutTray`, `TableQr`, `CustomerQrContext`  | AreaSelector, 3 shapes, chairs, session/move, live view/list fallback, tier gating |
+| Finance   | `FinanceMetric`, `FinanceBasicSummary`, `FinanceProfitEstimate`, `FinanceReconciliationSummary`, `FinanceValidatedReport` | Finance-only, tier states, S/M/L, estimate labeling                                |
+| Customer  | `CustomerBasicProfile`, `CustomerOrderSurface`, `CustomerQrContext`                                                       | safe public DTO + mobile flow + waiter/bill actions                                |
+| Platform  | `PlatformTenantSubscriptionMaster`, `PlatformEntitlementMatrix`, `PlatformSupportAudit`                                   | workspace terminology + package version/installation/binding/usage state           |
+| HC        | Belum tercatat pada audit lama                                                                                            | Component bank baru wajib dibuat untuk Employee/Schedule/Attendance/Leave          |
 
 ## 6. Gap desain/arsitektur wajib saat re-audit
 
@@ -153,11 +153,11 @@ Audit harus mencari double-count risk antara `sale.completed` dan `payment.recor
 
 Setiap route R1 diuji pada:
 
-| Class | Baseline | Boundary |
-|---|---:|---|
-| Small | `390×844` | `320`, `767` |
+| Class  |   Baseline | Boundary      |
+| ------ | ---------: | ------------- |
+| Small  |  `390×844` | `320`, `767`  |
 | Medium | `1024×768` | `768`, `1279` |
-| Large | `1440×900` | `1280` |
+| Large  | `1440×900` | `1280`        |
 
 Gate:
 
@@ -200,22 +200,22 @@ Gunakan status berikut:
 
 Untuk setiap route/screen, isi:
 
-| Field | Yang harus dicatat |
-|---|---|
-| Route | URL/path aktual |
-| Module | Product module owner |
-| Capability | Capability key/tier minimum |
-| Delivery | R1/R1+/Future/External Gate |
-| Shell | Backoffice/POS/KDS/Customer/Platform |
-| State | Status audit |
-| Data source | mock/repository/API/read model |
-| Mutation | callback/mock/API + acknowledgement behavior |
-| S/M/L | pass/fail per class |
-| Light/Dark | pass/fail |
-| Accessibility | keyboard/focus/label/target state |
-| Privacy | DTO/field guard result |
-| Tests | component/integration/E2E coverage |
-| Blocker | technical/product/security issue |
+| Field         | Yang harus dicatat                           |
+| ------------- | -------------------------------------------- |
+| Route         | URL/path aktual                              |
+| Module        | Product module owner                         |
+| Capability    | Capability key/tier minimum                  |
+| Delivery      | R1/R1+/Future/External Gate                  |
+| Shell         | Backoffice/POS/KDS/Customer/Platform         |
+| State         | Status audit                                 |
+| Data source   | mock/repository/API/read model               |
+| Mutation      | callback/mock/API + acknowledgement behavior |
+| S/M/L         | pass/fail per class                          |
+| Light/Dark    | pass/fail                                    |
+| Accessibility | keyboard/focus/label/target state            |
+| Privacy       | DTO/field guard result                       |
+| Tests         | component/integration/E2E coverage           |
+| Blocker       | technical/product/security issue             |
 
 ## 10. Urutan implementasi yang disarankan setelah re-audit
 

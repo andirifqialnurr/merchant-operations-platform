@@ -20,6 +20,8 @@ export function useFormat() {
   const plainNumber = new Intl.NumberFormat(locale);
   const timeOnly = new Intl.DateTimeFormat(locale, { timeStyle: "short" });
   return {
+    /** Currency of the active workspace. */
+    currency: workspaceCurrency,
     /** Date of an ISO timestamp in the device's time zone. */
     date: (iso: string) => dateOnly.format(new Date(iso)),
     /** Date and time of an ISO timestamp in the device's time zone. */

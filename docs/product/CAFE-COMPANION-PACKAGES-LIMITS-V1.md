@@ -30,24 +30,24 @@ Angka pada dokumen ini adalah baseline untuk desain produk, UI, database, dan en
 
 ## 2. Pemisahan konsep
 
-| Konsep | Mengatur | Contoh |
-|---|---|---|
-| Module tier | Capability yang dapat digunakan | Finance Basic tidak memiliki budget |
-| Package | Preset beberapa module tier dan limit | Cafe Operations |
-| Limit | Kapasitas efektif | 3 locations, 25 users |
-| Add-on | Tambahan kapasitas atau capability khusus | Tambahan 50 employees |
-| Override | Pengecualian khusus workspace | Trial Finance Pro selama 30 hari |
-| Usage | Pemakaian aktual | 18 dari 25 users |
+| Konsep      | Mengatur                                  | Contoh                              |
+| ----------- | ----------------------------------------- | ----------------------------------- |
+| Module tier | Capability yang dapat digunakan           | Finance Basic tidak memiliki budget |
+| Package     | Preset beberapa module tier dan limit     | Cafe Operations                     |
+| Limit       | Kapasitas efektif                         | 3 locations, 25 users               |
+| Add-on      | Tambahan kapasitas atau capability khusus | Tambahan 50 employees               |
+| Override    | Pengecualian khusus workspace             | Trial Finance Pro selama 30 hari    |
+| Usage       | Pemakaian aktual                          | 18 dari 25 users                    |
 
 ### 2.1 Responsive bukan limit atau add-on
 
 Kemampuan menggunakan UI pada Small, Medium, dan Large adalah baseline produk, bukan dimensi komersial.
 
-| Kelas | Width CSS | Package policy |
-|---|---:|---|
-| **Small (S)** | `320–767px` | Termasuk pada semua package yang memiliki capability web terkait |
+| Kelas          |    Width CSS | Package policy                                                   |
+| -------------- | -----------: | ---------------------------------------------------------------- |
+| **Small (S)**  |  `320–767px` | Termasuk pada semua package yang memiliki capability web terkait |
 | **Medium (M)** | `768–1279px` | Termasuk pada semua package yang memiliki capability web terkait |
-| **Large (L)** | `≥1280px` | Termasuk pada semua package yang memiliki capability web terkait |
+| **Large (L)**  |    `≥1280px` | Termasuk pada semua package yang memiliki capability web terkait |
 
 Aturan:
 
@@ -145,71 +145,71 @@ Response harus menjelaskan capability yang dibutuhkan. Backend tetap menjadi enf
 
 ### 4.1 Komposisi modul
 
-| Product module | Profile | POS Basic | Cafe Digital | Cafe Operations | Cafe Growth | Enterprise |
-|---|---|---|---|---|---|---|
-| Core Platform | Included | Included | Included | Included | Included | Included |
-| Catalog/Profile | Basic terbatas | Basic | Basic | Basic | Pro | Custom |
-| POS and Sales | — | Basic | Basic | Basic | Pro | Custom |
-| Floor/Table/Self-Order | — | — | Basic | Basic | Pro | Custom |
-| KDS | — | — | Basic | Basic | Pro | Custom |
-| Inventory | — | — | — | Basic | Pro | Custom |
-| Business Finance | — | — | — | Basic | Pro | Custom |
-| Customer | — | — | Basic context | Basic | Pro | Custom |
-| Analytics | Public/basic only | Embedded Basic | Embedded Basic | Embedded Basic | Pro Analytics | Custom |
-| Human Capital | — | — | — | — | Optional add-on | Optional/custom |
-| External API | — | — | Internal only | Internal only | Limited API add-on | Custom |
+| Product module         | Profile           | POS Basic      | Cafe Digital   | Cafe Operations | Cafe Growth        | Enterprise      |
+| ---------------------- | ----------------- | -------------- | -------------- | --------------- | ------------------ | --------------- |
+| Core Platform          | Included          | Included       | Included       | Included        | Included           | Included        |
+| Catalog/Profile        | Basic terbatas    | Basic          | Basic          | Basic           | Pro                | Custom          |
+| POS and Sales          | —                 | Basic          | Basic          | Basic           | Pro                | Custom          |
+| Floor/Table/Self-Order | —                 | —              | Basic          | Basic           | Pro                | Custom          |
+| KDS                    | —                 | —              | Basic          | Basic           | Pro                | Custom          |
+| Inventory              | —                 | —              | —              | Basic           | Pro                | Custom          |
+| Business Finance       | —                 | —              | —              | Basic           | Pro                | Custom          |
+| Customer               | —                 | —              | Basic context  | Basic           | Pro                | Custom          |
+| Analytics              | Public/basic only | Embedded Basic | Embedded Basic | Embedded Basic  | Pro Analytics      | Custom          |
+| Human Capital          | —                 | —              | —              | —               | Optional add-on    | Optional/custom |
+| External API           | —                 | —              | Internal only  | Internal only   | Limited API add-on | Custom          |
 
 ### 4.2 Posisi tiap paket
 
-| Paket | Target | Nilai utama |
-|---|---|---|
-| Profile | Kafe yang hanya membutuhkan profil dan menu publik | Presence digital sederhana |
-| POS Basic | Satu outlet yang mulai memakai kasir digital | Penjualan, payment record, shift, receipt |
-| Cafe Digital | Kafe kecil dengan meja, QR order, dan dapur | Front-of-house dan kitchen flow |
-| Cafe Operations | Bisnis F&B yang membutuhkan kontrol stok dan keuangan operasional | Operasi end-to-end Basic |
-| Cafe Growth | Bisnis multi-location dengan automation dan kontrol manajerial | Tier Pro pada modul utama |
-| Enterprise | Grup usaha dengan kebutuhan custom, governance, atau volume tinggi | Contract dan limit khusus |
+| Paket           | Target                                                             | Nilai utama                               |
+| --------------- | ------------------------------------------------------------------ | ----------------------------------------- |
+| Profile         | Kafe yang hanya membutuhkan profil dan menu publik                 | Presence digital sederhana                |
+| POS Basic       | Satu outlet yang mulai memakai kasir digital                       | Penjualan, payment record, shift, receipt |
+| Cafe Digital    | Kafe kecil dengan meja, QR order, dan dapur                        | Front-of-house dan kitchen flow           |
+| Cafe Operations | Bisnis F&B yang membutuhkan kontrol stok dan keuangan operasional  | Operasi end-to-end Basic                  |
+| Cafe Growth     | Bisnis multi-location dengan automation dan kontrol manajerial     | Tier Pro pada modul utama                 |
+| Enterprise      | Grup usaha dengan kebutuhan custom, governance, atau volume tinggi | Contract dan limit khusus                 |
 
 ### 4.3 Platform limit
 
-| Dimension | Profile | POS Basic | Cafe Digital | Cafe Operations | Cafe Growth | Enterprise |
-|---|---:|---:|---:|---:|---:|---:|
-| Business units/brands | 1 | 1 | 1 | 2 | 5 | Custom |
-| Active locations | 1 | 1 | 2 | 3 | 10 | Custom |
-| Active users | 3 | 5 | 12 | 25 | 100 | Custom |
-| Custom roles | 0 | 0 | 3 | 10 | 30 | Custom |
-| Active API clients | 0 | 0 | 0 | 0 | 3 | Custom |
-| Attachment/media storage | 1 GB | 2 GB | 5 GB | 20 GB | 100 GB | Custom |
-| Manual exports per cycle | 5 | 20 | 50 | 100 | 500 | Custom |
+| Dimension                | Profile | POS Basic | Cafe Digital | Cafe Operations | Cafe Growth | Enterprise |
+| ------------------------ | ------: | --------: | -----------: | --------------: | ----------: | ---------: |
+| Business units/brands    |       1 |         1 |            1 |               2 |           5 |     Custom |
+| Active locations         |       1 |         1 |            2 |               3 |          10 |     Custom |
+| Active users             |       3 |         5 |           12 |              25 |         100 |     Custom |
+| Custom roles             |       0 |         0 |            3 |              10 |          30 |     Custom |
+| Active API clients       |       0 |         0 |            0 |               0 |           3 |     Custom |
+| Attachment/media storage |    1 GB |      2 GB |         5 GB |           20 GB |      100 GB |     Custom |
+| Manual exports per cycle |       5 |        20 |           50 |             100 |         500 |     Custom |
 
 Built-in roles tidak dihitung sebagai custom roles. Platform service account dan internal integration worker tidak dihitung sebagai active users.
 
 ### 4.4 Catalog dan POS limit
 
-| Dimension | Profile | POS Basic | Cafe Digital | Cafe Operations | Cafe Growth | Enterprise |
-|---|---:|---:|---:|---:|---:|---:|
-| Active products | 100 | 300 | 500 | 1.000 | 5.000 | Custom |
-| Categories | 15 | 30 | 50 | 100 | 300 | Custom |
-| Modifier groups | 10 | 30 | 50 | 100 | 500 | Custom |
-| Register devices | 0 | 2 | 4 | 9 | 30 | Custom |
-| Active cashiers | 0 | 5 | 12 | 25 | 100 | Custom |
-| Completed sales per cycle | 0 | 5.000 | 20.000 | 75.000 | 300.000 | Custom |
-| Receipt templates | 0 | 1 | 2 | 5 | 20 | Custom |
+| Dimension                 | Profile | POS Basic | Cafe Digital | Cafe Operations | Cafe Growth | Enterprise |
+| ------------------------- | ------: | --------: | -----------: | --------------: | ----------: | ---------: |
+| Active products           |     100 |       300 |          500 |           1.000 |       5.000 |     Custom |
+| Categories                |      15 |        30 |           50 |             100 |         300 |     Custom |
+| Modifier groups           |      10 |        30 |           50 |             100 |         500 |     Custom |
+| Register devices          |       0 |         2 |            4 |               9 |          30 |     Custom |
+| Active cashiers           |       0 |         5 |           12 |              25 |         100 |     Custom |
+| Completed sales per cycle |       0 |     5.000 |       20.000 |          75.000 |     300.000 |     Custom |
+| Receipt templates         |       0 |         1 |            2 |               5 |          20 |     Custom |
 
 Completed sale dihitung satu kali ketika sale pertama kali mencapai status COMPLETED. Retry, read, receipt reprint, refund, dan reversal tidak menambah meter completed sale.
 
 ### 4.5 Floor, Table, Self-Order, dan KDS limit
 
-| Dimension | Profile | POS Basic | Cafe Digital | Cafe Operations | Cafe Growth | Enterprise |
-|---|---:|---:|---:|---:|---:|---:|
-| Active tables per location | 0 | 0 | 50 | 100 | 250 | Custom |
-| Configured floors/layouts per location | 0 | 0 | 1 | 3 | 10 | Custom |
-| Active areas per floor | 0 | 0 | 5 | 10 | 30 | Custom |
-| Self-orders per cycle | 0 | 0 | 15.000 | 60.000 | 250.000 | Custom |
-| KDS devices | 0 | 0 | 4 | 9 | 30 | Custom |
-| Stations per location | 0 | 0 | 1 | 3 | 10 | Custom |
-| Kitchen tickets per cycle | 0 | 0 | 20.000 | 75.000 | 300.000 | Custom |
-| External order sources | 0 | 0 | 0 | 0 | 3 | Custom |
+| Dimension                              | Profile | POS Basic | Cafe Digital | Cafe Operations | Cafe Growth | Enterprise |
+| -------------------------------------- | ------: | --------: | -----------: | --------------: | ----------: | ---------: |
+| Active tables per location             |       0 |         0 |           50 |             100 |         250 |     Custom |
+| Configured floors/layouts per location |       0 |         0 |            1 |               3 |          10 |     Custom |
+| Active areas per floor                 |       0 |         0 |            5 |              10 |          30 |     Custom |
+| Self-orders per cycle                  |       0 |         0 |       15.000 |          60.000 |     250.000 |     Custom |
+| KDS devices                            |       0 |         0 |            4 |               9 |          30 |     Custom |
+| Stations per location                  |       0 |         0 |            1 |               3 |          10 |     Custom |
+| Kitchen tickets per cycle              |       0 |         0 |       20.000 |          75.000 |     300.000 |     Custom |
+| External order sources                 |       0 |         0 |            0 |               0 |           3 |     Custom |
 
 Internal POS dan Self-Order bukan external source. Satu kitchen ticket unik dihitung sekali; retry event tidak menambah usage.
 
@@ -222,31 +222,31 @@ Catatan capability Floor/Table:
 
 ### 4.6 Inventory, Finance, dan Customer limit
 
-| Dimension | Profile | POS Basic | Cafe Digital | Cafe Operations | Cafe Growth | Enterprise |
-|---|---:|---:|---:|---:|---:|---:|
-| Active inventory items | 0 | 0 | 0 | 1.000 | 5.000 | Custom |
-| Warehouses/stock locations | 0 | 0 | 0 | 6 | 25 | Custom |
-| Stock movements per cycle | 0 | 0 | 0 | 50.000 | 250.000 | Custom |
-| Active suppliers | 0 | 0 | 0 | 100 | 1.000 | Custom |
-| Active recipes | 0 | 0 | 0 | 1.000 | 5.000 | Custom |
-| Legal entities in Finance | 0 | 0 | 0 | 2 | 5 | Custom |
-| Financial accounts | 0 | 0 | 0 | 20 | 100 | Custom |
-| Finance transactions per cycle | 0 | 0 | 0 | 100.000 | 400.000 | Custom |
-| Active customer profiles | 0 | 0 | 5.000 | 25.000 | 100.000 | Custom |
-| Scheduled reports | 0 | 0 | 0 | 0 | 50 | Custom |
+| Dimension                      | Profile | POS Basic | Cafe Digital | Cafe Operations | Cafe Growth | Enterprise |
+| ------------------------------ | ------: | --------: | -----------: | --------------: | ----------: | ---------: |
+| Active inventory items         |       0 |         0 |            0 |           1.000 |       5.000 |     Custom |
+| Warehouses/stock locations     |       0 |         0 |            0 |               6 |          25 |     Custom |
+| Stock movements per cycle      |       0 |         0 |            0 |          50.000 |     250.000 |     Custom |
+| Active suppliers               |       0 |         0 |            0 |             100 |       1.000 |     Custom |
+| Active recipes                 |       0 |         0 |            0 |           1.000 |       5.000 |     Custom |
+| Legal entities in Finance      |       0 |         0 |            0 |               2 |           5 |     Custom |
+| Financial accounts             |       0 |         0 |            0 |              20 |         100 |     Custom |
+| Finance transactions per cycle |       0 |         0 |            0 |         100.000 |     400.000 |     Custom |
+| Active customer profiles       |       0 |         0 |        5.000 |          25.000 |     100.000 |     Custom |
+| Scheduled reports              |       0 |         0 |            0 |               0 |          50 |     Custom |
 
 Inventory stock location dapat berupa satu storage area per outlet ditambah warehouse tambahan. Definisi tidak boleh memakai istilah location yang sama tanpa dimension key yang berbeda.
 
 ### 4.7 Status availability
 
-| Paket | Target availability |
-|---|---|
-| Profile | R1 |
-| POS Basic | R1 |
-| Cafe Digital | R1 simple setelah POS dan KDS stabil |
+| Paket           | Target availability                                    |
+| --------------- | ------------------------------------------------------ |
+| Profile         | R1                                                     |
+| POS Basic       | R1                                                     |
+| Cafe Digital    | R1 simple setelah POS dan KDS stabil                   |
 | Cafe Operations | R1 bertahap setelah Inventory dan Finance Basic stabil |
-| Cafe Growth | R1+ atau Future sesuai kesiapan tier Pro |
-| Enterprise | Custom setelah capability yang dikontrak tersedia |
+| Cafe Growth     | R1+ atau Future sesuai kesiapan tier Pro               |
+| Enterprise      | Custom setelah capability yang dikontrak tersedia      |
 
 Paket tidak boleh ditawarkan sebagai ACTIVE bila salah satu module tier wajibnya masih Future. Package catalog dapat menampilkannya sebagai Coming Soon atau Private Preview.
 
@@ -260,99 +260,99 @@ Paket standalone tetap memperoleh Core Platform dan internal kernel yang diperlu
 
 ### 5.2 Standalone Basic
 
-| Paket | Module tier | Internal support | Default platform limit |
-|---|---|---|---|
-| Catalog Only | Catalog Basic | Catalog Kernel | 1 location, 3 users |
-| POS Only | POS Basic + Catalog Basic | Order dan Payment Ledger | 1 location, 5 users |
-| KDS Only | KDS Basic | Order Intake Lite | 1 location, 5 users |
-| Inventory Only | Inventory Basic | Inventory item master | 2 stock locations, 5 users |
-| Finance Only | Business Finance Basic | Finance Core | 1 legal entity, 5 users |
-| HC Only | HC Basic | Core Organization | 3 branches, 5 HR/admin users |
-| Customer Only | Customer Basic | Customer Core | 1 location, 5 users |
-| Personal Finance | Personal Finance future | Finance Core + PERSONAL workspace | Future |
+| Paket            | Module tier               | Internal support                  | Default platform limit       |
+| ---------------- | ------------------------- | --------------------------------- | ---------------------------- |
+| Catalog Only     | Catalog Basic             | Catalog Kernel                    | 1 location, 3 users          |
+| POS Only         | POS Basic + Catalog Basic | Order dan Payment Ledger          | 1 location, 5 users          |
+| KDS Only         | KDS Basic                 | Order Intake Lite                 | 1 location, 5 users          |
+| Inventory Only   | Inventory Basic           | Inventory item master             | 2 stock locations, 5 users   |
+| Finance Only     | Business Finance Basic    | Finance Core                      | 1 legal entity, 5 users      |
+| HC Only          | HC Basic                  | Core Organization                 | 3 branches, 5 HR/admin users |
+| Customer Only    | Customer Basic            | Customer Core                     | 1 location, 5 users          |
+| Personal Finance | Personal Finance future   | Finance Core + PERSONAL workspace | Future                       |
 
 ### 5.3 POS Only limits
 
-| Dimension | Basic | Pro | Advanced |
-|---|---:|---:|---:|
-| Locations | 1 | 5 | Custom |
-| Active users | 5 | 50 | Custom |
-| Register devices | 2 | 10 | Custom |
-| Active products | 300 | 3.000 | Custom |
-| Completed sales per cycle | 5.000 | 50.000 | Custom |
-| Storage | 2 GB | 20 GB | Custom |
+| Dimension                 | Basic |    Pro | Advanced |
+| ------------------------- | ----: | -----: | -------: |
+| Locations                 |     1 |      5 |   Custom |
+| Active users              |     5 |     50 |   Custom |
+| Register devices          |     2 |     10 |   Custom |
+| Active products           |   300 |  3.000 |   Custom |
+| Completed sales per cycle | 5.000 | 50.000 |   Custom |
+| Storage                   |  2 GB |  20 GB |   Custom |
 
 KDS, Inventory, Finance, dan HC tidak muncul. POS tetap menerbitkan event internal, tetapi tidak ada target handler bila module terkait tidak terpasang.
 
 ### 5.4 KDS Only limits
 
-| Dimension | Basic | Pro | Advanced |
-|---|---:|---:|---:|
-| Locations | 1 | 10 | Custom |
-| Active users | 5 | 50 | Custom |
-| KDS devices | 2 | 15 | Custom |
-| Stations per location | 1 | 10 | Custom |
-| Tickets per cycle | 10.000 | 100.000 | Custom |
-| External intake sources | 1 | 10 | Custom |
-| API requests per minute | 60 | 600 | Custom |
+| Dimension               |  Basic |     Pro | Advanced |
+| ----------------------- | -----: | ------: | -------: |
+| Locations               |      1 |      10 |   Custom |
+| Active users            |      5 |      50 |   Custom |
+| KDS devices             |      2 |      15 |   Custom |
+| Stations per location   |      1 |      10 |   Custom |
+| Tickets per cycle       | 10.000 | 100.000 |   Custom |
+| External intake sources |      1 |      10 |   Custom |
+| API requests per minute |     60 |     600 |   Custom |
 
 KDS Basic standalone mendapatkan manual intake dan satu inbound source sederhana. Multi-station routing tetap membutuhkan KDS Pro.
 
 ### 5.5 Inventory Only limits
 
-| Dimension | Basic | Pro | Advanced |
-|---|---:|---:|---:|
-| Active users | 5 | 50 | Custom |
-| Stock locations | 2 | 25 | Custom |
-| Active items | 500 | 5.000 | Custom |
-| Stock movements per cycle | 10.000 | 150.000 | Custom |
-| Active suppliers | 50 | 1.000 | Custom |
-| Storage | 5 GB | 50 GB | Custom |
+| Dimension                 |  Basic |     Pro | Advanced |
+| ------------------------- | -----: | ------: | -------: |
+| Active users              |      5 |      50 |   Custom |
+| Stock locations           |      2 |      25 |   Custom |
+| Active items              |    500 |   5.000 |   Custom |
+| Stock movements per cycle | 10.000 | 150.000 |   Custom |
+| Active suppliers          |     50 |   1.000 |   Custom |
+| Storage                   |   5 GB |   50 GB |   Custom |
 
 Recipe auto-consumption tidak aktif tanpa Catalog/POS bridge yang valid.
 
 ### 5.6 Finance Only limits
 
-| Dimension | Basic | Pro | Advanced |
-|---|---:|---:|---:|
-| Legal entities | 1 | 5 | Custom |
-| Active users | 5 | 30 | Custom |
-| Financial accounts | 10 | 100 | Custom |
-| Finance transactions per cycle | 10.000 | 150.000 | Custom |
-| Active budgets | 0 | 100 | Custom |
-| Recurring rules | 0 | 500 | Custom |
-| Import profiles | 0 | 20 | Custom |
-| Storage | 5 GB | 50 GB | Custom |
+| Dimension                      |  Basic |     Pro | Advanced |
+| ------------------------------ | -----: | ------: | -------: |
+| Legal entities                 |      1 |       5 |   Custom |
+| Active users                   |      5 |      30 |   Custom |
+| Financial accounts             |     10 |     100 |   Custom |
+| Finance transactions per cycle | 10.000 | 150.000 |   Custom |
+| Active budgets                 |      0 |     100 |   Custom |
+| Recurring rules                |      0 |     500 |   Custom |
+| Import profiles                |      0 |      20 |   Custom |
+| Storage                        |   5 GB |   50 GB |   Custom |
 
 Finance Basic mencakup manual income, expense, transfer, cashbook, manual reconciliation, dan report estimasi. Budget, AP/AR ringan, recurring, approval, dan import reconciliation dimulai pada Pro. Ledger/journal formal dimulai pada Advanced.
 
 ### 5.7 HC Only limits
 
-| Dimension | Basic | Pro | Advanced |
-|---|---:|---:|---:|
-| Business units/companies | 1 | 5 | Custom |
-| Branches | 3 | 25 | Custom |
-| HR/admin users | 5 | 30 | Custom |
-| Active employees | 50 | 500 | Custom |
-| Attendance events per cycle | 10.000 | 250.000 | Custom |
-| Trusted mobile devices | 0 | 600 | Custom |
-| Leave policies | 5 | 50 | Custom |
-| Approval workflows | 1 | 20 | Custom |
-| Storage | 5 GB | 50 GB | Custom |
+| Dimension                   |  Basic |     Pro | Advanced |
+| --------------------------- | -----: | ------: | -------: |
+| Business units/companies    |      1 |       5 |   Custom |
+| Branches                    |      3 |      25 |   Custom |
+| HR/admin users              |      5 |      30 |   Custom |
+| Active employees            |     50 |     500 |   Custom |
+| Attendance events per cycle | 10.000 | 250.000 |   Custom |
+| Trusted mobile devices      |      0 |     600 |   Custom |
+| Leave policies              |      5 |      50 |   Custom |
+| Approval workflows          |      1 |      20 |   Custom |
+| Storage                     |   5 GB |   50 GB |   Custom |
 
 HC Basic memakai web/manual attendance. Mobile attendance, geofence, selfie evidence, timesheet approval, dan advanced leave policy dimulai pada Pro. Payroll, recruitment, performance, biometric connector, dan roster optimization dimulai pada Advanced.
 
 ### 5.8 Personal Finance illustrative limits
 
-| Dimension | Basic | Pro | Advanced |
-|---|---:|---:|---:|
-| Workspace owners | 1 | 1 | Custom |
-| Collaborators | 0 | 5 | Custom |
-| Financial accounts | 5 | 25 | Custom |
-| Transactions per year | 5.000 | 50.000 | Custom |
-| Active budgets | 3 | 50 | Custom |
-| Active goals | 3 | 25 | Custom |
-| Storage | 1 GB | 10 GB | Custom |
+| Dimension             | Basic |    Pro | Advanced |
+| --------------------- | ----: | -----: | -------: |
+| Workspace owners      |     1 |      1 |   Custom |
+| Collaborators         |     0 |      5 |   Custom |
+| Financial accounts    |     5 |     25 |   Custom |
+| Transactions per year | 5.000 | 50.000 |   Custom |
+| Active budgets        |     3 |     50 |   Custom |
+| Active goals          |     3 |     25 |   Custom |
+| Storage               |  1 GB |  10 GB |   Custom |
 
 Bagian ini adalah Future dan tidak boleh tampil sebagai paket purchasable pada Release 1.
 
@@ -362,48 +362,48 @@ Bagian ini adalah Future dan tidak boleh tampil sebagai paket purchasable pada R
 
 ### 6.1 Capacity add-on
 
-| Add-on | Menambah | Syarat |
-|---|---:|---|
-| Extra Business Unit | +1 business unit | Package mendukung multi-unit terminology |
-| Extra Location | +1 active location | Module terkait sudah terpasang |
-| User Pack S | +5 active users | Core Platform aktif |
-| User Pack M | +25 active users | Core Platform aktif |
-| Register Device | +1 register | POS aktif |
-| Table Pack | +50 active tables per contracted location | Floor/Table aktif |
-| KDS Device | +1 KDS device | KDS aktif |
-| KDS Station Pack | +3 stations per contracted location | KDS Pro |
-| Product Pack | +1.000 active products | Catalog aktif |
-| Inventory Item Pack | +1.000 active items | Inventory aktif |
-| Employee Pack S | +50 active employees | HC aktif |
-| Employee Pack M | +250 active employees | HC aktif |
-| Customer Pack | +25.000 customer profiles | Customer aktif |
-| Storage Pack S | +10 GB | Attachment capability aktif |
-| Storage Pack L | +100 GB | Attachment capability aktif |
+| Add-on              |                                  Menambah | Syarat                                   |
+| ------------------- | ----------------------------------------: | ---------------------------------------- |
+| Extra Business Unit |                          +1 business unit | Package mendukung multi-unit terminology |
+| Extra Location      |                        +1 active location | Module terkait sudah terpasang           |
+| User Pack S         |                           +5 active users | Core Platform aktif                      |
+| User Pack M         |                          +25 active users | Core Platform aktif                      |
+| Register Device     |                               +1 register | POS aktif                                |
+| Table Pack          | +50 active tables per contracted location | Floor/Table aktif                        |
+| KDS Device          |                             +1 KDS device | KDS aktif                                |
+| KDS Station Pack    |       +3 stations per contracted location | KDS Pro                                  |
+| Product Pack        |                    +1.000 active products | Catalog aktif                            |
+| Inventory Item Pack |                       +1.000 active items | Inventory aktif                          |
+| Employee Pack S     |                      +50 active employees | HC aktif                                 |
+| Employee Pack M     |                     +250 active employees | HC aktif                                 |
+| Customer Pack       |                 +25.000 customer profiles | Customer aktif                           |
+| Storage Pack S      |                                    +10 GB | Attachment capability aktif              |
+| Storage Pack L      |                                   +100 GB | Attachment capability aktif              |
 
 ### 6.2 Volume add-on
 
-| Add-on | Menambah per billing cycle | Syarat |
-|---|---:|---|
-| POS Volume S | +10.000 completed sales | POS aktif |
-| POS Volume L | +100.000 completed sales | POS aktif |
-| Self-Order Volume | +25.000 self-orders | Self-Order aktif |
-| KDS Volume | +50.000 kitchen tickets | KDS aktif |
-| Inventory Volume | +100.000 stock movements | Inventory aktif |
-| Finance Volume | +100.000 finance transactions | Business Finance aktif |
-| HC Attendance Volume | +100.000 attendance events | HC aktif |
-| Export Volume | +500 manual/scheduled exports | Report/export capability aktif |
+| Add-on               |    Menambah per billing cycle | Syarat                         |
+| -------------------- | ----------------------------: | ------------------------------ |
+| POS Volume S         |       +10.000 completed sales | POS aktif                      |
+| POS Volume L         |      +100.000 completed sales | POS aktif                      |
+| Self-Order Volume    |           +25.000 self-orders | Self-Order aktif               |
+| KDS Volume           |       +50.000 kitchen tickets | KDS aktif                      |
+| Inventory Volume     |      +100.000 stock movements | Inventory aktif                |
+| Finance Volume       | +100.000 finance transactions | Business Finance aktif         |
+| HC Attendance Volume |    +100.000 attendance events | HC aktif                       |
+| Export Volume        | +500 manual/scheduled exports | Report/export capability aktif |
 
 ### 6.3 Capability add-on
 
-| Add-on | Capability | Syarat minimum |
-|---|---|---|
-| External API | API clients, inbound/outbound webhook, usage log | Module aktif dan security setup |
-| Advanced Reports | Cross-module dashboard dan scheduled export | Minimal dua module data sources |
-| Mobile Attendance | Mobile check-in/out dan device registry | HC Pro atau explicit contract |
-| Payroll | Payroll capability bundle | HC Advanced dan legal/product readiness |
-| Integrated Payment | Gateway/PJP payment and settlement | External gate |
-| Campaign Messaging | Campaign delivery connector | Customer Pro, consent, provider |
-| Custom Integration | Dedicated connector/mapping | Technical assessment dan custom contract |
+| Add-on             | Capability                                       | Syarat minimum                           |
+| ------------------ | ------------------------------------------------ | ---------------------------------------- |
+| External API       | API clients, inbound/outbound webhook, usage log | Module aktif dan security setup          |
+| Advanced Reports   | Cross-module dashboard dan scheduled export      | Minimal dua module data sources          |
+| Mobile Attendance  | Mobile check-in/out dan device registry          | HC Pro atau explicit contract            |
+| Payroll            | Payroll capability bundle                        | HC Advanced dan legal/product readiness  |
+| Integrated Payment | Gateway/PJP payment and settlement               | External gate                            |
+| Campaign Messaging | Campaign delivery connector                      | Customer Pro, consent, provider          |
+| Custom Integration | Dedicated connector/mapping                      | Technical assessment dan custom contract |
 
 Capability add-on harus eksplisit. Capacity add-on tidak boleh otomatis membuka capability tier lebih tinggi.
 
@@ -453,22 +453,22 @@ Capability modul tetap POS Basic. Split bill tidak aktif hanya karena customer m
 
 ## 8. Definisi usage
 
-| Dimension | Yang dihitung | Tidak dihitung |
-|---|---|---|
-| Active user | Membership ACCEPTED dan ACTIVE yang dapat login | Pending invite, suspended user, platform service worker |
-| Business unit | Unit status ACTIVE | Archived unit |
-| Location | Location status ACTIVE | Archived location |
-| Register/KDS device | Device status ACTIVE dan tidak revoked | Revoked/decommissioned device |
-| Product/item | Record status ACTIVE | Archived item |
-| Employee | Employment status yang memerlukan seat aktif | Draft kandidat, terminated employee |
-| Completed sale | Transisi pertama ke COMPLETED | Retry, reprint, read, refund event |
-| Self-order | Order unik yang berhasil disubmit | Abandoned cart dan duplicate retry |
-| Kitchen ticket | Ticket unik yang berhasil dibuat | Duplicate event dan replay |
-| Stock movement | Movement ledger unik yang posted | Projection rebuild dan duplicate retry |
-| Finance transaction | Transaction bisnis unik yang posted | Projection rebuild dan system-generated reversal dari event yang sama |
-| Attendance event | Event unik yang diterima dan lolos idempotency | Duplicate offline sync |
-| Storage | File aktif dan retained yang belum dipurge | System audit log dan generated thumbnails internal |
-| API request | External API request yang diterima gateway | Internal event dan health check |
+| Dimension           | Yang dihitung                                   | Tidak dihitung                                                        |
+| ------------------- | ----------------------------------------------- | --------------------------------------------------------------------- |
+| Active user         | Membership ACCEPTED dan ACTIVE yang dapat login | Pending invite, suspended user, platform service worker               |
+| Business unit       | Unit status ACTIVE                              | Archived unit                                                         |
+| Location            | Location status ACTIVE                          | Archived location                                                     |
+| Register/KDS device | Device status ACTIVE dan tidak revoked          | Revoked/decommissioned device                                         |
+| Product/item        | Record status ACTIVE                            | Archived item                                                         |
+| Employee            | Employment status yang memerlukan seat aktif    | Draft kandidat, terminated employee                                   |
+| Completed sale      | Transisi pertama ke COMPLETED                   | Retry, reprint, read, refund event                                    |
+| Self-order          | Order unik yang berhasil disubmit               | Abandoned cart dan duplicate retry                                    |
+| Kitchen ticket      | Ticket unik yang berhasil dibuat                | Duplicate event dan replay                                            |
+| Stock movement      | Movement ledger unik yang posted                | Projection rebuild dan duplicate retry                                |
+| Finance transaction | Transaction bisnis unik yang posted             | Projection rebuild dan system-generated reversal dari event yang sama |
+| Attendance event    | Event unik yang diterima dan lolos idempotency  | Duplicate offline sync                                                |
+| Storage             | File aktif dan retained yang belum dipurge      | System audit log dan generated thumbnails internal                    |
+| API request         | External API request yang diterima gateway      | Internal event dan health check                                       |
 
 ### 8.1 Metering period
 
@@ -482,12 +482,12 @@ Capability modul tetap POS Basic. Split bill tidak aktif hanya karena customer m
 
 ## 9. Threshold dan notifikasi
 
-| Usage | State | Perilaku |
-|---:|---|---|
-| Di bawah 80% | NORMAL | Tidak ada warning |
-| 80%–89,99% | APPROACHING | Banner ringan untuk owner/admin |
-| 90%–99,99% | NEAR_LIMIT | Banner jelas, notification, CTA add-on/upgrade |
-| 100% atau lebih | AT_LIMIT/OVER_LIMIT | Enforcement sesuai jenis limit |
+|           Usage | State               | Perilaku                                       |
+| --------------: | ------------------- | ---------------------------------------------- |
+|    Di bawah 80% | NORMAL              | Tidak ada warning                              |
+|      80%–89,99% | APPROACHING         | Banner ringan untuk owner/admin                |
+|      90%–99,99% | NEAR_LIMIT          | Banner jelas, notification, CTA add-on/upgrade |
+| 100% atau lebih | AT_LIMIT/OVER_LIMIT | Enforcement sesuai jenis limit                 |
 
 Notifikasi minimum:
 
@@ -628,12 +628,12 @@ Package Builder harus memeriksa:
 
 ## 13. Suspension dan grace
 
-| State | Read | Export | Normal mutation | Corrective action | Integration intake |
-|---|---|---|---|---|---|
-| ACTIVE | Ya | Ya | Ya | Ya | Ya |
-| GRACE | Ya | Ya | Ya dengan warning | Ya | Ya |
-| SUSPENDED | Ya terbatas | Ya sesuai policy | Tidak | Admin/support path | Pause/retry queue |
-| TERMINATED | Sesuai retention | Sesuai policy | Tidak | Support/legal path | Tidak |
+| State      | Read             | Export           | Normal mutation   | Corrective action  | Integration intake |
+| ---------- | ---------------- | ---------------- | ----------------- | ------------------ | ------------------ |
+| ACTIVE     | Ya               | Ya               | Ya                | Ya                 | Ya                 |
+| GRACE      | Ya               | Ya               | Ya dengan warning | Ya                 | Ya                 |
+| SUSPENDED  | Ya terbatas      | Ya sesuai policy | Tidak             | Admin/support path | Pause/retry queue  |
+| TERMINATED | Sesuai retention | Sesuai policy    | Tidak             | Support/legal path | Tidak              |
 
 Event yang datang saat target module SUSPENDED tidak boleh ditandai sukses palsu. Ia masuk retry/pause policy atau dead-letter dengan alasan subscription state.
 
@@ -691,22 +691,22 @@ Override minimum menyimpan:
 
 ## 15. Data model minimum
 
-| Table | Tujuan |
-|---|---|
-| core_packages | Identitas paket |
-| core_package_versions | Snapshot definisi per version |
-| core_package_modules | Module dan tier dalam package version |
-| core_package_capabilities | Capability included/excluded |
-| core_package_limits | Limit default per dimension |
-| core_subscriptions | Package/version dan lifecycle workspace |
-| core_subscription_addons | Add-on aktif dan quantity |
-| core_entitlement_overrides | Grant/revoke/limit override |
-| core_effective_entitlements | Projection entitlement efektif |
-| core_usage_dimensions | Definisi meter dan enforcement type |
-| core_usage_counters | Usage per workspace/dimension/period |
-| core_usage_events | Source metering idempotent |
-| core_usage_adjustments | Correction usage yang diaudit |
-| core_limit_notifications | Threshold notification deduplication |
+| Table                       | Tujuan                                  |
+| --------------------------- | --------------------------------------- |
+| core_packages               | Identitas paket                         |
+| core_package_versions       | Snapshot definisi per version           |
+| core_package_modules        | Module dan tier dalam package version   |
+| core_package_capabilities   | Capability included/excluded            |
+| core_package_limits         | Limit default per dimension             |
+| core_subscriptions          | Package/version dan lifecycle workspace |
+| core_subscription_addons    | Add-on aktif dan quantity               |
+| core_entitlement_overrides  | Grant/revoke/limit override             |
+| core_effective_entitlements | Projection entitlement efektif          |
+| core_usage_dimensions       | Definisi meter dan enforcement type     |
+| core_usage_counters         | Usage per workspace/dimension/period    |
+| core_usage_events           | Source metering idempotent              |
+| core_usage_adjustments      | Correction usage yang diaudit           |
+| core_limit_notifications    | Threshold notification deduplication    |
 
 Aturan database:
 
@@ -721,33 +721,33 @@ Aturan database:
 
 ## 16. Limit dimension catalog
 
-| Dimension key | Unit | Enforcement |
-|---|---|---|
-| core.business_units.active | count | Hard |
-| core.locations.active | count | Hard |
-| core.users.active | seat | Hard |
-| core.roles.custom | count | Hard |
-| core.storage.gb | GB | Hard dengan tolerance |
-| catalog.products.active | count | Hard |
-| pos.registers.active | device | Hard |
-| pos.sales.completed.cycle | event | Soft metered |
-| floor.tables.active_per_location | count | Hard |
-| floor.floors.active_per_location | count | Hard |
-| floor.areas.active_per_floor | count | Hard |
-| self_order.orders.submitted.cycle | event | Soft metered |
-| kds.devices.active | device | Hard |
-| kds.stations.active_per_location | count | Hard |
-| kds.tickets.created.cycle | event | Soft metered |
-| inventory.items.active | count | Hard |
-| inventory.stock_locations.active | count | Hard |
-| inventory.movements.posted.cycle | event | Soft metered |
-| finance.accounts.active | count | Hard |
-| finance.transactions.posted.cycle | event | Soft metered |
-| hc.employees.active | seat | Hard |
-| hc.attendance.received.cycle | event | Soft metered |
-| customer.profiles.active | count | Hard |
-| reports.exports.cycle | job | Throttled |
-| api.requests.cycle | request | Throttled |
+| Dimension key                     | Unit    | Enforcement           |
+| --------------------------------- | ------- | --------------------- |
+| core.business_units.active        | count   | Hard                  |
+| core.locations.active             | count   | Hard                  |
+| core.users.active                 | seat    | Hard                  |
+| core.roles.custom                 | count   | Hard                  |
+| core.storage.gb                   | GB      | Hard dengan tolerance |
+| catalog.products.active           | count   | Hard                  |
+| pos.registers.active              | device  | Hard                  |
+| pos.sales.completed.cycle         | event   | Soft metered          |
+| floor.tables.active_per_location  | count   | Hard                  |
+| floor.floors.active_per_location  | count   | Hard                  |
+| floor.areas.active_per_floor      | count   | Hard                  |
+| self_order.orders.submitted.cycle | event   | Soft metered          |
+| kds.devices.active                | device  | Hard                  |
+| kds.stations.active_per_location  | count   | Hard                  |
+| kds.tickets.created.cycle         | event   | Soft metered          |
+| inventory.items.active            | count   | Hard                  |
+| inventory.stock_locations.active  | count   | Hard                  |
+| inventory.movements.posted.cycle  | event   | Soft metered          |
+| finance.accounts.active           | count   | Hard                  |
+| finance.transactions.posted.cycle | event   | Soft metered          |
+| hc.employees.active               | seat    | Hard                  |
+| hc.attendance.received.cycle      | event   | Soft metered          |
+| customer.profiles.active          | count   | Hard                  |
+| reports.exports.cycle             | job     | Throttled             |
+| api.requests.cycle                | request | Throttled             |
 
 ---
 
@@ -755,14 +755,14 @@ Aturan database:
 
 Error limit minimum:
 
-| Code | Kondisi |
-|---|---|
-| ENTITLEMENT_REQUIRED | Capability/module tidak dibeli |
-| TIER_UPGRADE_REQUIRED | Capability membutuhkan tier lebih tinggi |
-| LIMIT_REACHED | Hard count limit tercapai |
-| RATE_LIMITED | Throttled limit tercapai |
+| Code                        | Kondisi                                    |
+| --------------------------- | ------------------------------------------ |
+| ENTITLEMENT_REQUIRED        | Capability/module tidak dibeli             |
+| TIER_UPGRADE_REQUIRED       | Capability membutuhkan tier lebih tinggi   |
+| LIMIT_REACHED               | Hard count limit tercapai                  |
+| RATE_LIMITED                | Throttled limit tercapai                   |
 | INSTALLATION_SETUP_REQUIRED | Entitlement ada tetapi setup belum lengkap |
-| SUBSCRIPTION_SUSPENDED | Subscription tidak usable |
+| SUBSCRIPTION_SUSPENDED      | Subscription tidak usable                  |
 
 Response harus membawa:
 
@@ -824,21 +824,21 @@ Operational client seperti POS dan KDS tidak perlu menerima detail harga.
 
 ## 19. Perbandingan dengan PRD sebelumnya
 
-| Area | PRD sebelumnya | Dokumen ini |
-|---|---|---|
-| Nama paket | Profile, POS Basic, Cafe Digital, Cafe Operations, Custom Modular, Payment add-on | Nama lama dipertahankan; Cafe Growth, Enterprise, dan standalone preset diperjelas |
-| Isi paket | Daftar module tingkat tinggi | Tier setiap module ditentukan |
-| Limit | Menyebut outlet/user/device/transaction secara konsep | Angka baseline per package dan dimension ditetapkan |
-| Floor/Table | Table layout sederhana | Floor -> Area -> Table, editor/live view, tier Basic/Pro/Advanced, serta limit floor/area/table diperjelas |
-| Finance | Finance Basic sebagai fitur operasional | Basic, Pro, Advanced dipisah dengan guardrail accounting |
-| HC | HC simple/standalone baru | Basic, Pro, Advanced dan limit employee/device ditetapkan |
-| Standalone | HC Only, KDS Only, Finance Only disebut | Default capacity setiap standalone package ditetapkan |
-| Add-on | Payment dan custom modular | Capacity, volume, capability, API, dan custom integration dipisah |
-| Enforcement | Error dan CTA upgrade umum | Hard, soft metered, throttled, dan safety exception ditetapkan |
-| Overage | Belum rinci | Event operasional tidak dibuang; billing policy terpisah |
-| Downgrade | Data tidak dihapus | Dampak capability, resource overage, automation, dan export dirinci |
-| Package version | Paket sebagai preset | Published version immutable dan customer memakai snapshot |
-| Responsive | Disebut sebagai concern UI umum | S/M/L ditegaskan bukan tier, limit, atau add-on; seluruh package mengikuti kontrak responsive global |
+| Area            | PRD sebelumnya                                                                    | Dokumen ini                                                                                                |
+| --------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Nama paket      | Profile, POS Basic, Cafe Digital, Cafe Operations, Custom Modular, Payment add-on | Nama lama dipertahankan; Cafe Growth, Enterprise, dan standalone preset diperjelas                         |
+| Isi paket       | Daftar module tingkat tinggi                                                      | Tier setiap module ditentukan                                                                              |
+| Limit           | Menyebut outlet/user/device/transaction secara konsep                             | Angka baseline per package dan dimension ditetapkan                                                        |
+| Floor/Table     | Table layout sederhana                                                            | Floor -> Area -> Table, editor/live view, tier Basic/Pro/Advanced, serta limit floor/area/table diperjelas |
+| Finance         | Finance Basic sebagai fitur operasional                                           | Basic, Pro, Advanced dipisah dengan guardrail accounting                                                   |
+| HC              | HC simple/standalone baru                                                         | Basic, Pro, Advanced dan limit employee/device ditetapkan                                                  |
+| Standalone      | HC Only, KDS Only, Finance Only disebut                                           | Default capacity setiap standalone package ditetapkan                                                      |
+| Add-on          | Payment dan custom modular                                                        | Capacity, volume, capability, API, dan custom integration dipisah                                          |
+| Enforcement     | Error dan CTA upgrade umum                                                        | Hard, soft metered, throttled, dan safety exception ditetapkan                                             |
+| Overage         | Belum rinci                                                                       | Event operasional tidak dibuang; billing policy terpisah                                                   |
+| Downgrade       | Data tidak dihapus                                                                | Dampak capability, resource overage, automation, dan export dirinci                                        |
+| Package version | Paket sebagai preset                                                              | Published version immutable dan customer memakai snapshot                                                  |
+| Responsive      | Disebut sebagai concern UI umum                                                   | S/M/L ditegaskan bukan tier, limit, atau add-on; seluruh package mengikuti kontrak responsive global       |
 
 Keputusan lama yang tetap berlaku:
 
@@ -853,16 +853,16 @@ Keputusan lama yang tetap berlaku:
 
 ## 20. Keputusan terbuka sebelum harga dirilis
 
-| ID | Keputusan | Data yang dibutuhkan |
-|---|---|---|
-| PKG-OD-01 | Harga setiap paket dan add-on | Infrastructure cost, support, competitor, willingness-to-pay |
-| PKG-OD-02 | Apakah Profile gratis atau berbayar | Acquisition dan conversion test |
-| PKG-OD-03 | Soft overage ditagih otomatis atau meminta upgrade | Billing provider dan sales policy |
-| PKG-OD-04 | Apakah HC termasuk Cafe Growth | Pilot demand F&B |
-| PKG-OD-05 | Mobile Attendance menjadi HC Pro atau add-on | Mobile operating cost dan positioning |
-| PKG-OD-06 | Usage reset mengikuti invoice date final | Billing implementation |
-| PKG-OD-07 | Data/report lookback per package | Cost, customer need, retention policy |
-| PKG-OD-08 | Tolerance storage dan purge policy | Storage cost dan compliance review |
+| ID        | Keputusan                                          | Data yang dibutuhkan                                         |
+| --------- | -------------------------------------------------- | ------------------------------------------------------------ |
+| PKG-OD-01 | Harga setiap paket dan add-on                      | Infrastructure cost, support, competitor, willingness-to-pay |
+| PKG-OD-02 | Apakah Profile gratis atau berbayar                | Acquisition dan conversion test                              |
+| PKG-OD-03 | Soft overage ditagih otomatis atau meminta upgrade | Billing provider dan sales policy                            |
+| PKG-OD-04 | Apakah HC termasuk Cafe Growth                     | Pilot demand F&B                                             |
+| PKG-OD-05 | Mobile Attendance menjadi HC Pro atau add-on       | Mobile operating cost dan positioning                        |
+| PKG-OD-06 | Usage reset mengikuti invoice date final           | Billing implementation                                       |
+| PKG-OD-07 | Data/report lookback per package                   | Cost, customer need, retention policy                        |
+| PKG-OD-08 | Tolerance storage dan purge policy                 | Storage cost dan compliance review                           |
 
 ---
 

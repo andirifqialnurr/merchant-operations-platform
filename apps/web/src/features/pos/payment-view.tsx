@@ -57,7 +57,7 @@ export function PaymentView({
   tenantId: string;
 }>) {
   const t = useTranslations("pos");
-  const { locale, money } = useFormat();
+  const { currency, locale, money } = useFormat();
   const errorMessage = useErrorMessage();
   const notify = useToast();
   const queryClient = useQueryClient();
@@ -186,7 +186,7 @@ export function PaymentView({
             />
           </FormField>
           <div className="flex flex-wrap gap-2">
-            {buildCashPresets(totalMinor).map((preset) => (
+            {buildCashPresets(totalMinor, currency).map((preset) => (
               <Chip
                 disabled={confirm.isPending}
                 key={preset}

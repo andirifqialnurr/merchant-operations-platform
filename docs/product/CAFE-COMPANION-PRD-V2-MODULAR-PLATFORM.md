@@ -19,12 +19,12 @@
 
 Dokumen ini membedakan empat tingkat komitmen:
 
-| Label | Makna |
-|---|---|
-| **R1 — wajib** | Harus tersedia pada Release 1 agar platform modular dapat beroperasi dengan benar. |
-| **R1 — simple** | Versi sederhana yang dapat dipakai dan diuji; belum mencakup fitur ERP lanjutan. |
+| Label              | Makna                                                                                  |
+| ------------------ | -------------------------------------------------------------------------------------- |
+| **R1 — wajib**     | Harus tersedia pada Release 1 agar platform modular dapat beroperasi dengan benar.     |
+| **R1 — simple**    | Versi sederhana yang dapat dipakai dan diuji; belum mencakup fitur ERP lanjutan.       |
 | **Foundation now** | Fondasi backend/database dibuat sekarang, tetapi UI/fitur lengkap belum harus dirilis. |
-| **Future** | Arah produk lanjutan; bukan komitmen Release 1. |
+| **Future**         | Arah produk lanjutan; bukan komitmen Release 1.                                        |
 
 Kata **harus** menunjukkan requirement wajib. Kata **sebaiknya** menunjukkan rekomendasi yang dapat dinegosiasikan. Kata **future** tidak boleh dianggap sebagai scope MVP.
 
@@ -179,27 +179,27 @@ PRD V2 disusun dari:
 
 ### 4.2 Ringkasan perubahan
 
-| Area | PRD/dokumen sebelumnya | Keputusan PRD V2 | Status |
-|---|---|---|---|
-| Fokus produk | Sistem operasional kafe/UMKM F&B | Tetap F&B-first, tetapi platform dapat menjual HC dan Finance sebagai produk standalone | Diperluas |
-| Hierarki | Platform → Tenant → Brand → Outlet | Internal: Platform → Workspace → Business Unit → Location; UI F&B tetap memakai Tenant/Brand/Outlet | Diklarifikasi |
-| Workspace pribadi | Tidak ada | `PERSONAL` dipersiapkan untuk Personal Finance | Foundation now |
-| Modularitas | Modul aktif berdasarkan paket/entitlement | Ditambah capability, limits, installation, integration binding, dan dependency resolver | Diperinci |
-| KDS | Bergantung pada Order Core; antrean dari POS/QR | KDS Product dapat standalone melalui Order Intake Lite/manual/API; tetap menggunakan kernel order intake | Diubah tanpa menggandakan logic |
-| Finance Basic | Bergantung pada Order, Bill, Payment Ledger | Business Finance dapat standalone; integrasi POS menjadi binding opsional | Diubah |
-| Inventory Basic | Terikat Catalog/recipe dan optional order consumption | Inventory dapat standalone dengan item master sendiri; Catalog link dan consumption adalah bridge opsional | Diubah |
-| HC | Belum menjadi bagian utama Global Product Scope; kemudian muncul pada fondasi UI | Menjadi product module standalone dengan employee, shift, attendance, dan leave simple | Scope baru R1 simple |
-| Personal Finance | Tidak ada | Product module future di atas Finance Core | Scope baru future |
-| Mobile | Native app secara eksplisit di luar V1 | Tetap di luar R1; API, device, idempotency, attendance event disiapkan sekarang | Dipertahankan + foundation |
-| Paket | Profile, POS Basic, Cafe Digital, Cafe Operations, Custom Modular, Integrated Payment Add-on | Paket lama dipertahankan; Cafe Growth, Enterprise, module-only, tier, add-on, dan limit efektif diperinci pada spesifikasi pendamping | Diperluas |
-| Core Catalog | Disebut Core selalu tersedia | Hanya Core Platform selalu aktif; domain kernel seperti Catalog/Order diinstal otomatis bila diperlukan | Dikoreksi |
-| Integrasi | Dependency dan pusat order disebutkan | Public facade, internal event bus, outbox/inbox, idempotency, event versioning, dan integration binding ditentukan | Diperinci |
-| Aktivasi modul | Entitlement gate | Aktivasi tidak mengubah schema; membuat installation, config, permission defaults, seed, dan binding | Diperinci |
-| Finance bisnis/pribadi | Finance hanya untuk operasional bisnis | Finance Core internal dipakai oleh Business Finance dan Personal Finance dengan UX/domain extension terpisah | Scope baru |
-| Payment | Manual dahulu; Integrated Payment future; tanpa wallet | Tetap sama | Dipertahankan |
-| Inventory/Finance advanced | Roadmap | Tetap roadmap | Dipertahankan |
-| Lima shell | Platform Admin, Backoffice, POS, KDS, Customer | Tetap; mobile HC dan Personal Finance menjadi client future, bukan shell R1 | Dipertahankan |
-| UI visual | Cream/espresso/amber, light/dark, sederhana | Tetap menjadi baseline | Dipertahankan |
+| Area                       | PRD/dokumen sebelumnya                                                                       | Keputusan PRD V2                                                                                                                      | Status                          |
+| -------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Fokus produk               | Sistem operasional kafe/UMKM F&B                                                             | Tetap F&B-first, tetapi platform dapat menjual HC dan Finance sebagai produk standalone                                               | Diperluas                       |
+| Hierarki                   | Platform → Tenant → Brand → Outlet                                                           | Internal: Platform → Workspace → Business Unit → Location; UI F&B tetap memakai Tenant/Brand/Outlet                                   | Diklarifikasi                   |
+| Workspace pribadi          | Tidak ada                                                                                    | `PERSONAL` dipersiapkan untuk Personal Finance                                                                                        | Foundation now                  |
+| Modularitas                | Modul aktif berdasarkan paket/entitlement                                                    | Ditambah capability, limits, installation, integration binding, dan dependency resolver                                               | Diperinci                       |
+| KDS                        | Bergantung pada Order Core; antrean dari POS/QR                                              | KDS Product dapat standalone melalui Order Intake Lite/manual/API; tetap menggunakan kernel order intake                              | Diubah tanpa menggandakan logic |
+| Finance Basic              | Bergantung pada Order, Bill, Payment Ledger                                                  | Business Finance dapat standalone; integrasi POS menjadi binding opsional                                                             | Diubah                          |
+| Inventory Basic            | Terikat Catalog/recipe dan optional order consumption                                        | Inventory dapat standalone dengan item master sendiri; Catalog link dan consumption adalah bridge opsional                            | Diubah                          |
+| HC                         | Belum menjadi bagian utama Global Product Scope; kemudian muncul pada fondasi UI             | Menjadi product module standalone dengan employee, shift, attendance, dan leave simple                                                | Scope baru R1 simple            |
+| Personal Finance           | Tidak ada                                                                                    | Product module future di atas Finance Core                                                                                            | Scope baru future               |
+| Mobile                     | Native app secara eksplisit di luar V1                                                       | Tetap di luar R1; API, device, idempotency, attendance event disiapkan sekarang                                                       | Dipertahankan + foundation      |
+| Paket                      | Profile, POS Basic, Cafe Digital, Cafe Operations, Custom Modular, Integrated Payment Add-on | Paket lama dipertahankan; Cafe Growth, Enterprise, module-only, tier, add-on, dan limit efektif diperinci pada spesifikasi pendamping | Diperluas                       |
+| Core Catalog               | Disebut Core selalu tersedia                                                                 | Hanya Core Platform selalu aktif; domain kernel seperti Catalog/Order diinstal otomatis bila diperlukan                               | Dikoreksi                       |
+| Integrasi                  | Dependency dan pusat order disebutkan                                                        | Public facade, internal event bus, outbox/inbox, idempotency, event versioning, dan integration binding ditentukan                    | Diperinci                       |
+| Aktivasi modul             | Entitlement gate                                                                             | Aktivasi tidak mengubah schema; membuat installation, config, permission defaults, seed, dan binding                                  | Diperinci                       |
+| Finance bisnis/pribadi     | Finance hanya untuk operasional bisnis                                                       | Finance Core internal dipakai oleh Business Finance dan Personal Finance dengan UX/domain extension terpisah                          | Scope baru                      |
+| Payment                    | Manual dahulu; Integrated Payment future; tanpa wallet                                       | Tetap sama                                                                                                                            | Dipertahankan                   |
+| Inventory/Finance advanced | Roadmap                                                                                      | Tetap roadmap                                                                                                                         | Dipertahankan                   |
+| Lima shell                 | Platform Admin, Backoffice, POS, KDS, Customer                                               | Tetap; mobile HC dan Personal Finance menjadi client future, bukan shell R1                                                           | Dipertahankan                   |
+| UI visual                  | Cream/espresso/amber, light/dark, sederhana                                                  | Tetap menjadi baseline                                                                                                                | Dipertahankan                   |
 
 ### 4.3 Keputusan lama yang tetap mengikat
 
@@ -228,28 +228,28 @@ Menambahkan HC Basic ke Release 1 dan membuat semua modul benar-benar standalone
 
 ## 5. Terminologi produk
 
-| Istilah | Definisi | Contoh |
-|---|---|---|
-| Core Platform | Fondasi wajib, tidak dijual sebagai checkbox modul | Login, workspace, membership, subscription, audit |
-| Product Module | Produk utama yang dapat dibeli customer | POS, KDS, Inventory, Business Finance, HC |
-| Internal Kernel | Kemampuan teknis internal yang mendukung product module | Order Kernel, Finance Core, Catalog Kernel |
-| Capability | Fitur berizin di dalam modul | `pos.refund`, `hc.leave.approve` |
-| Tier | Tingkat fitur suatu modul | Basic, Pro, Advanced |
-| Package | Preset modul, capability, dan limit | Cafe Operations, HC Only |
-| Add-on | Capability/modul tambahan yang dapat dibeli | Multi-outlet, Integrated Payment future |
-| Entitlement | Hak workspace karena pembelian/kontrak | Workspace membeli `kds.basic` |
-| Permission | Hak seorang user dalam workspace | Cashier boleh membuat sale, tidak boleh melihat profit |
-| Feature Flag | Kontrol rollout teknis/beta | Forecast hanya aktif untuk pilot tenant |
-| Module Installation | Status operasional modul di sebuah workspace | Finance terpasang tetapi setup belum lengkap |
-| Integration Binding | Konfigurasi hubungan source–event–target | POS `sale.completed` → Finance `record-revenue` |
-| Limit | Batas pemakaian komersial | 3 outlet, 20 user, 2 register |
-| Usage | Pemakaian aktual terhadap limit | 2 dari 3 outlet digunakan |
-| Business Template | Preset istilah, setting, dan modul menurut use case | Cafe, Restaurant, HC Only, Personal |
-| Workspace | Batas data dan subscription utama | Perusahaan Kopi A atau Keuangan Pribadi Andi |
-| Business Unit | Unit organisasi di dalam workspace | Brand atau legal entity |
-| Location | Lokasi operasional | Outlet atau branch |
-| Adapter | Jalur masuk/keluar tanpa business logic utama | HTTP, event handler, webhook, CSV import |
-| Use Case | Satu pintu proses bisnis | Create Kitchen Ticket, Record Expense |
+| Istilah             | Definisi                                                | Contoh                                                 |
+| ------------------- | ------------------------------------------------------- | ------------------------------------------------------ |
+| Core Platform       | Fondasi wajib, tidak dijual sebagai checkbox modul      | Login, workspace, membership, subscription, audit      |
+| Product Module      | Produk utama yang dapat dibeli customer                 | POS, KDS, Inventory, Business Finance, HC              |
+| Internal Kernel     | Kemampuan teknis internal yang mendukung product module | Order Kernel, Finance Core, Catalog Kernel             |
+| Capability          | Fitur berizin di dalam modul                            | `pos.refund`, `hc.leave.approve`                       |
+| Tier                | Tingkat fitur suatu modul                               | Basic, Pro, Advanced                                   |
+| Package             | Preset modul, capability, dan limit                     | Cafe Operations, HC Only                               |
+| Add-on              | Capability/modul tambahan yang dapat dibeli             | Multi-outlet, Integrated Payment future                |
+| Entitlement         | Hak workspace karena pembelian/kontrak                  | Workspace membeli `kds.basic`                          |
+| Permission          | Hak seorang user dalam workspace                        | Cashier boleh membuat sale, tidak boleh melihat profit |
+| Feature Flag        | Kontrol rollout teknis/beta                             | Forecast hanya aktif untuk pilot tenant                |
+| Module Installation | Status operasional modul di sebuah workspace            | Finance terpasang tetapi setup belum lengkap           |
+| Integration Binding | Konfigurasi hubungan source–event–target                | POS `sale.completed` → Finance `record-revenue`        |
+| Limit               | Batas pemakaian komersial                               | 3 outlet, 20 user, 2 register                          |
+| Usage               | Pemakaian aktual terhadap limit                         | 2 dari 3 outlet digunakan                              |
+| Business Template   | Preset istilah, setting, dan modul menurut use case     | Cafe, Restaurant, HC Only, Personal                    |
+| Workspace           | Batas data dan subscription utama                       | Perusahaan Kopi A atau Keuangan Pribadi Andi           |
+| Business Unit       | Unit organisasi di dalam workspace                      | Brand atau legal entity                                |
+| Location            | Lokasi operasional                                      | Outlet atau branch                                     |
+| Adapter             | Jalur masuk/keluar tanpa business logic utama           | HTTP, event handler, webhook, CSV import               |
+| Use Case            | Satu pintu proses bisnis                                | Create Kitchen Ticket, Record Expense                  |
 
 ### 5.1 Entitlement, permission, dan feature flag
 
@@ -290,10 +290,10 @@ Platform
 
 ### 6.2 Jenis workspace
 
-| Type | Penggunaan | Terminologi default | Status |
-|---|---|---|---|
-| `BUSINESS` | Kafe, restoran, retail, atau perusahaan | Tenant/Company, Brand/Business Unit, Outlet/Branch | R1 wajib |
-| `PERSONAL` | Keuangan pribadi | Personal Workspace, tanpa brand/outlet wajib | Foundation now; UI future |
+| Type       | Penggunaan                              | Terminologi default                                | Status                    |
+| ---------- | --------------------------------------- | -------------------------------------------------- | ------------------------- |
+| `BUSINESS` | Kafe, restoran, retail, atau perusahaan | Tenant/Company, Brand/Business Unit, Outlet/Branch | R1 wajib                  |
+| `PERSONAL` | Keuangan pribadi                        | Personal Workspace, tanpa brand/outlet wajib       | Foundation now; UI future |
 
 ### 6.3 Aturan workspace
 
@@ -307,15 +307,15 @@ Platform
 
 ### 6.4 Business template
 
-| Template | Label UI | Default module suggestion |
-|---|---|---|
-| Cafe | Brand, Outlet, Menu, Meja | Catalog, POS, Floor, Self-Order, KDS |
-| Restaurant | Brand, Outlet, Floor, Station | Catalog, POS, Floor, KDS |
-| Bakery/Retail | Business, Store, Product, Barcode | Catalog, POS, Inventory |
-| Cloud Kitchen | Brand, Kitchen, Channel, Station | Order Intake, KDS, Inventory |
-| HC Only | Company, Branch, Department, Employee | HC |
-| Business Finance Only | Company, Branch, Account, Transaction | Business Finance |
-| Personal | Workspace, Account, Category, Budget | Personal Finance future |
+| Template              | Label UI                              | Default module suggestion            |
+| --------------------- | ------------------------------------- | ------------------------------------ |
+| Cafe                  | Brand, Outlet, Menu, Meja             | Catalog, POS, Floor, Self-Order, KDS |
+| Restaurant            | Brand, Outlet, Floor, Station         | Catalog, POS, Floor, KDS             |
+| Bakery/Retail         | Business, Store, Product, Barcode     | Catalog, POS, Inventory              |
+| Cloud Kitchen         | Brand, Kitchen, Channel, Station      | Order Intake, KDS, Inventory         |
+| HC Only               | Company, Branch, Department, Employee | HC                                   |
+| Business Finance Only | Company, Branch, Account, Transaction | Business Finance                     |
+| Personal              | Workspace, Account, Category, Budget  | Personal Finance future              |
 
 Business template adalah preset, bukan fork codebase. Template boleh mengubah label, default navigation, seed, dan onboarding; template tidak boleh mengubah aturan keamanan atau membuat schema khusus tenant.
 
@@ -323,13 +323,13 @@ Business template adalah preset, bukan fork codebase. Template boleh mengubah la
 
 **Tambahan cakupan 4 Oktober 2026 atas permintaan user; direncanakan di M2-FT-10, belum diimplementasikan.** Dollar pada pilihan ini berarti dolar Amerika Serikat (`USD`).
 
-| ID | Requirement |
-|---|---|
-| CUR-001 | Pengguna dengan izin kelola organisasi dan cakupan semua lokasi dapat memilih satu mata uang dasar bisnis: Rupiah (`IDR`, bawaan) atau US Dollar (`USD`). Semua lokasi bisnis memakai pilihan yang sama. Bahasa tampilan tidak mengubah mata uang. |
+| ID      | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CUR-001 | Pengguna dengan izin kelola organisasi dan cakupan semua lokasi dapat memilih satu mata uang dasar bisnis: Rupiah (`IDR`, bawaan) atau US Dollar (`USD`). Semua lokasi bisnis memakai pilihan yang sama. Bahasa tampilan tidak mengubah mata uang.                                                                                                                                                                                                      |
 | CUR-002 | Pilihan dapat diubah selama workspace belum mempunyai data bernilai uang, termasuk harga katalog, draft/held cart tersimpan, shift, pesanan, tagihan, pembayaran/refund, mutasi kas, atau data keuangan. Keberadaan record tetap mengunci pilihan meskipun nominalnya nol atau record kemudian dinonaktifkan/dibatalkan. Backend memeriksa ulang syarat secara atomik saat menyimpan agar perubahan tidak berlomba dengan pencatatan data uang pertama. |
-| CUR-003 | Jika terkunci, mata uang tetap terlihat baca-saja disertai alasan; pengguna masih boleh mengubah nama bisnis. Tidak ada konversi otomatis, penggantian label mata uang pada nominal lama, atau penghapusan riwayat untuk membuka kunci. Memilih mata uang yang sama tidak dianggap perubahan. |
-| CUR-004 | Harga, pesanan, pembayaran, kembalian, refund, ringkasan shift, struk, dan event uang membawa mata uang yang konsisten. Data historis ditampilkan dengan mata uang record asal, bukan preferensi workspace saat dibaca. Nominal berbeda mata uang tidak dijumlahkan tanpa aturan konversi tersendiri. |
-| CUR-005 | Input dan format mendukung nominal USD pecahan sen tanpa floating-point pada penyimpanan/perhitungan uang. Nilai IDR lama tidak berubah skala. Label dan pesan tersedia dalam Indonesia/Inggris; perubahan pilihan diaudit. |
+| CUR-003 | Jika terkunci, mata uang tetap terlihat baca-saja disertai alasan; pengguna masih boleh mengubah nama bisnis. Tidak ada konversi otomatis, penggantian label mata uang pada nominal lama, atau penghapusan riwayat untuk membuka kunci. Memilih mata uang yang sama tidak dianggap perubahan.                                                                                                                                                           |
+| CUR-004 | Harga, pesanan, pembayaran, kembalian, refund, ringkasan shift, struk, dan event uang membawa mata uang yang konsisten. Data historis ditampilkan dengan mata uang record asal, bukan preferensi workspace saat dibaca. Nominal berbeda mata uang tidak dijumlahkan tanpa aturan konversi tersendiri.                                                                                                                                                   |
+| CUR-005 | Input dan format mendukung nominal USD pecahan sen tanpa floating-point pada penyimpanan/perhitungan uang. Nilai IDR lama tidak berubah skala. Label dan pesan tersedia dalam Indonesia/Inggris; perubahan pilihan diaudit.                                                                                                                                                                                                                             |
 
 Cakupan ini adalah pilihan satu mata uang dasar per workspace. Kurs, konversi saldo/histori, pembayaran dengan beberapa mata uang dalam satu bisnis, serta multi-currency accounting tidak termasuk task ini. Harga langganan platform tidak ikut berubah karena pilihan mata uang bisnis.
 
@@ -339,27 +339,27 @@ Cakupan ini adalah pilihan satu mata uang dasar per workspace. Kurs, konversi sa
 
 ### 7.1 Peran platform
 
-| Peran | Tujuan utama |
-|---|---|
-| Platform Owner | Mengelola seluruh platform, paket, billing policy, dan akses admin |
-| Platform Admin | Mengelola workspace, subscription, modules, limits, dan support |
-| Platform Support | Membantu customer dengan akses beralasan, terbatas waktu, dan diaudit |
+| Peran            | Tujuan utama                                                                   |
+| ---------------- | ------------------------------------------------------------------------------ |
+| Platform Owner   | Mengelola seluruh platform, paket, billing policy, dan akses admin             |
+| Platform Admin   | Mengelola workspace, subscription, modules, limits, dan support                |
+| Platform Support | Membantu customer dengan akses beralasan, terbatas waktu, dan diaudit          |
 | Platform Finance | Mengelola invoice subscription manual dan rekonsiliasi pembayaran subscription |
 
 ### 7.2 Peran workspace bisnis
 
-| Peran | Scope umum |
-|---|---|
-| Owner | Semua modul yang dibeli dan konfigurasi workspace |
-| Manager | Operasi lokasi yang ditugaskan dan approval tertentu |
-| Cashier | POS, order, payment manual, shift kas |
-| Kitchen | KDS dan status produksi |
-| Waiter | Meja, order, request customer |
-| Inventory Staff | Stock, receiving, adjustment sesuai permission |
-| Finance Staff | Income, expense, reconciliation, report keuangan |
-| HR Admin | Employee, schedule, attendance, leave |
-| Employee | Self-service HC sesuai hubungan employee-user |
-| Custom Role | Kombinasi permission dengan scope location |
+| Peran           | Scope umum                                           |
+| --------------- | ---------------------------------------------------- |
+| Owner           | Semua modul yang dibeli dan konfigurasi workspace    |
+| Manager         | Operasi lokasi yang ditugaskan dan approval tertentu |
+| Cashier         | POS, order, payment manual, shift kas                |
+| Kitchen         | KDS dan status produksi                              |
+| Waiter          | Meja, order, request customer                        |
+| Inventory Staff | Stock, receiving, adjustment sesuai permission       |
+| Finance Staff   | Income, expense, reconciliation, report keuangan     |
+| HR Admin        | Employee, schedule, attendance, leave                |
+| Employee        | Self-service HC sesuai hubungan employee-user        |
+| Custom Role     | Kombinasi permission dengan scope location           |
 
 ### 7.3 User tidak sama dengan employee
 
@@ -399,21 +399,21 @@ limits:
 
 ### 8.2 Paket standar
 
-| Paket | Isi minimum | Status |
-|---|---|---|
-| Profile | Cafe Profile + Catalog publik terbatas | R1 |
-| POS Basic | Catalog Basic + POS Basic + embedded sales report | R1 |
-| Cafe Digital | POS Basic + Floor/Table/Self-Order Basic + KDS Basic | R1 simple |
-| Cafe Operations | Cafe Digital + Inventory Basic + Business Finance Basic + Customer Basic | R1 bertahap |
-| Cafe Growth | Tier Pro pada modul operasional utama + Analytics Pro | R1+/Future menurut kesiapan capability |
-| Enterprise | Komposisi dan limit custom yang tetap memakai package snapshot | Custom |
-| HC Only | HC Basic, Pro, atau Advanced + Core Platform | Basic R1; tier lebih tinggi Future |
-| KDS Only | KDS tier terpilih + Order Intake Lite/manual/API sesuai entitlement | Basic R1 |
-| Finance Only | Business Finance tier terpilih + Finance Core | Basic R1 |
-| Inventory Only | Inventory tier terpilih + Core Platform | Basic R1 |
-| Custom Modular | Kombinasi product module valid | Sesuai module availability |
-| Integrated Payment Add-on | Dynamic payment dan settlement | Future; tetap tunduk PJP/legal |
-| Personal Finance | Personal Finance pada workspace PERSONAL | Future |
+| Paket                     | Isi minimum                                                              | Status                                 |
+| ------------------------- | ------------------------------------------------------------------------ | -------------------------------------- |
+| Profile                   | Cafe Profile + Catalog publik terbatas                                   | R1                                     |
+| POS Basic                 | Catalog Basic + POS Basic + embedded sales report                        | R1                                     |
+| Cafe Digital              | POS Basic + Floor/Table/Self-Order Basic + KDS Basic                     | R1 simple                              |
+| Cafe Operations           | Cafe Digital + Inventory Basic + Business Finance Basic + Customer Basic | R1 bertahap                            |
+| Cafe Growth               | Tier Pro pada modul operasional utama + Analytics Pro                    | R1+/Future menurut kesiapan capability |
+| Enterprise                | Komposisi dan limit custom yang tetap memakai package snapshot           | Custom                                 |
+| HC Only                   | HC Basic, Pro, atau Advanced + Core Platform                             | Basic R1; tier lebih tinggi Future     |
+| KDS Only                  | KDS tier terpilih + Order Intake Lite/manual/API sesuai entitlement      | Basic R1                               |
+| Finance Only              | Business Finance tier terpilih + Finance Core                            | Basic R1                               |
+| Inventory Only            | Inventory tier terpilih + Core Platform                                  | Basic R1                               |
+| Custom Modular            | Kombinasi product module valid                                           | Sesuai module availability             |
+| Integrated Payment Add-on | Dynamic payment dan settlement                                           | Future; tetap tunduk PJP/legal         |
+| Personal Finance          | Personal Finance pada workspace PERSONAL                                 | Future                                 |
 
 Definisi capability lengkap setiap Basic, Pro, dan Advanced berada pada `CAFE-COMPANION-MODULE-TIERS-V1.md`. Angka users, locations, devices, transactions, employees, storage, dan add-on berada pada `CAFE-COMPANION-PACKAGES-LIMITS-V1.md`.
 
@@ -509,30 +509,30 @@ Effective limit dihitung dari package version snapshot, add-on aktif, dan worksp
 
 ### 9.2 Internal kernel — otomatis, tidak dijual
 
-| Kernel | Dipakai oleh |
-|---|---|
-| Catalog Kernel | Catalog/Menu, POS, Self-Order, optional Inventory bridge |
-| Order Intake Kernel | POS, Self-Order, KDS standalone, external order integrations |
-| Bill & Payment Ledger | POS, Self-Order payment, Business Finance bridge |
-| Finance Core | Business Finance dan Personal Finance |
-| Reporting Projection | Dashboard/report per modul |
+| Kernel                | Dipakai oleh                                                 |
+| --------------------- | ------------------------------------------------------------ |
+| Catalog Kernel        | Catalog/Menu, POS, Self-Order, optional Inventory bridge     |
+| Order Intake Kernel   | POS, Self-Order, KDS standalone, external order integrations |
+| Bill & Payment Ledger | POS, Self-Order payment, Business Finance bridge             |
+| Finance Core          | Business Finance dan Personal Finance                        |
+| Reporting Projection  | Dashboard/report per modul                                   |
 
 Internal kernel hanya diaktifkan ketika diperlukan. HC-only tidak harus melihat atau menggunakan Catalog/Order.
 
 ### 9.3 Product module
 
-| Modul | Bisa dijual sendiri | Minimum dependency internal | Jalur standalone | Bridge opsional |
-|---|---:|---|---|---|
-| Catalog & Profile | Ya | Core + Catalog Kernel | CRUD produk/menu dan profile publik | POS, Self-Order, Inventory |
-| POS & Sales | Ya | Catalog + Order + Bill/Payment Ledger | Input kasir | KDS, Inventory, Finance, Customer |
-| Floor & Customer Ordering | Ya sebagai paket digital | Catalog + Order + Bill | QR/mobile web | POS, KDS, Payment |
-| KDS | Ya | Order Intake Kernel | Manual/API/import inbox | POS/Self-Order events |
-| Inventory | Ya | Core | Item, movement, stocktake manual | Catalog recipe, POS/order consumption, Finance HPP |
-| Business Finance | Ya | Finance Core | Income/expense/manual/import | POS revenue/payment, Inventory HPP, HC payroll future |
-| Human Capital | Ya | Core organization | Employee/shift/attendance/leave | Finance payroll future |
-| Customer Basic | Ya | Core | Customer record manual | POS/order history |
-| Reports & Analytics | Report basic melekat pada modul | Reporting Projection | Report dari modul aktif | Cross-module analytics future |
-| Personal Finance | Ya, future | Finance Core + PERSONAL workspace | Manual/import/mobile | Bank integration future |
+| Modul                     |             Bisa dijual sendiri | Minimum dependency internal           | Jalur standalone                    | Bridge opsional                                       |
+| ------------------------- | ------------------------------: | ------------------------------------- | ----------------------------------- | ----------------------------------------------------- |
+| Catalog & Profile         |                              Ya | Core + Catalog Kernel                 | CRUD produk/menu dan profile publik | POS, Self-Order, Inventory                            |
+| POS & Sales               |                              Ya | Catalog + Order + Bill/Payment Ledger | Input kasir                         | KDS, Inventory, Finance, Customer                     |
+| Floor & Customer Ordering |        Ya sebagai paket digital | Catalog + Order + Bill                | QR/mobile web                       | POS, KDS, Payment                                     |
+| KDS                       |                              Ya | Order Intake Kernel                   | Manual/API/import inbox             | POS/Self-Order events                                 |
+| Inventory                 |                              Ya | Core                                  | Item, movement, stocktake manual    | Catalog recipe, POS/order consumption, Finance HPP    |
+| Business Finance          |                              Ya | Finance Core                          | Income/expense/manual/import        | POS revenue/payment, Inventory HPP, HC payroll future |
+| Human Capital             |                              Ya | Core organization                     | Employee/shift/attendance/leave     | Finance payroll future                                |
+| Customer Basic            |                              Ya | Core                                  | Customer record manual              | POS/order history                                     |
+| Reports & Analytics       | Report basic melekat pada modul | Reporting Projection                  | Report dari modul aktif             | Cross-module analytics future                         |
+| Personal Finance          |                      Ya, future | Finance Core + PERSONAL workspace     | Manual/import/mobile                | Bank integration future                               |
 
 ### 9.4 Dependency resolver
 
@@ -558,66 +558,66 @@ Contoh:
 
 ### 10.1 Authentication dan session
 
-| ID | Requirement | Prioritas |
-|---|---|---|
-| CORE-AUTH-001 | Sistem harus menyediakan login yang tidak terikat pada satu workspace. | R1 wajib |
-| CORE-AUTH-002 | Setelah login, user harus memilih workspace jika memiliki lebih dari satu membership aktif. | R1 wajib |
-| CORE-AUTH-003 | Session harus membawa user identity; workspace aktif harus divalidasi server pada setiap request. | R1 wajib |
-| CORE-AUTH-004 | Sistem harus mendukung pencabutan session dan logout perangkat. | R1 wajib |
-| CORE-AUTH-005 | MFA dan SSO enterprise disiapkan sebagai extension point, bukan scope R1. | Future |
+| ID            | Requirement                                                                                       | Prioritas |
+| ------------- | ------------------------------------------------------------------------------------------------- | --------- |
+| CORE-AUTH-001 | Sistem harus menyediakan login yang tidak terikat pada satu workspace.                            | R1 wajib  |
+| CORE-AUTH-002 | Setelah login, user harus memilih workspace jika memiliki lebih dari satu membership aktif.       | R1 wajib  |
+| CORE-AUTH-003 | Session harus membawa user identity; workspace aktif harus divalidasi server pada setiap request. | R1 wajib  |
+| CORE-AUTH-004 | Sistem harus mendukung pencabutan session dan logout perangkat.                                   | R1 wajib  |
+| CORE-AUTH-005 | MFA dan SSO enterprise disiapkan sebagai extension point, bukan scope R1.                         | Future    |
 
 ### 10.2 Workspace, membership, dan scope
 
-| ID | Requirement | Prioritas |
-|---|---|---|
-| CORE-ORG-001 | Platform Admin dapat membuat workspace BUSINESS. | R1 wajib |
-| CORE-ORG-002 | Sistem dapat membuat satu business unit dan satu location default saat onboarding merchant sederhana. | R1 wajib |
-| CORE-ORG-003 | Owner dapat mengundang user dan menentukan role serta location scope. | R1 wajib |
-| CORE-ORG-004 | Semua query domain harus dibatasi oleh `workspace_id`; query location-scoped juga dibatasi `location_id`. | R1 wajib |
-| CORE-ORG-005 | User dapat beralih workspace tanpa mencampur cache, navigation, permission, atau data. | R1 wajib |
+| ID           | Requirement                                                                                               | Prioritas      |
+| ------------ | --------------------------------------------------------------------------------------------------------- | -------------- |
+| CORE-ORG-001 | Platform Admin dapat membuat workspace BUSINESS.                                                          | R1 wajib       |
+| CORE-ORG-002 | Sistem dapat membuat satu business unit dan satu location default saat onboarding merchant sederhana.     | R1 wajib       |
+| CORE-ORG-003 | Owner dapat mengundang user dan menentukan role serta location scope.                                     | R1 wajib       |
+| CORE-ORG-004 | Semua query domain harus dibatasi oleh `workspace_id`; query location-scoped juga dibatasi `location_id`. | R1 wajib       |
+| CORE-ORG-005 | User dapat beralih workspace tanpa mencampur cache, navigation, permission, atau data.                    | R1 wajib       |
 | CORE-ORG-006 | Workspace PERSONAL dapat dibuat oleh service/API pada fondasi, tetapi onboarding publiknya belum dirilis. | Foundation now |
 
 ### 10.3 Entitlement dan permission
 
-| ID | Requirement | Prioritas |
-|---|---|---|
-| CORE-ENT-001 | Entitlement harus disimpan sebagai capability, tier, validity period, dan optional limits. | R1 wajib |
-| CORE-ENT-002 | Frontend membangun navigation dari module manifest dan effective entitlement. | R1 wajib |
-| CORE-ENT-003 | Backend harus menolak endpoint yang tidak memiliki entitlement aktif. | R1 wajib |
-| CORE-ENT-004 | Permission harus dievaluasi setelah entitlement dan berdasarkan role serta scope. | R1 wajib |
-| CORE-ENT-005 | Perubahan package tidak boleh menghapus data domain. | R1 wajib |
-| CORE-ENT-006 | Effective entitlement harus dapat dijelaskan: package source, override source, start, expiry, dan limit. | R1 wajib |
+| ID           | Requirement                                                                                              | Prioritas |
+| ------------ | -------------------------------------------------------------------------------------------------------- | --------- |
+| CORE-ENT-001 | Entitlement harus disimpan sebagai capability, tier, validity period, dan optional limits.               | R1 wajib  |
+| CORE-ENT-002 | Frontend membangun navigation dari module manifest dan effective entitlement.                            | R1 wajib  |
+| CORE-ENT-003 | Backend harus menolak endpoint yang tidak memiliki entitlement aktif.                                    | R1 wajib  |
+| CORE-ENT-004 | Permission harus dievaluasi setelah entitlement dan berdasarkan role serta scope.                        | R1 wajib  |
+| CORE-ENT-005 | Perubahan package tidak boleh menghapus data domain.                                                     | R1 wajib  |
+| CORE-ENT-006 | Effective entitlement harus dapat dijelaskan: package source, override source, start, expiry, dan limit. | R1 wajib  |
 
 ### 10.4 Installation dan configuration
 
-| ID | Requirement | Prioritas |
-|---|---|---|
-| CORE-INS-001 | Modul yang dibeli harus memiliki satu `module_installation` per workspace dan module key. | R1 wajib |
-| CORE-INS-002 | Installation menyimpan status, tier, config version, setup status, installed time, dan actor. | R1 wajib |
-| CORE-INS-003 | Provisioning harus idempotent; retry tidak membuat seed atau binding ganda. | R1 wajib |
-| CORE-INS-004 | Config harus divalidasi dengan schema milik modul. | R1 wajib |
-| CORE-INS-005 | Module uninstall bersifat disable/archive, bukan drop table atau delete data. | R1 wajib |
+| ID           | Requirement                                                                                   | Prioritas |
+| ------------ | --------------------------------------------------------------------------------------------- | --------- |
+| CORE-INS-001 | Modul yang dibeli harus memiliki satu `module_installation` per workspace dan module key.     | R1 wajib  |
+| CORE-INS-002 | Installation menyimpan status, tier, config version, setup status, installed time, dan actor. | R1 wajib  |
+| CORE-INS-003 | Provisioning harus idempotent; retry tidak membuat seed atau binding ganda.                   | R1 wajib  |
+| CORE-INS-004 | Config harus divalidasi dengan schema milik modul.                                            | R1 wajib  |
+| CORE-INS-005 | Module uninstall bersifat disable/archive, bukan drop table atau delete data.                 | R1 wajib  |
 
 ### 10.5 Integration binding
 
-| ID | Requirement | Prioritas |
-|---|---|---|
-| CORE-INT-001 | Hubungan antarmodul harus direpresentasikan sebagai configuration entity, bukan hard-coded per tenant. | R1 wajib |
-| CORE-INT-002 | Binding harus menyimpan source module, event/version, target module, handler, status, dan mapping config. | R1 wajib |
-| CORE-INT-003 | Sistem harus mendukung status `DRAFT`, `SETUP_REQUIRED`, `ACTIVE`, `PAUSED`, dan `ERROR`. | R1 wajib |
-| CORE-INT-004 | Handler harus memeriksa installation, entitlement, binding status, dan idempotency sebelum memproses. | R1 wajib |
-| CORE-INT-005 | Test binding harus tersedia untuk memvalidasi config tanpa membuat transaksi finansial produksi. | R1 sebaiknya |
-| CORE-INT-006 | Kesalahan binding tidak boleh membatalkan transaksi source yang sudah berhasil commit. | R1 wajib |
+| ID           | Requirement                                                                                               | Prioritas    |
+| ------------ | --------------------------------------------------------------------------------------------------------- | ------------ |
+| CORE-INT-001 | Hubungan antarmodul harus direpresentasikan sebagai configuration entity, bukan hard-coded per tenant.    | R1 wajib     |
+| CORE-INT-002 | Binding harus menyimpan source module, event/version, target module, handler, status, dan mapping config. | R1 wajib     |
+| CORE-INT-003 | Sistem harus mendukung status `DRAFT`, `SETUP_REQUIRED`, `ACTIVE`, `PAUSED`, dan `ERROR`.                 | R1 wajib     |
+| CORE-INT-004 | Handler harus memeriksa installation, entitlement, binding status, dan idempotency sebelum memproses.     | R1 wajib     |
+| CORE-INT-005 | Test binding harus tersedia untuk memvalidasi config tanpa membuat transaksi finansial produksi.          | R1 sebaiknya |
+| CORE-INT-006 | Kesalahan binding tidak boleh membatalkan transaksi source yang sudah berhasil commit.                    | R1 wajib     |
 
 ### 10.6 Audit dan idempotency
 
-| ID | Requirement | Prioritas |
-|---|---|---|
-| CORE-AUD-001 | Aksi sensitif harus memiliki actor, source/channel, timestamp server, reason, correlation ID, dan before/after summary aman. | R1 wajib |
-| CORE-AUD-002 | Raw password, token, secret, payment payload, foto pribadi, dan attachment content tidak boleh disalin ke audit log. | R1 wajib |
-| CORE-IDEM-001 | Mutation kritis harus menerima `Idempotency-Key`. | R1 wajib |
-| CORE-IDEM-002 | Key unik minimal berdasarkan workspace, operation, dan client key. | R1 wajib |
-| CORE-IDEM-003 | Request duplikat dengan payload sama mengembalikan hasil pertama; payload berbeda dengan key sama ditolak. | R1 wajib |
+| ID            | Requirement                                                                                                                  | Prioritas |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------- | --------- |
+| CORE-AUD-001  | Aksi sensitif harus memiliki actor, source/channel, timestamp server, reason, correlation ID, dan before/after summary aman. | R1 wajib  |
+| CORE-AUD-002  | Raw password, token, secret, payment payload, foto pribadi, dan attachment content tidak boleh disalin ke audit log.         | R1 wajib  |
+| CORE-IDEM-001 | Mutation kritis harus menerima `Idempotency-Key`.                                                                            | R1 wajib  |
+| CORE-IDEM-002 | Key unik minimal berdasarkan workspace, operation, dan client key.                                                           | R1 wajib  |
+| CORE-IDEM-003 | Request duplikat dengan payload sama mengembalikan hasil pertama; payload berbeda dengan key sama ditolak.                   | R1 wajib  |
 
 ### 10.7 Device registry
 
@@ -647,15 +647,15 @@ Contoh:
 
 ### 11.2 Requirement
 
-| ID | Requirement |
-|---|---|
-| CAT-001 | Produk harus dimiliki Catalog module, bukan POS atau KDS. |
-| CAT-002 | Harga transaksi harus disalin sebagai snapshot ke order item saat order dibuat. |
+| ID      | Requirement                                                                           |
+| ------- | ------------------------------------------------------------------------------------- |
+| CAT-001 | Produk harus dimiliki Catalog module, bukan POS atau KDS.                             |
+| CAT-002 | Harga transaksi harus disalin sebagai snapshot ke order item saat order dibuat.       |
 | CAT-003 | Perubahan nama, harga, modifier, atau recipe tidak boleh mengubah transaksi historis. |
-| CAT-004 | Customer-safe DTO tidak boleh memuat cost, HPP, margin, internal ID, atau recipe. |
-| CAT-005 | Produk dapat dinonaktifkan tanpa menghapus histori. |
-| CAT-006 | Jika Inventory tidak aktif, field recipe tidak tampil dan bukan requirement. |
-| CAT-007 | Jika POS tidak aktif, Catalog tetap dapat dipakai untuk profile/menu publik. |
+| CAT-004 | Customer-safe DTO tidak boleh memuat cost, HPP, margin, internal ID, atau recipe.     |
+| CAT-005 | Produk dapat dinonaktifkan tanpa menghapus histori.                                   |
+| CAT-006 | Jika Inventory tidak aktif, field recipe tidak tampil dan bukan requirement.          |
+| CAT-007 | Jika POS tidak aktif, Catalog tetap dapat dipakai untuk profile/menu publik.          |
 
 ### 11.3 Status utama
 
@@ -697,17 +697,17 @@ Memberikan alur kasir yang cepat untuk membuat order, mencatat pembayaran manual
 
 ### 12.3 Requirement
 
-| ID | Requirement |
-|---|---|
-| POS-001 | POS harus dapat berjalan tanpa KDS, Inventory, atau Finance. |
-| POS-002 | Submit order harus menyimpan order dan outbox event dalam satu database transaction. |
-| POS-003 | Complete sale harus menyimpan sale/payment ledger dan event terkait secara atomik. |
-| POS-004 | POS tidak boleh menulis tabel KDS, Inventory, atau Finance secara langsung. |
-| POS-005 | Order item harus menyimpan snapshot nama, harga, tax, modifier, note, dan routing hint yang relevan. |
-| POS-006 | Payment status harus terpisah dari order/production status. |
-| POS-007 | Cancel, void, refund, dan cash adjustment membutuhkan reason dan audit. |
-| POS-008 | Record final tidak boleh dihapus melalui CRUD generik. |
-| POS-009 | POS UI tidak boleh menampilkan HPP, profit, payment provider secret, atau customer data yang tidak diperlukan. |
+| ID      | Requirement                                                                                                     |
+| ------- | --------------------------------------------------------------------------------------------------------------- |
+| POS-001 | POS harus dapat berjalan tanpa KDS, Inventory, atau Finance.                                                    |
+| POS-002 | Submit order harus menyimpan order dan outbox event dalam satu database transaction.                            |
+| POS-003 | Complete sale harus menyimpan sale/payment ledger dan event terkait secara atomik.                              |
+| POS-004 | POS tidak boleh menulis tabel KDS, Inventory, atau Finance secara langsung.                                     |
+| POS-005 | Order item harus menyimpan snapshot nama, harga, tax, modifier, note, dan routing hint yang relevan.            |
+| POS-006 | Payment status harus terpisah dari order/production status.                                                     |
+| POS-007 | Cancel, void, refund, dan cash adjustment membutuhkan reason dan audit.                                         |
+| POS-008 | Record final tidak boleh dihapus melalui CRUD generik.                                                          |
+| POS-009 | POS UI tidak boleh menampilkan HPP, profit, payment provider secret, atau customer data yang tidak diperlukan.  |
 | POS-010 | Ketika target module nonaktif, transaksi POS tetap berhasil dan event tetap tercatat tanpa membuat data target. |
 
 ### 12.4 State model
@@ -785,25 +785,25 @@ Customer:
 
 ### 13.2 Requirement
 
-| ID | Requirement |
-|---|---|
-| FLOOR-001 | QR publik menggunakan opaque rotating token, bukan internal table ID. |
-| FLOOR-002 | Customer response tidak memuat koordinat layout, internal ID, token mentah, session ID, atau payment detail internal. |
-| FLOOR-003 | Customer order masuk melalui Order use case yang sama dengan source metadata `SELF_ORDER`. |
-| FLOOR-004 | Modul dapat berjalan tanpa KDS; status produksi mengikuti Order Core atau staff update. |
-| FLOOR-005 | Satu bill per table session adalah batas UI simple; split bill penuh future. |
-| FLOOR-006 | Editor Basic memakai snap-to-grid, tiga bentuk meja, visual size, dan rotasi 0/90 derajat; bukan editor denah bangunan. |
-| FLOOR-007 | Floor dan Area adalah entity yang dapat dinamai user; system membuat default floor/area agar setup cafe kecil tetap satu langkah. |
-| FLOOR-008 | Kapasitas adalah integer bisnis; jumlah/posisi kursi pada canvas diturunkan untuk visual dan tidak menjadi source of truth terpisah. |
-| FLOOR-009 | `Edit Layout` dan `Live Table View` adalah mode terpisah dan memiliki permission terpisah; kasir tidak mendapat affordance edit layout tanpa izin. |
+| ID        | Requirement                                                                                                                                                 |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| FLOOR-001 | QR publik menggunakan opaque rotating token, bukan internal table ID.                                                                                       |
+| FLOOR-002 | Customer response tidak memuat koordinat layout, internal ID, token mentah, session ID, atau payment detail internal.                                       |
+| FLOOR-003 | Customer order masuk melalui Order use case yang sama dengan source metadata `SELF_ORDER`.                                                                  |
+| FLOOR-004 | Modul dapat berjalan tanpa KDS; status produksi mengikuti Order Core atau staff update.                                                                     |
+| FLOOR-005 | Satu bill per table session adalah batas UI simple; split bill penuh future.                                                                                |
+| FLOOR-006 | Editor Basic memakai snap-to-grid, tiga bentuk meja, visual size, dan rotasi 0/90 derajat; bukan editor denah bangunan.                                     |
+| FLOOR-007 | Floor dan Area adalah entity yang dapat dinamai user; system membuat default floor/area agar setup cafe kecil tetap satu langkah.                           |
+| FLOOR-008 | Kapasitas adalah integer bisnis; jumlah/posisi kursi pada canvas diturunkan untuk visual dan tidak menjadi source of truth terpisah.                        |
+| FLOOR-009 | `Edit Layout` dan `Live Table View` adalah mode terpisah dan memiliki permission terpisah; kasir tidak mendapat affordance edit layout tanpa izin.          |
 | FLOOR-010 | Table session mempunyai identity sendiri, dapat memuat beberapa order batch, dan history session yang closed tidak ditimpa oleh penggunaan meja berikutnya. |
-| FLOOR-011 | Move table memindahkan session aktif tanpa membatalkan atau membuat ulang order/bill; source dan destination masuk audit. |
-| FLOOR-012 | Relasi session-to-table dimodelkan many-to-many sejak R1; capability merge/split beberapa meja adalah Pro dan tidak membuka otomatis pada Basic. |
-| FLOOR-013 | QR melekat pada table, bukan pada session; resolver server menentukan session yang valid tanpa mengekspos `tableSessionId` ke public DTO. |
-| FLOOR-014 | Status meja operasional adalah projection dari active session/configuration, bukan field bebas yang boleh diubah untuk melewati lifecycle. |
-| FLOOR-015 | Status `RESERVED` dan reservation action hanya tersedia bila capability reservation/waitlist di-entitle. |
-| FLOOR-016 | Archive/nonaktif meja tidak menghapus QR history, table session, order, bill, atau audit record yang sudah ada. |
-| FLOOR-017 | Perubahan floor/area/table tunduk pada limit subscription, tetapi session/order yang sedang aktif tidak boleh dihentikan karena quota berubah. |
+| FLOOR-011 | Move table memindahkan session aktif tanpa membatalkan atau membuat ulang order/bill; source dan destination masuk audit.                                   |
+| FLOOR-012 | Relasi session-to-table dimodelkan many-to-many sejak R1; capability merge/split beberapa meja adalah Pro dan tidak membuka otomatis pada Basic.            |
+| FLOOR-013 | QR melekat pada table, bukan pada session; resolver server menentukan session yang valid tanpa mengekspos `tableSessionId` ke public DTO.                   |
+| FLOOR-014 | Status meja operasional adalah projection dari active session/configuration, bukan field bebas yang boleh diubah untuk melewati lifecycle.                  |
+| FLOOR-015 | Status `RESERVED` dan reservation action hanya tersedia bila capability reservation/waitlist di-entitle.                                                    |
+| FLOOR-016 | Archive/nonaktif meja tidak menghapus QR history, table session, order, bill, atau audit record yang sudah ada.                                             |
+| FLOOR-017 | Perubahan floor/area/table tunduk pada limit subscription, tetapi session/order yang sedang aktif tidak boleh dihentikan karena quota berubah.              |
 
 ### 13.3 Model table session dan grouping
 
@@ -847,13 +847,13 @@ KDS menerima pekerjaan produksi dari satu atau lebih source, mengubahnya menjadi
 
 ### 14.2 Jalur input
 
-| Source | Adapter | Product configuration |
-|---|---|---|
-| POS internal | `OnOrderSubmitted` event handler | POS + KDS binding aktif |
+| Source        | Adapter                                    | Product configuration          |
+| ------------- | ------------------------------------------ | ------------------------------ |
+| POS internal  | `OnOrderSubmitted` event handler           | POS + KDS binding aktif        |
 | QR Self-Order | Event handler yang sama melalui Order Core | Self-Order + KDS binding aktif |
-| Input manual | HTTP command | `kds.manual_intake` capability |
-| POS eksternal | Webhook/API adapter | `kds.api_intake` capability |
-| CSV/import | Import adapter | Future/basic optional |
+| Input manual  | HTTP command                               | `kds.manual_intake` capability |
+| POS eksternal | Webhook/API adapter                        | `kds.api_intake` capability    |
+| CSV/import    | Import adapter                             | Future/basic optional          |
 
 Semua adapter harus memanggil `CreateKitchenTicket` yang sama.
 
@@ -872,16 +872,16 @@ Semua adapter harus memanggil `CreateKitchenTicket` yang sama.
 
 ### 14.4 Requirement
 
-| ID | Requirement |
-|---|---|
-| KDS-001 | KDS harus dapat diaktifkan tanpa POS internal. |
-| KDS-002 | Ticket harus unik berdasarkan workspace, source, dan source reference. |
-| KDS-003 | Ticket menyimpan item snapshot; tidak selalu membaca Catalog/POS pada render. |
-| KDS-004 | Event delivery duplikat tidak boleh membuat ticket ganda. |
-| KDS-005 | Status KDS tidak boleh mengubah tabel POS secara langsung. |
-| KDS-006 | KDS menerbitkan event status agar Order/POS/customer read model dapat bereaksi. |
+| ID      | Requirement                                                                                   |
+| ------- | --------------------------------------------------------------------------------------------- |
+| KDS-001 | KDS harus dapat diaktifkan tanpa POS internal.                                                |
+| KDS-002 | Ticket harus unik berdasarkan workspace, source, dan source reference.                        |
+| KDS-003 | Ticket menyimpan item snapshot; tidak selalu membaca Catalog/POS pada render.                 |
+| KDS-004 | Event delivery duplikat tidak boleh membuat ticket ganda.                                     |
+| KDS-005 | Status KDS tidak boleh mengubah tabel POS secara langsung.                                    |
+| KDS-006 | KDS menerbitkan event status agar Order/POS/customer read model dapat bereaksi.               |
 | KDS-007 | KDS UI tidak boleh menerima price, HPP, payment, customer phone, atau internal audit payload. |
-| KDS-008 | Jika binding error, error masuk retry/dead-letter operasional tanpa menghapus source order. |
+| KDS-008 | Jika binding error, error masuk retry/dead-letter operasional tanpa menghapus source order.   |
 
 ### 14.5 Status dan event
 
@@ -936,17 +936,17 @@ Inventory dapat digunakan sendiri untuk pencatatan stok sederhana dan dapat mene
 
 ### 15.3 Requirement
 
-| ID | Requirement |
-|---|---|
-| INV-001 | Inventory item dapat dibuat tanpa Catalog product. |
-| INV-002 | Link Catalog–Inventory bersifat bridge many-to-many melalui recipe/BOM. |
+| ID      | Requirement                                                                                      |
+| ------- | ------------------------------------------------------------------------------------------------ |
+| INV-001 | Inventory item dapat dibuat tanpa Catalog product.                                               |
+| INV-002 | Link Catalog–Inventory bersifat bridge many-to-many melalui recipe/BOM.                          |
 | INV-003 | Stock balance dihitung dari immutable movement ledger atau projection yang dapat direkonsiliasi. |
-| INV-004 | Movement final tidak boleh dihapus; koreksi menggunakan reversal/adjustment. |
-| INV-005 | Auto-consumption hanya berjalan jika binding aktif dan recipe valid. |
-| INV-006 | Event duplikat tidak boleh mengurangi stok dua kali. |
-| INV-007 | Transfer harus membuat movement keluar dan masuk dalam satu transaction domain. |
-| INV-008 | Negative stock policy dapat dikonfigurasi per workspace/location. |
-| INV-009 | HPP harus diberi label estimasi bila source cost belum lengkap. |
+| INV-004 | Movement final tidak boleh dihapus; koreksi menggunakan reversal/adjustment.                     |
+| INV-005 | Auto-consumption hanya berjalan jika binding aktif dan recipe valid.                             |
+| INV-006 | Event duplikat tidak boleh mengurangi stok dua kali.                                             |
+| INV-007 | Transfer harus membuat movement keluar dan masuk dalam satu transaction domain.                  |
+| INV-008 | Negative stock policy dapat dikonfigurasi per workspace/location.                                |
+| INV-009 | HPP harus diberi label estimasi bila source cost belum lengkap.                                  |
 
 ### 15.4 Titik konsumsi stok
 
@@ -1002,14 +1002,14 @@ Finance Core adalah internal kernel. Ia tidak muncul sebagai menu dan tidak diju
 
 ### 16.4 Pemisahan Business dan Personal
 
-| Area | Business Finance | Personal Finance |
-|---|---|---|
-| Workspace | `BUSINESS` | `PERSONAL` |
-| Pengguna | Owner, Finance Staff, Manager terbatas | Pemilik workspace dan collaborator future |
-| Sumber otomatis | POS, payment, inventory, payroll future | Bank import, recurring rule, scan receipt future |
-| Fokus UI | Income usaha, expense, cash closing, margin | Account, spending, budget, saving goal |
-| Reporting | Per location dan consolidated business | Personal cashflow/net worth/budget |
-| Extension | Accounting formal | Household/shared finance future |
+| Area            | Business Finance                            | Personal Finance                                 |
+| --------------- | ------------------------------------------- | ------------------------------------------------ |
+| Workspace       | `BUSINESS`                                  | `PERSONAL`                                       |
+| Pengguna        | Owner, Finance Staff, Manager terbatas      | Pemilik workspace dan collaborator future        |
+| Sumber otomatis | POS, payment, inventory, payroll future     | Bank import, recurring rule, scan receipt future |
+| Fokus UI        | Income usaha, expense, cash closing, margin | Account, spending, budget, saving goal           |
+| Reporting       | Per location dan consolidated business      | Personal cashflow/net worth/budget               |
+| Extension       | Accounting formal                           | Household/shared finance future                  |
 
 Tidak boleh ada satu halaman yang penuh kondisi `if personal/business`. Kedua product module memanggil Finance Core melalui application service yang sesuai.
 
@@ -1023,13 +1023,13 @@ Menyediakan pencatatan keuangan operasional sederhana untuk bisnis, baik sebagai
 
 ### 17.2 Jalur input
 
-| Source | Contoh | Adapter |
-|---|---|---|
-| Manual | Income/expense/cash adjustment | HTTP command |
-| POS internal | Sale revenue dan payment | Internal event handler |
-| Inventory | Estimated HPP/waste/purchase | Internal event handler/projection |
-| Import | CSV bank/cashbook | Import adapter, optional |
-| External | Accounting/bank API | Future integration adapter |
+| Source       | Contoh                         | Adapter                           |
+| ------------ | ------------------------------ | --------------------------------- |
+| Manual       | Income/expense/cash adjustment | HTTP command                      |
+| POS internal | Sale revenue dan payment       | Internal event handler            |
+| Inventory    | Estimated HPP/waste/purchase   | Internal event handler/projection |
+| Import       | CSV bank/cashbook              | Import adapter, optional          |
+| External     | Accounting/bank API            | Future integration adapter        |
 
 Semua jalur harus berakhir pada use case Finance seperti `RecordBusinessIncome`, `RecordExpense`, `RecordSalesRevenue`, atau `ReverseFinancialTransaction`.
 
@@ -1052,18 +1052,18 @@ Semua jalur harus berakhir pada use case Finance seperti `RecordBusinessIncome`,
 
 ### 17.4 Requirement
 
-| ID | Requirement |
-|---|---|
-| BFIN-001 | Business Finance harus dapat dipakai tanpa POS atau Inventory. |
-| BFIN-002 | Ketika POS binding aktif, `sale.completed` membuat revenue transaction secara idempotent. |
-| BFIN-003 | `payment.recorded` memperbarui payment/cash account projection tanpa menghitung revenue dua kali. |
-| BFIN-004 | `sale.refunded` membuat reversal/contra transaction, bukan menghapus revenue lama. |
+| ID       | Requirement                                                                                            |
+| -------- | ------------------------------------------------------------------------------------------------------ |
+| BFIN-001 | Business Finance harus dapat dipakai tanpa POS atau Inventory.                                         |
+| BFIN-002 | Ketika POS binding aktif, `sale.completed` membuat revenue transaction secara idempotent.              |
+| BFIN-003 | `payment.recorded` memperbarui payment/cash account projection tanpa menghitung revenue dua kali.      |
+| BFIN-004 | `sale.refunded` membuat reversal/contra transaction, bukan menghapus revenue lama.                     |
 | BFIN-005 | Mapping revenue account, payment account, tax, service charge, dan rounding harus dapat dikonfigurasi. |
-| BFIN-006 | Binding tetap `SETUP_REQUIRED` jika mapping wajib belum lengkap. |
-| BFIN-007 | Manual income tidak boleh menggunakan source reference yang sama dengan event POS. |
-| BFIN-008 | Report Basic harus menampilkan label estimasi dan data freshness. |
-| BFIN-009 | Finance data hanya tampil untuk permission dan location scope yang sesuai. |
-| BFIN-010 | Attachment disimpan sebagai reference aman dan mengikuti retention policy. |
+| BFIN-006 | Binding tetap `SETUP_REQUIRED` jika mapping wajib belum lengkap.                                       |
+| BFIN-007 | Manual income tidak boleh menggunakan source reference yang sama dengan event POS.                     |
+| BFIN-008 | Report Basic harus menampilkan label estimasi dan data freshness.                                      |
+| BFIN-009 | Finance data hanya tampil untuk permission dan location scope yang sesuai.                             |
+| BFIN-010 | Attachment disimpan sebagai reference aman dan mengikuti retention policy.                             |
 
 ### 17.5 Finance advanced — future
 
@@ -1106,14 +1106,14 @@ Memungkinkan user mengelola keuangan pribadi pada workspace `PERSONAL` tanpa mem
 
 ### 18.4 Requirement foundation
 
-| ID | Requirement |
-|---|---|
+| ID           | Requirement                                                                            |
+| ------------ | -------------------------------------------------------------------------------------- |
 | PFIN-FND-001 | Core schema harus mengizinkan workspace `PERSONAL` tanpa business unit/location wajib. |
-| PFIN-FND-002 | Finance Core entity tidak boleh wajib memiliki POS/order reference. |
-| PFIN-FND-003 | Permission personal default hanya memberikan akses ke workspace owner. |
-| PFIN-FND-004 | Business staff tidak boleh memperoleh akses personal melalui hubungan user yang sama. |
+| PFIN-FND-002 | Finance Core entity tidak boleh wajib memiliki POS/order reference.                    |
+| PFIN-FND-003 | Permission personal default hanya memberikan akses ke workspace owner.                 |
+| PFIN-FND-004 | Business staff tidak boleh memperoleh akses personal melalui hubungan user yang sama.  |
 | PFIN-FND-005 | Account di sini adalah representasi catatan; bukan stored-value wallet milik platform. |
-| PFIN-FND-006 | API harus menerima channel `MOBILE` dan idempotency untuk future offline queue. |
+| PFIN-FND-006 | API harus menerima channel `MOBILE` dan idempotency untuk future offline queue.        |
 
 ### 18.5 Out of scope R1
 
@@ -1157,18 +1157,18 @@ Record employee tidak dihapus jika telah memiliki schedule, attendance, atau lea
 
 ### 19.4 Requirement
 
-| ID | Requirement |
-|---|---|
-| HC-001 | HC harus dapat diinstal tanpa Catalog, POS, KDS, Inventory, atau Finance. |
-| HC-002 | Employee dan user harus menjadi entity terpisah; `employee.user_id` nullable. |
-| HC-003 | HR dapat mengundang employee untuk membuat/menghubungkan account. |
-| HC-004 | Schedule harus memiliki timezone location dan menyimpan UTC boundaries. |
-| HC-005 | Publish schedule harus membuat audit dan notification event. |
-| HC-006 | Attendance event bersifat append-only. |
+| ID     | Requirement                                                                               |
+| ------ | ----------------------------------------------------------------------------------------- |
+| HC-001 | HC harus dapat diinstal tanpa Catalog, POS, KDS, Inventory, atau Finance.                 |
+| HC-002 | Employee dan user harus menjadi entity terpisah; `employee.user_id` nullable.             |
+| HC-003 | HR dapat mengundang employee untuk membuat/menghubungkan account.                         |
+| HC-004 | Schedule harus memiliki timezone location dan menyimpan UTC boundaries.                   |
+| HC-005 | Publish schedule harus membuat audit dan notification event.                              |
+| HC-006 | Attendance event bersifat append-only.                                                    |
 | HC-007 | Attendance correction menggunakan correction event/approval, bukan overwrite tanpa jejak. |
-| HC-008 | Mobile atau device hanya mengirim observation/evidence; backend menentukan validitas. |
-| HC-009 | Leave approval harus memeriksa permission dan conflict dasar. |
-| HC-010 | Data pribadi employee hanya tampil untuk role yang membutuhkan. |
+| HC-008 | Mobile atau device hanya mengirim observation/evidence; backend menentukan validitas.     |
+| HC-009 | Leave approval harus memeriksa permission dan conflict dasar.                             |
+| HC-010 | Data pribadi employee hanya tampil untuk role yang membutuhkan.                           |
 
 ### 19.5 Attendance event model
 
@@ -1273,14 +1273,14 @@ Laporan simple melekat pada setiap module. Customer tidak perlu membeli module A
 
 ### 21.2 Report per modul
 
-| Modul | Report simple |
-|---|---|
-| POS | Sales by date/location/product/category/cashier/channel/payment; discount/refund/void; shift variance |
-| KDS | Ticket count, average wait, overdue, source, status |
-| Inventory | Balance, movement, low stock, waste, receiving, estimated HPP |
-| Business Finance | Income, expense, cashbook, payment summary, gross/operating estimate |
-| HC | Headcount, schedule coverage, attendance, lateness, leave |
-| Customer | Visits dan spend summary sesuai permission |
+| Modul            | Report simple                                                                                         |
+| ---------------- | ----------------------------------------------------------------------------------------------------- |
+| POS              | Sales by date/location/product/category/cashier/channel/payment; discount/refund/void; shift variance |
+| KDS              | Ticket count, average wait, overdue, source, status                                                   |
+| Inventory        | Balance, movement, low stock, waste, receiving, estimated HPP                                         |
+| Business Finance | Income, expense, cashbook, payment summary, gross/operating estimate                                  |
+| HC               | Headcount, schedule coverage, attendance, lateness, leave                                             |
+| Customer         | Visits dan spend summary sesuai permission                                                            |
 
 ### 21.3 Requirement
 
@@ -1371,19 +1371,19 @@ Modul nonaktif:
 
 ## 23. Perilaku kombinasi modul
 
-| Modul aktif | Input utama | Otomasi | Perilaku yang diharapkan |
-|---|---|---|---|
-| POS | Kasir | Tidak ada target | Order, sale, payment, dan shift tetap lengkap di POS |
-| POS + KDS | Kasir/QR | `order.submitted` → ticket | Kitchen ticket otomatis; status KDS diproyeksikan kembali ke order/customer |
-| POS + Finance | Kasir | `sale.completed` dan `payment.recorded` | Revenue/payment tercatat otomatis sesuai mapping |
-| POS + Inventory | Kasir | Order/production/sale event → consumption | Stok berkurang sesuai recipe dan deduction point |
-| POS + KDS + Finance | Kasir/QR | Dua binding aktif | KDS menangani produksi; Finance menangani revenue/payment |
-| POS + KDS + Inventory + Finance | Kasir/QR | Tiga target | Tiap target memproses event sendiri dan menulis tabelnya sendiri |
-| KDS only | Manual/API eksternal | Intake adapter → ticket | Tidak memerlukan POS UI/internal sale |
-| Inventory only | Manual/import | Tidak wajib ada event | Stock ledger, stocktake, receiving tetap dapat digunakan |
-| Business Finance only | Manual/import | Tidak wajib ada event | Income, expense, cashbook, report tetap dapat digunakan |
-| HC only | HR/admin/employee | Notification event optional | Tidak menampilkan istilah menu, table, POS, atau outlet bila template Company |
-| Personal Finance future | User mobile/web | Recurring/import future | Berjalan pada PERSONAL workspace dan terisolasi dari bisnis |
+| Modul aktif                     | Input utama          | Otomasi                                   | Perilaku yang diharapkan                                                      |
+| ------------------------------- | -------------------- | ----------------------------------------- | ----------------------------------------------------------------------------- |
+| POS                             | Kasir                | Tidak ada target                          | Order, sale, payment, dan shift tetap lengkap di POS                          |
+| POS + KDS                       | Kasir/QR             | `order.submitted` → ticket                | Kitchen ticket otomatis; status KDS diproyeksikan kembali ke order/customer   |
+| POS + Finance                   | Kasir                | `sale.completed` dan `payment.recorded`   | Revenue/payment tercatat otomatis sesuai mapping                              |
+| POS + Inventory                 | Kasir                | Order/production/sale event → consumption | Stok berkurang sesuai recipe dan deduction point                              |
+| POS + KDS + Finance             | Kasir/QR             | Dua binding aktif                         | KDS menangani produksi; Finance menangani revenue/payment                     |
+| POS + KDS + Inventory + Finance | Kasir/QR             | Tiga target                               | Tiap target memproses event sendiri dan menulis tabelnya sendiri              |
+| KDS only                        | Manual/API eksternal | Intake adapter → ticket                   | Tidak memerlukan POS UI/internal sale                                         |
+| Inventory only                  | Manual/import        | Tidak wajib ada event                     | Stock ledger, stocktake, receiving tetap dapat digunakan                      |
+| Business Finance only           | Manual/import        | Tidak wajib ada event                     | Income, expense, cashbook, report tetap dapat digunakan                       |
+| HC only                         | HR/admin/employee    | Notification event optional               | Tidak menampilkan istilah menu, table, POS, atau outlet bila template Company |
+| Personal Finance future         | User mobile/web      | Recurring/import future                   | Berjalan pada PERSONAL workspace dan terisolasi dari bisnis                   |
 
 ### 23.1 Aturan ketika modul ditambah
 
@@ -1558,7 +1558,7 @@ Projection boleh eventual consistent dan harus menampilkan freshness bila releva
 ```ts
 interface DomainEvent<T> {
   eventId: string;
-  eventType: string;          // contoh sale.completed.v1
+  eventType: string; // contoh sale.completed.v1
   eventVersion: number;
   occurredAt: string;
   recordedAt: string;
@@ -1587,26 +1587,26 @@ interface DomainEvent<T> {
 
 ### 26.3 Event catalog R1
 
-| Event | Producer | Consumer potensial | Tujuan |
-|---|---|---|---|
-| `order.submitted.v1` | Order/POS/Self-Order | KDS, reporting | Membuat ticket/read model |
-| `order.accepted.v1` | Order | Inventory | Consumption bila configured |
-| `order.cancelled.v1` | Order | KDS, Inventory, reporting | Cancel/reversal sesuai state |
-| `kitchen_ticket.started.v1` | KDS | Order, Inventory | Status display/consumption configured |
-| `kitchen_ticket.ready.v1` | KDS | Order, Customer, POS | Pesanan siap |
-| `kitchen_ticket.served.v1` | KDS | Order | Update service status |
-| `sale.completed.v1` | POS/Sales | Finance, Inventory, Customer, report | Revenue, retail consumption, history |
-| `payment.recorded.v1` | Payment Ledger | Finance, report | Cash/bank/payment projection |
-| `sale.refunded.v1` | POS/Sales | Finance, Inventory, Customer, report | Reversal/return policy |
-| `shift.closed.v1` | POS | Finance, report | Cash reconciliation summary |
-| `table_session.opened.v1` | Floor | Order, reporting | Membuka konteks kunjungan meja |
-| `table_session.moved.v1` | Floor | Order, POS, reporting | Memproyeksikan perpindahan session tanpa membuat order baru |
-| `table_session.closed.v1` | Floor | POS, Customer, reporting | Menutup konteks meja setelah pelayanan selesai |
-| `stock.movement_recorded.v1` | Inventory | Finance/report | HPP/waste/purchase projection |
-| `attendance.approved.v1` | HC | Payroll future/report | Approved work time |
-| `schedule.published.v1` | HC | Notification | Notify employee |
-| `module.installed.v1` | Core | Provisioner/admin projection | Setup lifecycle |
-| `subscription.changed.v1` | Core | Entitlement evaluator | Refresh effective access |
+| Event                        | Producer             | Consumer potensial                   | Tujuan                                                      |
+| ---------------------------- | -------------------- | ------------------------------------ | ----------------------------------------------------------- |
+| `order.submitted.v1`         | Order/POS/Self-Order | KDS, reporting                       | Membuat ticket/read model                                   |
+| `order.accepted.v1`          | Order                | Inventory                            | Consumption bila configured                                 |
+| `order.cancelled.v1`         | Order                | KDS, Inventory, reporting            | Cancel/reversal sesuai state                                |
+| `kitchen_ticket.started.v1`  | KDS                  | Order, Inventory                     | Status display/consumption configured                       |
+| `kitchen_ticket.ready.v1`    | KDS                  | Order, Customer, POS                 | Pesanan siap                                                |
+| `kitchen_ticket.served.v1`   | KDS                  | Order                                | Update service status                                       |
+| `sale.completed.v1`          | POS/Sales            | Finance, Inventory, Customer, report | Revenue, retail consumption, history                        |
+| `payment.recorded.v1`        | Payment Ledger       | Finance, report                      | Cash/bank/payment projection                                |
+| `sale.refunded.v1`           | POS/Sales            | Finance, Inventory, Customer, report | Reversal/return policy                                      |
+| `shift.closed.v1`            | POS                  | Finance, report                      | Cash reconciliation summary                                 |
+| `table_session.opened.v1`    | Floor                | Order, reporting                     | Membuka konteks kunjungan meja                              |
+| `table_session.moved.v1`     | Floor                | Order, POS, reporting                | Memproyeksikan perpindahan session tanpa membuat order baru |
+| `table_session.closed.v1`    | Floor                | POS, Customer, reporting             | Menutup konteks meja setelah pelayanan selesai              |
+| `stock.movement_recorded.v1` | Inventory            | Finance/report                       | HPP/waste/purchase projection                               |
+| `attendance.approved.v1`     | HC                   | Payroll future/report                | Approved work time                                          |
+| `schedule.published.v1`      | HC                   | Notification                         | Notify employee                                             |
+| `module.installed.v1`        | Core                 | Provisioner/admin projection         | Setup lifecycle                                             |
+| `subscription.changed.v1`    | Core                 | Entitlement evaluator                | Refresh effective access                                    |
 
 ### 26.4 Contoh `sale.completed.v1`
 
@@ -1854,118 +1854,118 @@ Pemisahan service di masa depan hanya dipertimbangkan jika ada bukti kebutuhan s
 
 ### 30.3 Core tables
 
-| Table | Field/constraint penting | Owner |
-|---|---|---|
-| `core_users` | global login identity, status | Core Auth |
-| `core_workspaces` | type, name, timezone, currency, status | Core Workspace |
-| `core_workspace_memberships` | workspace, user, role/status; unique workspace+user | Core Membership |
-| `core_business_units` | workspace, type, name, status | Core Organization |
-| `core_locations` | workspace, business unit, timezone, address, status | Core Organization |
-| `core_roles` | workspace nullable for system role, name | Core Permission |
-| `core_permissions` | immutable permission key | Core Permission |
-| `core_role_permissions` | role+permission+scope policy | Core Permission |
-| `core_member_location_scopes` | membership+location | Core Permission |
-| `core_packages` | package key, version, status | Core Subscription |
-| `core_package_entitlements` | package version, capability, tier, limit | Core Subscription |
-| `core_subscriptions` | workspace, package snapshot/version, status, dates | Core Subscription |
-| `core_entitlement_overrides` | grant/deny, validity, reason, actor | Core Entitlement |
-| `core_module_installations` | workspace+module unique, tier/status/config version | Core Installation |
-| `core_module_configs` | installation, schema version, validated config | Core Installation |
-| `core_integration_bindings` | source/event/target/handler/status/config | Core Integration |
-| `core_usage_records` | workspace, dimension, period, quantity | Core Metering |
-| `core_devices` | workspace, location, mode, status, last seen | Core Device |
-| `core_audit_logs` | safe action metadata, immutable | Core Audit |
-| `core_idempotency_records` | workspace+operation+key unique, request hash/result ref | Core Idempotency |
-| `core_outbox_events` | event envelope, status, attempt, available_at | Core Event |
-| `core_inbox_events` | consumer+event unique, result/status | Consumer/Core Event |
-| `core_feature_flags` | flag definition/rollout | Core Feature Flag |
+| Table                         | Field/constraint penting                                | Owner               |
+| ----------------------------- | ------------------------------------------------------- | ------------------- |
+| `core_users`                  | global login identity, status                           | Core Auth           |
+| `core_workspaces`             | type, name, timezone, currency, status                  | Core Workspace      |
+| `core_workspace_memberships`  | workspace, user, role/status; unique workspace+user     | Core Membership     |
+| `core_business_units`         | workspace, type, name, status                           | Core Organization   |
+| `core_locations`              | workspace, business unit, timezone, address, status     | Core Organization   |
+| `core_roles`                  | workspace nullable for system role, name                | Core Permission     |
+| `core_permissions`            | immutable permission key                                | Core Permission     |
+| `core_role_permissions`       | role+permission+scope policy                            | Core Permission     |
+| `core_member_location_scopes` | membership+location                                     | Core Permission     |
+| `core_packages`               | package key, version, status                            | Core Subscription   |
+| `core_package_entitlements`   | package version, capability, tier, limit                | Core Subscription   |
+| `core_subscriptions`          | workspace, package snapshot/version, status, dates      | Core Subscription   |
+| `core_entitlement_overrides`  | grant/deny, validity, reason, actor                     | Core Entitlement    |
+| `core_module_installations`   | workspace+module unique, tier/status/config version     | Core Installation   |
+| `core_module_configs`         | installation, schema version, validated config          | Core Installation   |
+| `core_integration_bindings`   | source/event/target/handler/status/config               | Core Integration    |
+| `core_usage_records`          | workspace, dimension, period, quantity                  | Core Metering       |
+| `core_devices`                | workspace, location, mode, status, last seen            | Core Device         |
+| `core_audit_logs`             | safe action metadata, immutable                         | Core Audit          |
+| `core_idempotency_records`    | workspace+operation+key unique, request hash/result ref | Core Idempotency    |
+| `core_outbox_events`          | event envelope, status, attempt, available_at           | Core Event          |
+| `core_inbox_events`           | consumer+event unique, result/status                    | Consumer/Core Event |
+| `core_feature_flags`          | flag definition/rollout                                 | Core Feature Flag   |
 
 ### 30.4 Catalog and order tables
 
-| Table | Catatan |
-|---|---|
-| `catalog_categories` | workspace/business unit, display order, status |
-| `catalog_products` | workspace, business unit, base attributes/status |
-| `catalog_product_variants` | product-owned variants |
-| `catalog_modifier_groups` | selection rule/min/max |
-| `catalog_modifier_options` | price delta snapshot source |
-| `catalog_outlet_products` | location availability/override |
-| `order_orders` | source, order number, statuses, location, table session ref optional |
-| `order_order_items` | immutable-enough transaction snapshot |
-| `billing_bills` | bill totals/status separate from order |
-| `billing_payments` | method, amount, verification status |
-| `billing_payment_allocations` | payment-to-bill allocation |
-| `sales_sales` | completed sale snapshot/status |
-| `sales_refunds` | sale reference, amount, reason, status |
-| `pos_register_sessions` | opening/closing cash and variance |
+| Table                         | Catatan                                                              |
+| ----------------------------- | -------------------------------------------------------------------- |
+| `catalog_categories`          | workspace/business unit, display order, status                       |
+| `catalog_products`            | workspace, business unit, base attributes/status                     |
+| `catalog_product_variants`    | product-owned variants                                               |
+| `catalog_modifier_groups`     | selection rule/min/max                                               |
+| `catalog_modifier_options`    | price delta snapshot source                                          |
+| `catalog_outlet_products`     | location availability/override                                       |
+| `order_orders`                | source, order number, statuses, location, table session ref optional |
+| `order_order_items`           | immutable-enough transaction snapshot                                |
+| `billing_bills`               | bill totals/status separate from order                               |
+| `billing_payments`            | method, amount, verification status                                  |
+| `billing_payment_allocations` | payment-to-bill allocation                                           |
+| `sales_sales`                 | completed sale snapshot/status                                       |
+| `sales_refunds`               | sale reference, amount, reason, status                               |
+| `pos_register_sessions`       | opening/closing cash and variance                                    |
 
 ### 30.5 Floor and KDS tables
 
-| Table | Catatan |
-|---|---|
-| `floor_floors` | location, name, display order, active; default `Main Floor` per location |
-| `floor_areas` | floor, user-defined name/type-neutral label, display order, active; contoh Indoor/Outdoor/VIP |
-| `floor_service_tables` | area, public label, capacity, shape, visual size, grid x/y/w/h, rotation, active/status policy |
-| `floor_table_sessions` | location, display number, guest count, lifecycle status, opened/closing/closed timestamps |
-| `floor_session_tables` | session-table attachment, role `PRIMARY/MERGED`, attached/detached time; mendukung move dan Pro merge tanpa mengubah identity session |
-| `floor_qr_tokens` | hash/reference, version, status, rotated/revoked time |
-| `kds_tickets` | source/source ref unique per workspace, status, timing |
-| `kds_ticket_items` | name/modifier/note snapshots |
-| `kds_ticket_status_history` | append-only transition history |
-| `kds_stations` | one default R1, multi-station foundation optional |
+| Table                       | Catatan                                                                                                                               |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `floor_floors`              | location, name, display order, active; default `Main Floor` per location                                                              |
+| `floor_areas`               | floor, user-defined name/type-neutral label, display order, active; contoh Indoor/Outdoor/VIP                                         |
+| `floor_service_tables`      | area, public label, capacity, shape, visual size, grid x/y/w/h, rotation, active/status policy                                        |
+| `floor_table_sessions`      | location, display number, guest count, lifecycle status, opened/closing/closed timestamps                                             |
+| `floor_session_tables`      | session-table attachment, role `PRIMARY/MERGED`, attached/detached time; mendukung move dan Pro merge tanpa mengubah identity session |
+| `floor_qr_tokens`           | hash/reference, version, status, rotated/revoked time                                                                                 |
+| `kds_tickets`               | source/source ref unique per workspace, status, timing                                                                                |
+| `kds_ticket_items`          | name/modifier/note snapshots                                                                                                          |
+| `kds_ticket_status_history` | append-only transition history                                                                                                        |
+| `kds_stations`              | one default R1, multi-station foundation optional                                                                                     |
 
 Cross-module reference seperti `kds_tickets.source_reference` tidak wajib menjadi foreign key ke `order_orders`. Integritas dipertahankan melalui contract, idempotency, dan audit agar KDS eksternal tetap valid.
 
 ### 30.6 Inventory tables
 
-| Table | Catatan |
-|---|---|
-| `inventory_items` | item master independent from Catalog |
-| `inventory_units` | unit/precision |
-| `inventory_unit_conversions` | conversion factor versioned/validated |
-| `inventory_suppliers` | workspace-scoped |
-| `inventory_recipes` | catalog reference optional + effective status |
-| `inventory_recipe_items` | inventory item and quantity |
-| `inventory_movements` | append-only movement/reversal reference/source ref |
-| `inventory_balance_projection` | rebuildable balance per location/item |
-| `inventory_stocktakes` | workflow header/status |
-| `inventory_stocktake_lines` | counted vs expected |
-| `inventory_transfers` | source/destination and state |
-| `inventory_purchase_receipts` | simple purchasing/receiving |
+| Table                          | Catatan                                            |
+| ------------------------------ | -------------------------------------------------- |
+| `inventory_items`              | item master independent from Catalog               |
+| `inventory_units`              | unit/precision                                     |
+| `inventory_unit_conversions`   | conversion factor versioned/validated              |
+| `inventory_suppliers`          | workspace-scoped                                   |
+| `inventory_recipes`            | catalog reference optional + effective status      |
+| `inventory_recipe_items`       | inventory item and quantity                        |
+| `inventory_movements`          | append-only movement/reversal reference/source ref |
+| `inventory_balance_projection` | rebuildable balance per location/item              |
+| `inventory_stocktakes`         | workflow header/status                             |
+| `inventory_stocktake_lines`    | counted vs expected                                |
+| `inventory_transfers`          | source/destination and state                       |
+| `inventory_purchase_receipts`  | simple purchasing/receiving                        |
 
 ### 30.7 Finance tables
 
-| Table | Catatan |
-|---|---|
-| `finance_accounts` | workspace, type, currency, status |
-| `finance_categories` | module extension/type |
-| `finance_transactions` | source, source reference, occurred date, status, reversal link |
-| `finance_entries` | account, direction/type, decimal amount; balanced rule |
-| `finance_attachments` | attachment reference only |
-| `finance_reconciliations` | account/payment/period reconciliation |
-| `finance_period_projections` | rebuildable summary |
-| `business_finance_mappings` | POS/payment/tax/service/HPP mapping |
-| `personal_finance_budgets` | future, PERSONAL only |
-| `personal_finance_goals` | future, PERSONAL only |
-| `personal_finance_recurring_rules` | future |
+| Table                              | Catatan                                                        |
+| ---------------------------------- | -------------------------------------------------------------- |
+| `finance_accounts`                 | workspace, type, currency, status                              |
+| `finance_categories`               | module extension/type                                          |
+| `finance_transactions`             | source, source reference, occurred date, status, reversal link |
+| `finance_entries`                  | account, direction/type, decimal amount; balanced rule         |
+| `finance_attachments`              | attachment reference only                                      |
+| `finance_reconciliations`          | account/payment/period reconciliation                          |
+| `finance_period_projections`       | rebuildable summary                                            |
+| `business_finance_mappings`        | POS/payment/tax/service/HPP mapping                            |
+| `personal_finance_budgets`         | future, PERSONAL only                                          |
+| `personal_finance_goals`           | future, PERSONAL only                                          |
+| `personal_finance_recurring_rules` | future                                                         |
 
 `finance_transactions.source_reference` unik dalam `(workspace_id, source_type, source_reference, transaction_purpose)` untuk mencegah duplikasi event.
 
 ### 30.8 HC tables
 
-| Table | Catatan |
-|---|---|
-| `hc_employees` | workspace, nullable user link, employee number/status |
-| `hc_departments` | business unit/location scope optional |
-| `hc_positions` | job title/role business |
-| `hc_employee_assignments` | location/department/effective dates |
-| `hc_shift_templates` | local time + timezone context |
-| `hc_schedules` | period/status/version |
-| `hc_schedule_shifts` | employee/date/start/end/location |
-| `hc_attendance_events` | append-only observation/evidence |
-| `hc_attendance_records` | rebuildable daily projection |
-| `hc_leave_types` | policy simple |
-| `hc_leave_requests` | dates/status/approval trail |
+| Table                     | Catatan                                               |
+| ------------------------- | ----------------------------------------------------- |
+| `hc_employees`            | workspace, nullable user link, employee number/status |
+| `hc_departments`          | business unit/location scope optional                 |
+| `hc_positions`            | job title/role business                               |
+| `hc_employee_assignments` | location/department/effective dates                   |
+| `hc_shift_templates`      | local time + timezone context                         |
+| `hc_schedules`            | period/status/version                                 |
+| `hc_schedule_shifts`      | employee/date/start/end/location                      |
+| `hc_attendance_events`    | append-only observation/evidence                      |
+| `hc_attendance_records`   | rebuildable daily projection                          |
+| `hc_leave_types`          | policy simple                                         |
+| `hc_leave_requests`       | dates/status/approval trail                           |
 
 ### 30.9 Customer and projection tables
 
@@ -2138,15 +2138,15 @@ Spesifikasi visual terperinci tetap merujuk `../foundation/design-system.md`.
 
 ### 33.2 Shell
 
-| Shell | Pengguna | Karakter |
-|---|---|---|
-| Platform Admin | Operator SaaS | Dense table, filters, subscription/config focus |
-| Merchant Backoffice | Owner/manager/staff | Contextual navigation dari modul aktif |
-| POS | Cashier | Full-height, touch-first, transaksi cepat |
-| KDS | Kitchen | Kiosk, high contrast, timer, large action |
-| Customer | Guest/customer | Mobile-first, public-safe, minimal friction |
-| HC Mobile | Employee | Future; check-in/schedule/leave focused |
-| Personal Finance Mobile | Personal user | Future; fast transaction entry and summary |
+| Shell                   | Pengguna            | Karakter                                        |
+| ----------------------- | ------------------- | ----------------------------------------------- |
+| Platform Admin          | Operator SaaS       | Dense table, filters, subscription/config focus |
+| Merchant Backoffice     | Owner/manager/staff | Contextual navigation dari modul aktif          |
+| POS                     | Cashier             | Full-height, touch-first, transaksi cepat       |
+| KDS                     | Kitchen             | Kiosk, high contrast, timer, large action       |
+| Customer                | Guest/customer      | Mobile-first, public-safe, minimal friction     |
+| HC Mobile               | Employee            | Future; check-in/schedule/leave focused         |
+| Personal Finance Mobile | Personal user       | Future; fast transaction entry and summary      |
 
 HC Admin R1 berada di Merchant/Business Backoffice. Personal Finance tidak ditambahkan ke Backoffice F&B hanya karena Finance Core digunakan bersama.
 
@@ -2161,14 +2161,14 @@ HC Admin R1 berada di Merchant/Business Backoffice. Personal Finance tidak ditam
 
 ### 33.4 Module states
 
-| State | UX |
-|---|---|
-| Not entitled | Tidak tampil di nav; tersedia pada Explore Modules |
-| Entitled, provisioning | Progress state; action disabled |
-| Setup required | Checklist setup dan CTA lanjutkan |
-| Active | Full navigation/action sesuai permission |
-| Paused/error | Banner, last known data, safe retry/contact action |
-| Suspended subscription | Policy-based read-only dan billing CTA |
+| State                  | UX                                                 |
+| ---------------------- | -------------------------------------------------- |
+| Not entitled           | Tidak tampil di nav; tersedia pada Explore Modules |
+| Entitled, provisioning | Progress state; action disabled                    |
+| Setup required         | Checklist setup dan CTA lanjutkan                  |
+| Active                 | Full navigation/action sesuai permission           |
+| Paused/error           | Banner, last known data, safe retry/contact action |
+| Suspended subscription | Policy-based read-only dan billing CTA             |
 
 ### 33.5 Status vocabulary
 
@@ -2189,11 +2189,11 @@ Status domain tidak boleh dipaksakan menjadi satu enum global. Design system men
 
 Responsive adalah kontrak produk lintas modul, bukan sekadar best-effort CSS. Semua web surface yang berstatus R1 harus mempunyai state yang dapat digunakan pada tiga kelas viewport berikut.
 
-| Kelas | Lebar viewport CSS | Sasaran desain | Baseline QA |
-|---|---:|---|---|
-| **Small (S)** | `320–767px` | Ruang sempit; umumnya satu kolom dan touch-first | `390×844` |
-| **Medium (M)** | `768–1279px` | Ruang menengah; split view selektif dan touch/mouse hybrid | `1024×768` |
-| **Large (L)** | `≥1280px` | Ruang lebar; multi-column, dense management, persistent panels | `1440×900` |
+| Kelas          | Lebar viewport CSS | Sasaran desain                                                 | Baseline QA |
+| -------------- | -----------------: | -------------------------------------------------------------- | ----------- |
+| **Small (S)**  |        `320–767px` | Ruang sempit; umumnya satu kolom dan touch-first               | `390×844`   |
+| **Medium (M)** |       `768–1279px` | Ruang menengah; split view selektif dan touch/mouse hybrid     | `1024×768`  |
+| **Large (L)**  |          `≥1280px` | Ruang lebar; multi-column, dense management, persistent panels | `1440×900`  |
 
 Aturan breakpoint:
 
@@ -2206,16 +2206,16 @@ Aturan breakpoint:
 
 #### 33.6.1 Global layout contract
 
-| Concern | Large | Medium | Small |
-|---|---|---|---|
-| App navigation | Sidebar persistent + header/context | Collapsible sidebar/rail + header | Drawer atau compact bottom navigation untuk primary flow; workspace/location context tetap terlihat |
-| Page grid | Multi-column sesuai kebutuhan | 1–2 column | Single-column |
-| Dense data | Table/list penuh + inline secondary data | Table compact; kolom sekunder boleh dipindah ke detail | Card/row summary + detail screen/sheet; jangan memaksa seluruh kolom |
-| Filter | Inline/filter bar + advanced panel | Compact bar + drawer/sheet | Search + filter sheet; active filter count terlihat |
-| Form | 1–2 column sesuai hubungan field | 1–2 column selektif | 1 column; label tidak terpotong |
-| Detail/edit | Page, side panel, atau dialog | Drawer/sheet bila ruang terbatas | Full-screen detail atau bottom sheet; action utama reachable |
-| Primary action | Header/toolbar atau sticky bila perlu | Toolbar/sticky | Sticky bottom action boleh dipakai dengan safe-area dan tidak menutupi content |
-| Charts/KPI | Multi-card dashboard | 2-column/stack adaptif | Single-column; legend/label tidak hilang hanya demi mengecilkan chart |
+| Concern        | Large                                    | Medium                                                 | Small                                                                                               |
+| -------------- | ---------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| App navigation | Sidebar persistent + header/context      | Collapsible sidebar/rail + header                      | Drawer atau compact bottom navigation untuk primary flow; workspace/location context tetap terlihat |
+| Page grid      | Multi-column sesuai kebutuhan            | 1–2 column                                             | Single-column                                                                                       |
+| Dense data     | Table/list penuh + inline secondary data | Table compact; kolom sekunder boleh dipindah ke detail | Card/row summary + detail screen/sheet; jangan memaksa seluruh kolom                                |
+| Filter         | Inline/filter bar + advanced panel       | Compact bar + drawer/sheet                             | Search + filter sheet; active filter count terlihat                                                 |
+| Form           | 1–2 column sesuai hubungan field         | 1–2 column selektif                                    | 1 column; label tidak terpotong                                                                     |
+| Detail/edit    | Page, side panel, atau dialog            | Drawer/sheet bila ruang terbatas                       | Full-screen detail atau bottom sheet; action utama reachable                                        |
+| Primary action | Header/toolbar atau sticky bila perlu    | Toolbar/sticky                                         | Sticky bottom action boleh dipakai dengan safe-area dan tidak menutupi content                      |
+| Charts/KPI     | Multi-card dashboard                     | 2-column/stack adaptif                                 | Single-column; legend/label tidak hilang hanya demi mengecilkan chart                               |
 
 Aturan global:
 
@@ -2229,21 +2229,21 @@ Aturan global:
 
 #### 33.6.2 Surface behavior matrix
 
-| Surface | Large | Medium | Small |
-|---|---|---|---|
-| Platform Admin | Sidebar + dense table + detail drawer | Collapsible nav + compact table/drawer | Cards/rows + filter sheet + full-screen detail |
-| Merchant Backoffice | Sidebar persistent; list/detail dapat berdampingan | Collapsible sidebar; 1–2 column | Drawer navigation; single-column; table kompleks berubah card/row |
-| Menu Management | Table/grid + filter bar + edit side panel | Grid/table compact + edit drawer | Product cards/rows + search/filter sheet + full-screen edit |
-| POS | Catalog dan cart side-by-side; cart persistent | Target utama tablet landscape; catalog + cart compact, cart boleh collapsible | Catalog menjadi primary view; cart dibuka via sticky summary/bottom sheet/page; checkout menjadi step yang jelas |
-| KDS | Adaptive multi-column ticket grid; minimum readable card width dipertahankan | 2–3 kolom tipikal pada landscape tablet | 1 kolom prioritized queue; status/timer/action tetap terlihat tanpa horizontal page scroll |
-| Inventory | Table/list + stock summary + filters | Compact table atau 2-column cards | Item/movement cards + filter sheet; mutation form single-column |
-| Business Finance | KPI + cashflow/report multi-column; transaction table | KPI 2-column + compact transaction list/table | KPI stack + transaction cards; income/expense form single-column; nominal/action tetap terlihat |
-| HC Admin | Employee/schedule table + detail panel | Compact table/calendar + drawer | Employee/attendance cards; schedule mobile view; detail/edit full-screen/sheet |
-| Analytics/Reports | Multi-card + chart grid | 2-column atau stacked | Single-column; chart dapat scroll di dalam chart container bila secara semantik perlu |
-| Live Table View | Full floor canvas + docked operational context | Pan/zoom touch canvas + collapsible detail | Pannable/zoomable floor view **dan list fallback**; open order, move, checkout/close tetap dapat dilakukan |
-| Floor Layout Editor | Full canvas + palette + persistent property panel | Touch canvas + collapsible palette/property panel | Simplified pannable editor: pilih meja lalu edit via sheet/form; precision drag tidak diwajibkan untuk menyelesaikan konfigurasi |
-| Customer Menu/Self-Order | Responsive centered content; multi-column catalog | 2–3 column catalog sesuai card minimum | Mobile-first 1–2 column; sticky cart summary; modifier/order flow one-handed |
-| Public order status | Centered status/detail | Centered status/detail | Single-column; primary status dan waiter/bill action terlihat tanpa zoom |
+| Surface                  | Large                                                                        | Medium                                                                        | Small                                                                                                                            |
+| ------------------------ | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Platform Admin           | Sidebar + dense table + detail drawer                                        | Collapsible nav + compact table/drawer                                        | Cards/rows + filter sheet + full-screen detail                                                                                   |
+| Merchant Backoffice      | Sidebar persistent; list/detail dapat berdampingan                           | Collapsible sidebar; 1–2 column                                               | Drawer navigation; single-column; table kompleks berubah card/row                                                                |
+| Menu Management          | Table/grid + filter bar + edit side panel                                    | Grid/table compact + edit drawer                                              | Product cards/rows + search/filter sheet + full-screen edit                                                                      |
+| POS                      | Catalog dan cart side-by-side; cart persistent                               | Target utama tablet landscape; catalog + cart compact, cart boleh collapsible | Catalog menjadi primary view; cart dibuka via sticky summary/bottom sheet/page; checkout menjadi step yang jelas                 |
+| KDS                      | Adaptive multi-column ticket grid; minimum readable card width dipertahankan | 2–3 kolom tipikal pada landscape tablet                                       | 1 kolom prioritized queue; status/timer/action tetap terlihat tanpa horizontal page scroll                                       |
+| Inventory                | Table/list + stock summary + filters                                         | Compact table atau 2-column cards                                             | Item/movement cards + filter sheet; mutation form single-column                                                                  |
+| Business Finance         | KPI + cashflow/report multi-column; transaction table                        | KPI 2-column + compact transaction list/table                                 | KPI stack + transaction cards; income/expense form single-column; nominal/action tetap terlihat                                  |
+| HC Admin                 | Employee/schedule table + detail panel                                       | Compact table/calendar + drawer                                               | Employee/attendance cards; schedule mobile view; detail/edit full-screen/sheet                                                   |
+| Analytics/Reports        | Multi-card + chart grid                                                      | 2-column atau stacked                                                         | Single-column; chart dapat scroll di dalam chart container bila secara semantik perlu                                            |
+| Live Table View          | Full floor canvas + docked operational context                               | Pan/zoom touch canvas + collapsible detail                                    | Pannable/zoomable floor view **dan list fallback**; open order, move, checkout/close tetap dapat dilakukan                       |
+| Floor Layout Editor      | Full canvas + palette + persistent property panel                            | Touch canvas + collapsible palette/property panel                             | Simplified pannable editor: pilih meja lalu edit via sheet/form; precision drag tidak diwajibkan untuk menyelesaikan konfigurasi |
+| Customer Menu/Self-Order | Responsive centered content; multi-column catalog                            | 2–3 column catalog sesuai card minimum                                        | Mobile-first 1–2 column; sticky cart summary; modifier/order flow one-handed                                                     |
+| Public order status      | Centered status/detail                                                       | Centered status/detail                                                        | Single-column; primary status dan waiter/bill action terlihat tanpa zoom                                                         |
 
 Jumlah kolom pada tabel di atas adalah target perilaku, bukan hardcoded grid count. Implementasi harus menjaga minimum readable width komponen dan boleh mengurangi kolom lebih awal bila konten/lokalisasi memerlukannya.
 
@@ -2394,14 +2394,14 @@ PRD ini bukan nasihat hukum.
 
 ### 35.1 Performance target R1
 
-| Area | Target kondisi normal |
-|---|---|
-| API read p95 | ≤ 500 ms untuk query umum tanpa export besar |
-| API command p95 | ≤ 1 detik, tidak termasuk provider eksternal |
-| POS submit/complete acknowledgement p95 | ≤ 2 detik |
-| Cross-module event propagation p99 | ≤ 5 detik saat sistem sehat |
-| KDS screen refresh/realtime fallback | Perubahan terlihat ≤ 5 detik |
-| Backoffice initial interactive | Target ≤ 3 detik pada koneksi wajar setelah asset cache |
+| Area                                    | Target kondisi normal                                   |
+| --------------------------------------- | ------------------------------------------------------- |
+| API read p95                            | ≤ 500 ms untuk query umum tanpa export besar            |
+| API command p95                         | ≤ 1 detik, tidak termasuk provider eksternal            |
+| POS submit/complete acknowledgement p95 | ≤ 2 detik                                               |
+| Cross-module event propagation p99      | ≤ 5 detik saat sistem sehat                             |
+| KDS screen refresh/realtime fallback    | Perubahan terlihat ≤ 5 detik                            |
+| Backoffice initial interactive          | Target ≤ 3 detik pada koneksi wajar setelah asset cache |
 
 Target harus diukur, bukan diasumsikan. Report/export besar memiliki target terpisah setelah volume pilot diketahui.
 
@@ -2970,23 +2970,23 @@ Gross profit/HPP/operating profit pada Basic dinilai dari kelengkapan input. Pro
 
 ## 42. Risiko dan mitigasi
 
-| Risiko | Dampak | Mitigasi |
-|---|---|---|
-| Scope terlalu luas karena semua modul simple masuk R1 | Delivery lambat | Phase release, DoD per modul, jangan menjual package belum lengkap |
-| “Standalone” membuat logic ganda | Bug dan biaya maintenance | Banyak adapter, satu use case; boundary tests |
-| Modul tetap saling terkunci via database | Sulit dijual/pisah | Ownership table, public facade/event, larangan repository cross-import |
-| Event duplikat | Revenue/stock/ticket ganda | Inbox, unique source reference, idempotent handler |
-| Event gagal diam-diam | Data antarmodul tidak sinkron | Binding health, retry, blocked state, alert, reconciliation |
-| Finance menghitung revenue/payment dua kali | Laporan salah | Pisahkan revenue recognition dan payment movement; mapping/version test |
-| Inventory deduction point salah | Stok tidak akurat | Config per flow, event explicit, pilot reconciliation |
-| Generic workspace membuat UX cafe membingungkan | Adopsi turun | Business template dan F&B-first terminology |
-| Personal dan business data bocor | Insiden privacy serius | Workspace isolation, membership check, separate navigation/cache/tests |
-| HC mobile mempercayai device time/GPS | Fraud attendance | occurred vs received, evidence validation, server authority |
-| JSON config menjadi tidak terkendali | Migration sulit | Schema version, validation, typed config, migration function |
-| Package berubah merusak customer lama | Entitlement drift | Immutable package version/snapshot; explicit upgrade |
-| Integrated Payment terlalu cepat | Legal/financial risk | Tetap future dengan PJP/legal gate |
-| UI menyembunyikan menu tetapi API terbuka | Security issue | Backend entitlement + permission enforcement |
-| Monolith menjadi “big ball of mud” | Sulit dirawat | Manifest, import rules, ownership, contract tests, module review checklist |
+| Risiko                                                | Dampak                        | Mitigasi                                                                   |
+| ----------------------------------------------------- | ----------------------------- | -------------------------------------------------------------------------- |
+| Scope terlalu luas karena semua modul simple masuk R1 | Delivery lambat               | Phase release, DoD per modul, jangan menjual package belum lengkap         |
+| “Standalone” membuat logic ganda                      | Bug dan biaya maintenance     | Banyak adapter, satu use case; boundary tests                              |
+| Modul tetap saling terkunci via database              | Sulit dijual/pisah            | Ownership table, public facade/event, larangan repository cross-import     |
+| Event duplikat                                        | Revenue/stock/ticket ganda    | Inbox, unique source reference, idempotent handler                         |
+| Event gagal diam-diam                                 | Data antarmodul tidak sinkron | Binding health, retry, blocked state, alert, reconciliation                |
+| Finance menghitung revenue/payment dua kali           | Laporan salah                 | Pisahkan revenue recognition dan payment movement; mapping/version test    |
+| Inventory deduction point salah                       | Stok tidak akurat             | Config per flow, event explicit, pilot reconciliation                      |
+| Generic workspace membuat UX cafe membingungkan       | Adopsi turun                  | Business template dan F&B-first terminology                                |
+| Personal dan business data bocor                      | Insiden privacy serius        | Workspace isolation, membership check, separate navigation/cache/tests     |
+| HC mobile mempercayai device time/GPS                 | Fraud attendance              | occurred vs received, evidence validation, server authority                |
+| JSON config menjadi tidak terkendali                  | Migration sulit               | Schema version, validation, typed config, migration function               |
+| Package berubah merusak customer lama                 | Entitlement drift             | Immutable package version/snapshot; explicit upgrade                       |
+| Integrated Payment terlalu cepat                      | Legal/financial risk          | Tetap future dengan PJP/legal gate                                         |
+| UI menyembunyikan menu tetapi API terbuka             | Security issue                | Backend entitlement + permission enforcement                               |
+| Monolith menjadi “big ball of mud”                    | Sulit dirawat                 | Manifest, import rules, ownership, contract tests, module review checklist |
 
 ---
 
@@ -2994,20 +2994,20 @@ Gross profit/HPP/operating profit pada Basic dinilai dari kelengkapan input. Pro
 
 Keputusan berikut tidak memblokir penyusunan PRD, tetapi harus diselesaikan sebelum fase terkait:
 
-| ID | Pertanyaan | Batas keputusan |
-|---|---|---|
-| OD-01 | Nama produk final tetap Cafe Companion Pro atau memakai brand yang lebih generik? | Sebelum public launch/personal/HC campaign |
-| OD-02 | Apakah HC Basic benar-benar dijual pada Release 1 atau beta setelah F&B modules? | Sebelum roadmap delivery dikunci |
-| OD-03 | Batas user/outlet/employee/transaction tiap package? | Sebelum pricing/pilot |
-| OD-04 | KDS Only default memakai manual intake atau API intake? | Sebelum package publish |
-| OD-05 | Deduction point Inventory default per template? | Sebelum integration pilot |
-| OD-06 | Revenue recognition Basic menggunakan sale completed atau payment confirmed pada setiap channel? | Sebelum Finance integration |
-| OD-07 | Data historis diproses saat modul baru diaktifkan? | Sebelum backfill feature; default PRD: tidak otomatis |
-| OD-08 | Retention period untuk audit, attendance evidence, customer data, dan attachments? | Sebelum production/legal review |
-| OD-09 | Target RPO/RTO production setelah pilot? | Sebelum SLA komersial |
-| OD-10 | Frontend/backend framework dan ORM final? | Technical design phase; tidak mengubah contract PRD |
-| OD-11 | Satu schema PostgreSQL dengan prefix atau schema per module? | Sebelum migration pertama |
-| OD-12 | Pricing dan tax subscription? | Setelah wawancara/pilot 2–3 merchant |
+| ID    | Pertanyaan                                                                                       | Batas keputusan                                       |
+| ----- | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
+| OD-01 | Nama produk final tetap Cafe Companion Pro atau memakai brand yang lebih generik?                | Sebelum public launch/personal/HC campaign            |
+| OD-02 | Apakah HC Basic benar-benar dijual pada Release 1 atau beta setelah F&B modules?                 | Sebelum roadmap delivery dikunci                      |
+| OD-03 | Batas user/outlet/employee/transaction tiap package?                                             | Sebelum pricing/pilot                                 |
+| OD-04 | KDS Only default memakai manual intake atau API intake?                                          | Sebelum package publish                               |
+| OD-05 | Deduction point Inventory default per template?                                                  | Sebelum integration pilot                             |
+| OD-06 | Revenue recognition Basic menggunakan sale completed atau payment confirmed pada setiap channel? | Sebelum Finance integration                           |
+| OD-07 | Data historis diproses saat modul baru diaktifkan?                                               | Sebelum backfill feature; default PRD: tidak otomatis |
+| OD-08 | Retention period untuk audit, attendance evidence, customer data, dan attachments?               | Sebelum production/legal review                       |
+| OD-09 | Target RPO/RTO production setelah pilot?                                                         | Sebelum SLA komersial                                 |
+| OD-10 | Frontend/backend framework dan ORM final?                                                        | Technical design phase; tidak mengubah contract PRD   |
+| OD-11 | Satu schema PostgreSQL dengan prefix atau schema per module?                                     | Sebelum migration pertama                             |
+| OD-12 | Pricing dan tax subscription?                                                                    | Setelah wawancara/pilot 2–3 merchant                  |
 
 Default aman sampai diputuskan:
 
@@ -3023,30 +3023,30 @@ Default aman sampai diputuskan:
 
 ## 44. Traceability terhadap scope lama
 
-| Scope lama | Lokasi di PRD V2 | Hasil |
-|---|---|---|
-| Platform Super Admin/subscription | Bagian 10, 22, 30 | Dipertahankan dan diperinci |
-| Tenant–Brand–Outlet | Bagian 6 | Dipertahankan sebagai terminology F&B; digeneralisasi internal |
-| Staff/roles/entitlements | Bagian 7, 10 | Dipertahankan; employee dipisah dari user |
-| Product/menu | Bagian 11 | Dipertahankan |
-| POS | Bagian 12 | Dipertahankan; standalone contract diperjelas |
-| Order/table layout | Bagian 13 | Dipertahankan dan diperinci menjadi Floor -> Area -> Table, editor Basic, Live Table View, serta table-session lifecycle |
-| QR Self-Order | Bagian 13 | Dipertahankan |
-| KDS | Bagian 14 | Dipertahankan; manual/API intake menambah standalone path |
-| Manual payment/reconciliation | Bagian 12, 17 | Dipertahankan |
-| Inventory Basic | Bagian 15 | Dipertahankan; standalone item/movement ditambahkan |
-| Finance Basic | Bagian 16–17 | Dipertahankan; Finance Core dan standalone mode ditambahkan |
-| Basic Reports | Bagian 21 | Dipertahankan per modul |
-| Device/printer | Bagian 10.7, 36; printer detail tetap pada UI/technical backlog | Dipertahankan |
-| Audit | Bagian 10.6, 34 | Dipertahankan dan diperinci |
-| Customer Basic | Bagian 20 | Dipertahankan |
-| Integrated Payment future | Bagian 3.3, 34.5, 39.10 | Dipertahankan sebagai future |
-| Advanced Inventory/Finance | Bagian 15.5, 17.5 | Dipertahankan sebagai future |
-| PWA/no native app V1 | Bagian 36 | Dipertahankan; mobile foundation ditambahkan |
-| Lima UI shell | Bagian 33.2 | Dipertahankan |
-| Custom Modular package | Bagian 8–9 | Diperinci menjadi capability/installation/binding |
-| HC UI yang ditambahkan kemudian | Bagian 19 | Diangkat menjadi product module R1 simple |
-| Personal Finance | Bagian 18 | Requirement baru, foundation only |
+| Scope lama                        | Lokasi di PRD V2                                                | Hasil                                                                                                                    |
+| --------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Platform Super Admin/subscription | Bagian 10, 22, 30                                               | Dipertahankan dan diperinci                                                                                              |
+| Tenant–Brand–Outlet               | Bagian 6                                                        | Dipertahankan sebagai terminology F&B; digeneralisasi internal                                                           |
+| Staff/roles/entitlements          | Bagian 7, 10                                                    | Dipertahankan; employee dipisah dari user                                                                                |
+| Product/menu                      | Bagian 11                                                       | Dipertahankan                                                                                                            |
+| POS                               | Bagian 12                                                       | Dipertahankan; standalone contract diperjelas                                                                            |
+| Order/table layout                | Bagian 13                                                       | Dipertahankan dan diperinci menjadi Floor -> Area -> Table, editor Basic, Live Table View, serta table-session lifecycle |
+| QR Self-Order                     | Bagian 13                                                       | Dipertahankan                                                                                                            |
+| KDS                               | Bagian 14                                                       | Dipertahankan; manual/API intake menambah standalone path                                                                |
+| Manual payment/reconciliation     | Bagian 12, 17                                                   | Dipertahankan                                                                                                            |
+| Inventory Basic                   | Bagian 15                                                       | Dipertahankan; standalone item/movement ditambahkan                                                                      |
+| Finance Basic                     | Bagian 16–17                                                    | Dipertahankan; Finance Core dan standalone mode ditambahkan                                                              |
+| Basic Reports                     | Bagian 21                                                       | Dipertahankan per modul                                                                                                  |
+| Device/printer                    | Bagian 10.7, 36; printer detail tetap pada UI/technical backlog | Dipertahankan                                                                                                            |
+| Audit                             | Bagian 10.6, 34                                                 | Dipertahankan dan diperinci                                                                                              |
+| Customer Basic                    | Bagian 20                                                       | Dipertahankan                                                                                                            |
+| Integrated Payment future         | Bagian 3.3, 34.5, 39.10                                         | Dipertahankan sebagai future                                                                                             |
+| Advanced Inventory/Finance        | Bagian 15.5, 17.5                                               | Dipertahankan sebagai future                                                                                             |
+| PWA/no native app V1              | Bagian 36                                                       | Dipertahankan; mobile foundation ditambahkan                                                                             |
+| Lima UI shell                     | Bagian 33.2                                                     | Dipertahankan                                                                                                            |
+| Custom Modular package            | Bagian 8–9                                                      | Diperinci menjadi capability/installation/binding                                                                        |
+| HC UI yang ditambahkan kemudian   | Bagian 19                                                       | Diangkat menjadi product module R1 simple                                                                                |
+| Personal Finance                  | Bagian 18                                                       | Requirement baru, foundation only                                                                                        |
 
 ---
 
@@ -3167,10 +3167,7 @@ Setiap module belum dianggap selesai sebelum:
     "kds": {
       "installationStatus": "ACTIVE",
       "tier": "BASIC",
-      "capabilities": [
-        "kds.ticket.manage",
-        "kds.intake.internal"
-      ],
+      "capabilities": ["kds.ticket.manage", "kds.intake.internal"],
       "limits": {
         "devices": 9,
         "ticketsPerCycle": 75000
@@ -3254,12 +3251,12 @@ Technical design tidak boleh mengubah prinsip product/module boundary dalam PRD 
 
 ## Appendix E — Struktur dokumen PRD
 
-| Dokumen | Sumber kebenaran |
-|---|---|
-| `CAFE-COMPANION-PRD-V2-MODULAR-PLATFORM.md` | Visi, scope, module boundary, integrasi, backend, database, security, roadmap |
-| `CAFE-COMPANION-MODULE-TIERS-V1.md` | Basic/Pro/Advanced, capability key, dependency, status delivery |
-| `CAFE-COMPANION-PACKAGES-LIMITS-V1.md` | Package composition, angka limit, add-on, usage, enforcement, upgrade/downgrade |
-| `../foundation/design-system.md` | Visual language, shell, navigation, component, light/dark |
+| Dokumen                                     | Sumber kebenaran                                                                |
+| ------------------------------------------- | ------------------------------------------------------------------------------- |
+| `CAFE-COMPANION-PRD-V2-MODULAR-PLATFORM.md` | Visi, scope, module boundary, integrasi, backend, database, security, roadmap   |
+| `CAFE-COMPANION-MODULE-TIERS-V1.md`         | Basic/Pro/Advanced, capability key, dependency, status delivery                 |
+| `CAFE-COMPANION-PACKAGES-LIMITS-V1.md`      | Package composition, angka limit, add-on, usage, enforcement, upgrade/downgrade |
+| `../foundation/design-system.md`            | Visual language, shell, navigation, component, light/dark                       |
 
 Perubahan capability harus memperbarui Module Tiers dan traceability ke requirement module. Perubahan angka limit tidak memerlukan perubahan business logic module; cukup membuat package version baru. Perubahan module boundary wajib ditinjau pada PRD induk.
 

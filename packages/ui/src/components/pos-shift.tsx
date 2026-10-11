@@ -3,7 +3,7 @@
 import { type FormEvent, useId } from "react";
 
 import { Button } from "./button";
-import { MoneyDisplay, type MoneyMinorValue } from "./money-display";
+import { MoneyDisplay, useMoneyCurrency, type MoneyMinorValue } from "./money-display";
 import { MoneyInput } from "./numeric-date";
 import { FormField, Textarea } from "./text-field";
 
@@ -175,7 +175,7 @@ export function ShiftSummary(props: ShiftSummaryProps) {
     cashRefundsMinor,
     cashSalesMinor,
     className,
-    currency = "IDR",
+    currency: givenCurrency,
     expectedCashMinor,
     facts = [],
     labels,
@@ -184,6 +184,9 @@ export function ShiftSummary(props: ShiftSummaryProps) {
     openingCashMinor,
     status,
   } = props;
+  // Amounts are in the currency of the workspace unless the caller says otherwise.
+  const workspaceCurrency = useMoneyCurrency();
+  const currency = givenCurrency ?? workspaceCurrency;
   const isClosed = status === "closed";
   const variance =
     isClosed && props.canViewVariance ? toMinorBigInt(props.varianceMinor) : undefined;
@@ -304,7 +307,7 @@ export function OpenShiftForm({
 export function CloseShiftForm({
   className,
   countedCashMinor,
-  currency = "IDR",
+  currency: givenCurrency,
   disabled = false,
   expectedCashMinor,
   labels,
@@ -316,6 +319,8 @@ export function CloseShiftForm({
   reason,
   reasonMinLength = 1,
 }: CloseShiftFormProps) {
+  const workspaceCurrency = useMoneyCurrency();
+  const currency = givenCurrency ?? workspaceCurrency;
   const countedCashId = useId();
   const varianceReasonId = useId();
   const expected = toMinorBigInt(expectedCashMinor);

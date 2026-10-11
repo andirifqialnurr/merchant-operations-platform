@@ -119,3 +119,44 @@ test("a brand reactivation refused by the package limit shows the recovery state
   await expect(sheet.getByRole("button", { name: "Lihat langganan" })).toBeVisible();
   await expect(sheet.getByRole("button", { name: "Simpan" })).toHaveCount(0);
 });
+
+test("the currency is chosen only until the business has a price or a transaction", async ({
+  page,
+}) => {
+  await openAs(page, "catalog.owner@local.test", "/settings/organization");
+  const main = page.getByRole("main");
+  // This business sells already: the currency is shown with the reason it stays.
+  await expect(main.getByText("Rupiah (IDR)")).toBeVisible();
+  await expect(
+    main.getByText("Tidak bisa diubah karena bisnis ini sudah punya harga atau transaksi."),
+  ).toBeVisible();
+  await expect(main.locator(".ui-select")).toHaveCount(0);
+
+  // The second business has no amount yet. Nothing is saved here, so the run can repeat.
+  const workspaces = await page.request.get("/api/v1/access/workspaces");
+  const second = (
+    (await workspaces.json()) as Array<{ tenant: { id: string; name: string } }>
+  ).find((item) => item.tenant.name === "Catalog Local Dua");
+  test.skip(!second, "the second local workspace is not provisioned");
+  await page.evaluate(
+    (tenantId) => localStorage.setItem("merchant-operations-context", JSON.stringify({ tenantId })),
+    second!.tenant.id,
+  );
+  try {
+    await page.reload();
+    const currency = main.locator(".ui-select").getByRole("button");
+    await expect(currency).toHaveText("Rupiah (IDR)");
+    await currency.click();
+    await expect(page.getByRole("option")).toHaveText(["Rupiah (IDR)", "Dolar AS (USD)"]);
+    await page.getByRole("option", { name: "Dolar AS (USD)" }).click();
+    await main.getByRole("button", { name: "Simpan" }).click();
+    const confirm = page.getByRole("dialog", { name: "Pakai Dolar AS (USD) untuk bisnis ini?" });
+    await expect(confirm).toBeVisible();
+    await confirm.getByRole("button", { name: "Batal" }).click();
+    await expect(confirm).toBeHidden();
+    await page.reload();
+    await expect(main.locator(".ui-select").getByRole("button")).toHaveText("Rupiah (IDR)");
+  } finally {
+    await page.evaluate(() => localStorage.removeItem("merchant-operations-context"));
+  }
+});
