@@ -64,6 +64,8 @@ export type SaleRefundsRecord = { refunds: RefundRecord[]; sale: SaleRecord };
 
 export type NewRefund = {
   amountMinor: bigint;
+  /** Set when someone other than the person at the cashier approved the refund. */
+  approvedBy?: { displayName: string; userId: string };
   idempotencyKey: string;
   method: PaymentMethod;
   outletId: string;

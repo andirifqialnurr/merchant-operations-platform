@@ -8,6 +8,9 @@ import { AccessController, AccessWorkspaceController } from "./access.controller
 import { ACCESS_REPOSITORY, PrismaAccessRepository } from "./access.repository.js";
 import { AccessUsageGauges } from "./access.gauges.js";
 import { AccessService } from "./access.service.js";
+import { ApprovalPinController } from "./approval-pin.controller.js";
+import { APPROVAL_PIN_REPOSITORY, PrismaApprovalPinRepository } from "./approval-pin.repository.js";
+import { ApprovalPinService } from "./approval-pin.service.js";
 import { InvitationAcceptController, InvitationController } from "./invitation.controller.js";
 import { createInvitationDelivery, INVITATION_DELIVERY } from "./invitation-delivery.js";
 import { INVITATION_REPOSITORY, PrismaInvitationRepository } from "./invitation.repository.js";
@@ -18,14 +21,24 @@ import { SessionPermissionGuard } from "./session-permission.guard.js";
   controllers: [
     AccessController,
     AccessWorkspaceController,
+    ApprovalPinController,
     InvitationController,
     InvitationAcceptController,
   ],
-  exports: [AccessService, EntitlementModule, FeatureFlagModule, SessionPermissionGuard],
+  exports: [
+    AccessService,
+    ApprovalPinService,
+    EntitlementModule,
+    FeatureFlagModule,
+    SessionPermissionGuard,
+  ],
   imports: [AuthModule, EntitlementModule, FeatureFlagModule, SecurityModule],
   providers: [
     AccessService,
     AccessUsageGauges,
+    ApprovalPinService,
+    PrismaApprovalPinRepository,
+    { provide: APPROVAL_PIN_REPOSITORY, useExisting: PrismaApprovalPinRepository },
     SessionPermissionGuard,
     PrismaAccessRepository,
     { provide: ACCESS_REPOSITORY, useExisting: PrismaAccessRepository },

@@ -549,12 +549,12 @@ test("the audit entry for ended sign-ins passes the audit guard", async () => {
 test("the member list names people, and stays inside the workspace", async () => {
   const { membership, service } = await workspaceWithStaff();
 
-  const { members } = await service.listMembers(IDS.tenantA);
+  const members = await service.listMembers(IDS.tenantA);
   assert.deepEqual(
     members.map((item) => [item.membershipId, item.displayName, item.email, item.status]),
     [[membership.id, "Staf", "staf@example.com", "ACTIVE"]],
   );
-  assert.deepEqual((await service.listMembers(IDS.tenantB)).members, []);
+  assert.deepEqual(await service.listMembers(IDS.tenantB), []);
 });
 
 test("nobody can take away their own access", async () => {

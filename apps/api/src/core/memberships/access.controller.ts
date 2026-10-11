@@ -63,6 +63,7 @@ import {
   type DeviceAuthenticator,
 } from "../../shared/devices/device-identity.js";
 import { scopeWorkspacesToDevice } from "./device-scope.js";
+import { ApprovalPinService } from "./approval-pin.service.js";
 import { assertCanGrant } from "./grantable.js";
 
 @ApiTags("identity-access")
@@ -78,7 +79,10 @@ import { assertCanGrant } from "./grantable.js";
 @UseGuards(SessionPermissionGuard)
 @Controller("access")
 export class AccessController {
-  constructor(@Inject(AccessService) private readonly accessService: AccessService) {}
+  constructor(
+    @Inject(AccessService) private readonly accessService: AccessService,
+    @Inject(ApprovalPinService) private readonly approvalPins: ApprovalPinService,
+  ) {}
 
   private mutationContext(access: AuthorizationContext, headers: TenantRequestHeaders) {
     return commandOriginFromRequest(access.userId, headers);
@@ -174,9 +178,17 @@ export class AccessController {
     @RequestHeaders(new ZodValidationPipe(tenantRequestHeadersSchema))
     headers: TenantRequestHeaders,
   ) {
-    return memberListSchema.parse(
-      await this.accessService.listMembers(headers[API_HEADERS.tenantId]),
-    );
+    const tenantId = headers[API_HEADERS.tenantId];
+    const [members, withPin] = await Promise.all([
+      this.accessService.listMembers(tenantId),
+      this.approvalPins.userIdsWithPin(tenantId),
+    ]);
+    return memberListSchema.parse({
+      members: members.map((member) => ({
+        ...member,
+        hasApprovalPin: withPin.has(member.userId),
+      })),
+    });
   }
 
   @ApiOperation({ summary: "Create a tenant membership with roles and outlet scope" })

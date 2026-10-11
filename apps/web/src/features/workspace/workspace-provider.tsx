@@ -96,6 +96,11 @@ export function WorkspaceProvider({
   );
 }
 
+/** The workspace when there is one around; the account menu also lives outside it. */
+export function useOptionalWorkspace() {
+  return useContext(WorkspaceContextValue);
+}
+
 export function useWorkspace() {
   const value = useContext(WorkspaceContextValue);
   if (!value) throw new Error("useWorkspace must be used inside WorkspaceProvider.");

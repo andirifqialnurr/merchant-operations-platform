@@ -260,6 +260,7 @@ model User {
   paymentsConfirmed      BillingPayment[]     @relation("PaymentConfirmedBy")
   refundsRecorded        SaleRefund[]         @relation("RefundActor")
   refundsApproved        SaleRefund[]         @relation("RefundApprovedBy")
+  approvalPins           CoreApprovalPin[]
   heldCarts              PosHeldCart[]
 
   @@map("users")
@@ -372,6 +373,7 @@ model Tenant {
   sales                        Sale[]
   saleRefunds                  SaleRefund[]
   heldCarts                    PosHeldCart[]
+  approvalPins                 CoreApprovalPin[]
 
   @@map("tenants")
 }
@@ -910,6 +912,22 @@ model CoreModuleConfig {
 }
 
 /// Operational rollout; never a substitute for entitlement or permission.
+/// The PIN a person types on someone else's screen to approve an action there.
+model CoreApprovalPin {
+  tenantId       String    @map("tenant_id") @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  pinHash        String    @map("pin_hash") @db.VarChar(255)
+  failedAttempts Int       @default(0) @map("failed_attempts")
+  lockedUntil    DateTime? @map("locked_until") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant         Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@id([tenantId, userId])
+  @@map("core_approval_pins")
+}
+
 model CoreFeatureFlag {
   key     String @id @db.VarChar(120)
   status  String @default("DISABLED") @db.VarChar(16)

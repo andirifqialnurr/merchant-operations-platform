@@ -243,6 +243,7 @@ function MemberSheet({
 }>) {
   const t = useTranslations("users");
   const [confirming, setConfirming] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const busy = mutation.isPending;
   const active = member.status === "ACTIVE";
 
@@ -298,10 +299,50 @@ function MemberSheet({
         size="sm"
         title={member.displayName}
       >
-        <p className="m-0 text-label text-foreground-secondary">
-          {isSelf ? t("selfNote") : active ? t("activeNote") : t("inactiveNote")}
-        </p>
+        <div className="grid gap-5">
+          <p className="m-0 text-label text-foreground-secondary">
+            {isSelf ? t("selfNote") : active ? t("activeNote") : t("inactiveNote")}
+          </p>
+          {member.hasApprovalPin ? (
+            <dl className="m-0 grid gap-1">
+              <dt className="text-label text-foreground-secondary">{t("approvalPin")}</dt>
+              <dd className="m-0 flex flex-wrap items-center justify-between gap-3">
+                <span>{t("approvalPinSet")}</span>
+                {/* Their own PIN is changed from the account menu, not removed here. */}
+                {isSelf ? null : (
+                  <Button
+                    disabled={busy}
+                    onClick={() => setResetting(true)}
+                    size="sm"
+                    variant="secondary"
+                  >
+                    {t("approvalPinReset")}
+                  </Button>
+                )}
+              </dd>
+            </dl>
+          ) : null}
+        </div>
       </Sheet>
+      <AlertDialog
+        cancelLabel={t("cancel")}
+        closeLabel={t("closeSheet")}
+        confirmLabel={t("approvalPinReset")}
+        onConfirm={() =>
+          mutation.mutate(
+            {
+              action: () => merchantApi.resetMemberApprovalPin(tenantId, member.membershipId),
+              success: t("approvalPinResetDone"),
+            },
+            { onSuccess: onClose },
+          )
+        }
+        onOpenChange={setResetting}
+        open={resetting}
+        title={t("approvalPinResetTitle", { name: member.displayName })}
+      >
+        {t("approvalPinResetDescription")}
+      </AlertDialog>
       <AlertDialog
         cancelLabel={t("cancel")}
         closeLabel={t("closeSheet")}

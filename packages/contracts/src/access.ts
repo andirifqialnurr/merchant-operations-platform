@@ -99,8 +99,35 @@ export const membershipSchema = organizationRecordTimestampsSchema.extend({
  * A member of the workspace with who they are. Only for people who manage
  * members: the plain membership (and every event) carries no name or email.
  */
+/** Six digits, typed on someone else's screen to approve an action there. */
+export const approvalPinSchema = z.string().regex(/^\d{6}$/);
+
+export const setApprovalPinSchema = z.object({ pin: approvalPinSchema });
+
+/** Whether the signed-in person may approve at all, and whether their PIN is set. */
+export const approvalPinStatusSchema = z.object({
+  canApprove: z.boolean(),
+  hasPin: z.boolean(),
+});
+
+/** Someone who can approve an action at a location right now. Only the name is shown. */
+export const approverSchema = z.object({
+  displayName: z.string().trim().min(1).max(160),
+  userId: z.uuid(),
+});
+
+export const approverListSchema = z.object({ approvers: z.array(approverSchema) });
+
+/** Who approves and the PIN they typed. The PIN is checked and never stored or logged. */
+export const approvalSchema = z.object({
+  approverUserId: z.uuid(),
+  pin: approvalPinSchema,
+});
+
 export const memberSchema = z.object({
   allOutlets: z.boolean(),
+  /** True when this person has set an approval PIN. The PIN itself is never readable. */
+  hasApprovalPin: z.boolean(),
   displayName: z.string().trim().min(1).max(160),
   email: z.email().max(254),
   membershipId: z.uuid(),
@@ -214,5 +241,13 @@ export type UpdateRole = z.infer<typeof updateRoleSchema>;
 export type SessionRevocation = z.infer<typeof sessionRevocationSchema>;
 
 export type Member = z.infer<typeof memberSchema>;
+
+export type Approval = z.infer<typeof approvalSchema>;
+
+export type ApprovalPinStatus = z.infer<typeof approvalPinStatusSchema>;
+
+export type Approver = z.infer<typeof approverSchema>;
+
+export type SetApprovalPin = z.infer<typeof setApprovalPinSchema>;
 
 export type MemberList = z.infer<typeof memberListSchema>;

@@ -45,7 +45,9 @@
     "settingsLoadFailed": "The settings could not be loaded",
     "settingsNavigation": "Settings",
     "settingsNoAccess": "Ask the business owner if you need to change the settings of the business.",
-    "settingsNoAccessTitle": "You do not have access to the settings"
+    "settingsNoAccessTitle": "You do not have access to the settings",
+    "changeApprovalPin": "Change approval PIN",
+    "setApprovalPin": "Set approval PIN"
   },
   "access": {
     "retry": "Try again",
@@ -313,7 +315,19 @@
     "varianceNeedsReason": "Variance · Needs a reason",
     "varianceReason": "Variance reason",
     "varianceReasonRequired": "Enter a variance reason of at least 3 letters.",
-    "variant": "Variant"
+    "variant": "Variant",
+    "approvalHint": "You may not refund on your own. Ask someone who may to type their PIN here.",
+    "approvalPin": "Approver's PIN",
+    "approvalPinLocked": "This PIN is locked after too many wrong tries. Try again after {time}.",
+    "approvalPinRequired": "Enter the 6 digits of the PIN.",
+    "approvalPinWrong": "Wrong PIN. Tries left: {left}.",
+    "approvalRefused": "The approval was refused. Check the approver and the PIN.",
+    "approvalTitle": "Approval",
+    "approver": "Approver",
+    "approverRequired": "Choose an approver.",
+    "noApprovers": "Nobody can approve yet",
+    "noApproversHint": "A refund needs the approval of someone who may refund at this outlet and has set an approval PIN.",
+    "selectApprover": "Choose an approver"
   },
   "errors": {
     "API_REQUEST_FAILED": "The service could not process the request. Try again.",
@@ -415,7 +429,12 @@
     "INTEGRATION_BINDING_INVALID_TRANSITION": "This integration cannot be retried in its current state.",
     "INTEGRATION_BINDING_NOT_FOUND": "This integration was not found.",
     "CATALOG_CURRENCY_MISMATCH": "A product price always uses the currency of the business.",
-    "CURRENCY_LOCKED": "The currency can no longer be changed because this business already has prices or transactions."
+    "CURRENCY_LOCKED": "The currency can no longer be changed because this business already has prices or transactions.",
+    "APPROVAL_PIN_INVALID": "The approval was refused. Check the approver and the PIN.",
+    "APPROVAL_PIN_LOCKED": "This PIN is locked for a while after too many wrong tries.",
+    "APPROVAL_PIN_NOT_SET": "This person has not set an approval PIN.",
+    "APPROVAL_PIN_TOO_SIMPLE": "This PIN is too easy to guess. Do not use one repeated digit or a run.",
+    "REFUND_APPROVAL_REQUIRED": "This refund needs the approval of someone who may refund."
   },
   "subscription": {
     "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",
@@ -744,7 +763,13 @@
     "tabs": "User sections",
     "title": "Users",
     "validUntil": "Valid until",
-    "withdraw": "Withdraw invitation"
+    "withdraw": "Withdraw invitation",
+    "approvalPin": "Approval PIN",
+    "approvalPinReset": "Reset PIN",
+    "approvalPinResetDescription": "The old PIN stops working at once. This person sets a new PIN themselves from the account menu.",
+    "approvalPinResetDone": "PIN reset.",
+    "approvalPinResetTitle": "Reset the approval PIN of {name}?",
+    "approvalPinSet": "Set"
   },
   "roles": {
     "accessDenied": "Only people who may see the roles of all outlets can open this page.",
@@ -963,5 +988,18 @@
     },
     "status": "Status",
     "title": "Integrations"
+  },
+  "approvalPin": {
+    "close": "Close",
+    "description": "You type this PIN on the cashier screen to approve a refund. Do not tell anyone.",
+    "newPin": "New PIN (6 digits)",
+    "pinMismatch": "The two PINs are not the same.",
+    "pinRequired": "Enter 6 digits.",
+    "repeatPin": "Repeat the PIN",
+    "save": "Save PIN",
+    "saved": "Approval PIN saved.",
+    "saving": "Saving…",
+    "titleChange": "Change approval PIN",
+    "titleSet": "Set approval PIN"
   }
 }

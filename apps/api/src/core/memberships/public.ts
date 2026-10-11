@@ -2,6 +2,8 @@
 // Enforced by scripts/check-boundaries.mjs.
 export { AccessModule } from "./access.module.js";
 export { AccessService } from "./access.service.js";
+export { ApprovalPinService } from "./approval-pin.service.js";
+export type { Approver } from "./approval-pin.service.js";
 export {
   CurrentAccess,
   RequireAllOutlets,

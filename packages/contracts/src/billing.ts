@@ -1,5 +1,6 @@
 import * as z from "zod";
 
+import { approvalSchema } from "./access.ts";
 import {
   currencyCodeSchema,
   moneyMinorSchema,
@@ -119,6 +120,8 @@ export const refundSchema = z.object({
 /** The amount and reason are entered; the method is always the sale's payment method. */
 export const refundOrderSchema = z.object({
   amountMinor: positiveMoneyMinorSchema,
+  /** Needed when the person at the cashier may not refund on their own. */
+  approval: approvalSchema.optional(),
   reason: z.string().trim().min(3).max(300),
 });
 

@@ -253,6 +253,8 @@ export type UserMenuChoice = {
   value: string;
 };
 export type UserMenuProps = {
+  /** Things about the account itself, e.g. "PIN persetujuan". Shown above sign out. */
+  actions?: readonly { label: string; onSelect: () => void }[];
   email: string;
   /** Accessible name of the trigger, e.g. "Menu akun". */
   label: string;
@@ -267,6 +269,7 @@ export type UserMenuProps = {
 
 /** Account, language, theme, and sign out. The only place the user's name and email appear. */
 export function UserMenu({
+  actions = [],
   email,
   label,
   language,
@@ -298,6 +301,16 @@ export function UserMenu({
               </div>
             ) : null,
           )}
+          {actions.map((action) => (
+            <button
+              className="ui-user-menu__action"
+              key={action.label}
+              onClick={action.onSelect}
+              type="button"
+            >
+              {action.label}
+            </button>
+          ))}
           <button className="ui-user-menu__sign-out" onClick={onSignOut} type="button">
             <AppIcon icon={IconLogout} size="sm" />
             <span>{signOutLabel}</span>

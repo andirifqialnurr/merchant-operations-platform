@@ -6,6 +6,7 @@ import test from "node:test";
 import { PERMISSIONS } from "@merchant/contracts";
 
 import { DEFAULT_ROLE_DEFINITIONS } from "../../../core/memberships/access.service.js";
+import { refundAuthority } from "../domain/refund-authority.js";
 import { OrderController } from "./order.controller.js";
 
 // The key RequirePermission writes and SessionPermissionGuard reads.
@@ -21,8 +22,15 @@ function roleCan(code: string, permission: string) {
   return role.permissionKeys.some((key) => key === permission);
 }
 
-test("refunding an order requires payment.refund", () => {
-  assert.equal(requiredPermission("refund"), PERMISSIONS.paymentRefund);
+test("a refund is open to the cashier screen but answers to payment.refund", () => {
+  // The door is order.create; who may refund is decided inside, per request.
+  assert.equal(requiredPermission("refund"), PERMISSIONS.orderCreate);
+  assert.equal(refundAuthority([PERMISSIONS.orderCreate, PERMISSIONS.paymentRefund], false), "own");
+  // Someone who may refund does not need anybody else, even if an approval is sent.
+  assert.equal(refundAuthority([PERMISSIONS.paymentRefund], true), "own");
+  assert.equal(refundAuthority([PERMISSIONS.orderCreate], true), "approval");
+  assert.equal(refundAuthority([PERMISSIONS.orderCreate], false), "refused");
+  assert.equal(refundAuthority([], false), "refused");
 });
 
 test("canceling an order requires order.cancel", () => {

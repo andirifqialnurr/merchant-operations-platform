@@ -234,12 +234,15 @@ function OrdersForOutlet({
   canCancel,
   canPay,
   canRefund,
+  canRefundAlone,
   outletId,
   tenantId,
 }: Readonly<{
   canCancel: boolean;
   canPay: boolean;
   canRefund: boolean;
+  /** False when a refund needs the PIN of someone who may refund. */
+  canRefundAlone: boolean;
   outletId: string;
   tenantId: string;
 }>) {
@@ -360,6 +363,7 @@ function OrdersForOutlet({
       ) : null}
       {refundFor ? (
         <RefundSheet
+          needsApproval={!canRefundAlone}
           onClose={() => setRefundFor(undefined)}
           orderId={refundFor}
           outletId={outletId}
@@ -401,7 +405,9 @@ export function OrdersPage() {
     <OrdersForOutlet
       canCancel={can(PERMISSIONS.orderCancel)}
       canPay={can(PERMISSIONS.paymentConfirm)}
-      canRefund={can(PERMISSIONS.paymentRefund)}
+      // Anyone at the cashier can start a refund; without the permission it needs an approver.
+      canRefund={can(PERMISSIONS.orderCreate)}
+      canRefundAlone={can(PERMISSIONS.paymentRefund)}
       key={`${workspace.tenant.id}:${outlet.id}`}
       outletId={outlet.id}
       tenantId={workspace.tenant.id}

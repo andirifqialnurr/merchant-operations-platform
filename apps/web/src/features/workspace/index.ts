@@ -1,4 +1,5 @@
 export {
+  useOptionalWorkspace,
   useWorkspace,
   useWorkspaces,
   WorkspaceProvider,

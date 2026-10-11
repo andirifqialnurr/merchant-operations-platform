@@ -230,6 +230,24 @@
   flex: 1 1 0;
   min-inline-size: 0;
 }
+.ui-user-menu__action {
+  background: transparent;
+  border: 0;
+  border-radius: var(--foundation-radius-xs);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font: inherit;
+  min-block-size: var(--control-height-md);
+  padding: 0;
+  text-align: left;
+}
+.ui-user-menu__action:hover {
+  text-decoration: underline;
+}
+.ui-user-menu__action:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
 .ui-user-menu__sign-out {
   align-items: center;
   background: transparent;

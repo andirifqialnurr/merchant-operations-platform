@@ -10,6 +10,7 @@ import {
   payOrderSchema,
   posOrderListSchema,
   receiptSchema,
+  approverListSchema,
   refundOrderSchema,
   saleRefundsSchema,
   PERMISSIONS,
@@ -22,7 +23,17 @@ import {
   type RefundOrder,
   type RequestContextHeaders,
 } from "@merchant/contracts";
-import { Body, Controller, Get, HttpCode, Inject, Param, Post, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  HttpCode,
+  Inject,
+  Param,
+  Post,
+  UseGuards,
+} from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -39,10 +50,12 @@ import {
 } from "@nestjs/swagger";
 
 import {
+  ApprovalPinService,
   CurrentAccess,
   RequireModule,
   RequirePermission,
   SessionPermissionGuard,
+  type Approver,
 } from "../../../core/memberships/public.js";
 import { SESSION_COOKIE_NAME } from "../../../core/auth/public.js";
 import { OrderIntakeService } from "../../../kernels/order-intake/public.js";
@@ -51,6 +64,7 @@ import {
   ZodValidationPipe,
 } from "../../../shared/validation/zod-validation.pipe.js";
 import { CheckoutService } from "../application/checkout.service.js";
+import { refundAuthority } from "../domain/refund-authority.js";
 import { PosOrdersService } from "../application/pos-orders.service.js";
 import { commandOriginFromRequest } from "../../../shared/command/command-origin.js";
 
@@ -80,6 +94,7 @@ export class OrderController {
     @Inject(OrderIntakeService) private readonly orders: OrderIntakeService,
     @Inject(CheckoutService) private readonly checkout: CheckoutService,
     @Inject(PosOrdersService) private readonly posOrders: PosOrdersService,
+    @Inject(ApprovalPinService) private readonly approvalPins: ApprovalPinService,
   ) {}
 
   @ApiOperation({ summary: "Submit a cashier order priced from the outlet menu" })
@@ -142,11 +157,31 @@ export class OrderController {
     );
   }
 
+  @ApiOperation({ summary: "People who can approve a refund at this outlet with their PIN" })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/ApproverList" } })
+  @RequirePermission(PERMISSIONS.orderCreate)
+  @Get("refund-approvers")
+  async refundApprovers(
+    @RequestHeaders(new ZodValidationPipe(requestContextHeadersSchema))
+    headers: RequestContextHeaders,
+    @CurrentAccess() access: AuthorizationContext,
+  ) {
+    return approverListSchema.parse({
+      approvers: await this.approvalPins.approvers(
+        headers[API_HEADERS.tenantId],
+        headers[API_HEADERS.outletId],
+        PERMISSIONS.paymentRefund,
+        access.userId,
+      ),
+    });
+  }
+
   @ApiOperation({ summary: "Refund part or all of a paid order in the cashier's open shift" })
   @ApiHeader({ name: API_HEADERS.idempotencyKey, required: true })
   @ApiBody({ schema: { $ref: "#/components/schemas/RefundOrder" } })
   @ApiOkResponse({ schema: { $ref: "#/components/schemas/SaleRefunds" } })
-  @RequirePermission(PERMISSIONS.paymentRefund)
+  // Without the refund permission the request must carry an approval, checked below.
+  @RequirePermission(PERMISSIONS.orderCreate)
   @HttpCode(200)
   @Post(":id/refunds")
   async refund(
@@ -156,14 +191,38 @@ export class OrderController {
     @Body(new ZodValidationPipe(refundOrderSchema)) input: RefundOrder,
     @CurrentAccess() access: AuthorizationContext,
   ) {
+    const tenantId = headers[API_HEADERS.tenantId];
+    const outletId = headers[API_HEADERS.outletId];
+    const origin = commandOriginFromRequest(access.userId, headers, access.deviceId);
+    let approvedBy: Approver | undefined;
+    const authority = refundAuthority(access.permissionKeys, Boolean(input.approval));
+    if (authority !== "own") {
+      if (authority === "refused" || !input.approval) {
+        throw new ForbiddenException({
+          code: "REFUND_APPROVAL_REQUIRED",
+          message: "A refund needs the approval of someone who may refund.",
+        });
+      }
+      approvedBy = await this.approvalPins.verify(
+        {
+          approverUserId: input.approval.approverUserId,
+          outletId,
+          permission: PERMISSIONS.paymentRefund,
+          pin: input.approval.pin,
+          tenantId,
+        },
+        origin,
+      );
+    }
     return saleRefundsSchema.parse(
       await this.posOrders.refund(
-        headers[API_HEADERS.tenantId],
-        headers[API_HEADERS.outletId],
+        tenantId,
+        outletId,
         params.id,
         input,
         headers[API_HEADERS.idempotencyKey],
-        commandOriginFromRequest(access.userId, headers, access.deviceId),
+        origin,
+        approvedBy,
       ),
     );
   }

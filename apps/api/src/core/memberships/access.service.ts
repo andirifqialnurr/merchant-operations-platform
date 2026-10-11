@@ -2,7 +2,6 @@ import {
   authorizationContextSchema,
   createMembershipSchema,
   createRoleSchema,
-  memberListSchema,
   membershipSchema,
   PERMISSIONS,
   roleSchema,
@@ -201,9 +200,18 @@ export class AccessService {
   }
 
   /** The people of the workspace, with who they are. */
+  /** The people of the workspace. Whether each has an approval PIN is added by the caller. */
   async listMembers(tenantId: string) {
     await this.requireActiveTenant(tenantId);
-    return memberListSchema.parse({ members: await this.repository.listMembers(tenantId) });
+    return this.repository.listMembers(tenantId);
+  }
+
+  /** The user behind a membership of this workspace. */
+  async memberUserId(tenantId: string, membershipId: string) {
+    const membership = await this.repository.findMembershipById(tenantId, membershipId);
+    if (!membership)
+      throw notFound("MEMBERSHIP_NOT_FOUND", "Membership tidak ditemukan pada tenant ini.");
+    return membership.userId;
   }
 
   async listWorkspaceContexts(userId: string) {

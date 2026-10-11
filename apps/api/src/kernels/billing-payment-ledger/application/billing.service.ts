@@ -186,6 +186,7 @@ export class BillingService {
    */
   async refundOrder(
     input: {
+      approvedBy?: { displayName: string; userId: string };
       idempotencyKey: string;
       orderId: string;
       outletId: string;
@@ -217,6 +218,7 @@ export class BillingService {
     const outcome = await this.billing.recordRefund(
       {
         amountMinor: BigInt(input.refund.amountMinor),
+        ...(input.approvedBy ? { approvedBy: input.approvedBy } : {}),
         idempotencyKey,
         method: paid.payment.method,
         outletId,

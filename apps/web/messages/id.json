@@ -45,7 +45,9 @@
     "settingsLoadFailed": "Pengaturan tidak bisa dimuat",
     "settingsNavigation": "Pengaturan",
     "settingsNoAccess": "Minta pemilik bisnis jika Anda perlu mengubah pengaturan bisnis.",
-    "settingsNoAccessTitle": "Anda tidak punya akses ke pengaturan"
+    "settingsNoAccessTitle": "Anda tidak punya akses ke pengaturan",
+    "changeApprovalPin": "Ganti PIN persetujuan",
+    "setApprovalPin": "Atur PIN persetujuan"
   },
   "access": {
     "retry": "Coba lagi",
@@ -313,7 +315,19 @@
     "varianceNeedsReason": "Selisih · Perlu alasan",
     "varianceReason": "Alasan selisih",
     "varianceReasonRequired": "Isi alasan selisih, minimal 3 huruf.",
-    "variant": "Varian"
+    "variant": "Varian",
+    "approvalHint": "Anda tidak punya izin refund. Minta orang yang berwenang mengetik PIN-nya di sini.",
+    "approvalPin": "PIN penyetuju",
+    "approvalPinLocked": "PIN ini dikunci karena terlalu sering salah. Coba lagi setelah {time}.",
+    "approvalPinRequired": "Isi 6 angka PIN.",
+    "approvalPinWrong": "PIN salah. Sisa {left} percobaan.",
+    "approvalRefused": "Persetujuan ditolak. Periksa penyetuju dan PIN-nya.",
+    "approvalTitle": "Persetujuan",
+    "approver": "Penyetuju",
+    "approverRequired": "Pilih penyetuju.",
+    "noApprovers": "Belum ada yang bisa menyetujui",
+    "noApproversHint": "Refund perlu disetujui orang yang punya izin refund di outlet ini dan sudah mengatur PIN persetujuan.",
+    "selectApprover": "Pilih penyetuju"
   },
   "errors": {
     "API_REQUEST_FAILED": "Layanan tidak dapat memproses permintaan. Coba lagi.",
@@ -415,7 +429,12 @@
     "INTEGRATION_BINDING_INVALID_TRANSITION": "Integrasi ini tidak bisa dicoba ulang dalam keadaannya sekarang.",
     "INTEGRATION_BINDING_NOT_FOUND": "Integrasi ini tidak ditemukan.",
     "CATALOG_CURRENCY_MISMATCH": "Harga produk selalu memakai mata uang bisnis.",
-    "CURRENCY_LOCKED": "Mata uang tidak bisa diubah lagi karena bisnis ini sudah punya data harga atau transaksi."
+    "CURRENCY_LOCKED": "Mata uang tidak bisa diubah lagi karena bisnis ini sudah punya data harga atau transaksi.",
+    "APPROVAL_PIN_INVALID": "Persetujuan ditolak. Periksa penyetuju dan PIN-nya.",
+    "APPROVAL_PIN_LOCKED": "PIN ini dikunci sementara karena terlalu sering salah.",
+    "APPROVAL_PIN_NOT_SET": "Orang ini belum mengatur PIN persetujuan.",
+    "APPROVAL_PIN_TOO_SIMPLE": "PIN terlalu mudah ditebak. Jangan pakai angka kembar atau berurutan.",
+    "REFUND_APPROVAL_REQUIRED": "Refund ini perlu persetujuan orang yang punya izin refund."
   },
   "subscription": {
     "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat langganan.",
@@ -744,7 +763,13 @@
     "tabs": "Bagian pengguna",
     "title": "Pengguna",
     "validUntil": "Berlaku sampai",
-    "withdraw": "Cabut undangan"
+    "withdraw": "Cabut undangan",
+    "approvalPin": "PIN persetujuan",
+    "approvalPinReset": "Reset PIN",
+    "approvalPinResetDescription": "PIN lamanya langsung tidak berlaku. Orang ini mengatur PIN baru sendiri dari menu akun.",
+    "approvalPinResetDone": "PIN direset.",
+    "approvalPinResetTitle": "Reset PIN persetujuan {name}?",
+    "approvalPinSet": "Sudah diatur"
   },
   "roles": {
     "accessDenied": "Hanya yang boleh melihat peran seluruh outlet yang dapat membuka halaman ini.",
@@ -963,5 +988,18 @@
     },
     "status": "Status",
     "title": "Integrasi"
+  },
+  "approvalPin": {
+    "close": "Tutup",
+    "description": "PIN ini Anda ketik di layar kasir untuk menyetujui refund. Jangan beri tahu siapa pun.",
+    "newPin": "PIN baru (6 angka)",
+    "pinMismatch": "Kedua PIN tidak sama.",
+    "pinRequired": "Isi 6 angka.",
+    "repeatPin": "Ulangi PIN",
+    "save": "Simpan PIN",
+    "saved": "PIN persetujuan disimpan.",
+    "saving": "Menyimpan…",
+    "titleChange": "Ganti PIN persetujuan",
+    "titleSet": "Atur PIN persetujuan"
   }
 }

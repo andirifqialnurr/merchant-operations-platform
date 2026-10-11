@@ -154,7 +154,13 @@ import {
   deviceSchema,
   registerDeviceSchema,
 } from "./devices.ts";
-import { memberListSchema, sessionRevocationSchema } from "./access.ts";
+import {
+  approvalPinStatusSchema,
+  approverListSchema,
+  memberListSchema,
+  sessionRevocationSchema,
+  setApprovalPinSchema,
+} from "./access.ts";
 import { fileUploadRequestSchema, fileUploadTicketSchema } from "./files.ts";
 import {
   acceptInvitationSchema,
@@ -228,6 +234,9 @@ export const commonOpenApiSchemas = {
   InvitationPreview: toOpenApiSchema(invitationPreviewSchema),
   InvitationTokenRequest: toOpenApiSchema(invitationTokenRequestSchema),
   MemberList: toOpenApiSchema(memberListSchema),
+  ApprovalPinStatus: toOpenApiSchema(approvalPinStatusSchema),
+  ApproverList: toOpenApiSchema(approverListSchema),
+  SetApprovalPin: toOpenApiSchema(setApprovalPinSchema),
   ModuleInstallationList: toOpenApiSchema(moduleInstallationListSchema),
   SessionRevocation: toOpenApiSchema(sessionRevocationSchema),
   WorkspaceNavigation: toOpenApiSchema(workspaceNavigationSchema),

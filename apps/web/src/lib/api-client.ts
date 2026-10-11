@@ -57,6 +57,10 @@ import {
   acceptInvitationSchema,
   createInvitationSchema,
   createRoleSchema,
+  approvalPinStatusSchema,
+  approverListSchema,
+  setApprovalPinSchema,
+  type SetApprovalPin,
   integrationBindingListSchema,
   integrationBindingSchema,
   brandSchema,
@@ -351,6 +355,26 @@ export const merchantApi = {
     apiRequest(`/modules/bindings/${id}/retry`, integrationBindingSchema, {
       headers: { ...tenantHeaders(tenantId), [API_HEADERS.idempotencyKey]: idempotencyKey },
       method: "POST",
+    }),
+  approvalPinStatus: (tenantId: string) =>
+    apiRequest("/access/approval-pin", approvalPinStatusSchema, {
+      headers: tenantHeaders(tenantId),
+    }),
+  setApprovalPin: (tenantId: string, input: SetApprovalPin) =>
+    apiRequest("/access/approval-pin", noContent, {
+      body: JSON.stringify(setApprovalPinSchema.parse(input)),
+      headers: { ...tenantHeaders(tenantId), "Content-Type": "application/json" },
+      method: "PUT",
+    }),
+  resetMemberApprovalPin: (tenantId: string, membershipId: string) =>
+    apiRequest(`/access/members/${membershipId}/approval-pin`, noContent, {
+      headers: tenantHeaders(tenantId),
+      method: "DELETE",
+    }),
+  /** People who can approve a refund at this outlet with their PIN. */
+  refundApprovers: (tenantId: string, outletId: string) =>
+    apiRequest("/pos/orders/refund-approvers", approverListSchema, {
+      headers: outletHeaders(tenantId, outletId),
     }),
   roles: (tenantId: string) =>
     apiRequest("/access/roles", roleListSchema, { headers: tenantHeaders(tenantId) }),

@@ -90,6 +90,7 @@ export class PosOrdersService {
     input: RefundOrder,
     idempotencyKey: string,
     context: ShiftMutationContext,
+    approvedBy?: { displayName: string; userId: string },
   ) {
     const shift = await this.shifts.findOpen(tenantId, outletId, context.actorId);
     if (!shift) {
@@ -108,12 +109,16 @@ export class PosOrdersService {
         });
       }
     }
+    // The PIN stays with the request; only the amount and reason go to the ledger.
+    const { approval: _approval, ...refund } = input;
+    void _approval;
     return this.billing.refundOrder(
       {
+        ...(approvedBy ? { approvedBy } : {}),
         idempotencyKey,
         orderId,
         outletId,
-        refund: input,
+        refund,
         registerSessionId: shift.id,
         tenantId,
       },

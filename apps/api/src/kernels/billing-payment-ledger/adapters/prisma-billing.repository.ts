@@ -219,6 +219,7 @@ export class PrismaBillingRepository implements BillingRepository {
           data: {
             actorId: context.actorId,
             amountMinor: refund.amountMinor,
+            ...(refund.approvedBy ? { approvedBy: refund.approvedBy.userId } : {}),
             idempotencyKey: refund.idempotencyKey,
             method: refund.method,
             outletId,
@@ -245,6 +246,7 @@ export class PrismaBillingRepository implements BillingRepository {
           saleId: refund.saleId,
           saleNumber: updated.saleNumber,
           shiftId: refund.registerSessionId,
+          ...(refund.approvedBy ? { approvedByUserId: refund.approvedBy.userId } : {}),
         };
         await transaction.auditLog.create({
           data: {
@@ -252,7 +254,11 @@ export class PrismaBillingRepository implements BillingRepository {
             actorId: context.actorId,
             entityId: refund.saleId,
             entityType: "sales_sale",
-            metadata: buildAuditMetadata("sale.refund", payload),
+            // The trail names the approver as they were called at the time; events carry the ID only.
+            metadata: buildAuditMetadata("sale.refund", {
+              ...payload,
+              ...(refund.approvedBy ? { approvedByName: refund.approvedBy.displayName } : {}),
+            }),
             outletId,
             ...(context.requestId ? { requestId: context.requestId } : {}),
             tenantId,

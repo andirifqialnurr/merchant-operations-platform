@@ -59,3 +59,26 @@ test("a cashier opens a shift, sells for cash, and closes the shift", async ({ p
   await expect(openShift).toBeVisible();
   await expect(page.getByRole("banner").getByText("Shift belum dibuka")).toBeVisible();
 });
+
+test("a refund is offered to the cashier but needs an approver; a manager refunds alone", async ({
+  page,
+}) => {
+  // The sale of the test above is in the list. Nothing is refunded here.
+  await openAs(page, "pos.cashier@local.test", "/pos/orders");
+  const main = page.getByRole("main");
+  await main.getByRole("row").nth(1).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Refund" }).click();
+  const sheet = page.getByRole("dialog", { name: /Refund pesanan/ });
+  // Nobody at this outlet has set an approval PIN, so there is nothing to submit yet.
+  await expect(sheet.getByText("Belum ada yang bisa menyetujui")).toBeVisible();
+  await expect(sheet.getByRole("button", { exact: true, name: "Refund" })).toHaveCount(0);
+  await expect(sheet.getByLabel("Jumlah refund")).toHaveCount(0);
+
+  await openAs(page, "pos.manager@local.test", "/pos/orders");
+  await main.getByRole("row").nth(1).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Refund" }).click();
+  // Someone who may refund is asked for the amount and the reason only.
+  await expect(sheet.getByLabel("Jumlah refund")).toBeVisible();
+  await expect(sheet.getByText("Persetujuan", { exact: true })).toHaveCount(0);
+  await expect(sheet.getByLabel("PIN penyetuju")).toHaveCount(0);
+});
