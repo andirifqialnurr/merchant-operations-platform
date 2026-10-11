@@ -3,7 +3,7 @@
 **Status:** Kontrak lingkungan, build, rilis, dan operasi
 **Tanggal:** 2 Oktober 2026
 
-Kondisi saat ini: aplikasi hanya berjalan lokal. `infrastructure/docker` baru berisi compose untuk pengembangan lokal (2.5); `infrastructure/deployment` masih kosong, dan belum ada Dockerfile, compose produksi, maupun pipeline CI. Dokumen ini menetapkan cara menjalankan yang sudah ada dan rancangan yang harus dibangun.
+Kondisi saat ini: aplikasi hanya berjalan lokal. `infrastructure/docker` baru berisi compose untuk pengembangan lokal (2.5); `infrastructure/deployment` masih kosong, dan belum ada Dockerfile maupun compose produksi. Pipeline CI untuk verifikasi sudah ada (bagian 6); bangun image dan deploy belum. Dokumen ini menetapkan cara menjalankan yang sudah ada dan rancangan yang harus dibangun.
 
 Dokumen terkait: [`architecture.md`](./architecture.md), [`security.md`](./security.md), [`schema.md`](./schema.md).
 
@@ -214,6 +214,8 @@ Pipeline (GitHub Actions atau setara) pada setiap push dan PR:
 10. pemeriksaan kerentanan dependensi
 11. pemeriksaan kesamaan kunci kamus id/en
 ```
+
+**Keadaan 12 Oktober 2026:** `.github/workflows/ci.yml` menjalankan langkah 1–6 (ditambah `pnpm format:check`) pada setiap push ke `main` dan setiap PR. Langkah 7–11 belum masuk pipeline; kesamaan kunci kamus (11) sudah diperiksa oleh test web di langkah 5.
 
 Cache: store pnpm dan cache Turborepo. Pipeline gagal pada peringatan lint (`--max-warnings=0`).
 
