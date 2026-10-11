@@ -1,6 +1,5 @@
 import { Module } from "@nestjs/common";
 
-import { CatalogModule } from "../../catalog/public.js";
 import { PrismaOrderRepository } from "./adapters/prisma-order.repository.js";
 import { OrderIntakeService } from "./application/order-intake.service.js";
 import { ORDER_REPOSITORY } from "./application/order.repository.js";
@@ -8,11 +7,11 @@ import { ORDER_REPOSITORY } from "./application/order.repository.js";
 /**
  * Order intake kernel. Owns order_orders, order_order_items,
  * order_item_modifiers, and order_number_counters. Modules such as POS expose
- * their own routes and call OrderIntakeService.
+ * their own routes and call OrderIntakeService. The menu orders are priced from
+ * arrives through SELLABLE_MENU_SOURCE, connected at the application root.
  */
 @Module({
   exports: [OrderIntakeService],
-  imports: [CatalogModule],
   providers: [
     OrderIntakeService,
     PrismaOrderRepository,

@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { sellableMenuSchema } from "@merchant/contracts";
 
-import type { CatalogSnapshotRecord } from "./catalog.repository.js";
+import type { CatalogSnapshotRecord } from "./catalog-records.js";
 import { buildSellableMenu } from "./sellable-menu.js";
 
 const TENANT = "019f738d-e61f-7d46-92de-17b35f973100";

@@ -87,11 +87,14 @@ import {
   RequireModule,
   RequirePermission,
   SessionPermissionGuard,
-} from "../core/memberships/public.js";
-import { SESSION_COOKIE_NAME } from "../core/auth/public.js";
-import { RequestHeaders, ZodValidationPipe } from "../shared/validation/zod-validation.pipe.js";
-import { CatalogService } from "./catalog.service.js";
-import { commandOriginFromRequest } from "../shared/command/command-origin.js";
+} from "../../../core/memberships/public.js";
+import { SESSION_COOKIE_NAME } from "../../../core/auth/public.js";
+import {
+  RequestHeaders,
+  ZodValidationPipe,
+} from "../../../shared/validation/zod-validation.pipe.js";
+import { CatalogService } from "../../../kernels/catalog/public.js";
+import { commandOriginFromRequest } from "../../../shared/command/command-origin.js";
 
 type MutationHeaders = RequestContextHeaders | TenantRequestHeaders;
 

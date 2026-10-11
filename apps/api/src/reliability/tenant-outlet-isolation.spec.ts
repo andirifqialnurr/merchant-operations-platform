@@ -10,8 +10,8 @@ import { Reflector } from "@nestjs/core";
 
 import type { AuthService } from "../core/auth/auth.service.js";
 import { SESSION_COOKIE_NAME } from "../core/auth/session-cookie.js";
-import { CatalogController } from "../catalog/catalog.controller.js";
-import type { CatalogService } from "../catalog/catalog.service.js";
+import { CatalogController } from "../modules/catalog-profile/adapters/catalog.controller.js";
+import type { CatalogService } from "../kernels/catalog/application/catalog.service.js";
 import type { EntitlementService } from "../core/entitlements/entitlement.service.js";
 import type { AccessService } from "../core/memberships/access.service.js";
 import { SessionPermissionGuard } from "../core/memberships/session-permission.guard.js";

@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 
 import { AccessModule } from "../../core/memberships/public.js";
 import { AuthModule } from "../../core/auth/public.js";
-import { CatalogModule } from "../../catalog/public.js";
+import { CatalogModule } from "../../kernels/catalog/public.js";
 import { BillingPaymentLedgerModule } from "../../kernels/billing-payment-ledger/public.js";
 import { OrderIntakeModule } from "../../kernels/order-intake/public.js";
 import { OrganizationModule } from "../../core/workspaces/public.js";

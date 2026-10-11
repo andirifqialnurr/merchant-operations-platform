@@ -15,7 +15,10 @@ test("files are placed in an area, a unit, and a layer", () => {
     layer: "domain",
     unit: "modules/pos-sales",
   });
-  assert.equal(locate(at("catalog/catalog.service.ts")).unit, "catalog");
+  assert.equal(
+    locate(at("kernels/catalog/application/catalog.service.ts")).unit,
+    "kernels/catalog",
+  );
   assert.equal(locate(at("main.ts")).area, "root");
 });
 
@@ -59,12 +62,17 @@ test("dependencies only point inward", () => {
   );
 });
 
-test("the order kernel may still read the catalog, through its public.ts", () => {
+test("a kernel never imports another kernel, not even through its public.ts", () => {
+  // What one kernel needs from another arrives through a port wired at the root.
   const importer = at("kernels/order-intake/application/order-intake.service.ts");
-  assert.equal(violation(importer, "../../../catalog/public.js"), undefined);
-  assert.match(
-    violation(importer, "../../../catalog/catalog.service.js"),
-    /through its public\.ts/,
+  assert.match(violation(importer, "../../catalog/public.js"), /must not import another kernel/);
+  assert.equal(violation(at("kernel-wiring.module.ts"), "./kernels/catalog/public.js"), undefined);
+  assert.equal(
+    violation(
+      at("modules/catalog-profile/adapters/catalog.controller.ts"),
+      "../../../kernels/catalog/public.js",
+    ),
+    undefined,
   );
 });
 

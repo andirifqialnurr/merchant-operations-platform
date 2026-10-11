@@ -1,6 +1,6 @@
 import type { SellableMenu, SellableMenuModifierGroup } from "@merchant/contracts";
 
-import type { CatalogSnapshotRecord } from "./catalog.repository.js";
+import type { CatalogSnapshotRecord } from "./catalog-records.js";
 
 type Ordered = { displayOrder: number; name: string };
 

@@ -5,7 +5,6 @@ import test from "node:test";
 import type { SellableMenu } from "@merchant/contracts";
 import { ConflictException, NotFoundException } from "@nestjs/common";
 
-import type { CatalogService } from "../../../catalog/catalog.service.js";
 import { priceOrderLines } from "../domain/price-order.js";
 import { OrderIntakeService } from "./order-intake.service.js";
 import type { NewSubmittedOrder, OrderRecord, OrderRepository } from "./order.repository.js";
@@ -167,7 +166,7 @@ function setup(currentMenu: SellableMenu = menu) {
   let served = currentMenu;
   const catalog = {
     getSellableMenu: async (_tenantId: string, outletId: string) => ({ ...served, outletId }),
-  } as unknown as CatalogService;
+  };
   return {
     repository,
     service: new OrderIntakeService(repository, catalog),

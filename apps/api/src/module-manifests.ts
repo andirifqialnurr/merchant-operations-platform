@@ -1,6 +1,6 @@
 import type { ModuleManifest } from "@merchant/contracts";
 
-import { catalogManifest } from "./catalog/public.js";
+import { catalogManifest } from "./kernels/catalog/public.js";
 import { auditManifest } from "./core/audit/public.js";
 import { subscriptionManifest } from "./core/entitlements/public.js";
 import { identityManifest } from "./core/memberships/public.js";

@@ -160,7 +160,7 @@ Modul produk (dijual)
   business-finance, human-capital, customer, analytics, personal-finance (nanti)
 ```
 
-**Yang sudah ada di kode (12 Oktober 2026).** Core: semua unit di daftar di atas, di `apps/api/src/core/` (`auth`, `workspaces`, `memberships`, `entitlements`, `installations`, `integrations`, `metering`, `devices`, `audit`, `idempotency`, `events`, juga `files`, `mail`, `feature-flags`, `platform`, `security`, `observability`, `manifest`). Kernel: `order-intake` dan `billing-payment-ledger`; `catalog` masih di `apps/api/src/catalog` sampai dipecah. Modul produk: `pos-sales`. Sisanya dibangun di milestone masing-masing.
+**Yang sudah ada di kode (12 Oktober 2026).** Core: semua unit di daftar di atas, di `apps/api/src/core/` (`auth`, `workspaces`, `memberships`, `entitlements`, `installations`, `integrations`, `metering`, `devices`, `audit`, `idempotency`, `events`, juga `files`, `mail`, `feature-flags`, `platform`, `security`, `observability`, `manifest`). Kernel: `catalog`, `order-intake`, dan `billing-payment-ledger`. Modul produk: `catalog-profile` (permukaan HTTP katalog) dan `pos-sales`. Sisanya dibangun di milestone masing-masing.
 
 Rantai konfigurasi:
 

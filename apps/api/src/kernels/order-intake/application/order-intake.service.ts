@@ -1,7 +1,7 @@
 import { orderSchema, type CreatePosOrder, type Order } from "@merchant/contracts";
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
-import { CatalogService } from "../../../catalog/public.js";
+import { SELLABLE_MENU_SOURCE, type SellableMenuSource } from "./sellable-menu.port.js";
 import { priceOrderLines } from "../domain/price-order.js";
 import {
   ORDER_REPOSITORY,
@@ -61,7 +61,7 @@ export function toOrder(record: OrderRecord): Order {
 export class OrderIntakeService {
   constructor(
     @Inject(ORDER_REPOSITORY) private readonly orders: OrderRepository,
-    @Inject(CatalogService) private readonly catalog: CatalogService,
+    @Inject(SELLABLE_MENU_SOURCE) private readonly catalog: SellableMenuSource,
   ) {}
 
   async submitPosOrder(

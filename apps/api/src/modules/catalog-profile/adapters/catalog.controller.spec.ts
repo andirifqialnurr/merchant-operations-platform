@@ -7,7 +7,7 @@ import { API_HEADERS, MODULES, PERMISSIONS } from "@merchant/contracts";
 import { BadRequestException } from "@nestjs/common";
 
 import { CatalogController } from "./catalog.controller.js";
-import type { CatalogService } from "./catalog.service.js";
+import type { CatalogService } from "../../../kernels/catalog/application/catalog.service.js";
 
 const TENANT_ID = "019f738d-e61f-7d46-92de-17b35f971401";
 const OUTLET_A = "019f738d-e61f-7d46-92de-17b35f971402";

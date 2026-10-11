@@ -14,12 +14,12 @@ import {
 } from "@nestjs/common";
 import { ApiCookieAuth, ApiFoundResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 
-import { AuthService, readSessionToken } from "../core/auth/public.js";
-import { accessDenied } from "../core/entitlements/public.js";
-import { AccessService } from "../core/memberships/public.js";
-import { readDeviceCredential } from "../shared/devices/device-identity.js";
-import { ZodValidationPipe } from "../shared/validation/zod-validation.pipe.js";
-import { CatalogService } from "./catalog.service.js";
+import { AuthService, readSessionToken } from "../../../core/auth/public.js";
+import { accessDenied } from "../../../core/entitlements/public.js";
+import { AccessService } from "../../../core/memberships/public.js";
+import { readDeviceCredential } from "../../../shared/devices/device-identity.js";
+import { ZodValidationPipe } from "../../../shared/validation/zod-validation.pipe.js";
+import { CatalogService } from "../../../kernels/catalog/public.js";
 
 /**
  * Product pictures for `<img>` tags. A picture element cannot send the

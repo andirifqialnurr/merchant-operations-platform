@@ -5,7 +5,7 @@ import test from "node:test";
 import { getPrismaClient } from "@merchant/database";
 
 import { withDisposablePostgres } from "../../../packages/database/test/disposable-postgres.mjs";
-import { PrismaCatalogRepository } from "../src/catalog/catalog.repository.ts";
+import { PrismaCatalogRepository } from "../src/kernels/catalog/adapters/prisma-catalog.repository.ts";
 import { PrismaOrganizationRepository } from "../src/core/workspaces/organization.repository.ts";
 
 /** One business with a brand, an outlet, a category, a product, and a member with a role. */

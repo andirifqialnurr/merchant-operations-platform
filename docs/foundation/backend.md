@@ -41,13 +41,15 @@ apps/api/src/
     mail/                     templat dan pengirim email (belum ada pengirim produksi)
     feature-flags/            flag operasional per fitur dengan rollout bertahap
     idempotency/              `@Idempotent()` untuk endpoint tanpa kunci domain
-  catalog/                    kategori, produk, varian, modifier, gambar, produk per outlet (dipecah di M2-QA-02)
   kernels/
-    order-intake/             pesanan dan item
+    catalog/                  kategori, produk, varian, modifier, gambar, produk per outlet; satu use case per file di `application/commands` dan `application/queries`, adapter Prisma per kelompok tabel
+    order-intake/             pesanan dan item; menu untuk memberi harga datang lewat port `SELLABLE_MENU_SOURCE`
     billing-payment-ledger/   tagihan, pembayaran, penjualan, refund
   modules/
+    catalog-profile/          permukaan HTTP katalog (controller); aturan dan data milik kernel catalog
     pos-sales/                shift dan kas, pesanan kasir, keranjang tertahan
   module-manifests.ts         daftar manifest semua unit; satu-satunya tempat yang perlu diubah saat modul baru ditambahkan
+  kernel-wiring.module.ts     menyambungkan port satu kernel ke kernel yang menjawabnya; kernel tidak saling mengimpor
   worker-runtime.ts           modul API tanpa server HTTP, untuk proses worker (handler memanggil use case yang sama)
   reliability/                test isolasi tenant/outlet
 apps/worker/src/
@@ -83,15 +85,15 @@ Daftar ini dibaca dari controller pada 12 Oktober 2026. Sumber yang selalu benar
 
 ### 1.2 Yang perlu dibenahi
 
-| Temuan                                      | Keadaan 12 Oktober 2026                                                                                                                                                 | Sisa                                                                                                                   |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Semua folder sejajar di `src/`              | **Selesai.** `core/`, `kernels/`, `modules/` dengan `public.ts` per unit; batas impor diperiksa `scripts/check-boundaries.mjs` di `pnpm lint`                           | `catalog/` masih di tingkat atas sampai dipecah (`M2-QA-02`)                                                           |
-| File Catalog terlalu besar                  | **Terbuka.** `catalog.repository.ts` 1.236 baris, `catalog.service.ts` 724 baris, `catalog.controller.ts` 546 baris                                                     | Pecah per use case (bagian 4), `M2-QA-02`                                                                              |
-| `packages/contracts/src/index.ts` satu file | **Selesai.** Satu file per domain                                                                                                                                       | —                                                                                                                      |
-| Pesan error berbahasa Indonesia di server   | **Sebagian.** Klien menerjemahkan lewat kode error dan tidak pernah menampilkan pesan server                                                                            | Pesan server lama di `core/workspaces` dan `core/memberships` masih berbahasa Indonesia; tidak terlihat pengguna       |
-| Rate limit di memori proses                 | **Selesai.** Penyimpanan Redis tersedia (`RATE_LIMIT_STORE=redis`)                                                                                                      | Wajib dipakai saat lebih dari satu instance (`deploy.md` 9.3)                                                          |
-| Limit belum ditegakkan di semua titik       | **Sebagian.** Hard count dijaga saat membuat produk, brand, outlet, anggota (termasuk undangan), peran, dan perangkat, serta saat mengaktifkan kembali brand dan outlet | Mengaktifkan kembali anggota, peran, dan produk belum dijaga. Dimensi modul yang belum dibangun belum punya penghitung |
-| Entitlement berupa boolean per modul        | **Selesai.** Entitlement efektif menyimpan tier, capability, dan limit per modul (`core_effective_entitlements`)                                                        | —                                                                                                                      |
+| Temuan                                      | Keadaan 12 Oktober 2026                                                                                                                                                                    | Sisa                                                                                                                   |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| Semua folder sejajar di `src/`              | **Selesai.** `core/`, `kernels/`, `modules/` dengan `public.ts` per unit; batas impor diperiksa `scripts/check-boundaries.mjs` di `pnpm lint`                                              | —                                                                                                                      |
+| File Catalog terlalu besar                  | **Selesai untuk layanan dan repository.** 20 use case masing-masing satu file (terbesar 54 baris); repository Prisma dipecah per kelompok tabel (terbesar 159 baris) di belakang satu port | `catalog.controller.ts` masih 546 baris: satu controller untuk semua sumber daya katalog                               |
+| `packages/contracts/src/index.ts` satu file | **Selesai.** Satu file per domain                                                                                                                                                          | —                                                                                                                      |
+| Pesan error berbahasa Indonesia di server   | **Sebagian.** Klien menerjemahkan lewat kode error dan tidak pernah menampilkan pesan server                                                                                               | Pesan server lama di `core/workspaces` dan `core/memberships` masih berbahasa Indonesia; tidak terlihat pengguna       |
+| Rate limit di memori proses                 | **Selesai.** Penyimpanan Redis tersedia (`RATE_LIMIT_STORE=redis`)                                                                                                                         | Wajib dipakai saat lebih dari satu instance (`deploy.md` 9.3)                                                          |
+| Limit belum ditegakkan di semua titik       | **Sebagian.** Hard count dijaga saat membuat produk, brand, outlet, anggota (termasuk undangan), peran, dan perangkat, serta saat mengaktifkan kembali brand dan outlet                    | Mengaktifkan kembali anggota, peran, dan produk belum dijaga. Dimensi modul yang belum dibangun belum punya penghitung |
+| Entitlement berupa boolean per modul        | **Selesai.** Entitlement efektif menyimpan tier, capability, dan limit per modul (`core_effective_entitlements`)                                                                           | —                                                                                                                      |
 
 ---
 
@@ -202,12 +204,12 @@ Larangan keras:
 
 Aturan ini dijaga `apps/api/scripts/check-boundaries.mjs`, yang berjalan sebagai bagian dari `pnpm lint` (dan karena itu di CI). Skrip itu membaca impor yang sebenarnya, bukan pola nama, dan punya test sendiri (`check-boundaries.test.mjs`). Yang diperiksa:
 
-- Unit lain (`core/x`, `kernels/x`, `modules/x`, `catalog`) hanya boleh diimpor lewat `public.ts`-nya.
+- Unit lain (`core/x`, `kernels/x`, `modules/x`) hanya boleh diimpor lewat `public.ts`-nya.
 - Arah ketergantungan sesuai tabel di atas; `bootstrap/` boleh memakai `core` dan `shared`; `cli/` dan berkas akar (`main.ts`, `app.module.ts`) merangkai semuanya.
 - Di dalam unit berlapis: `domain/` tidak mengimpor NestJS, database, `application/`, atau `adapters/`; `application/` tidak mengimpor database atau `adapters/`.
 - Berkas `*.spec.ts` dikecualikan: test boleh menjangkau isi unit.
 
-Pengecualian yang masih ada, tercatat di skrip: `kernels/order-intake` membaca `catalog` (lewat `public.ts`) sampai Catalog menjadi kernel dengan port sendiri (`M2-QA-02`). Izin antarmodul berdasarkan manifest belum ada; sampai registry manifest dibuat (`M2-BE-07`), modul tidak boleh mengimpor modul lain sama sekali.
+Tidak ada pengecualian lagi di skrip. Kernel tidak mengimpor kernel lain, juga tidak lewat `public.ts`: `kernels/order-intake` menyatakan port `SELLABLE_MENU_SOURCE`, dan `kernel-wiring.module.ts` di akar menyambungkannya ke `CatalogService`. Izin antarmodul berdasarkan manifest belum ada; sampai registry manifest dibuat (`M2-BE-07`), modul tidak boleh mengimpor modul lain sama sekali.
 
 Kontrak aturannya juga tersedia sebagai `moduleBoundaryRuleSchema` di `packages/contracts`.
 

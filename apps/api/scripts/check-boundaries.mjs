@@ -9,25 +9,20 @@ const SRC = join(dirname(fileURLToPath(import.meta.url)), "..", "src");
 
 /** Folders whose children are units, each closed behind its own public.ts. */
 const UNIT_GROUPS = ["core", "kernels", "modules"];
-/** Folders that are one unit on their own. `catalog` becomes a kernel in M2-QA-02. */
-const SINGLE_UNITS = ["catalog"];
+/** Folders that are one unit on their own. None since Catalog became a kernel. */
+const SINGLE_UNITS = [];
 
 /** Which areas each area may import from. Areas not listed may import anything. */
 const ALLOWED_AREAS = {
   bootstrap: ["bootstrap", "core", "shared"],
-  catalog: ["catalog", "core", "shared"],
   core: ["core", "shared"],
   kernels: ["core", "kernels", "shared"],
-  modules: ["catalog", "core", "kernels", "modules", "shared"],
+  modules: ["core", "kernels", "modules", "shared"],
   shared: ["shared"],
 };
 
 /** Known exceptions, each with the task that removes it. */
-const EXCEPTIONS = [
-  // The order kernel prices lines from the sellable menu. Catalog becomes a
-  // kernel with a port for this in M2-QA-02.
-  { from: "kernels/order-intake", to: "catalog" },
-];
+const EXCEPTIONS = [];
 
 const FRAMEWORK_PACKAGES = [/^@nestjs\//, /^@merchant\/database$/, /^@prisma\//, /^express$/];
 const PERSISTENCE_PACKAGES = [/^@merchant\/database$/, /^@prisma\//];

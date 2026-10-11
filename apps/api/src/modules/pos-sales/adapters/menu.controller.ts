@@ -25,7 +25,7 @@ import {
   SessionPermissionGuard,
 } from "../../../core/memberships/public.js";
 import { SESSION_COOKIE_NAME } from "../../../core/auth/public.js";
-import { CatalogService } from "../../../catalog/public.js";
+import { CatalogService } from "../../../kernels/catalog/public.js";
 import {
   RequestHeaders,
   ZodValidationPipe,
