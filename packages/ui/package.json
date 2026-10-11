@@ -15,6 +15,7 @@
     "./floor-selector": "./src/components/floor-selector.tsx",
     "./input": "./src/components/text-field.tsx",
     "./textarea": "./src/components/text-field.tsx",
+    "./pin-input": "./src/components/text-field.tsx",
     "./selection-control": "./src/components/selection-control.tsx",
     "./select": "./src/components/select.tsx",
     "./combobox": "./src/components/select.tsx",

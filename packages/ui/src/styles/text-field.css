@@ -220,3 +220,71 @@
 .ui-textarea::placeholder {
   color: var(--color-text-muted);
 }
+
+/* PinInput: one real input stretched over the cells that picture it. */
+.ui-pin-input {
+  display: inline-block;
+  max-inline-size: 100%;
+  position: relative;
+}
+.ui-pin-input__cells {
+  display: flex;
+  gap: var(--space-2);
+}
+.ui-pin-input__cell {
+  align-items: center;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--foundation-radius-sm);
+  block-size: var(--control-height-lg);
+  display: flex;
+  flex: 0 1 var(--control-height-lg);
+  justify-content: center;
+  min-inline-size: 0;
+}
+.ui-pin-input__cell--filled::after {
+  background: var(--color-text-primary);
+  block-size: 0.625rem;
+  border-radius: 50%;
+  content: "";
+  inline-size: 0.625rem;
+}
+.ui-pin-input__input {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  /* The digits are never painted; the cells show how many were typed. */
+  caret-color: transparent;
+  color: transparent;
+  cursor: text;
+  font-size: 1rem;
+  inset: 0;
+  margin: 0;
+  outline: none;
+  padding: 0;
+  position: absolute;
+  inline-size: 100%;
+}
+.ui-pin-input__input:focus-visible + .ui-pin-input__cells .ui-pin-input__cell--current {
+  border-color: var(--color-focus-ring);
+  box-shadow: 0 0 0 1px var(--color-focus-ring);
+}
+.ui-pin-input--invalid .ui-pin-input__cell {
+  border-color: var(--color-status-danger-text);
+}
+.ui-pin-input--invalid
+  .ui-pin-input__input:focus-visible
+  + .ui-pin-input__cells
+  .ui-pin-input__cell--current {
+  box-shadow: 0 0 0 1px var(--color-status-danger-text);
+}
+.ui-pin-input--disabled .ui-pin-input__cell {
+  background: var(--color-bg-surface-subtle);
+  border-color: var(--color-border-subtle);
+}
+.ui-pin-input--disabled .ui-pin-input__cell--filled::after {
+  background: var(--color-text-disabled);
+}
+.ui-pin-input__input:disabled {
+  cursor: not-allowed;
+}

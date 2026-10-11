@@ -222,3 +222,82 @@ export function Textarea({
     />
   );
 }
+
+export type PinInputProps = Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "maxLength" | "onChange" | "size" | "type" | "value"
+> & {
+  invalid?: boolean;
+  /** How many digits the PIN has. */
+  length?: number;
+  /** Called once with the PIN when its last digit is typed. */
+  onComplete?: (value: string) => void;
+  onValueChange: (value: string) => void;
+  /** Digits typed so far. */
+  value: string;
+};
+
+/**
+ * A PIN typed digit by digit and never shown: each cell holds a dot, not the
+ * digit, because the screen may be in sight of other people. It is one input
+ * for the keyboard and for screen readers; the cells are only its picture.
+ * The label comes from a FormField around it or from `aria-label`.
+ */
+export function PinInput({
+  "aria-describedby": ariaDescribedBy,
+  className,
+  disabled,
+  invalid,
+  length = 6,
+  onComplete,
+  onValueChange,
+  value,
+  ...props
+}: PinInputProps) {
+  const field = useContext(FormFieldContext);
+  const isInvalid = invalid ?? field.invalid;
+  const digits = value.replace(/\D/g, "").slice(0, length);
+
+  return (
+    <div
+      className={joinClasses(
+        "ui-pin-input",
+        isInvalid && "ui-pin-input--invalid",
+        disabled && "ui-pin-input--disabled",
+        className,
+      )}
+    >
+      <input
+        {...props}
+        aria-describedby={joinDescribedBy(ariaDescribedBy, field.describedBy)}
+        aria-invalid={isInvalid || undefined}
+        autoComplete="off"
+        className="ui-pin-input__input"
+        disabled={disabled}
+        inputMode="numeric"
+        maxLength={length}
+        onChange={(event) => {
+          const next = event.target.value.replace(/\D/g, "").slice(0, length);
+          if (next === digits) return;
+          onValueChange(next);
+          if (next.length === length) onComplete?.(next);
+        }}
+        pattern="[0-9]*"
+        type="password"
+        value={digits}
+      />
+      <span aria-hidden="true" className="ui-pin-input__cells">
+        {Array.from({ length }, (_, index) => (
+          <span
+            className={joinClasses(
+              "ui-pin-input__cell",
+              index < digits.length && "ui-pin-input__cell--filled",
+              index === Math.min(digits.length, length - 1) && "ui-pin-input__cell--current",
+            )}
+            key={index}
+          />
+        ))}
+      </span>
+    </div>
+  );
+}
