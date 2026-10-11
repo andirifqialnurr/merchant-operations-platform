@@ -317,6 +317,8 @@ Log terstruktur (JSON) dikirim ke satu tempat dengan request ID, workspace, dan 
 
 Provisioning workspace dan paket; binding error dan coba ulang event; antrean outbox menumpuk; pemulihan dari backup; pencabutan sesi dan kredensial; rollback rilis; rotasi secret.
 
+Tiga yang pertama tersedia di [`runbook.md`](./runbook.md) (M2-OP-03); empat sisanya masih terbuka dan dicatat di bagian 5 dokumen itu.
+
 ---
 
 ## 10. PWA

@@ -7,18 +7,19 @@ Dokumen produk dan foundation di folder ini menjadi dasar keputusan. Dokumen kem
 
 ## Mulai dari sini
 
-| Ingin tahu                                      | Baca                                                           |
-| ----------------------------------------------- | -------------------------------------------------------------- |
-| Aplikasi ini apa dan cakupannya                 | [`product/prd.md`](./product/prd.md)                           |
-| Tampilan, komponen, aturan halaman              | [`foundation/design-system.md`](./foundation/design-system.md) |
-| Alur layar per pengguna                         | [`foundation/flowchart.md`](./foundation/flowchart.md)         |
-| Batas teknis dan keputusan arsitektur           | [`foundation/architecture.md`](./foundation/architecture.md)   |
-| Tabel database                                  | [`foundation/schema.md`](./foundation/schema.md)               |
-| Struktur dan aturan kode backend                | [`foundation/backend.md`](./foundation/backend.md)             |
-| Struktur dan aturan kode frontend               | [`foundation/frontend.md`](./foundation/frontend.md)           |
-| Keamanan dan privasi                            | [`foundation/security.md`](./foundation/security.md)           |
-| Lingkungan, build, rilis                        | [`foundation/deploy.md`](./foundation/deploy.md)               |
-| Rencana kerja per milestone dan task berikutnya | [`milestones/README.md`](./milestones/README.md)               |
+| Ingin tahu                                       | Baca                                                           |
+| ------------------------------------------------ | -------------------------------------------------------------- |
+| Aplikasi ini apa dan cakupannya                  | [`product/prd.md`](./product/prd.md)                           |
+| Tampilan, komponen, aturan halaman               | [`foundation/design-system.md`](./foundation/design-system.md) |
+| Alur layar per pengguna                          | [`foundation/flowchart.md`](./foundation/flowchart.md)         |
+| Batas teknis dan keputusan arsitektur            | [`foundation/architecture.md`](./foundation/architecture.md)   |
+| Tabel database                                   | [`foundation/schema.md`](./foundation/schema.md)               |
+| Struktur dan aturan kode backend                 | [`foundation/backend.md`](./foundation/backend.md)             |
+| Struktur dan aturan kode frontend                | [`foundation/frontend.md`](./foundation/frontend.md)           |
+| Keamanan dan privasi                             | [`foundation/security.md`](./foundation/security.md)           |
+| Lingkungan, build, rilis                         | [`foundation/deploy.md`](./foundation/deploy.md)               |
+| Langkah operator saat menyiapkan atau memulihkan | [`foundation/runbook.md`](./foundation/runbook.md)             |
+| Rencana kerja per milestone dan task berikutnya  | [`milestones/README.md`](./milestones/README.md)               |
 
 ## Urutan source of truth
 
