@@ -29,7 +29,11 @@ import {
   createPosOrderSchema,
   currentRegisterSessionSchema,
   entityIdParamsSchema,
+  advanceKitchenTicketSchema,
+  createManualKitchenTicketSchema,
   heldCartListSchema,
+  kitchenTicketListSchema,
+  kitchenTicketSchema,
   heldCartSchema,
   holdCartSchema,
   openRegisterSessionSchema,
@@ -119,6 +123,8 @@ import {
   type CreateCatalogProductModifierGroup,
   type CreateCatalogProductVariant,
   type CreatePosOrder,
+  type AdvanceKitchenTicket,
+  type CreateManualKitchenTicket,
   type HoldCart,
   type OpenRegisterSession,
   type PayOrder,
@@ -724,6 +730,46 @@ export const merchantApi = {
       headers: outletHeaders(tenantId, outletId),
       method: "DELETE",
     }),
+  /** The outlet's kitchen tickets still being worked on, oldest first. */
+  kitchenTickets: (tenantId: string, outletId: string) =>
+    apiRequest("/kds/tickets", kitchenTicketListSchema, {
+      headers: outletHeaders(tenantId, outletId),
+    }),
+  /** Tickets served or canceled today at the outlet, most recent first. */
+  finishedKitchenTickets: (tenantId: string, outletId: string) =>
+    apiRequest("/kds/tickets/finished", kitchenTicketListSchema, {
+      headers: outletHeaders(tenantId, outletId),
+    }),
+  /** Moves a ticket one step on from the status the screen shows. */
+  advanceKitchenTicket: (
+    tenantId: string,
+    outletId: string,
+    id: string,
+    input: AdvanceKitchenTicket,
+  ) =>
+    jsonMutation(
+      `/kds/tickets/${entityIdParamsSchema.parse({ id }).id}/advance`,
+      "POST",
+      input,
+      advanceKitchenTicketSchema,
+      kitchenTicketSchema,
+      outletHeaders(tenantId, outletId),
+    ),
+  /** The caller keeps one key per form so a retry returns the same ticket. */
+  createKitchenTicket: (
+    tenantId: string,
+    outletId: string,
+    input: CreateManualKitchenTicket,
+    idempotencyKey: string,
+  ) =>
+    jsonMutation(
+      "/kds/tickets",
+      "POST",
+      input,
+      createManualKitchenTicketSchema,
+      kitchenTicketSchema,
+      { ...outletHeaders(tenantId, outletId), [API_HEADERS.idempotencyKey]: idempotencyKey },
+    ),
   posMenu: (tenantId: string, outletId: string) =>
     apiRequest("/pos/menu", sellableMenuSchema, { headers: outletHeaders(tenantId, outletId) }),
   /** The caller keeps one key per cart so a retry returns the same order. */

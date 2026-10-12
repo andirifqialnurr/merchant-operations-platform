@@ -55,10 +55,9 @@ export const kdsManifest: ModuleManifest = {
     "kds.tickets.created.cycle",
   ],
   namespaces: ["kds"],
-  // The kitchen screen's route and menu entry arrive with the screen itself.
-  navigation: [],
+  navigation: [{ label: "Kitchen", path: "/kds", permissionKey: PERMISSIONS.kdsTicketView }],
   permissions: [PERMISSIONS.kdsTicketView, PERMISSIONS.kdsTicketManage],
-  routes: [],
+  routes: [{ path: "/kds", permissionKey: PERMISSIONS.kdsTicketView }],
   configSchemaVersion: 1,
   eventHandlers: [],
   installSteps: [],

@@ -48,15 +48,19 @@ test("POS opens the cashier surface instead of a placeholder", async () => {
 });
 
 test("KDS and Inventory landing routes exist without rendering internal payload fields", async () => {
-  for (const route of ["kds", "inventory"]) {
-    const pagePath = join(appRoot, route, "page.dev.tsx");
-    await access(pagePath);
-    const source = await readFile(pagePath, "utf8");
+  const internal =
+    /tenantId|outletId|sessionId|token|paymentId|orderId|stockMovementId|audit|actor|timestamp|rawPayload/i;
 
-    assert.doesNotMatch(
-      source,
-      /tenantId|outletId|sessionId|token|paymentId|orderId|stockMovementId|audit|actor|timestamp|rawPayload/i,
-    );
-    assert.match(source, /membutuhkan konfirmasi\s+server/i);
-  }
+  // Inventory is still a preview page.
+  const inventory = join(appRoot, "inventory", "page.dev.tsx");
+  await access(inventory);
+  const source = await readFile(inventory, "utf8");
+  assert.doesNotMatch(source, internal);
+  assert.match(source, /membutuhkan konfirmasi\s+server/i);
+
+  // The kitchen is a real route in its own route group since M3.
+  const kitchen = join(appRoot, "(kds)", "kds", "page.tsx");
+  await access(kitchen);
+  assert.doesNotMatch(await readFile(kitchen, "utf8"), internal);
+  await assert.rejects(access(join(appRoot, "kds", "page.dev.tsx")));
 });

@@ -11,7 +11,8 @@
       "POS": "Cashier",
       "CORE_SUBSCRIPTION": "Subscription",
       "CORE_TENANCY": "Settings",
-      "CORE_IDENTITY": "Users"
+      "CORE_IDENTITY": "Users",
+      "KDS": "Kitchen"
     },
     "navOrders": "Orders",
     "navSell": "Sell",
@@ -47,7 +48,9 @@
     "settingsNoAccess": "Ask the business owner if you need to change the settings of the business.",
     "settingsNoAccessTitle": "You do not have access to the settings",
     "changeApprovalPin": "Change approval PIN",
-    "setApprovalPin": "Set approval PIN"
+    "setApprovalPin": "Set approval PIN",
+    "enterKiosk": "Full screen",
+    "exitKiosk": "Exit full screen"
   },
   "access": {
     "retry": "Try again",
@@ -1031,5 +1034,43 @@
     "saving": "Saving…",
     "titleChange": "Change approval PIN",
     "titleSet": "Set approval PIN"
+  },
+  "kds": {
+    "accessDenied": "Your role does not include the kitchen screen. Ask the owner or a manager to add it.",
+    "accessDeniedTitle": "The kitchen screen is not available",
+    "action": {
+      "ACCEPTED": "Start preparing",
+      "NEW": "Accept",
+      "PREPARING": "Mark ready",
+      "READY": "Served"
+    },
+    "allergy": "Allergy",
+    "finishedEmpty": "Nothing finished today yet",
+    "finishedEmptyDescription": "Tickets served or canceled today appear here.",
+    "loadFailed": "The kitchen queue could not be loaded",
+    "noOutlet": "You are not assigned to any outlet yet.",
+    "queueEmpty": "No tickets",
+    "queueEmptyDescription": "New tickets appear here as they arrive.",
+    "source": {
+      "API": "Integration",
+      "MANUAL": "Manual",
+      "POS": "Cashier",
+      "SELF_ORDER": "Self-order"
+    },
+    "status": {
+      "ACCEPTED": "Accepted",
+      "CANCELED": "Canceled",
+      "NEW": "New",
+      "PREPARING": "Preparing",
+      "READY": "Ready",
+      "SERVED": "Served"
+    },
+    "ticketLabel": "Ticket {label}",
+    "title": "Kitchen",
+    "took": "Took",
+    "viewFinished": "Finished today",
+    "viewQueue": "Queue",
+    "views": "Kitchen views",
+    "waiting": "Waiting"
   }
 }

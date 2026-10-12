@@ -71,6 +71,8 @@ export type KdsTicketProps = {
   className?: string;
   /** How long the ticket has waited, e.g. "12 mnt". */
   elapsedLabel: string;
+  /** Takes the width of its container instead of its own fixed width. */
+  fill?: boolean;
   items: readonly KdsTicketItem[];
   /** Accessible name of the ticket, e.g. "Ticket A-12". */
   label: string;
@@ -396,6 +398,7 @@ export function KdsTicket(props: KdsTicketProps) {
     allergyLabel,
     className,
     elapsedLabel,
+    fill = false,
     items,
     label,
     orderLabel,
@@ -424,6 +427,7 @@ export function KdsTicket(props: KdsTicketProps) {
         `ui-kds-ticket--${status === "canceled" ? "cancelled" : status}`,
         `ui-kds-ticket--${size}`,
         `ui-kds-ticket--${variant}`,
+        fill && "ui-kds-ticket--fill",
         !finished && timerToneClass[timerTone],
         className,
       )}

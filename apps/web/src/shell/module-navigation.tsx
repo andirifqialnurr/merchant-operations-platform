@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   IconCashRegister,
+  IconChefHat,
   IconBuildingStore,
   IconDeviceTablet,
   IconPlugConnected,
@@ -46,6 +47,7 @@ export const MODULE_NAVIGATION = {
   CORE_IDENTITY: { icon: IconUsers, labelKey: "moduleNav.CORE_IDENTITY", wholeBusiness: true },
   // Settings pages of the business; each page has its own entry in PAGE_NAVIGATION.
   CORE_TENANCY: { icon: IconSettings, labelKey: "moduleNav.CORE_TENANCY", wholeBusiness: true },
+  KDS: { icon: IconChefHat, labelKey: "moduleNav.KDS" },
   POS: { icon: IconCashRegister, labelKey: "moduleNav.POS" },
 } as const satisfies Partial<
   Record<ModuleKey, { icon: AppIconComponent; labelKey: string; wholeBusiness?: boolean }>

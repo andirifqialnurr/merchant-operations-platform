@@ -270,6 +270,10 @@
   cursor: not-allowed;
 }
 
+.ui-kds-ticket.ui-kds-ticket--fill {
+  width: 100%;
+}
+
 .ui-kds-ticket--sm {
   width: clamp(15rem, 18vw, 17.5rem);
 }

@@ -11,7 +11,8 @@
       "POS": "Kasir",
       "CORE_SUBSCRIPTION": "Langganan",
       "CORE_TENANCY": "Pengaturan",
-      "CORE_IDENTITY": "Pengguna"
+      "CORE_IDENTITY": "Pengguna",
+      "KDS": "Dapur"
     },
     "navOrders": "Pesanan",
     "navSell": "Jual",
@@ -47,7 +48,9 @@
     "settingsNoAccess": "Minta pemilik bisnis jika Anda perlu mengubah pengaturan bisnis.",
     "settingsNoAccessTitle": "Anda tidak punya akses ke pengaturan",
     "changeApprovalPin": "Ganti PIN persetujuan",
-    "setApprovalPin": "Atur PIN persetujuan"
+    "setApprovalPin": "Atur PIN persetujuan",
+    "enterKiosk": "Layar penuh",
+    "exitKiosk": "Keluar dari layar penuh"
   },
   "access": {
     "retry": "Coba lagi",
@@ -1031,5 +1034,43 @@
     "saving": "Menyimpan…",
     "titleChange": "Ganti PIN persetujuan",
     "titleSet": "Atur PIN persetujuan"
+  },
+  "kds": {
+    "accessDenied": "Peran Anda tidak mencakup layar dapur. Minta pemilik atau manajer menambahkannya.",
+    "accessDeniedTitle": "Layar dapur tidak tersedia",
+    "action": {
+      "ACCEPTED": "Mulai siapkan",
+      "NEW": "Terima",
+      "PREPARING": "Tandai siap",
+      "READY": "Sudah disajikan"
+    },
+    "allergy": "Alergi",
+    "finishedEmpty": "Belum ada yang selesai hari ini",
+    "finishedEmptyDescription": "Ticket yang sudah disajikan atau dibatalkan hari ini muncul di sini.",
+    "loadFailed": "Antrean dapur tidak dapat dimuat",
+    "noOutlet": "Anda belum ditugaskan ke outlet mana pun.",
+    "queueEmpty": "Tidak ada ticket",
+    "queueEmptyDescription": "Ticket baru muncul di sini begitu masuk.",
+    "source": {
+      "API": "Integrasi",
+      "MANUAL": "Manual",
+      "POS": "Kasir",
+      "SELF_ORDER": "Pesan sendiri"
+    },
+    "status": {
+      "ACCEPTED": "Diterima",
+      "CANCELED": "Dibatalkan",
+      "NEW": "Baru",
+      "PREPARING": "Disiapkan",
+      "READY": "Siap",
+      "SERVED": "Disajikan"
+    },
+    "ticketLabel": "Ticket {label}",
+    "title": "Dapur",
+    "took": "Lama",
+    "viewFinished": "Selesai hari ini",
+    "viewQueue": "Antrean",
+    "views": "Tampilan dapur",
+    "waiting": "Menunggu"
   }
 }
