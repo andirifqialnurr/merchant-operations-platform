@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 
+import { KitchenProgressHandler } from "./adapters/kitchen-progress.handler.js";
 import { PrismaOrderRepository } from "./adapters/prisma-order.repository.js";
 import { OrderIntakeService } from "./application/order-intake.service.js";
 import { ORDER_REPOSITORY } from "./application/order.repository.js";
@@ -13,6 +14,7 @@ import { ORDER_REPOSITORY } from "./application/order.repository.js";
 @Module({
   exports: [OrderIntakeService],
   providers: [
+    KitchenProgressHandler,
     OrderIntakeService,
     PrismaOrderRepository,
     { provide: ORDER_REPOSITORY, useExisting: PrismaOrderRepository },

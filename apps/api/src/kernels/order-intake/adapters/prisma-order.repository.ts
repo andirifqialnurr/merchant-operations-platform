@@ -1,3 +1,4 @@
+import type { OrderStatus } from "@merchant/contracts";
 import { getPrismaClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
@@ -129,6 +130,24 @@ export class PrismaOrderRepository implements OrderRepository {
         where: { tenantId_id: { id: orderId, tenantId } },
       });
     });
+  }
+
+  async moveStatus(
+    tenantId: string,
+    orderId: string,
+    from: readonly OrderStatus[],
+    to: OrderStatus,
+  ) {
+    const moved = await getPrismaClient().order.updateMany({
+      data: { status: to },
+      where: { id: orderId, status: { in: [...from] }, tenantId },
+    });
+    if (moved.count === 1) return "moved" as const;
+    const exists = await getPrismaClient().order.findFirst({
+      select: { id: true },
+      where: { id: orderId, tenantId },
+    });
+    return exists ? ("unchanged" as const) : ("missing" as const);
   }
 
   async findByIdempotencyKey(

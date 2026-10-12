@@ -335,7 +335,10 @@
     "includesTax": "Termasuk pajak ({rate}%)",
     "serviceChargeRate": "Service charge ({rate}%)",
     "taxRate": "Pajak ({rate}%)",
-    "totalWithCharges": "Sudah termasuk service charge dan pajak."
+    "totalWithCharges": "Sudah termasuk service charge dan pajak.",
+    "kitchenPreparing": "Disiapkan",
+    "kitchenReady": "Siap",
+    "kitchenServed": "Disajikan"
   },
   "errors": {
     "API_REQUEST_FAILED": "Layanan tidak dapat memproses permintaan. Coba lagi.",

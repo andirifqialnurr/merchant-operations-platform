@@ -45,7 +45,12 @@ const kdsManifest: ModuleManifest = {
   configSchemaVersion: 1,
   displayName: "Kitchen Display System",
   eventHandlers: [{ eventType: "order.submitted.v1", handlerKey: HANDLER }],
-  eventsProduced: [],
+  // The order kernel listens to these, so a kitchen has to announce them.
+  eventsProduced: [
+    "kitchen_ticket.started.v1",
+    "kitchen_ticket.ready.v1",
+    "kitchen_ticket.served.v1",
+  ],
   installSteps: [],
   internalDependencies: [MODULES.coreOrder],
   key: MODULES.kds,
@@ -373,7 +378,9 @@ async function deliver({
   withKds?: boolean;
 }) {
   const { repository, service } = setup(
-    withKds ? [...OTHER_MANIFESTS, kdsManifest] : OTHER_MANIFESTS,
+    // Without a kitchen of its own the test keeps the real manifest: the
+    // module exists in the code and is simply not installed for the workspace.
+    withKds ? [...OTHER_MANIFESTS, kdsManifest] : MODULE_MANIFESTS,
   );
   await prepare?.(service, repository);
   const registry = new EventHandlerRegistry();

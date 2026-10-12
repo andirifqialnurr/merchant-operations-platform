@@ -2,6 +2,7 @@ import { orderSchema, type CreatePosOrder, type Order } from "@merchant/contract
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
 import { SELLABLE_MENU_SOURCE, type SellableMenuSource } from "./sellable-menu.port.js";
+import { statusesBefore, type KitchenProgress } from "../domain/fulfillment.js";
 import { priceOrderLines } from "../domain/price-order.js";
 import {
   ORDER_REPOSITORY,
@@ -133,6 +134,15 @@ export class OrderIntakeService {
       throw new NotFoundException({ code: "ORDER_NOT_FOUND", message: "Order not found." });
     }
     return toOrder(order);
+  }
+
+  /**
+   * Follows the kitchen. Progress only goes forward: a late or repeated
+   * announcement leaves the order as it is, and so does one about a canceled
+   * order. An order that does not exist is not an error for the kitchen.
+   */
+  recordKitchenProgress(tenantId: string, orderId: string, progress: KitchenProgress) {
+    return this.orders.moveStatus(tenantId, orderId, statusesBefore(progress), progress);
   }
 
   async getOrder(tenantId: string, outletId: string, orderId: string) {

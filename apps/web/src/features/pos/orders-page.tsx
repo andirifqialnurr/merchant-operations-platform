@@ -42,6 +42,19 @@ function OrderState({
 }
 
 /**
+ * How far the kitchen is, next to the payment state and never instead of
+ * it. Shown only once the kitchen has said something: a business without a
+ * kitchen screen sees nothing here.
+ */
+function KitchenState({ status }: Readonly<{ status: PosOrderSummary["status"] }>) {
+  const t = useTranslations("pos");
+  if (status === "PREPARING") return <Badge tone="info">{t("kitchenPreparing")}</Badge>;
+  if (status === "READY") return <Badge tone="success">{t("kitchenReady")}</Badge>;
+  if (status === "SERVED") return <Badge>{t("kitchenServed")}</Badge>;
+  return null;
+}
+
+/**
  * One order: its lines and total, and what can still be done with it. Paying
  * hands over to the payment view; cancelling asks for a reason first.
  */
@@ -332,7 +345,10 @@ function OrdersForOutlet({
             dateTime(order.createdAt),
             order.itemCount,
             <MoneyDisplay amountMinor={order.totalMinor} key="total" locale={locale} />,
-            <OrderState key="state" order={order} />,
+            <span className="flex flex-wrap items-center gap-1" key="state">
+              <OrderState order={order} />
+              <KitchenState status={order.status} />
+            </span>,
           ])}
         />
       )}

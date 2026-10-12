@@ -14,7 +14,13 @@ export const orderIntakeManifest: ModuleManifest = {
   permissions: [],
   routes: [],
   configSchemaVersion: 1,
-  eventHandlers: [],
+  // An order follows its kitchen ticket. The kernel is always on, so these
+  // reactions need no binding; without a kitchen the events never come.
+  eventHandlers: [
+    { eventType: "kitchen_ticket.started.v1", handlerKey: "order.kitchen_started" },
+    { eventType: "kitchen_ticket.ready.v1", handlerKey: "order.kitchen_ready" },
+    { eventType: "kitchen_ticket.served.v1", handlerKey: "order.kitchen_served" },
+  ],
   installSteps: [],
   settings: [],
   supportedWorkspaceTypes: ["BUSINESS"],

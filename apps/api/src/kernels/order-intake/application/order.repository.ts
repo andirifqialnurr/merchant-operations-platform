@@ -66,6 +66,16 @@ export interface OrderRepository {
     context: OrderMutationContext,
   ): Promise<OrderRecord | null>;
   findById(tenantId: string, outletId: string, orderId: string): Promise<OrderRecord | null>;
+  /**
+   * Moves the order to `to` only if it is in one of `from`. Says whether it
+   * moved, was left as it is, or does not exist.
+   */
+  moveStatus(
+    tenantId: string,
+    orderId: string,
+    from: readonly OrderStatus[],
+    to: OrderStatus,
+  ): Promise<"missing" | "moved" | "unchanged">;
   /** The outlet's orders created since `since`, newest first. */
   listSince(tenantId: string, outletId: string, since: Date, limit: number): Promise<OrderRecord[]>;
   findByIdempotencyKey(

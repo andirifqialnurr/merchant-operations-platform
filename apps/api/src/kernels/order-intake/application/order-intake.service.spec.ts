@@ -2,9 +2,12 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import test from "node:test";
 
-import type { SellableMenu } from "@merchant/contracts";
+import type { OrderStatus, SellableMenu } from "@merchant/contracts";
 import { ConflictException, NotFoundException } from "@nestjs/common";
 
+import { EventHandlerRegistry, type EventEnvelope } from "../../../core/events/public.js";
+import { KitchenProgressHandler } from "../adapters/kitchen-progress.handler.js";
+import { statusesBefore } from "../domain/fulfillment.js";
 import { priceOrderLines } from "../domain/price-order.js";
 import { OrderIntakeService } from "./order-intake.service.js";
 import type { NewSubmittedOrder, OrderRecord, OrderRepository } from "./order.repository.js";
@@ -78,6 +81,19 @@ const menu: SellableMenu = {
 
 class InMemoryOrderRepository implements OrderRepository {
   readonly orders: (OrderRecord & { idempotencyKey: string })[] = [];
+
+  async moveStatus(
+    tenantId: string,
+    orderId: string,
+    from: readonly OrderStatus[],
+    to: OrderStatus,
+  ) {
+    const order = this.orders.find((item) => item.tenantId === tenantId && item.id === orderId);
+    if (!order) return "missing" as const;
+    if (!from.includes(order.status)) return "unchanged" as const;
+    order.status = to;
+    return "moved" as const;
+  }
 
   async listSince(tenantId: string, outletId: string, since: Date, limit: number) {
     return this.orders
@@ -383,4 +399,109 @@ test("lists recent orders of the outlet, newest first", async () => {
     [2, 1],
   );
   assert.equal((await service.listRecent(TENANT, OUTLET, 24, 1)).length, 1);
+});
+
+// --- The order follows the kitchen -----------------------------------------
+
+const kitchenEvent = (
+  type: string,
+  payload: Record<string, unknown>,
+  workspaceId = TENANT,
+): EventEnvelope => ({
+  actor: null,
+  causationId: null,
+  channel: "KDS",
+  clientVersion: null,
+  correlationId: null,
+  deviceId: null,
+  eventId: randomUUID(),
+  eventType: type,
+  eventVersion: 1,
+  locationId: OUTLET,
+  occurredAt: new Date(),
+  payload,
+  producer: "KDS",
+  recordedAt: new Date(),
+  workspaceId,
+});
+
+async function withKitchen() {
+  const parts = setup();
+  const registry = new EventHandlerRegistry();
+  new KitchenProgressHandler(registry, parts.service).onModuleInit();
+  const order = await parts.service.submitPosOrder(
+    TENANT,
+    OUTLET,
+    { items: [latteLine], orderType: "TAKEAWAY" },
+    "kitchen-key-1",
+    context,
+  );
+  const announce = (type: string, payload: Record<string, unknown> = {}, workspaceId = TENANT) => {
+    const handler = registry.for(type)[0];
+    assert.ok(handler, `a handler for ${type}`);
+    return handler.handle(
+      kitchenEvent(type, { source: "POS", sourceReference: order.id, ...payload }, workspaceId),
+    );
+  };
+  const status = async () => (await parts.service.getOrder(TENANT, OUTLET, order.id)).status;
+  return { ...parts, announce, order, registry, status };
+}
+
+test("an order follows its kitchen ticket: preparing, ready, served", async () => {
+  const { announce, registry, status } = await withKitchen();
+  assert.deepEqual(
+    registry.all().map((item) => `${item.moduleKey} ${item.eventType} ${item.consumerName}`),
+    [
+      "CORE_ORDER kitchen_ticket.ready.v1 order.kitchen_ready",
+      "CORE_ORDER kitchen_ticket.served.v1 order.kitchen_served",
+      "CORE_ORDER kitchen_ticket.started.v1 order.kitchen_started",
+    ],
+  );
+  assert.equal(await status(), "SUBMITTED");
+  assert.equal(await announce("kitchen_ticket.started.v1"), "moved");
+  assert.equal(await status(), "PREPARING");
+  assert.equal(await announce("kitchen_ticket.ready.v1"), "moved");
+  assert.equal(await status(), "READY");
+  assert.equal(await announce("kitchen_ticket.served.v1"), "moved");
+  assert.equal(await status(), "SERVED");
+});
+
+test("progress only goes forward: late and repeated announcements change nothing", async () => {
+  const { announce, status } = await withKitchen();
+  // The kitchen was quick and the events arrive out of order.
+  assert.equal(await announce("kitchen_ticket.ready.v1"), "moved");
+  assert.equal(await announce("kitchen_ticket.started.v1"), "unchanged");
+  assert.equal(await announce("kitchen_ticket.ready.v1"), "unchanged");
+  assert.equal(await status(), "READY");
+  assert.deepEqual(statusesBefore("PREPARING"), ["SUBMITTED", "ACCEPTED"]);
+  assert.deepEqual(statusesBefore("SERVED"), ["SUBMITTED", "ACCEPTED", "PREPARING", "READY"]);
+});
+
+test("a canceled order is never brought back by the kitchen", async () => {
+  const { announce, order, service, status } = await withKitchen();
+  await service.cancelOrder(
+    TENANT,
+    OUTLET,
+    order.id,
+    "salah pesan",
+    async () => undefined,
+    context,
+  );
+  assert.equal(await announce("kitchen_ticket.ready.v1"), "unchanged");
+  assert.equal(await status(), "CANCELED");
+});
+
+test("tickets that did not come from an order, or from another business, touch no order", async () => {
+  const { announce, status } = await withKitchen();
+  assert.equal(
+    await announce("kitchen_ticket.ready.v1", { source: "MANUAL" }),
+    "skipped:not_from_an_order",
+  );
+  assert.equal(
+    await announce("kitchen_ticket.ready.v1", { sourceReference: "manual-key-00000001" }),
+    "skipped:no_order_reference",
+  );
+  // The same order ID announced inside another workspace finds nothing there.
+  assert.equal(await announce("kitchen_ticket.ready.v1", {}, OTHER_OUTLET), "missing");
+  assert.equal(await status(), "SUBMITTED");
 });

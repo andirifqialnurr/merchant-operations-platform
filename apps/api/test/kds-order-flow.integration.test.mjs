@@ -20,6 +20,8 @@ test("orders reach the kitchen through the worker: POS + KDS, POS only, KDS only
     const { CatalogService } = await import("../src/kernels/catalog/public.ts");
     const { OrderIntakeService } = await import("../src/kernels/order-intake/public.ts");
     const { CreateKitchenTicket } = await import("../src/modules/kds/public.ts");
+    const { AdvanceKitchenTicket } =
+      await import("../src/modules/kds/application/advance-kitchen-ticket.ts");
     const { EntitlementService } = await import("../src/core/entitlements/public.ts");
     const { PlatformMasterService } =
       await import("../src/core/platform/platform-master.service.ts");
@@ -197,6 +199,33 @@ test("orders reach the kitchen through the worker: POS + KDS, POS only, KDS only
       assert.deepEqual(
         (await inbox(both.tenantId, "kds.cancel_ticket")).map((row) => row.status),
         ["PROCESSED"],
+      );
+
+      // The order follows its ticket, apart from whether it was paid.
+      const second = await both.order("order-key-000000000009");
+      await drain();
+      const followed = (await tickets(both.tenantId)).find(
+        (row) => row.source_reference === second.id,
+      );
+      const orderStatus = async () =>
+        (await rows(`SELECT status FROM order_orders WHERE id = $1`, [second.id]))[0].status;
+      const advance = app.get(AdvanceKitchenTicket);
+      await advance.execute(both.tenantId, both.outletId, followed.id, "NEW");
+      await drain();
+      assert.equal(await orderStatus(), "SUBMITTED", "accepting is the kitchen's own business");
+      await advance.execute(both.tenantId, both.outletId, followed.id, "ACCEPTED");
+      await drain();
+      assert.equal(await orderStatus(), "PREPARING");
+      await advance.execute(both.tenantId, both.outletId, followed.id, "PREPARING");
+      await advance.execute(both.tenantId, both.outletId, followed.id, "READY");
+      await drain();
+      assert.equal(await orderStatus(), "SERVED");
+      assert.deepEqual(
+        await rows(`SELECT count(*)::int AS bills FROM billing_bills WHERE order_id = $1`, [
+          second.id,
+        ]),
+        [{ bills: 0 }],
+        "served, and still not paid",
       );
 
       // --- POS only: the same order events, no kitchen --------------------
