@@ -1,12 +1,15 @@
 /**
- * Creates outlet-scoped Manager and Cashier accounts on a development
- * database, so permissions and location scope can be tested with something
- * other than the Owner. Development only.
+ * Creates outlet-scoped Manager, Cashier, and Kitchen accounts on a
+ * development database, so permissions and location scope can be tested with
+ * something other than the Owner. It also installs the modules the workspace
+ * is entitled to and registers one kitchen screen. Development only.
  *
  * Usage: pnpm --filter @merchant/api local:users:provision [tenant-slug]
  * Safe to run again: accounts that already exist are left alone. New
- * passwords are generated and written to the Git-ignored CREDENTIALS.local.md;
- * they are never printed.
+ * passwords and the kitchen screen's activation code are written to the
+ * Git-ignored CREDENTIALS.local.md; they are never printed. The activation
+ * code is short-lived: once it has expired, issue a new one in Settings >
+ * Devices.
  */
 import "reflect-metadata";
 
@@ -19,6 +22,8 @@ import { NestFactory } from "@nestjs/core";
 
 import { AppModule } from "../app.module.js";
 import { hashPassword } from "../core/auth/public.js";
+import { DeviceService } from "../core/devices/public.js";
+import { InstallationService } from "../core/installations/public.js";
 import { AccessService } from "../core/memberships/public.js";
 
 const CREDENTIALS_PATH = fileURLToPath(
@@ -29,6 +34,7 @@ const LOGIN_URL = "http://localhost:4000/login";
 const ACCOUNTS = [
   { displayName: "Local Manager", email: "pos.manager@local.test", roleCode: "MANAGER" },
   { displayName: "Local Cashier", email: "pos.cashier@local.test", roleCode: "CASHIER" },
+  { displayName: "Local Kitchen", email: "kds.kitchen@local.test", roleCode: "KITCHEN" },
 ] as const;
 
 type CredentialRow = {
@@ -52,6 +58,17 @@ async function recordCredentials(rows: readonly CredentialRow[]) {
     ),
   );
   await writeFile(CREDENTIALS_PATH, lines.join("\n"));
+}
+
+const KITCHEN_DEVICE_LABEL = "Dapur Lokal";
+
+/** Appends the kitchen screen's one-time code under its own heading. */
+async function recordDeviceCode(label: string, outletName: string, code: string) {
+  const current = await readFile(CREDENTIALS_PATH, "utf8");
+  await writeFile(
+    CREDENTIALS_PATH,
+    `${current.trimEnd()}\n\n## Perangkat\n\n| Perangkat | Outlet | Kode aktivasi | Catatan |\n| --- | --- | --- | --- |\n| ${label} | ${outletName} | \`${code}\` | Sekali pakai dan cepat kedaluwarsa; buat kode baru di Pengaturan > Perangkat |\n`,
+  );
 }
 
 async function provisionLocalUsers() {
@@ -105,6 +122,40 @@ async function provisionLocalUsers() {
     if (created.length > 0) {
       await recordCredentials(created);
       process.stdout.write("Passwords were written to CREDENTIALS.local.md.\n");
+    }
+
+    // Every module the package includes, the kitchen among them. Installing
+    // again changes nothing.
+    const installed = await app.get(InstallationService).provisionEntitled(tenant.id);
+    process.stdout.write(
+      `Installed modules: ${installed.map((item) => item.moduleKey).join(", ") || "none"}.\n`,
+    );
+
+    const kitchenScreen = await prisma.coreDevice.findFirst({
+      where: { mode: "KDS", outletId: outlet.id, status: { not: "REVOKED" }, tenantId: tenant.id },
+    });
+    if (kitchenScreen) {
+      process.stdout.write(
+        `Kitchen screen "${kitchenScreen.label}" already exists; left unchanged.\n`,
+      );
+    } else {
+      // A device is registered by a person; the workspace's owner stands in.
+      const owner = await prisma.userRole.findFirst({
+        select: { membership: { select: { userId: true } } },
+        where: { role: { code: "OWNER" }, tenantId: tenant.id },
+      });
+      if (!owner) throw new Error(`Tenant ${tenant.slug} has no owner to register a device.`);
+      const ticket = await app
+        .get(DeviceService)
+        .register(
+          tenant.id,
+          { label: KITCHEN_DEVICE_LABEL, mode: "KDS", outletId: outlet.id },
+          { actorId: owner.membership.userId },
+        );
+      await recordDeviceCode(KITCHEN_DEVICE_LABEL, outlet.name, ticket.activationCode);
+      process.stdout.write(
+        `Kitchen screen "${KITCHEN_DEVICE_LABEL}" registered at ${outlet.name}; its activation code was written to CREDENTIALS.local.md.\n`,
+      );
     }
   } finally {
     await app.close();

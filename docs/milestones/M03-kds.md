@@ -76,7 +76,7 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 
 ### OP — Operasional dan dokumentasi
 
-- [ ] **M3-OP-01 Seed dan akun dapur** — akun Kitchen dan satu perangkat KDS lokal.
+- [x] **M3-OP-01 Seed dan akun dapur** — akun Kitchen dan satu perangkat KDS lokal. Selesai 13 Oktober 2026 (TODO 14.13): `pnpm --filter @merchant/api local:users:provision`.
 - [ ] **M3-OP-02 Perbarui dokumen** — `schema.md` B.5, `flowchart.md` 8, `architecture.md` 7.2.
 
 ## 5. Urutan checkpoint yang disarankan

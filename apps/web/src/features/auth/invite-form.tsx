@@ -15,12 +15,15 @@ import { useAcceptInvitation, useInvitationPreview } from "./api";
 
 /**
  * Where a person who just joined starts: the cashier screen for someone who
- * sells and does not manage the catalog, the backoffice for everyone else.
+ * sells and does not manage the catalog, the kitchen screen for someone who
+ * only works the kitchen, the backoffice for everyone else.
  */
 export function startPathFor(workspaces: readonly WorkspaceContext[]) {
   const permissions = workspaces[0]?.permissionKeys ?? [];
-  const sells = permissions.includes(PERMISSIONS.orderCreate);
-  return sells && !permissions.includes(PERMISSIONS.catalogRead) ? "/pos" : "/catalog";
+  if (permissions.includes(PERMISSIONS.catalogRead)) return "/catalog";
+  if (permissions.includes(PERMISSIONS.orderCreate)) return "/pos";
+  if (permissions.includes(PERMISSIONS.kdsTicketView)) return "/kds";
+  return "/catalog";
 }
 
 // The secret is kept here once read, because it is removed from the address right after.
