@@ -30,7 +30,7 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 
 - [x] **M3-FT-01 Antrean ticket** `f0e9d9b` — terlama di awal; nomor/label pesanan, sumber, timer, item, modifier, catatan. Selesai 13 Oktober 2026 (TODO 14.9).
 - [x] **M3-FT-02 Alur status** `f0e9d9b` — satu tombol per ticket untuk langkah sah berikutnya; riwayat ticket selesai hari ini. Selesai 13 Oktober 2026 (TODO 14.9). Riwayat: tab 'Selesai hari ini'.
-- [x] **M3-FT-03 Ticket manual** — label, item bebas, jumlah, catatan; untuk KDS-only. Selesai 13 Oktober 2026 (TODO 14.10).
+- [x] **M3-FT-03 Ticket manual** `66045fa` — label, item bebas, jumlah, catatan; untuk KDS-only. Selesai 13 Oktober 2026 (TODO 14.10).
 - [ ] **M3-FT-04 Status dapur di POS** — daftar pesanan POS menampilkan "Disiapkan"/"Siap" dari event KDS.
 - [ ] **M3-FT-05 Peringatan** — suara dan sorotan untuk ticket baru; volume dan bisu per perangkat.
 
@@ -55,7 +55,7 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 ### DS — Design system dan komponen
 
 - [x] **M3-DS-01 Rapikan `KdsTicket`** `888bdec` — label lewat props, ukuran terbaca jarak jauh, tanpa harga. Selesai 12 Oktober 2026 (TODO 14.8). `KdsNewTicketAlert` dan `KdsConnectionStatus` di file yang sama masih berisi teks tertanam; dirapikan saat dipakai (M3-FT-05, M3-UX-04).
-- [x] **M3-DS-02 Form ticket manual** — komponen input item cepat. Selesai 13 Oktober 2026 (TODO 14.10): `QuickItemEntry` (`@merchant/ui/quick-item-entry`).
+- [x] **M3-DS-02 Form ticket manual** `66045fa` — komponen input item cepat. Selesai 13 Oktober 2026 (TODO 14.10): `QuickItemEntry` (`@merchant/ui/quick-item-entry`).
 - [ ] **M3-DS-03 Varian kios** — skala tipografi dan jarak untuk layar dapur.
 
 ### AS — Aset
