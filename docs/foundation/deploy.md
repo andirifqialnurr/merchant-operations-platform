@@ -215,7 +215,7 @@ Pipeline (GitHub Actions atau setara) pada setiap push dan PR:
 11. pemeriksaan kesamaan kunci kamus id/en
 ```
 
-**Keadaan 12 Oktober 2026:** `.github/workflows/ci.yml` menjalankan langkah 1–6 (ditambah `pnpm format:check`) pada setiap push ke `main` dan setiap PR. Langkah 7–11 belum masuk pipeline; kesamaan kunci kamus (11) sudah diperiksa oleh test web di langkah 5.
+**Keadaan 12 Oktober 2026:** `.github/workflows/ci.yml` menjalankan langkah 1–6 (ditambah `pnpm format:check`), tetapi hanya bila dipicu manual (`workflow_dispatch`): akun GitHub repo ini belum bisa menjalankan Actions, sehingga pemicu push dan PR dimatikan agar tidak menghasilkan run gagal di setiap push. Sampai itu berubah, langkah yang sama dijalankan lokal sebelum setiap commit. Kembalikan pemicu `push` ke `main` dan `pull_request` begitu Actions bisa dipakai. Langkah 7–11 belum masuk pipeline; kesamaan kunci kamus (11) sudah diperiksa oleh test web di langkah 5.
 
 Cache: store pnpm dan cache Turborepo. Pipeline gagal pada peringatan lint (`--max-warnings=0`).
 

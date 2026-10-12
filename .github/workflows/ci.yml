@@ -1,13 +1,14 @@
-# Verifies every push and pull request (deploy.md 6): lint with the module
-# boundary check, types, schema, unit tests, and integration tests on a
-# disposable PostgreSQL. Building images and deploying come with the release
-# pipeline, not here.
+# Verifies the repository (deploy.md 6): lint with the module boundary check,
+# types, schema, unit tests, and integration tests on a disposable PostgreSQL.
+# Building images and deploying come with the release pipeline, not here.
+#
+# Started by hand only (Actions > CI > Run workflow): the account cannot run
+# Actions yet, so a run on every push would only fail. Put `push` to main and
+# `pull_request` back under `on` once it can.
 name: CI
 
 on:
-  push:
-    branches: [main]
-  pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
