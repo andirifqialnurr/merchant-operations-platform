@@ -54,7 +54,7 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 
 ### DS — Design system dan komponen
 
-- [ ] **M3-DS-01 Rapikan `KdsTicket`** — label lewat props, ukuran terbaca jarak jauh, tanpa harga.
+- [x] **M3-DS-01 Rapikan `KdsTicket`** — label lewat props, ukuran terbaca jarak jauh, tanpa harga. Selesai 12 Oktober 2026 (TODO 14.8). `KdsNewTicketAlert` dan `KdsConnectionStatus` di file yang sama masih berisi teks tertanam; dirapikan saat dipakai (M3-FT-05, M3-UX-04).
 - [ ] **M3-DS-02 Form ticket manual** — komponen input item cepat.
 - [ ] **M3-DS-03 Varian kios** — skala tipografi dan jarak untuk layar dapur.
 

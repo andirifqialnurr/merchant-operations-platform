@@ -7,7 +7,6 @@ import {
   IconClock,
   IconFlame,
   IconPackageImport,
-  IconPlayerPause,
   IconRefresh,
   IconVolume,
   IconVolumeOff,
@@ -17,13 +16,12 @@ import {
 
 import { AppIcon } from "./app-icon";
 
-export type KdsTicketStatus =
-  "new" | "accepted" | "preparing" | "ready" | "served" | "completed" | "cancelled";
+export type KdsTicketStatus = "new" | "accepted" | "preparing" | "ready" | "served" | "canceled";
 
 export type KdsTicketSize = "sm" | "md" | "lg";
 export type KdsTicketVariant = "compact" | "default" | "touch" | "history";
-export type KdsTicketTimerState = "running" | "paused" | "completed";
-export type KdsTicketSlaState = "on-track" | "warning" | "breached";
+/** How the waiting time reads: fine, close to the limit, or past it. */
+export type KdsTicketTimerTone = "normal" | "warning" | "late";
 export type KdsNewTicketAlertAudioState = "ready" | "muted" | "blocked";
 export type KdsNewTicketAlertTone = "standard" | "urgent";
 export type KdsConnectionState = "connected" | "connecting" | "disconnected" | "stale";
@@ -35,8 +33,6 @@ export type KdsTicketItem = {
   note?: string;
   quantity: number;
 };
-
-export type KdsTicketAction = "accept" | "mark-ready" | "mark-served" | "complete";
 
 export type KdsNewTicketAlertProps = {
   alertId: string;
@@ -62,57 +58,39 @@ export type KdsConnectionStatusProps = {
   statusId: string;
 };
 
+/**
+ * One kitchen ticket. Every word on it comes from the caller, already in the
+ * viewer's language; the component adds none of its own. It shows what to
+ * prepare and never a price, a payment, or a customer's contact.
+ */
 export type KdsTicketProps = {
+  /** The one next step. Left out for a finished ticket or a viewer who may not act. */
+  action?: { busy?: boolean; label: string; onAction: () => void };
+  /** Read before an allergy note, e.g. "Alergi". */
+  allergyLabel: string;
   className?: string;
-  disabled?: boolean;
+  /** How long the ticket has waited, e.g. "12 mnt". */
   elapsedLabel: string;
-  id: string;
   items: readonly KdsTicketItem[];
-  onPrimaryAction?: (ticketId: string, action: KdsTicketAction) => void;
+  /** Accessible name of the ticket, e.g. "Ticket A-12". */
+  label: string;
   orderLabel: string;
   size?: KdsTicketSize;
-  slaLabel?: string;
-  slaState?: KdsTicketSlaState;
   sourceLabel: string;
   status: KdsTicketStatus;
+  statusLabel: string;
   tableLabel?: string;
-  timerState?: KdsTicketTimerState;
+  /** Accessible name of the waiting time, e.g. "Menunggu". */
+  timerLabel: string;
+  timerTone?: KdsTicketTimerTone;
   variant?: KdsTicketVariant;
 };
 
-const statusLabel: Record<KdsTicketStatus, string> = {
-  accepted: "Diterima",
-  cancelled: "Dibatalkan",
-  completed: "Selesai",
-  new: "Pesanan baru",
-  preparing: "Sedang disiapkan",
-  ready: "Siap disajikan",
-  served: "Sudah disajikan",
-};
-
-const primaryActionByStatus: Partial<
-  Record<KdsTicketStatus, { action: KdsTicketAction; icon: typeof IconCircleCheck; label: string }>
-> = {
-  accepted: { action: "mark-ready", icon: IconFlame, label: "Siap disajikan" },
-  new: { action: "accept", icon: IconCircleCheck, label: "Terima" },
-  preparing: { action: "mark-ready", icon: IconFlame, label: "Siap disajikan" },
-  ready: { action: "mark-served", icon: IconPackageImport, label: "Tandai disajikan" },
-  served: { action: "complete", icon: IconCircleCheck, label: "Selesaikan" },
-};
-
-const timerStateContent: Record<
-  KdsTicketTimerState,
-  { icon: typeof IconCircleCheck; label: string }
-> = {
-  completed: { icon: IconCircleCheck, label: "Timer selesai" },
-  paused: { icon: IconPlayerPause, label: "Timer ditahan" },
-  running: { icon: IconClock, label: "Timer berjalan" },
-};
-
-const slaStateLabel: Record<KdsTicketSlaState, string> = {
-  breached: "Lewat SLA",
-  "on-track": "Sesuai SLA",
-  warning: "Mendekati SLA",
+const actionIconByStatus: Partial<Record<KdsTicketStatus, typeof IconCircleCheck>> = {
+  accepted: IconFlame,
+  new: IconCircleCheck,
+  preparing: IconBellRinging,
+  ready: IconPackageImport,
 };
 
 const audioStateContent: Record<
@@ -182,57 +160,55 @@ function assertNoKdsSensitiveData(value: unknown, path = "KDS payload") {
 }
 
 function assertKdsTicketContract({
+  action,
+  allergyLabel,
   elapsedLabel,
-  id,
   items,
+  label,
   orderLabel,
   sourceLabel,
+  statusLabel,
   tableLabel,
-}: {
-  elapsedLabel: string;
-  id: string;
-  items: readonly KdsTicketItem[];
-  orderLabel: string;
-  sourceLabel: string;
-  tableLabel: string | undefined;
-}) {
-  if (!id.trim()) throw new TypeError("Kitchen Ticket memerlukan id internal ticket.");
-  if (!orderLabel.trim()) throw new TypeError("Kitchen Ticket memerlukan nomor order.");
-  if (!elapsedLabel.trim()) throw new TypeError("Kitchen Ticket memerlukan elapsed label.");
-  if (!sourceLabel.trim()) throw new TypeError("Kitchen Ticket memerlukan source order.");
-  assertText(tableLabel, "Label meja Kitchen Ticket");
-  if (items.length === 0) throw new TypeError("Kitchen Ticket memerlukan minimal satu item.");
+  timerLabel,
+}: Pick<
+  KdsTicketProps,
+  | "action"
+  | "allergyLabel"
+  | "elapsedLabel"
+  | "items"
+  | "label"
+  | "orderLabel"
+  | "sourceLabel"
+  | "statusLabel"
+  | "tableLabel"
+  | "timerLabel"
+>) {
+  const required = {
+    allergyLabel,
+    elapsedLabel,
+    label,
+    orderLabel,
+    sourceLabel,
+    statusLabel,
+    timerLabel,
+  };
+  for (const [name, value] of Object.entries(required)) {
+    if (!value.trim()) throw new TypeError(`Kitchen Ticket needs ${name}.`);
+  }
+  assertText(tableLabel, "Kitchen Ticket tableLabel");
+  if (action && !action.label.trim()) throw new TypeError("Kitchen Ticket needs an action label.");
+  if (items.length === 0) throw new TypeError("Kitchen Ticket needs at least one item.");
 
   for (const item of items) {
     if (!Number.isSafeInteger(item.quantity) || item.quantity <= 0) {
-      throw new TypeError("Quantity item Kitchen Ticket harus berupa safe integer positif.");
+      throw new TypeError("A Kitchen Ticket item quantity must be a positive safe integer.");
     }
-    if (!item.name.trim()) throw new TypeError("Nama item Kitchen Ticket harus berisi teks.");
-    assertText(item.note, "Catatan item Kitchen Ticket");
-    assertText(item.allergyNote, "Allergy note Kitchen Ticket");
+    if (!item.name.trim()) throw new TypeError("A Kitchen Ticket item needs a name.");
+    assertText(item.note, "Kitchen Ticket item note");
+    assertText(item.allergyNote, "Kitchen Ticket allergy note");
     for (const modifier of item.modifiers ?? []) {
-      if (!modifier.trim()) {
-        throw new TypeError("Modifier Kitchen Ticket harus berisi teks bila dikirim.");
-      }
+      if (!modifier.trim()) throw new TypeError("A Kitchen Ticket modifier must have text.");
     }
-  }
-}
-
-function assertKdsTicketTimerContract({
-  slaLabel,
-  slaState,
-  timerState,
-}: {
-  slaLabel: string | undefined;
-  slaState: KdsTicketSlaState | undefined;
-  timerState: KdsTicketTimerState | undefined;
-}) {
-  assertText(slaLabel, "Label SLA Kitchen Ticket");
-  if (slaLabel !== undefined && slaState === undefined) {
-    throw new TypeError("Label SLA Kitchen Ticket hanya boleh dikirim bersama state SLA.");
-  }
-  if (timerState === "completed" && slaState === "warning") {
-    throw new TypeError("Timer selesai tidak boleh memakai state SLA mendekati.");
   }
 }
 
@@ -406,56 +382,58 @@ export function KdsConnectionStatus(props: KdsConnectionStatusProps) {
   );
 }
 
+const timerToneClass: Record<KdsTicketTimerTone, string | false> = {
+  late: "ui-kds-ticket--sla-breached",
+  normal: false,
+  warning: "ui-kds-ticket--sla-warning",
+};
+
 export function KdsTicket(props: KdsTicketProps) {
   assertNoKdsSensitiveData(props);
 
   const {
+    action,
+    allergyLabel,
     className,
-    disabled = false,
     elapsedLabel,
-    id,
     items,
-    onPrimaryAction,
+    label,
     orderLabel,
     size = "md",
-    slaLabel,
-    slaState,
     sourceLabel,
     status,
+    statusLabel,
     tableLabel,
-    timerState = "running",
+    timerLabel,
+    timerTone = "normal",
     variant = "default",
   } = props;
 
-  assertKdsTicketContract({ elapsedLabel, id, items, orderLabel, sourceLabel, tableLabel });
-  assertKdsTicketTimerContract({ slaLabel, slaState, timerState });
+  assertKdsTicketContract(props);
 
-  const readOnly = variant === "history" || status === "completed" || status === "cancelled";
-  const primaryAction = readOnly ? undefined : primaryActionByStatus[status];
-  const order = orderLabel.trim();
+  const finished = status === "served" || status === "canceled";
+  const shownAction = variant === "history" || finished ? undefined : action;
   const table = tableLabel?.trim();
-  const timerContent = timerStateContent[timerState];
-  const slaText = slaLabel?.trim() ?? (slaState ? slaStateLabel[slaState] : undefined);
+  const ActionIcon = actionIconByStatus[status] ?? IconCircleCheck;
 
   return (
     <article
-      aria-label={`Kitchen ticket ${order}`}
+      aria-label={label.trim()}
       className={classes(
         "ui-kds-ticket",
-        `ui-kds-ticket--${status}`,
+        `ui-kds-ticket--${status === "canceled" ? "cancelled" : status}`,
         `ui-kds-ticket--${size}`,
         `ui-kds-ticket--${variant}`,
-        `ui-kds-ticket--timer-${timerState}`,
-        slaState && `ui-kds-ticket--sla-${slaState}`,
+        !finished && timerToneClass[timerTone],
         className,
       )}
     >
       <header className="ui-kds-ticket__header">
         <span className="ui-kds-ticket__order">
-          <span>{order}</span>
+          <span>{orderLabel.trim()}</span>
           {table ? <strong>{table}</strong> : null}
         </span>
-        <span className="ui-kds-ticket__status">{statusLabel[status]}</span>
+        <span className="ui-kds-ticket__status">{statusLabel.trim()}</span>
       </header>
 
       <div className="ui-kds-ticket__meta">
@@ -463,50 +441,51 @@ export function KdsTicket(props: KdsTicketProps) {
           <AppIcon icon={IconChefHat} size="xs" />
           {sourceLabel.trim()}
         </span>
-        <span>
+        <span
+          aria-label={`${timerLabel.trim()} ${elapsedLabel.trim()}`}
+          className="ui-kds-ticket__sla"
+        >
           <AppIcon icon={IconClock} size="xs" />
           {elapsedLabel.trim()}
         </span>
-        <span>
-          <AppIcon icon={timerContent.icon} size="xs" />
-          {timerContent.label}
-        </span>
-        {slaText ? <strong className="ui-kds-ticket__sla">{slaText}</strong> : null}
       </div>
 
       <ul className="ui-kds-ticket__items">
         {items.map((item, index) => (
           <li key={`${item.name}-${index}`}>
             <span className="ui-kds-ticket__item-main">
-              <strong aria-label={`${item.quantity} ${item.name.trim()}`}>{item.quantity}</strong>
+              <strong>{item.quantity}</strong>
               <span>{item.name.trim()}</span>
             </span>
 
             {item.modifiers && item.modifiers.length > 0 ? (
-              <ul className="ui-kds-ticket__modifiers" aria-label={`Modifier ${item.name.trim()}`}>
-                {item.modifiers.map((modifier) => (
-                  <li key={modifier}>{modifier.trim()}</li>
+              <ul className="ui-kds-ticket__modifiers">
+                {item.modifiers.map((modifier, modifierIndex) => (
+                  <li key={`${modifier}-${modifierIndex}`}>{modifier.trim()}</li>
                 ))}
               </ul>
             ) : null}
 
             {item.note ? <p className="ui-kds-ticket__note">{item.note.trim()}</p> : null}
             {item.allergyNote ? (
-              <p className="ui-kds-ticket__allergy">{item.allergyNote.trim()}</p>
+              <p className="ui-kds-ticket__allergy">
+                <strong>{allergyLabel.trim()}</strong> {item.allergyNote.trim()}
+              </p>
             ) : null}
           </li>
         ))}
       </ul>
 
-      {primaryAction ? (
+      {shownAction ? (
         <button
+          aria-busy={shownAction.busy || undefined}
           className="ui-kds-ticket__action"
-          disabled={disabled || !onPrimaryAction}
-          onClick={() => onPrimaryAction?.(id, primaryAction.action)}
+          disabled={shownAction.busy}
+          onClick={shownAction.onAction}
           type="button"
         >
-          <AppIcon icon={primaryAction.icon} size="sm" />
-          <span>{primaryAction.label}</span>
+          <AppIcon icon={ActionIcon} size="sm" />
+          <span>{shownAction.label.trim()}</span>
         </button>
       ) : null}
     </article>

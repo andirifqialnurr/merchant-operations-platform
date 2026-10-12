@@ -680,7 +680,11 @@ Aturan tetap: canvas memakai grid logis; menggeser tile di mode edit hanya mengu
 
 ### 19.4 KDS
 
-`KdsTicket` (ukuran sm/md/lg; variant compact/default/touch/history), `KdsNewTicketAlert`, dan `KdsConnectionStatus` sudah ada. Ticket memakai garis status di tepi dan badge, bukan latar berwarna penuh. Timer memakai angka tabular dan tidak berkedip. KDS tidak pernah menerima harga, HPP, pembayaran, atau kontak pelanggan. **Gap:** form ticket manual untuk KDS-only, tampilan riwayat.
+`KdsTicket` (ukuran sm/md/lg; variant compact/default/touch/history), `KdsNewTicketAlert`, dan `KdsConnectionStatus` sudah ada. Ticket memakai garis status di tepi dan badge, bukan latar berwarna penuh. KDS tidak pernah menerima harga, HPP, pembayaran, atau kontak pelanggan; komponen menolak props dengan kunci semacam itu.
+
+**`KdsTicket` sejak 12 Oktober 2026:** tidak punya teks sendiri. Pemanggil mengirim `label` (nama aksesibel ticket), `statusLabel`, `sourceLabel`, `timerLabel`, `allergyLabel`, dan `action { label, onAction, busy? }`. Hanya ada satu tombol, yaitu langkah berikutnya yang dikirim pemanggil; tanpa `action`, pada ticket selesai (`served`/`canceled`), atau pada variant `history` tidak ada tombol. Status: `new`, `accepted`, `preparing`, `ready`, `served`, `canceled`. Waktu tunggu punya warnanya sendiri lewat `timerTone` (`normal` netral, `warning` kuning, `late` merah), terpisah dari warna status, memakai angka tabular dan tidak berkedip; pada ticket selesai penanda itu tidak dipakai. Catatan alergi diawali kata dari `allergyLabel`, bukan warna saja.
+
+**Gap:** form ticket manual untuk KDS-only, tampilan riwayat; `KdsNewTicketAlert` dan `KdsConnectionStatus` masih berisi teks tertanam.
 
 ### 19.5 Inventory, Finance, HC, Customer, Platform
 

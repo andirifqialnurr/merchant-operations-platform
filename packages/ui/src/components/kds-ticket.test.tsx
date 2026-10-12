@@ -12,7 +12,7 @@ import {
 
 const items: KdsTicketItem[] = [
   {
-    allergyNote: "Alergi kacang",
+    allergyNote: "kacang",
     modifiers: ["Tidak pedas", "Tambah telur"],
     name: "Nasi goreng kampung",
     note: "Bawang goreng dipisah",
@@ -23,6 +23,19 @@ const items: KdsTicketItem[] = [
     quantity: 1,
   },
 ];
+
+/** A new ticket from the cashier, with every label a caller must give. */
+const ticket = {
+  allergyLabel: "Alergi",
+  elapsedLabel: "08:12",
+  items,
+  label: "Ticket A-014",
+  orderLabel: "A-014",
+  sourceLabel: "Kasir",
+  status: "new",
+  statusLabel: "Baru",
+  timerLabel: "Menunggu",
+} as const;
 
 describe("KdsTicket", () => {
   it("renders new-ticket visual and audio state without exposing internal alert data", () => {
@@ -113,20 +126,11 @@ describe("KdsTicket", () => {
   });
 
   it("rejects payment, HPP, customer, and token data before KDS render", () => {
-    const baseTicketProps = {
-      elapsedLabel: "08:12",
-      id: "ticket-internal-safe",
-      items,
-      orderLabel: "Order A-014",
-      sourceLabel: "QR meja",
-      status: "new",
-    } as const;
-
     expect(() =>
       render(
         <KdsTicket
           {...({
-            ...baseTicketProps,
+            ...ticket,
             paymentTotalLabel: "Rp120.000",
           } as Parameters<typeof KdsTicket>[0] & { paymentTotalLabel: string })}
         />,
@@ -136,7 +140,7 @@ describe("KdsTicket", () => {
       render(
         <KdsTicket
           {...({
-            ...baseTicketProps,
+            ...ticket,
             items: [{ hppAmount: 12_000, name: "Nasi goreng", quantity: 1 }],
           } as Parameters<typeof KdsTicket>[0] & {
             items: Array<KdsTicketItem & { hppAmount: number }>;
@@ -169,215 +173,121 @@ describe("KdsTicket", () => {
     ).toThrow(/retryToken/);
   });
 
-  it("renders kitchen read model without payment, price, or internal identifiers", () => {
-    render(
-      <KdsTicket
-        elapsedLabel="08:12"
-        id="ticket-internal-01"
-        items={items}
-        orderLabel="Order A-014"
-        sourceLabel="QR meja"
-        status="new"
-        tableLabel="Meja 05"
-      />,
-    );
+  it("shows what to prepare, in the words it was given", () => {
+    render(<KdsTicket {...ticket} tableLabel="Meja 4" />);
 
-    expect(screen.getByRole("article", { name: "Kitchen ticket Order A-014" })).toBeVisible();
-    expect(screen.getByText("Order A-014")).toBeVisible();
-    expect(screen.getByText("Meja 05")).toBeVisible();
-    expect(screen.getByText("Pesanan baru")).toBeVisible();
-    expect(screen.getByText("08:12")).toBeVisible();
-    expect(screen.getByText("Nasi goreng kampung")).toBeVisible();
-    expect(screen.getByText("Tidak pedas")).toBeVisible();
-    expect(screen.getByText("Bawang goreng dipisah")).toBeVisible();
-    expect(screen.getByText("Alergi kacang")).toBeVisible();
-    expect(
-      screen.queryByText(/ticket-internal|Rp|harga|hpp|payment|telepon/i),
-    ).not.toBeInTheDocument();
+    const article = screen.getByRole("article", { name: "Ticket A-014" });
+    expect(article).toHaveTextContent("A-014");
+    expect(article).toHaveTextContent("Meja 4");
+    expect(article).toHaveTextContent("Baru");
+    expect(article).toHaveTextContent("Kasir");
+    expect(screen.getByLabelText("Menunggu 08:12")).toBeInTheDocument();
+    expect(screen.getByText("Nasi goreng kampung")).toBeInTheDocument();
+    expect(screen.getByText("Tidak pedas")).toBeInTheDocument();
+    expect(screen.getByText("Bawang goreng dipisah")).toBeInTheDocument();
+    // The allergy note is announced as one, by a word and not by color alone.
+    expect(screen.getByText("Alergi")).toBeInTheDocument();
+    expect(article).toHaveTextContent("Alergi kacang");
   });
 
-  it("calls the primary action with hidden ticket id and derived action", async () => {
-    const onPrimaryAction = vi.fn();
+  it("adds no words of its own: another language changes every label", () => {
+    render(
+      <KdsTicket
+        {...ticket}
+        action={{ label: "Accept", onAction: () => undefined }}
+        allergyLabel="Allergy"
+        label="Ticket A-014"
+        sourceLabel="Cashier"
+        statusLabel="New"
+        timerLabel="Waiting"
+      />,
+    );
+    const article = screen.getByRole("article");
+    for (const word of ["Baru", "Kasir", "Terima", "Menunggu", "Pesanan", "Siap"]) {
+      expect(article).not.toHaveTextContent(word);
+    }
+    expect(screen.getByRole("button", { name: "Accept" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Waiting 08:12")).toBeInTheDocument();
+  });
+
+  it("has one button, for the step it was given, and locks it while busy", async () => {
     const user = userEvent.setup();
+    const onAction = vi.fn();
+    const { rerender } = render(<KdsTicket {...ticket} action={{ label: "Terima", onAction }} />);
 
-    render(
-      <KdsTicket
-        elapsedLabel="02:01"
-        id="ticket-internal-02"
-        items={items}
-        onPrimaryAction={onPrimaryAction}
-        orderLabel="Order A-015"
-        sourceLabel="POS kasir"
-        status="ready"
-        tableLabel="Meja 06"
-      />,
-    );
+    expect(screen.getAllByRole("button")).toHaveLength(1);
+    await user.click(screen.getByRole("button", { name: "Terima" }));
+    expect(onAction).toHaveBeenCalledTimes(1);
 
-    await user.click(screen.getByRole("button", { name: "Tandai disajikan" }));
-    expect(onPrimaryAction).toHaveBeenCalledWith("ticket-internal-02", "mark-served");
-    expect(screen.queryByText("ticket-internal-02")).not.toBeInTheDocument();
+    rerender(<KdsTicket {...ticket} action={{ busy: true, label: "Terima", onAction }} />);
+    const busy = screen.getByRole("button", { name: "Terima" });
+    expect(busy).toBeDisabled();
+    expect(busy).toHaveAttribute("aria-busy", "true");
+    await user.click(busy);
+    expect(onAction).toHaveBeenCalledTimes(1);
   });
 
-  it("renders timer and SLA state as read-only kitchen context", () => {
-    render(
-      <KdsTicket
-        elapsedLabel="14:20"
-        id="ticket-internal-sla"
-        items={items}
-        orderLabel="Order A-020"
-        slaState="warning"
-        sourceLabel="QR meja"
-        status="preparing"
-        tableLabel="Meja 07"
-        timerState="running"
-      />,
-    );
-
-    expect(screen.getByText("14:20")).toBeVisible();
-    expect(screen.getByText("Timer berjalan")).toBeVisible();
-    expect(screen.getByText("Mendekati SLA")).toBeVisible();
-    expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--timer-running");
-    expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--sla-warning");
-    expect(
-      screen.queryByText(/ticket-internal|threshold|target|deadline|payment|hpp/i),
-    ).not.toBeInTheDocument();
-  });
-
-  it("supports sm, md, and lg sizes plus history read-only variant", () => {
-    const { rerender } = render(
-      <KdsTicket
-        elapsedLabel="01:30"
-        id="ticket-sm"
-        items={items}
-        orderLabel="Order A-016"
-        size="sm"
-        sourceLabel="Waiter"
-        status="accepted"
-      />,
-    );
-
-    expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--sm");
-    expect(screen.getByRole("button", { name: "Siap disajikan" })).toBeDisabled();
-
-    rerender(
-      <KdsTicket
-        elapsedLabel="12:44"
-        id="ticket-md"
-        items={items}
-        orderLabel="Order A-017"
-        size="md"
-        sourceLabel="POS kasir"
-        status="completed"
-        variant="history"
-      />,
-    );
-
-    expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--md");
-    expect(screen.getByText("Selesai")).toBeVisible();
+  it("has no button without an action, when finished, or as history", () => {
+    const action = { label: "Terima", onAction: () => undefined };
+    const { rerender } = render(<KdsTicket {...ticket} />);
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
 
-    rerender(
-      <KdsTicket
-        elapsedLabel="05:30"
-        id="ticket-lg"
-        items={items}
-        orderLabel="Order A-018"
-        size="lg"
-        sourceLabel="QR meja"
-        status="preparing"
-        variant="touch"
-      />,
-    );
+    rerender(<KdsTicket {...ticket} action={action} status="served" statusLabel="Disajikan" />);
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
 
-    expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--lg");
-    expect(screen.getByRole("button", { name: "Siap disajikan" })).toBeDisabled();
+    rerender(<KdsTicket {...ticket} action={action} status="canceled" statusLabel="Batal" />);
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--cancelled");
+
+    rerender(<KdsTicket {...ticket} action={action} variant="history" />);
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+  });
+
+  it("marks a long wait while the ticket is open, and not once it is finished", () => {
+    const { rerender } = render(<KdsTicket {...ticket} timerTone="warning" />);
+    expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--sla-warning");
+
+    rerender(<KdsTicket {...ticket} timerTone="late" />);
+    expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--sla-breached");
+
+    rerender(<KdsTicket {...ticket} status="served" statusLabel="Disajikan" timerTone="late" />);
+    expect(screen.getByRole("article")).not.toHaveClass("ui-kds-ticket--sla-breached");
+  });
+
+  it("supports sm, md, and lg sizes and the touch variant", () => {
+    const { rerender } = render(<KdsTicket {...ticket} size="sm" />);
+    expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--sm");
+    rerender(<KdsTicket {...ticket} />);
+    expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--md", "ui-kds-ticket--default");
+    rerender(<KdsTicket {...ticket} size="lg" variant="touch" />);
+    expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--lg", "ui-kds-ticket--touch");
   });
 
   it("rejects malformed ticket data", () => {
-    expect(() =>
-      render(
-        <KdsTicket
-          elapsedLabel="01:00"
-          id=""
-          items={items}
-          orderLabel="Order A-019"
-          sourceLabel="POS"
-          status="new"
-        />,
-      ),
-    ).toThrow(/id internal/);
-    expect(() =>
-      render(
-        <KdsTicket
-          elapsedLabel="01:00"
-          id="ticket-a"
-          items={[]}
-          orderLabel="Order A-019"
-          sourceLabel="POS"
-          status="new"
-        />,
-      ),
-    ).toThrow(/minimal satu item/);
-    expect(() =>
-      render(
-        <KdsTicket
-          elapsedLabel="01:00"
-          id="ticket-a"
-          items={[{ name: "Nasi goreng", quantity: 0 }]}
-          orderLabel="Order A-019"
-          sourceLabel="POS"
-          status="new"
-        />,
-      ),
-    ).toThrow(/Quantity item/);
-    expect(() =>
-      render(
-        <KdsTicket
-          elapsedLabel="01:00"
-          id="ticket-a"
-          items={items}
-          orderLabel="Order A-019"
-          slaLabel="Lewat SLA"
-          sourceLabel="POS"
-          status="new"
-        />,
-      ),
-    ).toThrow(/state SLA/);
-    expect(() => render(<KdsNewTicketAlert alertId="" audioState="ready" count={1} />)).toThrow(
-      /id internal alert/,
+    const broken = (props: Partial<Parameters<typeof KdsTicket>[0]>) => () =>
+      render(<KdsTicket {...ticket} {...props} />);
+
+    expect(broken({ orderLabel: " " })).toThrow(/orderLabel/);
+    expect(broken({ statusLabel: "" })).toThrow(/statusLabel/);
+    expect(broken({ allergyLabel: " " })).toThrow(/allergyLabel/);
+    expect(broken({ tableLabel: " " })).toThrow(/tableLabel/);
+    expect(broken({ items: [] })).toThrow(/at least one item/);
+    expect(broken({ items: [{ name: "Latte", quantity: 0 }] })).toThrow(/quantity/);
+    expect(broken({ items: [{ name: " ", quantity: 1 }] })).toThrow(/name/);
+    expect(broken({ items: [{ modifiers: [" "], name: "Latte", quantity: 1 }] })).toThrow(
+      /modifier/,
     );
-    expect(() =>
-      render(<KdsNewTicketAlert alertId="alert-a" audioState="ready" count={0} />),
-    ).toThrow(/Jumlah ticket baru/);
-    expect(() =>
-      render(<KdsNewTicketAlert alertId="alert-a" audioState="ready" count={1} message="" />),
-    ).toThrow(/Pesan new-ticket alert/);
-    expect(() => render(<KdsConnectionStatus state="connected" statusId="" />)).toThrow(
-      /id internal status/,
-    );
-    expect(() =>
-      render(<KdsConnectionStatus pendingCount={-1} state="connected" statusId="connection-a" />),
-    ).toThrow(/pending ticket/);
-    expect(() =>
-      render(<KdsConnectionStatus lastSyncedLabel="" state="connected" statusId="connection-a" />),
-    ).toThrow(/Label sinkronisasi/);
+    expect(broken({ action: { label: " ", onAction: () => undefined } })).toThrow(/action label/);
   });
 
   it("passes an axe smoke test", async () => {
     const { container } = render(
-      <div>
-        <KdsNewTicketAlert alertId="alert-internal-01" audioState="ready" count={1} />
-        <KdsConnectionStatus state="connected" statusId="connection-internal-01" />
-        <KdsTicket
-          elapsedLabel="08:12"
-          id="ticket-internal-01"
-          items={items}
-          orderLabel="Order A-014"
-          sourceLabel="QR meja"
-          status="new"
-          tableLabel="Meja 05"
-        />
-      </div>,
+      <KdsTicket
+        {...ticket}
+        action={{ label: "Terima", onAction: () => undefined }}
+        tableLabel="Meja 4"
+        timerTone="warning"
+      />,
     );
     expect((await axe(container)).violations).toEqual([]);
   });

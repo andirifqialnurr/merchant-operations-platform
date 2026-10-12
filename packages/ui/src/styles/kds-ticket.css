@@ -1,5 +1,6 @@
 .ui-kds-ticket {
   --kds-ticket-accent: var(--color-status-info-text);
+  --kds-ticket-timer: var(--color-text-secondary);
   --kds-ticket-action-bg: var(--color-action-primary);
   --kds-ticket-action-fg: var(--color-action-on-primary);
   background: var(--color-bg-surface);
@@ -303,17 +304,13 @@
   --kds-ticket-accent: var(--color-text-muted);
 }
 
+/* Waiting time: a steady change of color, never a blink (flowchart.md 8). */
 .ui-kds-ticket--sla-warning {
-  --kds-ticket-accent: var(--color-status-warning-text);
+  --kds-ticket-timer: var(--color-status-warning-text);
 }
 
 .ui-kds-ticket--sla-breached {
-  --kds-ticket-accent: var(--color-status-danger-text);
-}
-
-.ui-kds-ticket--timer-paused {
-  --kds-ticket-action-bg: var(--color-bg-surface-subtle);
-  --kds-ticket-action-fg: var(--color-text-primary);
+  --kds-ticket-timer: var(--color-status-danger-text);
 }
 
 .ui-kds-ticket--history {
@@ -390,10 +387,10 @@
 }
 
 .ui-kds-ticket__sla {
-  background: color-mix(in srgb, var(--kds-ticket-accent) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--kds-ticket-accent) 36%, transparent);
+  background: color-mix(in srgb, var(--kds-ticket-timer) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kds-ticket-timer) 36%, transparent);
   border-radius: var(--foundation-radius-full);
-  color: var(--kds-ticket-accent);
+  color: var(--kds-ticket-timer);
   display: inline-flex;
   font-size: var(--text-caption);
   font-weight: 750;
