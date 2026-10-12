@@ -1,6 +1,6 @@
 # M3 — Kitchen Display System
 
-**Status:** Belum mulai
+**Status:** Berjalan
 **Tahap PRD:** D (KDS)
 **Bergantung pada:** M2 (event, inbox, binding, perangkat)
 

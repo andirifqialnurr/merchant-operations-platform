@@ -1,6 +1,6 @@
 # M2 — Core modular dan pengaturan
 
-**Status:** Berjalan — semua task selesai 12 Oktober 2026; menunggu tinjauan pengguna. Kriteria CI dipenuhi lewat bukti lokal atas keputusan pengguna (lihat bagian 3)
+**Status:** Selesai (disetujui pengguna 12 Oktober 2026). Kriteria CI dipenuhi lewat bukti lokal atas keputusan pengguna (lihat bagian 3)
 **Tahap PRD:** B (Core modular)
 **Bergantung pada:** M1
 
