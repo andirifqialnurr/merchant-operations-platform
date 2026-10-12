@@ -324,6 +324,13 @@ export class OrganizationService {
     };
   }
 
+  /** The time zone the outlet keeps its day in, e.g. for "today" on its screens. */
+  async outletTimezone(tenantId: string, outletId: string): Promise<string> {
+    const outlet = await this.repository.findOutletById(tenantId, outletId);
+    if (!outlet) throw notFound("OUTLET_NOT_FOUND", "Outlet tidak ditemukan pada tenant ini.");
+    return outlet.timezone;
+  }
+
   async getSnapshot(tenantId: string) {
     const snapshot = await this.repository.getSnapshot(tenantId);
 

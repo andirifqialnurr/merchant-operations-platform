@@ -143,6 +143,7 @@ import {
   saleRefundsSchema,
 } from "./billing.ts";
 import {
+  advanceKitchenTicketSchema,
   createManualKitchenTicketSchema,
   kitchenTicketListSchema,
   kitchenTicketSchema,
@@ -331,6 +332,7 @@ export const posOpenApiSchemas = {
 } as const;
 
 export const kdsOpenApiSchemas = {
+  AdvanceKitchenTicket: toOpenApiSchema(advanceKitchenTicketSchema),
   CreateManualKitchenTicket: toOpenApiSchema(createManualKitchenTicketSchema),
   KitchenTicket: toOpenApiSchema(kitchenTicketSchema),
   KitchenTicketList: toOpenApiSchema(kitchenTicketListSchema),

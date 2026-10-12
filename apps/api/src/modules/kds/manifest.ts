@@ -42,7 +42,11 @@ export const kdsManifest: ModuleManifest = {
     "kds.ticket.item_status": "PRO",
   },
   displayName: "Kitchen Display System",
-  eventsProduced: [],
+  eventsProduced: [
+    "kitchen_ticket.started.v1",
+    "kitchen_ticket.ready.v1",
+    "kitchen_ticket.served.v1",
+  ],
   internalDependencies: [],
   key: MODULES.kds,
   limitDimensions: [

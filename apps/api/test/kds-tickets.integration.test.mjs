@@ -17,6 +17,9 @@ test("kitchen tickets on PostgreSQL: one per request, a station per outlet, hist
     const db = getPrismaClient();
     const { AppModule } = await import("../src/app.module.ts");
     const { CreateKitchenTicket } = await import("../src/modules/kds/public.ts");
+    const { AdvanceKitchenTicket } =
+      await import("../src/modules/kds/application/advance-kitchen-ticket.ts");
+    const { KitchenQueue } = await import("../src/modules/kds/application/kitchen-queue.ts");
     const { EntitlementService } = await import("../src/core/entitlements/public.ts");
     const { PlatformMasterService } =
       await import("../src/core/platform/platform-master.service.ts");
@@ -137,6 +140,63 @@ test("kitchen tickets on PostgreSQL: one per request, a station per outlet, hist
         [tenant.id],
       );
       assert.equal(usage.events, 4);
+
+      // Ten taps on the same button at once move the ticket one step, write
+      // one history row, and never fail.
+      const advance = app.get(AdvanceKitchenTicket);
+      const queue = app.get(KitchenQueue);
+      const ticketId = results[0].ticket.id;
+      const taps = await Promise.all(
+        Array.from({ length: 10 }, () => advance.execute(tenant.id, pusat.id, ticketId, "NEW")),
+      );
+      assert.deepEqual([...new Set(taps.map((ticket) => ticket.status))], ["ACCEPTED"]);
+      for (const status of ["ACCEPTED", "PREPARING", "READY"]) {
+        await advance.execute(tenant.id, pusat.id, ticketId, status);
+      }
+      const moves = await database.query(
+        `SELECT from_status, to_status FROM kds_ticket_status_history
+         WHERE ticket_id = $1 ORDER BY occurred_at, id`,
+        [ticketId],
+      );
+      assert.deepEqual(
+        moves.rows.map((row) => `${row.from_status ?? "-"}>${row.to_status}`),
+        ["->NEW", "NEW>ACCEPTED", "ACCEPTED>PREPARING", "PREPARING>READY", "READY>SERVED"],
+      );
+      // Announced once each, by the kitchen, naming the order it came from
+      // and carrying nothing about money.
+      const announced = await database.query(
+        `SELECT type, producer, payload FROM outbox_events
+         WHERE tenant_id = $1 AND aggregate_type = 'kds_ticket' ORDER BY id`,
+        [tenant.id],
+      );
+      assert.deepEqual(
+        announced.rows.map((row) => [row.type, row.producer, row.payload.sourceReference]),
+        [
+          ["kitchen_ticket.started.v1", "KDS", "order-1"],
+          ["kitchen_ticket.ready.v1", "KDS", "order-1"],
+          ["kitchen_ticket.served.v1", "KDS", "order-1"],
+        ],
+      );
+      assert.deepEqual(Object.keys(announced.rows[0].payload).sort(), [
+        "occurredAt",
+        "source",
+        "sourceReference",
+        "status",
+        "ticketId",
+      ]);
+      // Served: out of the queue, into today's finished list.
+      const open = (await queue.list(tenant.id, pusat.id)).tickets.map((ticket) => ticket.id);
+      assert.equal(open.includes(ticketId), false);
+      assert.equal(open.length, 2);
+      assert.deepEqual(
+        (await queue.finishedToday(tenant.id, pusat.id)).tickets.map((ticket) => ticket.id),
+        [ticketId],
+      );
+      // Another outlet cannot move this outlet's ticket.
+      await assert.rejects(
+        advance.execute(tenant.id, timur.id, manual.ticket.id, "NEW"),
+        (error) => error.getResponse().code === "KITCHEN_TICKET_NOT_FOUND",
+      );
 
       // What happened to a ticket cannot be rewritten or removed.
       await assert.rejects(

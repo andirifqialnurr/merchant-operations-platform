@@ -180,6 +180,7 @@ test("every event a unit writes is declared in its manifest, and nothing else", 
     CORE_PAYMENT_LEDGER: "kernels/billing-payment-ledger",
     // The installation flow and metering write the events the subscription core declares.
     CORE_SUBSCRIPTION: "core/installations+core/metering",
+    KDS: "modules/kds",
     POS: "modules/pos-sales",
   };
   const written = (unit: string) => {

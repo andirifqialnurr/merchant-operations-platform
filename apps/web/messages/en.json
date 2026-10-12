@@ -441,7 +441,10 @@
     "APPROVAL_PIN_TOO_SIMPLE": "This PIN is too easy to guess. Do not use one repeated digit or a run.",
     "REFUND_APPROVAL_REQUIRED": "This refund needs the approval of someone who may refund.",
     "ORDER_TOTAL_CHANGED": "The total of this order changed. Check it again before taking payment.",
-    "KITCHEN_TICKET_REFERENCE_USED": "This reference already made a ticket at another outlet."
+    "KITCHEN_TICKET_REFERENCE_USED": "This reference already made a ticket at another outlet.",
+    "KITCHEN_TICKET_FINISHED": "This ticket is already finished.",
+    "KITCHEN_TICKET_NOT_FOUND": "This ticket was not found at this outlet.",
+    "KITCHEN_TICKET_STATUS_CHANGED": "This ticket was changed on another screen. The queue was reloaded."
   },
   "subscription": {
     "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",

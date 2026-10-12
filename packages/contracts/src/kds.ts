@@ -98,8 +98,18 @@ export const kitchenTicketSchema = z
   })
   .strict();
 
+/**
+ * Moves a ticket to its next step. The screen says which status it saw, so a
+ * second tap or a second screen cannot push the ticket two steps.
+ */
+export const advanceKitchenTicketSchema = z
+  .object({ expectedStatus: kitchenTicketStatusSchema })
+  .strict();
+
 /** The outlet's tickets still being worked on, longest waiting first. */
 export const kitchenTicketListSchema = z.object({ tickets: z.array(kitchenTicketSchema) }).strict();
+
+export type AdvanceKitchenTicket = z.infer<typeof advanceKitchenTicketSchema>;
 
 export type CreateKitchenTicket = z.infer<typeof createKitchenTicketSchema>;
 

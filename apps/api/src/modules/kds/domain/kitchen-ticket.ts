@@ -20,6 +20,8 @@ export type KitchenTicketRecord = {
   receivedAt: Date;
   servedAt: Date | null;
   source: KitchenTicketSource;
+  /** What the source calls the request; it lets the source recognise its ticket. */
+  sourceReference: string;
   startedAt: Date | null;
   status: KitchenTicketStatus;
   tableLabel: string | null;

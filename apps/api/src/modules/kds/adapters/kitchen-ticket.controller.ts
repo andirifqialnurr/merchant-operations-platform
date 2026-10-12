@@ -1,18 +1,21 @@
 import {
+  advanceKitchenTicketSchema,
   API_HEADERS,
   createManualKitchenTicketSchema,
+  entityIdParamsSchema,
   idempotentRequestHeadersSchema,
   kitchenTicketListSchema,
   kitchenTicketSchema,
   MODULES,
   PERMISSIONS,
   requestContextHeadersSchema,
+  type AdvanceKitchenTicket as AdvanceKitchenTicketInput,
   type AuthorizationContext,
   type CreateManualKitchenTicket,
   type IdempotentRequestHeaders,
   type RequestContextHeaders,
 } from "@merchant/contracts";
-import { Body, Controller, Get, Inject, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Inject, Param, Post, UseGuards } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -20,6 +23,7 @@ import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiHeader,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -38,6 +42,7 @@ import {
   RequestHeaders,
   ZodValidationPipe,
 } from "../../../shared/validation/zod-validation.pipe.js";
+import { AdvanceKitchenTicket } from "../application/advance-kitchen-ticket.js";
 import { CreateKitchenTicket } from "../application/create-kitchen-ticket.js";
 import { KitchenQueue } from "../application/kitchen-queue.js";
 
@@ -62,6 +67,7 @@ import { KitchenQueue } from "../application/kitchen-queue.js";
 @Controller("kds/tickets")
 export class KitchenTicketController {
   constructor(
+    @Inject(AdvanceKitchenTicket) private readonly advanceTicket: AdvanceKitchenTicket,
     @Inject(CreateKitchenTicket) private readonly createTicket: CreateKitchenTicket,
     @Inject(KitchenQueue) private readonly queue: KitchenQueue,
   ) {}
@@ -76,6 +82,44 @@ export class KitchenTicketController {
   ) {
     return kitchenTicketListSchema.parse(
       await this.queue.list(headers[API_HEADERS.tenantId], headers[API_HEADERS.outletId]),
+    );
+  }
+
+  @ApiOperation({ summary: "List the tickets served or canceled today, most recent first" })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/KitchenTicketList" } })
+  @RequirePermission(PERMISSIONS.kdsTicketView)
+  @Get("finished")
+  async finished(
+    @RequestHeaders(new ZodValidationPipe(requestContextHeadersSchema))
+    headers: RequestContextHeaders,
+  ) {
+    return kitchenTicketListSchema.parse(
+      await this.queue.finishedToday(headers[API_HEADERS.tenantId], headers[API_HEADERS.outletId]),
+    );
+  }
+
+  @ApiOperation({ summary: "Move a ticket to its next step" })
+  @ApiBody({ schema: { $ref: "#/components/schemas/AdvanceKitchenTicket" } })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/KitchenTicket" } })
+  @ApiNotFoundResponse({ schema: { $ref: "#/components/schemas/ApiError" } })
+  @RequirePermission(PERMISSIONS.kdsTicketManage)
+  @HttpCode(200)
+  @Post(":id/advance")
+  async advance(
+    @RequestHeaders(new ZodValidationPipe(requestContextHeadersSchema))
+    headers: RequestContextHeaders,
+    @Param(new ZodValidationPipe(entityIdParamsSchema)) params: { id: string },
+    @Body(new ZodValidationPipe(advanceKitchenTicketSchema)) input: AdvanceKitchenTicketInput,
+    @CurrentAccess() access: AuthorizationContext,
+  ) {
+    return kitchenTicketSchema.parse(
+      await this.advanceTicket.execute(
+        headers[API_HEADERS.tenantId],
+        headers[API_HEADERS.outletId],
+        params.id,
+        input.expectedStatus,
+        commandOriginFromRequest(access.userId, headers, access.deviceId),
+      ),
     );
   }
 

@@ -1,10 +1,15 @@
 import { getPrismaClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
+import { eventOrigin } from "../../../shared/command/command-origin.js";
+import { safeEventPayload } from "../../../shared/command/event-payload.js";
 import type {
   KitchenTicketRepository,
   NewKitchenTicket,
+  TicketMove,
+  TicketMoveResult,
 } from "../application/kitchen-ticket.repository.js";
+import { STATUS_TIMESTAMP } from "../domain/ticket-status.js";
 import {
   DEFAULT_STATION_NAME,
   OPEN_TICKET_STATUSES,
@@ -25,6 +30,7 @@ const ticketSelect = {
   receivedAt: true,
   servedAt: true,
   source: true,
+  sourceReference: true,
   startedAt: true,
   status: true,
   tableLabel: true,
@@ -144,6 +150,68 @@ export class PrismaKitchenTicketRepository implements KitchenTicketRepository {
       if (!raced) throw error;
       return { created: false, ticket: toRecord(raced) };
     }
+  }
+
+  async move(move: TicketMove): Promise<TicketMoveResult> {
+    const { at, from, id, outletId, tenantId, to } = move;
+    const where = { id, outletId, tenantId };
+    const column = to === "NEW" ? undefined : STATUS_TIMESTAMP[to];
+    return getPrismaClient().$transaction(async (transaction) => {
+      // Only a ticket still in `from` moves; of two moves at once, one finds nothing.
+      const moved = await transaction.kdsTicket.updateMany({
+        data: { status: to, updatedAt: at, ...(column ? { [column]: at } : {}) },
+        where: { ...where, status: from },
+      });
+      const ticket = await transaction.kdsTicket.findFirst({ select: ticketSelect, where });
+      if (!ticket) return { outcome: "missing" };
+      if (moved.count !== 1) return { outcome: "stale", ticket: toRecord(ticket) };
+
+      await transaction.kdsTicketStatusHistory.create({
+        data: {
+          ...(move.origin?.actorId ? { actorId: move.origin.actorId } : {}),
+          fromStatus: from,
+          occurredAt: at,
+          ticketId: id,
+          tenantId,
+          toStatus: to,
+        },
+      });
+      if (move.eventType) {
+        await transaction.outboxEvent.create({
+          data: {
+            ...eventOrigin(move.origin, "KDS"),
+            aggregateId: id,
+            aggregateType: "kds_ticket",
+            outletId,
+            payload: safeEventPayload({
+              occurredAt: at.toISOString(),
+              source: ticket.source,
+              sourceReference: ticket.sourceReference,
+              status: to,
+              ticketId: id,
+            }),
+            tenantId,
+            type: move.eventType,
+          },
+        });
+      }
+      return { outcome: "moved", ticket: toRecord(ticket) };
+    });
+  }
+
+  async listFinishedSince(tenantId: string, outletId: string, since: Date) {
+    const rows = await getPrismaClient().kdsTicket.findMany({
+      orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+      select: ticketSelect,
+      take: 200,
+      where: {
+        OR: [{ servedAt: { gte: since } }, { canceledAt: { gte: since } }],
+        outletId,
+        status: { in: ["SERVED", "CANCELED"] },
+        tenantId,
+      },
+    });
+    return rows.map(toRecord);
   }
 
   async listOpen(tenantId: string, outletId: string) {

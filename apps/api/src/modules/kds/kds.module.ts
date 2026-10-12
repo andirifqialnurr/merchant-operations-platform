@@ -3,8 +3,10 @@ import { Module } from "@nestjs/common";
 import { AuthModule } from "../../core/auth/public.js";
 import { AccessModule } from "../../core/memberships/public.js";
 import { MeteringModule } from "../../core/metering/public.js";
+import { OrganizationModule } from "../../core/workspaces/public.js";
 import { KitchenTicketController } from "./adapters/kitchen-ticket.controller.js";
 import { PrismaKitchenTicketRepository } from "./adapters/prisma-kitchen-ticket.repository.js";
+import { AdvanceKitchenTicket } from "./application/advance-kitchen-ticket.js";
 import { CreateKitchenTicket } from "./application/create-kitchen-ticket.js";
 import { KitchenQueue } from "./application/kitchen-queue.js";
 import { KITCHEN_TICKET_REPOSITORY } from "./application/kitchen-ticket.repository.js";
@@ -17,8 +19,9 @@ import { KITCHEN_TICKET_REPOSITORY } from "./application/kitchen-ticket.reposito
 @Module({
   controllers: [KitchenTicketController],
   exports: [CreateKitchenTicket],
-  imports: [AccessModule, AuthModule, MeteringModule],
+  imports: [AccessModule, AuthModule, MeteringModule, OrganizationModule],
   providers: [
+    AdvanceKitchenTicket,
     CreateKitchenTicket,
     KitchenQueue,
     PrismaKitchenTicketRepository,
