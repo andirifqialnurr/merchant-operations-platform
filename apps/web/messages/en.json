@@ -440,7 +440,8 @@
     "APPROVAL_PIN_NOT_SET": "This person has not set an approval PIN.",
     "APPROVAL_PIN_TOO_SIMPLE": "This PIN is too easy to guess. Do not use one repeated digit or a run.",
     "REFUND_APPROVAL_REQUIRED": "This refund needs the approval of someone who may refund.",
-    "ORDER_TOTAL_CHANGED": "The total of this order changed. Check it again before taking payment."
+    "ORDER_TOTAL_CHANGED": "The total of this order changed. Check it again before taking payment.",
+    "KITCHEN_TICKET_REFERENCE_USED": "This reference already made a ticket at another outlet."
   },
   "subscription": {
     "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",
@@ -801,6 +802,7 @@
       "catalog": "Catalog",
       "finance": "Finance",
       "inventory": "Inventory",
+      "kitchen": "Kitchen",
       "people": "Users and roles",
       "selling": "Selling and the cashier",
       "tables": "Tables"
@@ -849,6 +851,12 @@
         "adjust": "Correct stock quantities",
         "receive": "Receive incoming goods",
         "stocktake": "Do a stock count"
+      },
+      "kds": {
+        "ticket": {
+          "manage": "Add tickets and change their status",
+          "view": "See the kitchen queue"
+        }
       },
       "order": {
         "cancel": "Cancel orders",

@@ -83,7 +83,7 @@ function setup({
   const repository = new MemoryInstallationRepository();
   const modules = [
     { key: MODULES.pos, kind: "COMMERCIAL" },
-    { key: MODULES.kds, kind: "COMMERCIAL" },
+    { key: MODULES.inventoryBasic, kind: "COMMERCIAL" },
     { key: MODULES.coreCatalog, kind: "CORE" },
   ].map((item) => ({ ...item, enabled: item.kind === "CORE" || enabled.includes(item.key) }));
   const entitlements = {
@@ -201,7 +201,10 @@ test("a module with required setup steps waits in SETUP_REQUIRED until setup is 
 test("what cannot be installed is refused with its own reason", async () => {
   const { service } = setup();
   // Not part of the subscription.
-  assert.equal(await codeOf(() => service.install(TENANT, MODULES.kds)), "ENTITLEMENT_REQUIRED");
+  assert.equal(
+    await codeOf(() => service.install(TENANT, MODULES.inventoryBasic)),
+    "ENTITLEMENT_REQUIRED",
+  );
   // Core modules are never installed one by one.
   assert.equal(
     await codeOf(() => service.install(TENANT, MODULES.coreCatalog)),
@@ -214,9 +217,9 @@ test("what cannot be installed is refused with its own reason", async () => {
   );
 
   // Entitled, but the module has not been built yet.
-  const entitledToKds = setup({ enabled: [MODULES.kds] });
+  const entitledToInventory = setup({ enabled: [MODULES.inventoryBasic] });
   assert.equal(
-    await codeOf(() => entitledToKds.service.install(TENANT, MODULES.kds)),
+    await codeOf(() => entitledToInventory.service.install(TENANT, MODULES.inventoryBasic)),
     "MODULE_NOT_AVAILABLE",
   );
 });
@@ -300,9 +303,9 @@ test("a move decided on stale information is refused instead of overwriting", as
 });
 
 test("provisioning a workspace installs what it is entitled to and can be repeated", async () => {
-  const { repository, service } = setup({ enabled: [MODULES.pos, MODULES.kds] });
+  const { repository, service } = setup({ enabled: [MODULES.pos, MODULES.inventoryBasic] });
 
-  // KDS is entitled but has no code yet, so only POS is installed.
+  // Inventory is entitled but has no code yet, so only POS is installed.
   const first = await service.provisionEntitled(TENANT);
   assert.deepEqual(
     first.map((item) => `${item.moduleKey}:${item.status}`),
@@ -322,13 +325,13 @@ test("provisioning a workspace installs what it is entitled to and can be repeat
 });
 
 test("the list shows entitled modules that are not installed yet", async () => {
-  const { service } = setup({ enabled: [MODULES.pos, MODULES.kds] });
+  const { service } = setup({ enabled: [MODULES.pos, MODULES.inventoryBasic] });
   await service.install(TENANT, MODULES.pos);
 
   const list = await service.list(TENANT);
   assert.deepEqual(
     list.map((item) => `${item.moduleKey}:${item.status}`),
-    ["POS:ACTIVE", "KDS:NOT_INSTALLED"],
+    ["POS:ACTIVE", "INVENTORY_BASIC:NOT_INSTALLED"],
   );
 });
 

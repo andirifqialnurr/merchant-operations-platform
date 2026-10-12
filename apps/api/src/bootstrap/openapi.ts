@@ -1,6 +1,7 @@
 import {
   API_HEADERS,
   commonOpenApiSchemas,
+  kdsOpenApiSchemas,
   posOpenApiSchemas,
   PLATFORM_PERMISSIONS,
   platformRequestHeadersSchema,
@@ -115,6 +116,7 @@ export function createOpenApiDocument(app: INestApplication) {
       ...document.components?.schemas,
       ...(commonOpenApiSchemas as OpenApiSchemas),
       ...(posOpenApiSchemas as OpenApiSchemas),
+      ...(kdsOpenApiSchemas as OpenApiSchemas),
     },
   };
 

@@ -1,0 +1,157 @@
+import { getPrismaClient } from "@merchant/database";
+import { Injectable } from "@nestjs/common";
+
+import type {
+  KitchenTicketRepository,
+  NewKitchenTicket,
+} from "../application/kitchen-ticket.repository.js";
+import {
+  DEFAULT_STATION_NAME,
+  OPEN_TICKET_STATUSES,
+  type KitchenTicketRecord,
+} from "../domain/kitchen-ticket.js";
+
+const ticketSelect = {
+  acceptedAt: true,
+  canceledAt: true,
+  id: true,
+  items: {
+    orderBy: { position: "asc" },
+    select: { allergyNote: true, modifiers: true, nameSnapshot: true, note: true, quantity: true },
+  },
+  orderLabel: true,
+  outletId: true,
+  readyAt: true,
+  receivedAt: true,
+  servedAt: true,
+  source: true,
+  startedAt: true,
+  status: true,
+  tableLabel: true,
+} as const;
+
+type TicketRow = Omit<KitchenTicketRecord, "items"> & {
+  items: Array<{
+    allergyNote: string | null;
+    modifiers: unknown;
+    nameSnapshot: string;
+    note: string | null;
+    quantity: number;
+  }>;
+};
+
+function toRecord({ items, ...row }: TicketRow): KitchenTicketRecord {
+  return {
+    ...row,
+    items: items.map((item) => ({
+      allergyNote: item.allergyNote,
+      // Stored as a JSON array of names; anything else is not shown.
+      modifiers: Array.isArray(item.modifiers)
+        ? item.modifiers.filter((name): name is string => typeof name === "string")
+        : [],
+      name: item.nameSnapshot,
+      note: item.note,
+      quantity: item.quantity,
+    })),
+  };
+}
+
+function isUniqueConstraintError(error: unknown) {
+  return typeof error === "object" && error !== null && "code" in error && error.code === "P2002";
+}
+
+@Injectable()
+export class PrismaKitchenTicketRepository implements KitchenTicketRepository {
+  private bySource(ticket: Pick<NewKitchenTicket, "source" | "sourceReference" | "tenantId">) {
+    return getPrismaClient().kdsTicket.findUnique({
+      select: ticketSelect,
+      where: {
+        tenantId_source_sourceReference: {
+          source: ticket.source,
+          sourceReference: ticket.sourceReference,
+          tenantId: ticket.tenantId,
+        },
+      },
+    });
+  }
+
+  /** The outlet's default station, made the first time it is needed. */
+  private async defaultStationId(tenantId: string, outletId: string) {
+    const prisma = getPrismaClient();
+    const find = () =>
+      prisma.kdsStation.findFirst({
+        select: { id: true },
+        where: { isDefault: true, outletId, tenantId },
+      });
+    const existing = await find();
+    if (existing) return existing.id;
+    try {
+      const created = await prisma.kdsStation.create({
+        data: { isDefault: true, name: DEFAULT_STATION_NAME, outletId, tenantId },
+        select: { id: true },
+      });
+      return created.id;
+    } catch (error) {
+      if (!isUniqueConstraintError(error)) throw error;
+      // Two first tickets arrived together; the other one made the station.
+      const raced = await find();
+      if (!raced) throw error;
+      return raced.id;
+    }
+  }
+
+  async create(ticket: NewKitchenTicket) {
+    const existing = await this.bySource(ticket);
+    if (existing) return { created: false, ticket: toRecord(existing) };
+
+    const stationId = await this.defaultStationId(ticket.tenantId, ticket.outletId);
+    try {
+      const created = await getPrismaClient().kdsTicket.create({
+        data: {
+          items: {
+            create: ticket.items.map((item, position) => ({
+              allergyNote: item.allergyNote,
+              modifiers: item.modifiers,
+              nameSnapshot: item.name,
+              note: item.note,
+              position,
+              quantity: item.quantity,
+            })),
+          },
+          orderLabel: ticket.orderLabel,
+          outletId: ticket.outletId,
+          receivedAt: ticket.receivedAt,
+          source: ticket.source,
+          sourceReference: ticket.sourceReference,
+          stationId,
+          statusHistory: {
+            create: {
+              ...(ticket.actorId ? { actorId: ticket.actorId } : {}),
+              occurredAt: ticket.receivedAt,
+              toStatus: "NEW",
+            },
+          },
+          tableLabel: ticket.tableLabel,
+          tenantId: ticket.tenantId,
+        },
+        select: ticketSelect,
+      });
+      return { created: true, ticket: toRecord(created) };
+    } catch (error) {
+      if (!isUniqueConstraintError(error)) throw error;
+      // The same request arrived twice at once; the other one made the ticket.
+      const raced = await this.bySource(ticket);
+      if (!raced) throw error;
+      return { created: false, ticket: toRecord(raced) };
+    }
+  }
+
+  async listOpen(tenantId: string, outletId: string) {
+    const rows = await getPrismaClient().kdsTicket.findMany({
+      orderBy: [{ receivedAt: "asc" }, { id: "asc" }],
+      select: ticketSelect,
+      where: { outletId, status: { in: [...OPEN_TICKET_STATUSES] }, tenantId },
+    });
+    return rows.map(toRecord);
+  }
+}

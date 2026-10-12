@@ -3,6 +3,9 @@ import test from "node:test";
 import * as z from "zod";
 
 import {
+  createManualKitchenTicketSchema,
+  kdsOpenApiSchemas,
+  kitchenTicketSchema,
   posOpenApiSchemas,
   API_HEADERS,
   authLoginRequestSchema,
@@ -986,5 +989,64 @@ test("POS contracts carry no cost, profit, HR, or customer contact fields", () =
   assert.deepEqual(
     names.filter((name) => forbidden.test(name)),
     [],
+  );
+});
+
+test("KDS contracts carry no price, payment, cost, or customer contact fields", () => {
+  // security.md 10.1: a kitchen screen never receives these.
+  const forbidden =
+    /price|minor|amount|total|subtotal|tax|discount|payment|paid|tender|cost|hpp|cogs|profit|margin|phone|email|address|customer/i;
+  const names = [...schemaPropertyNames(kdsOpenApiSchemas)];
+
+  assert.ok(names.includes("modifiers"), "the walk reaches nested item fields");
+  assert.deepEqual(
+    names.filter((name) => forbidden.test(name)),
+    [],
+  );
+});
+
+test("a kitchen ticket response refuses a field the kitchen must not see", () => {
+  const ticket = {
+    acceptedAt: null,
+    canceledAt: null,
+    id: "019f738d-e61f-7d46-92de-17b35f974100",
+    items: [{ allergyNote: null, modifiers: ["Besar"], name: "Latte", note: null, quantity: 2 }],
+    orderLabel: "A-12",
+    readyAt: null,
+    receivedAt: "2026-10-12T03:00:00.000Z",
+    servedAt: null,
+    source: "POS",
+    startedAt: null,
+    status: "NEW",
+    tableLabel: null,
+  };
+  assert.equal(kitchenTicketSchema.safeParse(ticket).success, true);
+  assert.equal(kitchenTicketSchema.safeParse({ ...ticket, totalMinor: "50000" }).success, false);
+  assert.equal(
+    kitchenTicketSchema.safeParse({
+      ...ticket,
+      items: [{ ...ticket.items[0], unitPriceMinor: "25000" }],
+    }).success,
+    false,
+  );
+});
+
+test("a manual kitchen ticket takes a label and free items, nothing else", () => {
+  const parsed = createManualKitchenTicketSchema.parse({
+    items: [{ name: "  Nasi goreng ", note: "pedas", quantity: 2 }],
+    orderLabel: " Meja 4 ",
+  });
+  assert.deepEqual(parsed, {
+    items: [{ name: "Nasi goreng", note: "pedas", quantity: 2 }],
+    orderLabel: "Meja 4",
+  });
+  assert.equal(
+    createManualKitchenTicketSchema.safeParse({ items: [], orderLabel: "A" }).success,
+    false,
+  );
+  assert.equal(
+    createManualKitchenTicketSchema.safeParse({ ...parsed, source: "POS" }).success,
+    false,
+    "the source is never chosen by the person typing",
   );
 });

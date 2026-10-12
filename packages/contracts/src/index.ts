@@ -18,6 +18,7 @@ export * from "./menu.ts";
 export * from "./orders.ts";
 export * from "./billing.ts";
 export * from "./held-carts.ts";
+export * from "./kds.ts";
 export * from "./devices.ts";
 export * from "./files.ts";
 export * from "./invitations.ts";

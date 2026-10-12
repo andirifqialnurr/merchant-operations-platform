@@ -7,6 +7,7 @@ import { identityManifest } from "./core/memberships/public.js";
 import { tenancyManifest } from "./core/workspaces/public.js";
 import { billManifest, paymentLedgerManifest } from "./kernels/billing-payment-ledger/public.js";
 import { orderIntakeManifest } from "./kernels/order-intake/public.js";
+import { kdsManifest } from "./modules/kds/public.js";
 import { posSalesManifest } from "./modules/pos-sales/public.js";
 
 /**
@@ -23,4 +24,5 @@ export const MODULE_MANIFESTS: readonly ModuleManifest[] = [
   billManifest,
   paymentLedgerManifest,
   posSalesManifest,
+  kdsManifest,
 ];

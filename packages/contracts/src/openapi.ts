@@ -143,6 +143,11 @@ import {
   saleRefundsSchema,
 } from "./billing.ts";
 import {
+  createManualKitchenTicketSchema,
+  kitchenTicketListSchema,
+  kitchenTicketSchema,
+} from "./kds.ts";
+import {
   heldCartListSchema,
   heldCartSchema,
   holdCartSchema,
@@ -323,4 +328,10 @@ export const posOpenApiSchemas = {
   RecordCashMovement: toOpenApiSchema(recordCashMovementSchema),
   RegisterSession: toOpenApiSchema(registerSessionSchema),
   SellableMenu: toOpenApiSchema(sellableMenuSchema),
+} as const;
+
+export const kdsOpenApiSchemas = {
+  CreateManualKitchenTicket: toOpenApiSchema(createManualKitchenTicketSchema),
+  KitchenTicket: toOpenApiSchema(kitchenTicketSchema),
+  KitchenTicketList: toOpenApiSchema(kitchenTicketListSchema),
 } as const;

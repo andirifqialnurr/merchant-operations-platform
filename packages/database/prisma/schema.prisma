@@ -374,6 +374,8 @@ model Tenant {
   saleRefunds                  SaleRefund[]
   heldCarts                    PosHeldCart[]
   approvalPins                 CoreApprovalPin[]
+  kdsStations                  KdsStation[]
+  kdsTickets                   KdsTicket[]
 
   @@map("tenants")
 }
@@ -425,6 +427,8 @@ model Outlet {
   sales               Sale[]
   saleRefunds         SaleRefund[]
   heldCarts           PosHeldCart[]
+  kdsStations         KdsStation[]
+  kdsTickets          KdsTicket[]
   saleNumberCounter   SaleNumberCounter?
   orderNumberCounter  OrderNumberCounter?
 
@@ -1505,4 +1509,112 @@ model PosHeldCart {
   @@unique([tenantId, outletId, idempotencyKey])
   @@index([tenantId, outletId, createdAt])
   @@map("pos_held_carts")
+}
+
+enum KdsStationStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum KdsTicketSource {
+  MANUAL
+  POS
+  SELF_ORDER
+  API
+}
+
+enum KdsTicketStatus {
+  NEW
+  ACCEPTED
+  PREPARING
+  READY
+  SERVED
+  CANCELED
+}
+
+/// Where tickets are prepared. Every outlet has one default station, created
+/// with its first ticket; a partial unique index keeps it to one.
+model KdsStation {
+  id        String           @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId  String           @map("tenant_id") @db.Uuid
+  outletId  String           @map("outlet_id") @db.Uuid
+  name      String           @db.VarChar(80)
+  status    KdsStationStatus @default(ACTIVE)
+  isDefault Boolean          @default(false) @map("is_default")
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
+  tenant    Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet    Outlet           @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
+  tickets   KdsTicket[]
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, outletId, id])
+  @@unique([tenantId, outletId, name])
+  @@map("kds_stations")
+}
+
+/// One request to the kitchen. It names its origin by source and reference
+/// and has no relation to an order, so a kitchen without the cashier works.
+/// No price, payment, or customer contact is stored here.
+model KdsTicket {
+  id              String                   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId        String                   @map("tenant_id") @db.Uuid
+  outletId        String                   @map("outlet_id") @db.Uuid
+  stationId       String                   @map("station_id") @db.Uuid
+  source          KdsTicketSource
+  sourceReference String                   @map("source_reference") @db.VarChar(255)
+  orderLabel      String                   @map("order_label") @db.VarChar(60)
+  tableLabel      String?                  @map("table_label") @db.VarChar(40)
+  status          KdsTicketStatus          @default(NEW)
+  receivedAt      DateTime                 @default(now()) @map("received_at") @db.Timestamptz(6)
+  acceptedAt      DateTime?                @map("accepted_at") @db.Timestamptz(6)
+  startedAt       DateTime?                @map("started_at") @db.Timestamptz(6)
+  readyAt         DateTime?                @map("ready_at") @db.Timestamptz(6)
+  servedAt        DateTime?                @map("served_at") @db.Timestamptz(6)
+  canceledAt      DateTime?                @map("canceled_at") @db.Timestamptz(6)
+  createdAt       DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime                 @default(now()) @map("updated_at") @db.Timestamptz(6)
+  tenant          Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet          Outlet                   @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
+  station         KdsStation               @relation(fields: [tenantId, outletId, stationId], references: [tenantId, outletId, id], onDelete: Restrict)
+  items           KdsTicketItem[]
+  statusHistory   KdsTicketStatusHistory[]
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, source, sourceReference])
+  @@index([tenantId, outletId, status, receivedAt], map: "kds_tickets_queue_idx")
+  @@map("kds_tickets")
+}
+
+model KdsTicketItem {
+  id           String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId     String    @map("tenant_id") @db.Uuid
+  ticketId     String    @map("ticket_id") @db.Uuid
+  position     Int
+  nameSnapshot String    @map("name_snapshot") @db.VarChar(160)
+  quantity     Int
+  /// Names of the chosen options, in order. No prices.
+  modifiers    Json      @default("[]")
+  note         String?   @db.VarChar(280)
+  allergyNote  String?   @map("allergy_note") @db.VarChar(280)
+  ticket       KdsTicket @relation(fields: [tenantId, ticketId], references: [tenantId, id], onDelete: Restrict)
+
+  @@unique([ticketId, position])
+  @@index([tenantId, ticketId])
+  @@map("kds_ticket_items")
+}
+
+/// Append-only (a trigger refuses updates and deletes).
+model KdsTicketStatusHistory {
+  id         String           @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId   String           @map("tenant_id") @db.Uuid
+  ticketId   String           @map("ticket_id") @db.Uuid
+  fromStatus KdsTicketStatus? @map("from_status")
+  toStatus   KdsTicketStatus  @map("to_status")
+  actorId    String?          @map("actor_id") @db.Uuid
+  occurredAt DateTime         @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  ticket     KdsTicket        @relation(fields: [tenantId, ticketId], references: [tenantId, id], onDelete: Restrict)
+
+  @@index([tenantId, ticketId, occurredAt], map: "kds_ticket_status_history_ticket_idx")
+  @@map("kds_ticket_status_history")
 }

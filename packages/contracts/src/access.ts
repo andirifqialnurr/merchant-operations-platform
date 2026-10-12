@@ -21,6 +21,8 @@ export const PERMISSIONS = {
   financeDashboardView: "finance.dashboard.view",
   financeExpenseCreate: "finance.expense.create",
   financeReportExport: "finance.report.export",
+  kdsTicketManage: "kds.ticket.manage",
+  kdsTicketView: "kds.ticket.view",
   inventoryAdjust: "inventory.adjust",
   inventoryReceive: "inventory.receive",
   inventoryStocktake: "inventory.stocktake",

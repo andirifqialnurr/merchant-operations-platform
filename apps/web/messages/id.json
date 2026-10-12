@@ -440,7 +440,8 @@
     "APPROVAL_PIN_NOT_SET": "Orang ini belum mengatur PIN persetujuan.",
     "APPROVAL_PIN_TOO_SIMPLE": "PIN terlalu mudah ditebak. Jangan pakai angka kembar atau berurutan.",
     "REFUND_APPROVAL_REQUIRED": "Refund ini perlu persetujuan orang yang punya izin refund.",
-    "ORDER_TOTAL_CHANGED": "Total pesanan ini berubah. Periksa lagi sebelum menerima pembayaran."
+    "ORDER_TOTAL_CHANGED": "Total pesanan ini berubah. Periksa lagi sebelum menerima pembayaran.",
+    "KITCHEN_TICKET_REFERENCE_USED": "Referensi ini sudah dipakai ticket di outlet lain."
   },
   "subscription": {
     "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat langganan.",
@@ -801,6 +802,7 @@
       "catalog": "Katalog",
       "finance": "Keuangan",
       "inventory": "Stok",
+      "kitchen": "Dapur",
       "people": "Pengguna dan peran",
       "selling": "Penjualan dan kasir",
       "tables": "Meja"
@@ -849,6 +851,12 @@
         "adjust": "Mengoreksi jumlah stok",
         "receive": "Menerima barang masuk",
         "stocktake": "Melakukan stok opname"
+      },
+      "kds": {
+        "ticket": {
+          "manage": "Menambah ticket dan mengubah statusnya",
+          "view": "Melihat antrean dapur"
+        }
       },
       "order": {
         "cancel": "Membatalkan pesanan",

@@ -56,7 +56,11 @@ export const DEFAULT_ROLE_DEFINITIONS: SystemRoleDefinition[] = [
       PERMISSIONS.shiftClose,
     ],
   },
-  { code: "KITCHEN", name: "Kitchen", permissionKeys: [] },
+  {
+    code: "KITCHEN",
+    name: "Kitchen",
+    permissionKeys: [PERMISSIONS.kdsTicketView, PERMISSIONS.kdsTicketManage],
+  },
   {
     code: "WAITER",
     name: "Waiter",

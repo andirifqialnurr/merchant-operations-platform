@@ -13,6 +13,7 @@ import { MeteringModule } from "./core/metering/public.js";
 import { KernelWiringModule } from "./kernel-wiring.module.js";
 import { HealthController } from "./health.controller.js";
 import { MODULE_MANIFESTS } from "./module-manifests.js";
+import { KdsModule } from "./modules/kds/public.js";
 import { PosSalesModule } from "./modules/pos-sales/public.js";
 import { OrganizationModule } from "./core/workspaces/public.js";
 import { PlatformModule } from "./core/platform/public.js";
@@ -29,6 +30,7 @@ import { PlatformModule } from "./core/platform/public.js";
     DeviceModule,
     FileModule,
     InstallationModule,
+    KdsModule,
     KernelWiringModule,
     MeteringModule,
     OrganizationModule,

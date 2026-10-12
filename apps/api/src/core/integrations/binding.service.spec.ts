@@ -32,7 +32,13 @@ const WORKSPACE = "019f738d-e61f-7d46-92de-17b35f976001";
 const INSTALLED_AT = new Date("2026-10-10T00:00:00.000Z");
 const HANDLER = "kds.create_ticket";
 
-/** A kitchen module that reacts to submitted orders, as M3 will add it. */
+/**
+ * These tests install their own kitchen module, with one handler they control,
+ * in place of the real one.
+ */
+const OTHER_MANIFESTS = MODULE_MANIFESTS.filter((item) => item.key !== MODULES.kds);
+
+/** A kitchen module that reacts to submitted orders. */
 const kdsManifest: ModuleManifest = {
   capabilities: [],
   capabilityTiers: {},
@@ -153,7 +159,7 @@ const kdsHandler = (handle: EventHandler["handle"] = async () => undefined): Eve
   moduleKey: MODULES.kds,
 });
 
-function setup(manifests: readonly ModuleManifest[] = [...MODULE_MANIFESTS, kdsManifest]) {
+function setup(manifests: readonly ModuleManifest[] = [...OTHER_MANIFESTS, kdsManifest]) {
   const repository = new MemoryBindingRepository();
   const service = new BindingService(repository, new ModuleManifestRegistry(manifests));
   return { repository, service };
@@ -367,7 +373,7 @@ async function deliver({
   withKds?: boolean;
 }) {
   const { repository, service } = setup(
-    withKds ? [...MODULE_MANIFESTS, kdsManifest] : MODULE_MANIFESTS,
+    withKds ? [...OTHER_MANIFESTS, kdsManifest] : OTHER_MANIFESTS,
   );
   await prepare?.(service, repository);
   const registry = new EventHandlerRegistry();

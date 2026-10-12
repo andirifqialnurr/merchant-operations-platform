@@ -93,7 +93,7 @@ test("a tier gives its own capabilities and those of the tiers below", () => {
   assert.ok(!pro.includes("pos.policy.central"));
   assert.equal(advanced.length, registry.get(MODULES.pos)?.capabilities.length);
   // A module that is planned but not built gives nothing by default.
-  assert.deepEqual(registry.capabilitiesAt(MODULES.kds, "ADVANCED"), []);
+  assert.deepEqual(registry.capabilitiesAt(MODULES.inventoryBasic, "ADVANCED"), []);
 });
 
 test("capability and limit keys belong to the module that owns their namespace", () => {
