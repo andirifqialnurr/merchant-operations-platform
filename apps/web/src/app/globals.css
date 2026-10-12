@@ -26,6 +26,7 @@
 @import "@merchant/ui/styles/table-layout-canvas.css";
 @import "@merchant/ui/styles/table-tile.css";
 @import "@merchant/ui/styles/kds-ticket.css";
+@import "@merchant/ui/styles/quick-item-entry.css";
 
 :root {
   color-scheme: light;

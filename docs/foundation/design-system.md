@@ -684,7 +684,9 @@ Aturan tetap: canvas memakai grid logis; menggeser tile di mode edit hanya mengu
 
 **`KdsTicket` sejak 12 Oktober 2026:** tidak punya teks sendiri. Pemanggil mengirim `label` (nama aksesibel ticket), `statusLabel`, `sourceLabel`, `timerLabel`, `allergyLabel`, dan `action { label, onAction, busy? }`. Hanya ada satu tombol, yaitu langkah berikutnya yang dikirim pemanggil; tanpa `action`, pada ticket selesai (`served`/`canceled`), atau pada variant `history` tidak ada tombol. Status: `new`, `accepted`, `preparing`, `ready`, `served`, `canceled`. Waktu tunggu punya warnanya sendiri lewat `timerTone` (`normal` netral, `warning` kuning, `late` merah), terpisah dari warna status, memakai angka tabular dan tidak berkedip; pada ticket selesai penanda itu tidak dipakai. Catatan alergi diawali kata dari `allergyLabel`, bukan warna saja.
 
-**Gap:** form ticket manual untuk KDS-only, tampilan riwayat; `KdsNewTicketAlert` dan `KdsConnectionStatus` masih berisi teks tertanam.
+**`QuickItemEntry` (`@merchant/ui/quick-item-entry`, 13 Oktober 2026):** mengetik daftar item bebas tanpa katalog: nama, jumlah (`QuantityStepper`, minimal 1), dan catatan per baris. Enter di kolom nama pindah ke baris berikutnya atau membuat baris baru bila nama terisi, dan tidak pernah mengirim form. Selalu ada minimal satu baris; menghapus baris terakhir mengosongkannya. Semua label lewat props; pesan error ditautkan ke kolom nama. Dipakai form ticket manual KDS.
+
+**Gap:** `KdsNewTicketAlert` dan `KdsConnectionStatus` masih berisi teks tertanam.
 
 ### 19.5 Inventory, Finance, HC, Customer, Platform
 

@@ -2,8 +2,10 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { IconPlus } from "@tabler/icons-react";
 
 import { PERMISSIONS, type KitchenTicket } from "@merchant/contracts";
+import { Button } from "@merchant/ui/button";
 import { EmptyState, ErrorState, Skeleton } from "@merchant/ui/feedback";
 import { KdsTicket } from "@merchant/ui/kds-ticket";
 import { ModuleAccessState } from "@merchant/ui/module-access-state";
@@ -14,6 +16,7 @@ import { useMediaQuery } from "@/lib/use-media-query";
 import { RequestErrorState } from "@/shell/request-error-state";
 
 import { useAdvanceTicket, useFinishedTickets, useKitchenQueue } from "./api";
+import { ManualTicketSheet } from "./manual-ticket-sheet";
 import {
   BOARD_STATUSES,
   componentStatus,
@@ -197,6 +200,7 @@ export function KitchenPage() {
   const t = useTranslations("kds");
   const { can, outlet, workspace } = useWorkspace();
   const [view, setView] = useState<View>("queue");
+  const [adding, setAdding] = useState(false);
 
   if (!can(PERMISSIONS.kdsTicketView)) {
     return (
@@ -211,28 +215,39 @@ export function KitchenPage() {
     return <ErrorState description={t("noOutlet")} title={t("accessDeniedTitle")} />;
   }
   const tenantId = workspace.tenant.id;
+  const canManage = can(PERMISSIONS.kdsTicketManage);
 
   return (
     <div className="grid gap-4" key={`${tenantId}:${outlet.id}`}>
       <h1 className="sr-only">{t("title")}</h1>
-      <Tabs
-        items={[
-          { label: t("viewQueue"), value: "queue" },
-          { label: t("viewFinished"), value: "finished" },
-        ]}
-        label={t("views")}
-        onValueChange={(value) => setView(value === "finished" ? "finished" : "queue")}
-        value={view}
-      />
-      {view === "queue" ? (
-        <Queue
-          canManage={can(PERMISSIONS.kdsTicketManage)}
-          outletId={outlet.id}
-          tenantId={tenantId}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Tabs
+          items={[
+            { label: t("viewQueue"), value: "queue" },
+            { label: t("viewFinished"), value: "finished" },
+          ]}
+          label={t("views")}
+          onValueChange={(value) => setView(value === "finished" ? "finished" : "queue")}
+          value={view}
         />
+        {canManage ? (
+          <Button iconLeft={IconPlus} onClick={() => setAdding(true)}>
+            {t("addTicket")}
+          </Button>
+        ) : null}
+      </div>
+      {view === "queue" ? (
+        <Queue canManage={canManage} outletId={outlet.id} tenantId={tenantId} />
       ) : (
         <Finished outletId={outlet.id} tenantId={tenantId} />
       )}
+      {adding ? (
+        <ManualTicketSheet
+          onClose={() => setAdding(false)}
+          outletId={outlet.id}
+          tenantId={tenantId}
+        />
+      ) : null}
     </div>
   );
 }

@@ -1,0 +1,61 @@
+.ui-quick-item-entry {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  min-width: 0;
+}
+
+.ui-quick-item-entry__list {
+  display: grid;
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+/* A line: name, count, remove; the note sits under the name. */
+.ui-quick-item-entry__item {
+  align-items: center;
+  border-bottom: 1px solid var(--color-border-subtle);
+  column-gap: var(--space-2);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  padding-bottom: var(--space-3);
+  row-gap: var(--space-2);
+}
+
+.ui-quick-item-entry__name,
+.ui-quick-item-entry__note {
+  min-width: 0;
+}
+
+.ui-quick-item-entry__note {
+  grid-column: 1 / -1;
+}
+
+.ui-quick-item-entry__error {
+  color: var(--color-status-danger-text);
+  font-size: var(--text-body-sm);
+  margin: 0;
+}
+
+/* On a narrow screen the name takes the first row to itself. */
+@media (max-width: 24rem) {
+  .ui-quick-item-entry__item {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .ui-quick-item-entry__name {
+    grid-column: 1 / -1;
+  }
+
+  .ui-quick-item-entry__note {
+    grid-row: 3;
+  }
+
+  /* The count keeps its own size instead of stretching across the row. */
+  .ui-quick-item-entry__item > .ui-quantity-stepper {
+    justify-self: start;
+  }
+}
