@@ -38,9 +38,9 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 
 - [x] **M3-BE-01 Tabel KDS** `109af0c` — `kds_stations`, `kds_tickets` (unik per sumber + referensi, tanpa FK ke pesanan), `kds_ticket_items` tanpa harga, `kds_ticket_status_history` append-only. Selesai 12 Oktober 2026 (migrasi `20261012030000_kds_tickets`; TODO 14.6). Ditambah di luar daftar kolom awal: `is_default` pada station, `accepted_at`/`served_at`/`canceled_at` pada ticket, dan `position` pada item.
 - [x] **M3-BE-02 Use case `CreateKitchenTicket`** `109af0c` — idempotent per sumber; dipakai adapter event, HTTP manual, dan API. Selesai 12 Oktober 2026 (`modules/kds/application/create-kitchen-ticket.ts`; TODO 14.6). Baru pintu HTTP manual yang memanggilnya; adapter event dan API menyusul di M3-BE-03 dan M3-BE-08.
-- [x] **M3-BE-03 Handler `order.submitted.v1`** — dipasang lewat binding POS → KDS; payload event memuat item tanpa harga. Selesai 13 Oktober 2026 (TODO 14.11). **Berbeda dari rencana:** payload event tidak ditambah item. `security.md` 10 melarang teks bebas di event, sedangkan dapur butuh catatan item; handler membaca pesanan dari pemiliknya lewat ID melalui port `KITCHEN_ORDER_SOURCE`, yang bentuknya tidak punya field harga.
+- [x] **M3-BE-03 Handler `order.submitted.v1`** `0a08380` — dipasang lewat binding POS → KDS; payload event memuat item tanpa harga. Selesai 13 Oktober 2026 (TODO 14.11). **Berbeda dari rencana:** payload event tidak ditambah item. `security.md` 10 melarang teks bebas di event, sedangkan dapur butuh catatan item; handler membaca pesanan dari pemiliknya lewat ID melalui port `KITCHEN_ORDER_SOURCE`, yang bentuknya tidak punya field harga.
 - [x] **M3-BE-04 Transisi status** `a832842` — mesin status di domain; event `kitchen_ticket.started/ready/served.v1`. Selesai 12 Oktober 2026 (TODO 14.7). `POST /kds/tickets/:id/advance` dan `GET /kds/tickets/finished`. Menerima ticket (`NEW` → `ACCEPTED`) tidak mengumumkan event; tiga langkah lainnya mengumumkan.
-- [x] **M3-BE-05 Handler pembatalan** — `order.canceled.v1` menandai ticket batal. Selesai 13 Oktober 2026 (TODO 14.11). Ticket yang sudah disajikan tidak diubah.
+- [x] **M3-BE-05 Handler pembatalan** `0a08380` — `order.canceled.v1` menandai ticket batal. Selesai 13 Oktober 2026 (TODO 14.11). Ticket yang sudah disajikan tidak diubah.
 - [ ] **M3-BE-06 Status kembali ke pesanan** — order intake menerima event KDS dan memperbarui status pemenuhan (`ACCEPTED`/`PREPARING`/`READY`/`SERVED`), terpisah dari status bayar.
 - [ ] **M3-BE-07 Realtime** — Socket.IO per outlet dengan autentikasi sesi perangkat; klien mengambil ulang saat tersambung kembali.
 - [ ] **M3-BE-08 API intake eksternal** — endpoint dengan kredensial integrasi dan rate limit (bila `OD-04` memilih API).
@@ -71,8 +71,8 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 ### QA — Kualitas kode dan test
 
 - [ ] **M3-QA-01 Test satu use case banyak pintu** — manual, event, dan API menghasilkan ticket identik. _Sebagian (13 Oktober 2026):_ pintu manual dan pintu event sudah dibuktikan menghasilkan ticket yang sama lewat use case yang sama (TODO 14.6, 14.11). Pintu API belum ada (M3-BE-08, menunggu `OD-04`).
-- [x] **M3-QA-02 Test event ganda** — event yang sama dua kali menghasilkan satu ticket. Selesai 13 Oktober 2026 (TODO 14.11).
-- [x] **M3-QA-03 Test kombinasi** — KDS-only, POS-only, POS + KDS. Selesai 13 Oktober 2026 (TODO 14.11): `kds-order-flow.integration.test.mjs`.
+- [x] **M3-QA-02 Test event ganda** `0a08380` — event yang sama dua kali menghasilkan satu ticket. Selesai 13 Oktober 2026 (TODO 14.11).
+- [x] **M3-QA-03 Test kombinasi** `0a08380` — KDS-only, POS-only, POS + KDS. Selesai 13 Oktober 2026 (TODO 14.11): `kds-order-flow.integration.test.mjs`.
 
 ### OP — Operasional dan dokumentasi
 
