@@ -28,8 +28,8 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 
 ### FT — Fitur produk
 
-- [x] **M3-FT-01 Antrean ticket** — terlama di awal; nomor/label pesanan, sumber, timer, item, modifier, catatan. Selesai 13 Oktober 2026 (TODO 14.9).
-- [x] **M3-FT-02 Alur status** — satu tombol per ticket untuk langkah sah berikutnya; riwayat ticket selesai hari ini. Selesai 13 Oktober 2026 (TODO 14.9). Riwayat: tab 'Selesai hari ini'.
+- [x] **M3-FT-01 Antrean ticket** `f0e9d9b` — terlama di awal; nomor/label pesanan, sumber, timer, item, modifier, catatan. Selesai 13 Oktober 2026 (TODO 14.9).
+- [x] **M3-FT-02 Alur status** `f0e9d9b` — satu tombol per ticket untuk langkah sah berikutnya; riwayat ticket selesai hari ini. Selesai 13 Oktober 2026 (TODO 14.9). Riwayat: tab 'Selesai hari ini'.
 - [ ] **M3-FT-03 Ticket manual** — label, item bebas, jumlah, catatan; untuk KDS-only.
 - [ ] **M3-FT-04 Status dapur di POS** — daftar pesanan POS menampilkan "Disiapkan"/"Siap" dari event KDS.
 - [ ] **M3-FT-05 Peringatan** — suara dan sorotan untuk ticket baru; volume dan bisu per perangkat.
@@ -47,8 +47,8 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 
 ### UX — Alur dan interaksi
 
-- [x] **M3-UX-01 Shell KDS** — rute `(kds)`, layar penuh, mode kios, tanpa sidebar. Selesai 13 Oktober 2026 (TODO 14.9). Mode kios memakai layar penuh browser lewat tombol di bar atas; belum diuji di perangkat dapur sungguhan.
-- [x] **M3-UX-02 Tata letak** — kolom per status di layar lebar; daftar satu kolom di tablet potret. Selesai 13 Oktober 2026 (TODO 14.9). Papan empat kolom mulai lebar 1024px; di bawahnya satu daftar, terlama di awal.
+- [x] **M3-UX-01 Shell KDS** `f0e9d9b` — rute `(kds)`, layar penuh, mode kios, tanpa sidebar. Selesai 13 Oktober 2026 (TODO 14.9). Mode kios memakai layar penuh browser lewat tombol di bar atas; belum diuji di perangkat dapur sungguhan.
+- [x] **M3-UX-02 Tata letak** `f0e9d9b` — kolom per status di layar lebar; daftar satu kolom di tablet potret. Selesai 13 Oktober 2026 (TODO 14.9). Papan empat kolom mulai lebar 1024px; di bawahnya satu daftar, terlama di awal.
 - [ ] **M3-UX-03 Timer** — berubah warna saat mendekati dan melewati batas, tanpa berkedip.
 - [ ] **M3-UX-04 Koneksi** — banner menyambung ulang dan data mungkin usang.
 
