@@ -36,8 +36,8 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 
 ### BE — Backend dan data
 
-- [x] **M3-BE-01 Tabel KDS** — `kds_stations`, `kds_tickets` (unik per sumber + referensi, tanpa FK ke pesanan), `kds_ticket_items` tanpa harga, `kds_ticket_status_history` append-only. Selesai 12 Oktober 2026 (migrasi `20261012030000_kds_tickets`; TODO 14.6). Ditambah di luar daftar kolom awal: `is_default` pada station, `accepted_at`/`served_at`/`canceled_at` pada ticket, dan `position` pada item.
-- [x] **M3-BE-02 Use case `CreateKitchenTicket`** — idempotent per sumber; dipakai adapter event, HTTP manual, dan API. Selesai 12 Oktober 2026 (`modules/kds/application/create-kitchen-ticket.ts`; TODO 14.6). Baru pintu HTTP manual yang memanggilnya; adapter event dan API menyusul di M3-BE-03 dan M3-BE-08.
+- [x] **M3-BE-01 Tabel KDS** `109af0c` — `kds_stations`, `kds_tickets` (unik per sumber + referensi, tanpa FK ke pesanan), `kds_ticket_items` tanpa harga, `kds_ticket_status_history` append-only. Selesai 12 Oktober 2026 (migrasi `20261012030000_kds_tickets`; TODO 14.6). Ditambah di luar daftar kolom awal: `is_default` pada station, `accepted_at`/`served_at`/`canceled_at` pada ticket, dan `position` pada item.
+- [x] **M3-BE-02 Use case `CreateKitchenTicket`** `109af0c` — idempotent per sumber; dipakai adapter event, HTTP manual, dan API. Selesai 12 Oktober 2026 (`modules/kds/application/create-kitchen-ticket.ts`; TODO 14.6). Baru pintu HTTP manual yang memanggilnya; adapter event dan API menyusul di M3-BE-03 dan M3-BE-08.
 - [ ] **M3-BE-03 Handler `order.submitted.v1`** — dipasang lewat binding POS → KDS; payload event memuat item tanpa harga.
 - [ ] **M3-BE-04 Transisi status** — mesin status di domain; event `kitchen_ticket.started/ready/served.v1`.
 - [ ] **M3-BE-05 Handler pembatalan** — `order.canceled.v1` menandai ticket batal.
