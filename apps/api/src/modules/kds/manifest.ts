@@ -59,7 +59,10 @@ export const kdsManifest: ModuleManifest = {
   permissions: [PERMISSIONS.kdsTicketView, PERMISSIONS.kdsTicketManage],
   routes: [{ path: "/kds", permissionKey: PERMISSIONS.kdsTicketView }],
   configSchemaVersion: 1,
-  eventHandlers: [],
+  eventHandlers: [
+    { eventType: "order.submitted.v1", handlerKey: "kds.create_ticket" },
+    { eventType: "order.canceled.v1", handlerKey: "kds.cancel_ticket" },
+  ],
   installSteps: [],
   settings: [],
   supportedWorkspaceTypes: ["BUSINESS"],

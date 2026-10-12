@@ -5,8 +5,10 @@ import { AccessModule } from "../../core/memberships/public.js";
 import { MeteringModule } from "../../core/metering/public.js";
 import { OrganizationModule } from "../../core/workspaces/public.js";
 import { KitchenTicketController } from "./adapters/kitchen-ticket.controller.js";
+import { OrderEventsHandler } from "./adapters/order-events.handler.js";
 import { PrismaKitchenTicketRepository } from "./adapters/prisma-kitchen-ticket.repository.js";
 import { AdvanceKitchenTicket } from "./application/advance-kitchen-ticket.js";
+import { CancelKitchenTicket } from "./application/cancel-kitchen-ticket.js";
 import { CreateKitchenTicket } from "./application/create-kitchen-ticket.js";
 import { KitchenQueue } from "./application/kitchen-queue.js";
 import { KITCHEN_TICKET_REPOSITORY } from "./application/kitchen-ticket.repository.js";
@@ -14,7 +16,9 @@ import { KITCHEN_TICKET_REPOSITORY } from "./application/kitchen-ticket.reposito
 /**
  * Kitchen Display System. Owns kds_stations, kds_tickets, kds_ticket_items,
  * and kds_ticket_status_history. It imports no other module or kernel: what
- * other modules announce reaches it as events.
+ * other modules announce reaches it as events, and what it needs to read
+ * about an order arrives through KITCHEN_ORDER_SOURCE, connected at the
+ * application root.
  */
 @Module({
   controllers: [KitchenTicketController],
@@ -22,6 +26,8 @@ import { KITCHEN_TICKET_REPOSITORY } from "./application/kitchen-ticket.reposito
   imports: [AccessModule, AuthModule, MeteringModule, OrganizationModule],
   providers: [
     AdvanceKitchenTicket,
+    CancelKitchenTicket,
+    OrderEventsHandler,
     CreateKitchenTicket,
     KitchenQueue,
     PrismaKitchenTicketRepository,

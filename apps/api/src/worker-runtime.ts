@@ -5,6 +5,7 @@
 import "reflect-metadata";
 
 import type { ModuleKey } from "@merchant/contracts";
+import type { INestApplicationContext } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 
 import { AppModule } from "./app.module.js";
@@ -59,10 +60,15 @@ function assertHandlersMatchManifests(
   }
 }
 
-export async function createWorkerRuntime(
+/**
+ * The worker's delivery loop on an application that is already running. The
+ * handler registry is one per process, so a test that needs both the use
+ * cases and the worker builds the worker on the application it has.
+ */
+export function workerRuntimeFor(
+  app: INestApplicationContext,
   options: DispatcherOptions = DEFAULT_DISPATCHER_OPTIONS,
-): Promise<WorkerRuntime> {
-  const app = await NestFactory.createApplicationContext(AppModule, { logger: ["error", "warn"] });
+): WorkerRuntime {
   const handlers = app.get<EventHandlerRegistry>(EVENT_HANDLER_REGISTRY);
   assertHandlersMatchManifests(handlers, app.get<ModuleManifestRegistry>(MODULE_MANIFEST_REGISTRY));
 
@@ -90,4 +96,13 @@ export async function createWorkerRuntime(
     dispatchBatch: () => dispatcher.dispatchBatch(),
     handlerNames: handlers.all().map((item) => item.consumerName),
   };
+}
+
+export async function createWorkerRuntime(
+  options: DispatcherOptions = DEFAULT_DISPATCHER_OPTIONS,
+): Promise<WorkerRuntime> {
+  return workerRuntimeFor(
+    await NestFactory.createApplicationContext(AppModule, { logger: ["error", "warn"] }),
+    options,
+  );
 }

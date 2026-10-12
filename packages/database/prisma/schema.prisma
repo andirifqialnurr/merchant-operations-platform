@@ -1595,8 +1595,8 @@ model KdsTicketItem {
   quantity     Int
   /// Names of the chosen options, in order. No prices.
   modifiers    Json      @default("[]")
-  note         String?   @db.VarChar(280)
-  allergyNote  String?   @map("allergy_note") @db.VarChar(280)
+  note         String?   @db.VarChar(300)
+  allergyNote  String?   @map("allergy_note") @db.VarChar(300)
   ticket       KdsTicket @relation(fields: [tenantId, ticketId], references: [tenantId, id], onDelete: Restrict)
 
   @@unique([ticketId, position])

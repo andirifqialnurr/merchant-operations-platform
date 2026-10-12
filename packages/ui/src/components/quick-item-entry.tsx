@@ -59,7 +59,7 @@ export function QuickItemEntry({
   maxItems = 100,
   maxQuantity = 999,
   nameMaxLength = 160,
-  noteMaxLength = 280,
+  noteMaxLength = 300,
   onItemsChange,
 }: QuickItemEntryProps) {
   const errorId = useId();

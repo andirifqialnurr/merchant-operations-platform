@@ -35,8 +35,24 @@ export type TicketMoveResult =
   | { outcome: "stale"; ticket: KitchenTicketRecord }
   | { outcome: "moved"; ticket: KitchenTicketRecord };
 
+export type TicketCancellation = {
+  at: Date;
+  origin?: CommandOrigin;
+  sourceReference: string;
+  /** The sources the reference may belong to. */
+  sources: readonly KitchenTicketSource[];
+  tenantId: string;
+};
+
 /** Persistence port for kitchen tickets. Every method is scoped by tenant. */
 export interface KitchenTicketRepository {
+  /**
+   * Marks the open ticket of a source's request as canceled and records it
+   * in the history. A served or already canceled ticket is left as it is.
+   */
+  cancelBySource(
+    cancellation: TicketCancellation,
+  ): Promise<"already_canceled" | "already_served" | "canceled" | "no_ticket">;
   /**
    * Stores the ticket on the outlet's default station, creating the station
    * with the outlet's first ticket. A source and reference that already made

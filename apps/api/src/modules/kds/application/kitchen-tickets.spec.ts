@@ -7,12 +7,22 @@ import { ConflictException, NotFoundException } from "@nestjs/common";
 
 import { OPEN_TICKET_STATUSES, type KitchenTicketRecord } from "../domain/kitchen-ticket.js";
 import { isFinished, startOfLocalDay, STATUS_TIMESTAMP } from "../domain/ticket-status.js";
+import { kitchenOrderSource } from "../../../kernel-wiring.module.js";
+import {
+  BlockedEventError,
+  EventHandlerRegistry,
+  type EventEnvelope,
+} from "../../../core/events/public.js";
+import { OrderEventsHandler } from "../adapters/order-events.handler.js";
 import { AdvanceKitchenTicket } from "./advance-kitchen-ticket.js";
+import { CancelKitchenTicket } from "./cancel-kitchen-ticket.js";
+import type { KitchenOrder } from "./kitchen-order-source.port.js";
 import { CreateKitchenTicket } from "./create-kitchen-ticket.js";
 import { KitchenQueue } from "./kitchen-queue.js";
 import type {
   KitchenTicketRepository,
   NewKitchenTicket,
+  TicketCancellation,
   TicketMove,
   TicketMoveResult,
 } from "./kitchen-ticket.repository.js";
@@ -74,6 +84,21 @@ class MemoryTickets implements KitchenTicketRepository {
     return { outcome: "moved", ticket };
   }
 
+  async cancelBySource(cancellation: TicketCancellation) {
+    const ticket = this.stored.find(
+      (item) =>
+        cancellation.sources.includes(item.source) &&
+        item.sourceReference === cancellation.sourceReference,
+    );
+    if (!ticket) return "no_ticket" as const;
+    if (ticket.status === "CANCELED") return "already_canceled" as const;
+    if (ticket.status === "SERVED") return "already_served" as const;
+    this.history.push({ from: ticket.status, to: "CANCELED" });
+    ticket.status = "CANCELED";
+    ticket.canceledAt = cancellation.at;
+    return "canceled" as const;
+  }
+
   async listOpen(_tenantId: string, outletId: string) {
     return this.stored
       .filter((item) => item.outletId === outletId)
@@ -101,6 +126,7 @@ function setup() {
   };
   return {
     advance: new AdvanceKitchenTicket(tickets),
+    cancel: new CancelKitchenTicket(tickets),
     counted,
     create: new CreateKitchenTicket(tickets, metering as never),
     queue: new KitchenQueue(tickets, { outletTimezone: async () => "Asia/Jakarta" }),
@@ -351,4 +377,244 @@ test("the day begins at the outlet's own midnight", () => {
   assert.equal(startOfLocalDay(now, "Asia/Jakarta").toISOString(), "2026-10-11T17:00:00.000Z");
   assert.equal(startOfLocalDay(now, "Asia/Jayapura").toISOString(), "2026-10-11T15:00:00.000Z");
   assert.equal(startOfLocalDay(now, "UTC").toISOString(), "2026-10-12T00:00:00.000Z");
+});
+
+// --- Orders reaching the kitchen as events ---------------------------------
+
+const ORDER = "019f738d-e61f-7d46-92de-17b35f975200";
+
+const event = (type: string, overrides: Partial<EventEnvelope> = {}): EventEnvelope => ({
+  actor: null,
+  causationId: null,
+  channel: "POS",
+  clientVersion: null,
+  correlationId: "req_1",
+  deviceId: null,
+  eventId: randomUUID(),
+  eventType: type,
+  eventVersion: 1,
+  locationId: OUTLET,
+  occurredAt: new Date("2026-10-12T03:00:00.000Z"),
+  payload: { orderId: ORDER },
+  producer: "CORE_ORDER",
+  recordedAt: new Date("2026-10-12T03:00:01.000Z"),
+  workspaceId: TENANT,
+  ...overrides,
+});
+
+function kitchen(order: KitchenOrder | null) {
+  const parts = setup();
+  const registry = new EventHandlerRegistry();
+  const asked: string[] = [];
+  new OrderEventsHandler(registry, parts.create, parts.cancel, {
+    kitchenOrder: async (_tenantId, outletId, orderId) => {
+      asked.push(`${outletId} ${orderId}`);
+      return order;
+    },
+  }).onModuleInit();
+  const run = (envelope: EventEnvelope) => {
+    const handler = registry.for(envelope.eventType)[0];
+    assert.ok(handler, `a handler for ${envelope.eventType}`);
+    return handler.handle(envelope);
+  };
+  return { ...parts, asked, registry, run };
+}
+
+const latteOrder: KitchenOrder = {
+  canceled: false,
+  items: [{ modifiers: ["Besar", "Gula aren"], name: "Latte", note: "kurang manis", quantity: 2 }],
+  orderLabel: "#12",
+  source: "POS",
+};
+
+test("a submitted order becomes a ticket through the same use case as the manual form", async () => {
+  const { asked, create, registry, run, tickets } = kitchen(latteOrder);
+  assert.deepEqual(
+    registry.all().map((item) => `${item.moduleKey} ${item.eventType} ${item.consumerName}`),
+    ["KDS order.submitted.v1 kds.create_ticket", "KDS order.canceled.v1 kds.cancel_ticket"],
+  );
+
+  const outcome = await run(event("order.submitted.v1"));
+  assert.match(String(outcome), /^created:/);
+  assert.deepEqual(asked, [`${OUTLET} ${ORDER}`]);
+
+  // The same items typed by hand give the same ticket, apart from where it came from.
+  const manual = await create.execute(TENANT, OUTLET, {
+    items: latteOrder.items,
+    orderLabel: "#12",
+    receivedAt: "2026-10-12T03:00:00.000Z",
+    source: "MANUAL",
+    sourceReference: "manual-key-00000009",
+  });
+  const fromEvent = tickets.stored[0];
+  assert.ok(fromEvent);
+  assert.deepEqual(
+    { ...manual.ticket, id: null, source: null },
+    {
+      acceptedAt: null,
+      canceledAt: null,
+      id: null,
+      items: fromEvent.items,
+      orderLabel: fromEvent.orderLabel,
+      readyAt: null,
+      receivedAt: fromEvent.receivedAt.toISOString(),
+      servedAt: null,
+      source: null,
+      startedAt: null,
+      status: fromEvent.status,
+      tableLabel: fromEvent.tableLabel,
+    },
+  );
+  assert.equal(fromEvent.source, "POS");
+  assert.equal(fromEvent.sourceReference, ORDER);
+});
+
+test("the same order event delivered twice makes one ticket", async () => {
+  const { counted, run, tickets } = kitchen(latteOrder);
+  const submitted = event("order.submitted.v1");
+  const first = await run(submitted);
+  // Once as a redelivery of the same event, once as a new event about the same order.
+  const second = await run(submitted);
+  const third = await run(event("order.submitted.v1"));
+
+  assert.equal(tickets.stored.length, 1);
+  assert.equal(counted.length, 1);
+  assert.match(String(first), /^created:/);
+  assert.equal(second, String(first).replace("created", "existing"));
+  assert.equal(third, second);
+});
+
+test("an event that cannot be turned into a ticket is blocked, not retried forever", async () => {
+  const missing = kitchen(null);
+  await assert.rejects(missing.run(event("order.submitted.v1")), BlockedEventError);
+  await assert.rejects(
+    missing.run(event("order.submitted.v1", { payload: {} })),
+    BlockedEventError,
+  );
+  await assert.rejects(
+    missing.run(event("order.submitted.v1", { locationId: null })),
+    BlockedEventError,
+  );
+  assert.equal(missing.tickets.stored.length, 0);
+});
+
+test("an order called off before the kitchen heard of it makes no ticket", async () => {
+  const { run, tickets } = kitchen({ ...latteOrder, canceled: true });
+  assert.equal(await run(event("order.submitted.v1")), "skipped:order_canceled");
+  assert.equal(tickets.stored.length, 0);
+});
+
+test("a canceled order marks its ticket canceled and keeps it", async () => {
+  const { queue, run, tickets } = kitchen(latteOrder);
+  await run(event("order.submitted.v1"));
+  const canceledAt = new Date("2026-10-12T03:04:00.000Z");
+
+  assert.equal(await run(event("order.canceled.v1", { occurredAt: canceledAt })), "canceled");
+  assert.equal(tickets.stored.length, 1, "the ticket is still there");
+  assert.equal(tickets.stored[0]?.status, "CANCELED");
+  assert.deepEqual(tickets.stored[0]?.canceledAt, canceledAt);
+  assert.deepEqual(tickets.history.at(-1), { from: "NEW", to: "CANCELED" });
+  // Out of the queue, into what was finished today.
+  assert.deepEqual((await queue.list(TENANT, OUTLET)).tickets, []);
+  const finished = await queue.finishedToday(TENANT, OUTLET, new Date("2026-10-12T04:00:00.000Z"));
+  assert.deepEqual(
+    finished.tickets.map((ticket) => ticket.status),
+    ["CANCELED"],
+  );
+
+  // Delivered again: nothing more happens.
+  assert.equal(await run(event("order.canceled.v1")), "already_canceled");
+  assert.equal(tickets.history.length, 1);
+});
+
+test("a cancellation never un-serves food, and an order without a ticket is no error", async () => {
+  const { advance, run, tickets } = kitchen(latteOrder);
+  assert.equal(await run(event("order.canceled.v1")), "no_ticket");
+
+  await run(event("order.submitted.v1"));
+  const id = tickets.stored[0]?.id ?? "";
+  for (const status of ["NEW", "ACCEPTED", "PREPARING", "READY"] as const) {
+    await advance.execute(TENANT, OUTLET, id, status);
+  }
+  assert.equal(await run(event("order.canceled.v1")), "already_served");
+  assert.equal(tickets.stored[0]?.status, "SERVED");
+});
+
+test("a hand-made ticket is not canceled by an order with the same reference", async () => {
+  const { create, run, tickets } = kitchen(latteOrder);
+  await create.execute(TENANT, OUTLET, {
+    items: latteOrder.items,
+    orderLabel: "Meja 4",
+    source: "MANUAL",
+    sourceReference: ORDER,
+  });
+  assert.equal(await run(event("order.canceled.v1")), "no_ticket");
+  assert.equal(tickets.stored[0]?.status, "NEW");
+});
+
+test("what the kitchen is told about an order has no price in it", async () => {
+  const order = {
+    canceledAt: null,
+    cancelReason: null,
+    createdAt: "2026-10-12T03:00:00.000Z",
+    currency: "IDR",
+    id: ORDER,
+    items: [
+      {
+        id: randomUUID(),
+        lineTotalMinor: "68000",
+        modifiers: [{ groupName: "Tambahan", optionName: "Gula aren", priceDeltaMinor: "3000" }],
+        name: "Latte",
+        note: "kurang manis",
+        productId: randomUUID(),
+        quantity: 2,
+        unitPriceMinor: "34000",
+        variantName: "Besar",
+      },
+      {
+        id: randomUUID(),
+        lineTotalMinor: "15000",
+        modifiers: [],
+        name: "Roti bakar",
+        note: null,
+        productId: null,
+        quantity: 1,
+        unitPriceMinor: "15000",
+        variantName: null,
+      },
+    ],
+    note: null,
+    orderNumber: 12,
+    orderType: "TAKEAWAY",
+    outletId: OUTLET,
+    source: "POS",
+    status: "SUBMITTED",
+    submittedAt: "2026-10-12T03:00:00.000Z",
+    subtotalMinor: "83000",
+  } as const;
+  const source = kitchenOrderSource({ getOrder: async () => order as never });
+  const seen = await source.kitchenOrder(TENANT, OUTLET, ORDER);
+
+  assert.deepEqual(seen, {
+    canceled: false,
+    items: [
+      // The variant is read first, then the chosen options.
+      { modifiers: ["Besar", "Gula aren"], name: "Latte", note: "kurang manis", quantity: 2 },
+      { modifiers: [], name: "Roti bakar", quantity: 1 },
+    ],
+    orderLabel: "#12",
+    source: "POS",
+  });
+  assert.doesNotMatch(JSON.stringify(seen), /minor|price|total|34000|68000|83000|IDR/i);
+
+  const missing = kitchenOrderSource({
+    getOrder: async () => {
+      throw new NotFoundException();
+    },
+  });
+  assert.equal(await missing.kitchenOrder(TENANT, OUTLET, ORDER), null);
+  const canceled = kitchenOrderSource({
+    getOrder: async () => ({ ...order, status: "CANCELED" }) as never,
+  });
+  assert.equal((await canceled.kitchenOrder(TENANT, OUTLET, ORDER))?.canceled, true);
 });

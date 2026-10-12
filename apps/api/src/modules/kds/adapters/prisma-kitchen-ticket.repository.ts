@@ -6,6 +6,7 @@ import { safeEventPayload } from "../../../shared/command/event-payload.js";
 import type {
   KitchenTicketRepository,
   NewKitchenTicket,
+  TicketCancellation,
   TicketMove,
   TicketMoveResult,
 } from "../application/kitchen-ticket.repository.js";
@@ -150,6 +151,46 @@ export class PrismaKitchenTicketRepository implements KitchenTicketRepository {
       if (!raced) throw error;
       return { created: false, ticket: toRecord(raced) };
     }
+  }
+
+  async cancelBySource(cancellation: TicketCancellation) {
+    const { at, sourceReference, sources, tenantId } = cancellation;
+    return getPrismaClient().$transaction(async (transaction) => {
+      const ticket = await transaction.kdsTicket.findFirst({
+        select: { id: true, status: true },
+        where: { source: { in: [...sources] }, sourceReference, tenantId },
+      });
+      if (!ticket) return "no_ticket" as const;
+      if (ticket.status === "CANCELED") return "already_canceled" as const;
+      if (ticket.status === "SERVED") return "already_served" as const;
+
+      // Only if it is still in the status just read; a move at the same moment wins.
+      const canceled = await transaction.kdsTicket.updateMany({
+        data: { canceledAt: at, status: "CANCELED", updatedAt: at },
+        where: { id: ticket.id, status: ticket.status, tenantId },
+      });
+      if (canceled.count !== 1) {
+        const current = await transaction.kdsTicket.findFirst({
+          select: { status: true },
+          where: { id: ticket.id, tenantId },
+        });
+        if (current?.status === "SERVED") return "already_served" as const;
+        if (current?.status === "CANCELED") return "already_canceled" as const;
+        // It moved between two open statuses; the next delivery of the event cancels it.
+        throw new Error("The ticket changed while it was being canceled.");
+      }
+      await transaction.kdsTicketStatusHistory.create({
+        data: {
+          ...(cancellation.origin?.actorId ? { actorId: cancellation.origin.actorId } : {}),
+          fromStatus: ticket.status,
+          occurredAt: at,
+          tenantId,
+          ticketId: ticket.id,
+          toStatus: "CANCELED",
+        },
+      });
+      return "canceled" as const;
+    });
   }
 
   async move(move: TicketMove): Promise<TicketMoveResult> {

@@ -498,7 +498,6 @@ export class PrismaEntitlementRepository implements EntitlementRepository {
         data: {
           ...target,
           ...(context?.actorId ? { actorId: context.actorId } : {}),
-          ...(context ? { context } : {}),
           endsAt: input.endsAt,
           operation: input.enabled ? "GRANT" : "REVOKE",
           reason: input.reason,

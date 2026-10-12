@@ -21,7 +21,8 @@ export const kitchenTicketStatusSchema = z.enum([
 const orderLabelSchema = z.string().trim().min(1).max(60);
 const tableLabelSchema = z.string().trim().min(1).max(40);
 const itemNameSchema = z.string().trim().min(1).max(160);
-const itemNoteSchema = z.string().trim().min(1).max(280);
+/** As long as a note on an order line, so a note from the cashier always fits. */
+const itemNoteSchema = z.string().trim().min(1).max(300);
 const quantitySchema = z.number().int().min(1).max(999);
 
 export const kitchenTicketItemInputSchema = z
