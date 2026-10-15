@@ -9,11 +9,12 @@ import { Button, IconButton } from "@merchant/ui/button";
 import { Badge } from "@merchant/ui/feedback";
 import { FormField, Input } from "@merchant/ui/form-field";
 import { Sheet } from "@merchant/ui/overlay";
+import { Switch } from "@merchant/ui/selection-control";
 
 import { type ApiClientError, merchantApi } from "@/lib/api-client";
 import { isLimitReached, LimitReachedState } from "@/shell/limit-reached-state";
 
-import type { FloorMutation } from "./api";
+import { type FloorMutation, useFloorPolicy } from "./api";
 
 type Target =
   | { floorId: string; kind: "new-area" }
@@ -178,6 +179,7 @@ export function StructureSheet({
   const [target, setTarget] = useState<Target>();
   const [limitError, setLimitError] = useState<ApiClientError>();
   const pending = mutation.isPending;
+  const policy = useFloorPolicy(tenantId, outletId);
 
   function run(action: () => Promise<unknown>, success?: string) {
     setLimitError(undefined);
@@ -271,6 +273,24 @@ export function StructureSheet({
     >
       <div className="grid gap-4">
         {limitError ? <LimitReachedState error={limitError} /> : null}
+        {policy.data ? (
+          <div className="border-b border-line-default pb-3">
+            <Switch
+              checked={policy.data.cleaningAfterClose}
+              disabled={pending}
+              label={t("cleaningAfterClose")}
+              onChange={(event) =>
+                run(
+                  () =>
+                    merchantApi.setFloorPolicy(tenantId, outletId, {
+                      cleaningAfterClose: event.target.checked,
+                    }),
+                  t("policySaved"),
+                )
+              }
+            />
+          </div>
+        ) : null}
         {floors.map((floor, index) => (
           <section
             aria-label={floor.name}

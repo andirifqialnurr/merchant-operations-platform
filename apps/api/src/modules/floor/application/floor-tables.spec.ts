@@ -54,6 +54,12 @@ class MemoryTables implements FloorTableRepository {
     return this.floors.find((item) => item.areas.some((area) => area.id === areaId)) ?? null;
   }
 
+  held = new Set<string>();
+
+  async heldTableIds() {
+    return this.held;
+  }
+
   async list() {
     return structuredClone(this.tables);
   }
@@ -323,4 +329,29 @@ test("bringing tables back counts against the outlet's table limit", async () =>
     ["floor.tables.active_per_location", 1n, OUTLET],
     ["floor.tables.active_per_location", 1n, OUTLET],
   ]);
+});
+
+test("a table with guests at it stays in service", async () => {
+  const { first, repository, tables } = setup();
+  const one = await tables.create(
+    TENANT,
+    OUTLET,
+    { areaId: first.areas[0]!.id, capacity: 2, label: "T1", shape: "ROUND", visualSize: "SMALL" },
+    ORIGIN,
+  );
+  repository.held.add(one.id);
+  assert.equal(
+    await codeOf(() =>
+      tables.saveLayout(TENANT, OUTLET, first.id, [layoutOf(one, { status: "INACTIVE" })], ORIGIN),
+    ),
+    "FLOOR_TABLE_IN_USE",
+  );
+  // Moving it on the plan is fine: the guests stay where they are.
+  await tables.saveLayout(
+    TENANT,
+    OUTLET,
+    first.id,
+    [layoutOf(one, { gridX: 3, gridY: 3 })],
+    ORIGIN,
+  );
 });

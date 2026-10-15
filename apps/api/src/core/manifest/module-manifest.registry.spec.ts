@@ -182,6 +182,7 @@ test("every event a unit writes is declared in its manifest, and nothing else", 
     CORE_SUBSCRIPTION: "core/installations+core/metering",
     KDS: "modules/kds",
     POS: "modules/pos-sales",
+    TABLE_SELF_ORDER: "modules/floor",
   };
   const written = (unit: string) => {
     const found = new Set<string>();

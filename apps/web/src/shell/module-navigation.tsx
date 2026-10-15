@@ -75,6 +75,11 @@ export const PAGE_NAVIGATION: Record<string, { icon: AppIconComponent; labelKey:
   "/settings/users": { icon: IconUsers, labelKey: "pageNav.users" },
 };
 
+/** Cashier surfaces live in the POS bar, not in the backoffice menu. */
+export function isPosSurface(path: string) {
+  return path.startsWith("/pos/");
+}
+
 /** Settings come after the modules people work in every day. */
 export function isSettingsPath(path: string) {
   return path === "/settings" || path.startsWith("/settings/");
@@ -90,6 +95,7 @@ export function arrangeNavigation<T extends { moduleKey: ModuleKey; path: string
   allOutlets: boolean,
 ): T[] {
   const visible = entries.filter((entry) => {
+    if (isPosSurface(entry.path)) return false;
     if (!isNavigableModule(entry.moduleKey)) return true;
     const known = MODULE_NAVIGATION[entry.moduleKey];
     return allOutlets || !("wholeBusiness" in known && known.wholeBusiness);

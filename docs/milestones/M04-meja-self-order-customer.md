@@ -19,7 +19,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 - [x] Lokasi baru langsung memiliki `Main Floor` dan `Main Area`. _Trigger database pada `outlets`; integration `floor-layout` (TODO 13.10)._
 - [x] Editor menempatkan meja tiga bentuk; tumpang tindih dan keluar batas ditolak; tersedia alternatif form untuk layar kecil dan keyboard. _M4-FT-02, M4-UX-01 (TODO 13.12)._
 - [ ] Sesi meja dibuka, ditambah pesanan, dipindah meja dengan pesanan dan tagihan tetap, dibayar, lalu ditutup.
-- [ ] Status meja adalah projection dari sesi, tidak bisa diisi bebas.
+- [x] Status meja adalah projection dari sesi, tidak bisa diisi bebas. _M4-BE-03 (TODO 13.13): tidak ada kolom status meja; `tableStatus()` dari sesi yang memegang meja._
 - [ ] QR mentah tidak disimpan; rotasi dan cabut membuat QR lama tidak berlaku.
 - [ ] Tamu memesan dari QR tanpa akun; pesanan masuk ke KDS yang sama dengan pesanan POS.
 - [ ] Klaim "sudah bayar" tamu berstatus `VERIFYING` sampai kasir mengonfirmasi.
@@ -32,7 +32,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 
 - [x] **M4-FT-01 Lantai dan area** `993dbb1` — tambah, ubah nama, urutkan, nonaktifkan. Selesai 16 Oktober 2026 (TODO 13.10). Halaman **Meja** (`/floor`, izin `table.layout.manage`): tab lantai aktif dan daftar area lantai terpilih; panel **Lantai dan area** untuk tambah, ubah nama, naik/turun, nonaktifkan/aktifkan lagi. Lantai/area terakhir yang aktif atau yang masih berisi meja aktif tidak bisa dinonaktifkan. Tidak ada hapus.
 - [x] **M4-FT-02 Editor meja** `bc0021d` — label, kapasitas, bentuk, ukuran, rotasi, aktif, pesan lewat QR; baki "belum ditempatkan"; simpan tata letak. Selesai 16 Oktober 2026 (TODO 13.12). Meja baru (label, kursi, bentuk, ukuran, area) masuk baki; "Tempatkan" menaruhnya di tempat kosong pertama. Panel meja: label, kursi, bentuk, ukuran, arah (persegi panjang saja), area, kolom/baris, pesan lewat QR, aktif, kembalikan ke baki. Semua perubahan jadi draf sampai **Simpan tata letak**; Buang perubahan mengembalikannya. Ukuran sel grid tidak bisa diketik: mengikuti bentuk + ukuran + arah (aturan yang sama di API dan web, `floorTableFootprint` di contracts).
-- [ ] **M4-FT-03 Tampilan meja di POS** — filter lantai, area, status; buka meja dengan jumlah tamu.
+- [x] **M4-FT-03 Tampilan meja di POS** — filter lantai, area, status; buka meja dengan jumlah tamu. Selesai 16 Oktober 2026 (TODO 13.13). POS > **Meja** (`/pos/tables`, izin `table.view`, muncul di bar POS bila workspace punya modul Meja): lantai, area, filter status; denah ≥768 px, daftar di bawahnya; panel samping ≥1024 px, sheet di bawahnya. Meja tersedia → jumlah tamu → **Buka meja**; terisi → kunjungan (tamu, duduk sejak, lama) → **Tutup kunjungan**; dibersihkan → **Tandai siap dipakai**. Diperbarui tiap 10 detik. Pesanan dan tagihan per kunjungan: M4-FT-04.
 - [ ] **M4-FT-04 Panel sesi** — tamu, durasi, pesanan, tagihan; tambah pesanan; bayar; tutup sesi; kebijakan bersih-bersih.
 - [ ] **M4-FT-05 Pindah meja** — aksi tersendiri dengan asal dan tujuan.
 - [ ] **M4-FT-06 Makan di tempat** — `orderType: DINE_IN` di layar jual, terikat sesi meja.
@@ -45,8 +45,8 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 ### BE — Backend dan data
 
 - [x] **M4-BE-01 Tabel floor** `993dbb1` — `floor_floors`, `floor_areas`, `floor_service_tables` dengan unik label per outlet dan validasi grid. Selesai 16 Oktober 2026 (TODO 13.10). Migrasi `20261017010000_floor_layout`; modul API `modules/floor` (manifest `TABLE_SELF_ORDER` menggantikan namespace rencana). Grid lantai 24×16 sel logis bawaan; ukuran meja diturunkan dari bentuk + ukuran (domain `layout.ts`, tumpang tindih/keluar batas dideteksi). Limit `floor.floors.active_per_location` dan `floor.areas.active_per_floor` diperiksa per outlet/lantai (limit kini bisa punya cakupan).
-- [ ] **M4-BE-02 Sesi meja** — `floor_table_sessions`, `floor_session_tables` (indeks unik parsial satu sesi aktif per meja); event `table_session.opened/moved/closed.v1`.
-- [ ] **M4-BE-03 Projection status meja.**
+- [x] **M4-BE-02 Sesi meja** — `floor_table_sessions`, `floor_session_tables` (indeks unik parsial satu sesi aktif per meja); event `table_session.opened/moved/closed.v1`. Selesai 16 Oktober 2026 (TODO 13.13). Migrasi `20261017020000_floor_table_sessions`. Indeks unik parsial `(tenant_id, table_id) WHERE detached_at IS NULL`: dua kasir membuka meja yang sama bersamaan → satu berhasil, satu `TABLE_NOT_AVAILABLE`. Event `table_session.opened.v1` dan `table_session.closed.v1` lewat outbox (id sesi di `aggregate_id`, karena kata "session" dilarang di payload); `table_session.moved.v1` datang bersama M4-FT-05. Kunjungan ditutup hanya bila semua pesanannya dibayar atau dibatalkan (`TABLE_SESSION_UNPAID`). Kebijakan per outlet `floor_outlet_policies.cleaning_after_close`. Izin `table.manage` ditambahkan ke peran Kasir dan Pelayan.
+- [x] **M4-BE-03 Projection status meja.** Selesai 16 Oktober 2026 (TODO 13.13). `AVAILABLE` (tidak dipegang), `OCCUPIED` (sesi OPEN), `CLOSING` (sesi CLOSING), `CLEANING` (sesi CLOSED yang menunggu dibersihkan), `INACTIVE` (meja nonaktif tanpa tamu). Meja yang masih dipegang tamu tidak bisa dinonaktifkan di editor (`FLOOR_TABLE_IN_USE`).
 - [ ] **M4-BE-04 Token QR** — `floor_qr_tokens` dengan hash, versi, rotasi, cabut; resolusi token → konteks meja tanpa membocorkan ID.
 - [ ] **M4-BE-05 Intake self-order** — pintu masuk pesanan sumber `SELF_ORDER` ke kernel order intake yang sama; rate limit per token.
 - [ ] **M4-BE-06 Permintaan layanan** — `floor_service_requests`.
@@ -64,7 +64,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 ### DS — Design system dan komponen
 
 - [x] **M4-DS-01 Rapikan komponen meja** `995a56f` — `TableTile`, `TableLayoutCanvas`, `TableLayoutTray`, `TableLayoutTools`, `TableQr`, `FloorSelector`: label lewat props, tanpa deskripsi. Selesai 16 Oktober 2026 (TODO 13.11). Keenam komponen menerima `labels` dan tidak punya teks sendiri (pesan `TypeError` untuk developer tetap). `TableTile` menerima `stateLabel` (status tertulis, tidak hanya warna) dan `metrics` siap tulis; status baru `closing` dan `cleaning`. Ringkasan "N siap ditempatkan" di baki dihapus karena mengulang jumlah di judul.
-- [ ] **M4-DS-02 Komponen baru Floor** — `AreaSelector`, `LiveTableView`, `TableSessionPanel`.
+- [x] **M4-DS-02 Komponen baru Floor** — `AreaSelector`, `LiveTableView`, `TableSessionPanel`. Selesai 16 Oktober 2026 (TODO 13.13). `AreaSelector` (pilihan pil, panah kiri/kanan, tidak digambar bila hanya satu area), `LiveTableView` (denah mode lihat atau daftar kartu untuk layar kecil; meja tanpa posisi hanya di daftar), `TableSessionPanel` (judul, status tertulis, fakta, tindakan; tanpa bingkai dan teks sendiri; judul bisa disembunyikan bila sheet sudah menampilkannya).
 - [ ] **M4-DS-03 Komponen tamu** — `StickyCartBar`, `OrderProgress`; rapikan `CustomerOrderSurface`, `CustomerQrContext`, `CustomerBasicProfile`.
 - [ ] **M4-DS-04 Pemilih modifier untuk tamu** — memakai hasil M1-DS-06.
 

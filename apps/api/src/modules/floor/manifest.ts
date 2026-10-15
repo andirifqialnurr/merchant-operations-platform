@@ -40,7 +40,7 @@ export const floorManifest: ModuleManifest = {
     "self_order.policy.auto_accept": "PRO",
   },
   displayName: "Tables and Self-Order",
-  eventsProduced: [],
+  eventsProduced: ["table_session.opened.v1", "table_session.closed.v1"],
   internalDependencies: [],
   key: MODULES.tableSelfOrder,
   limitDimensions: [
@@ -50,14 +50,21 @@ export const floorManifest: ModuleManifest = {
     "self_order.orders.submitted.cycle",
   ],
   namespaces: ["floor", "self_order"],
-  navigation: [{ label: "Tables", path: "/floor", permissionKey: PERMISSIONS.tableLayoutManage }],
+  navigation: [
+    { label: "Tables", path: "/floor", permissionKey: PERMISSIONS.tableLayoutManage },
+    // The cashier's screen; shown in the POS bar, not in the backoffice menu.
+    { label: "Tables at the cashier", path: "/pos/tables", permissionKey: PERMISSIONS.tableView },
+  ],
   permissions: [
     PERMISSIONS.tableView,
     PERMISSIONS.tableManage,
     PERMISSIONS.tableLayoutManage,
     PERMISSIONS.tableQrManage,
   ],
-  routes: [{ path: "/floor", permissionKey: PERMISSIONS.tableLayoutManage }],
+  routes: [
+    { path: "/floor", permissionKey: PERMISSIONS.tableLayoutManage },
+    { path: "/pos/tables", permissionKey: PERMISSIONS.tableView },
+  ],
   configSchemaVersion: 1,
   eventHandlers: [],
   installSteps: [],

@@ -52,7 +52,8 @@
     "changeApprovalPin": "Ganti PIN persetujuan",
     "setApprovalPin": "Atur PIN persetujuan",
     "enterKiosk": "Layar penuh",
-    "exitKiosk": "Keluar dari layar penuh"
+    "exitKiosk": "Keluar dari layar penuh",
+    "navTables": "Meja"
   },
   "access": {
     "retry": "Coba lagi",
@@ -467,7 +468,13 @@
     "FLOOR_AREA_INACTIVE": "Area ini nonaktif. Pilih area yang aktif.",
     "FLOOR_LAYOUT_INVALID": "Ada meja yang akan saling menimpa atau keluar dari denah. Periksa lalu simpan lagi.",
     "FLOOR_TABLE_LABEL_TAKEN": "Label meja ini sudah dipakai di outlet ini.",
-    "FLOOR_TABLE_NOT_FOUND": "Ada meja yang sudah tidak di lantai ini. Muat ulang halaman."
+    "FLOOR_TABLE_NOT_FOUND": "Ada meja yang sudah tidak di lantai ini. Muat ulang halaman.",
+    "FLOOR_TABLE_IN_USE": "Masih ada tamu di meja ini. Nonaktifkan setelah kunjungannya selesai.",
+    "TABLE_NOT_AVAILABLE": "Meja ini tidak bisa menerima tamu sekarang. Tampilan diperbarui.",
+    "TABLE_NOT_CLEANING": "Meja ini tidak sedang menunggu dibersihkan.",
+    "TABLE_SESSION_CLOSED": "Kunjungan ini sudah ditutup.",
+    "TABLE_SESSION_NOT_FOUND": "Kunjungan tidak ditemukan. Tampilan diperbarui.",
+    "TABLE_SESSION_UNPAID": "Masih ada pesanan kunjungan ini yang belum dibayar."
   },
   "subscription": {
     "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat langganan.",
@@ -1263,6 +1270,42 @@
     "trayEmpty": "Semua meja sudah punya tempat.",
     "trayTitle": "Belum ditempatkan",
     "unplace": "Kembalikan ke baki",
-    "unsaved": "{count, plural, other {# meja berubah}}"
+    "unsaved": "{count, plural, other {# meja berubah}}",
+    "allAreas": "Semua area",
+    "allStatuses": "Semua status",
+    "cleaningAfterClose": "Meja dibersihkan dulu sebelum tamu berikutnya",
+    "closeVisit": "Tutup kunjungan",
+    "durationLabel": "{minutes, plural, other {# menit}}",
+    "durationShort": "{minutes}m",
+    "guests": "Tamu",
+    "guestsDown": "Kurangi tamu",
+    "guestsMetric": "{count, plural, other {# tamu}}",
+    "guestsUp": "Tambah tamu",
+    "listName": "Meja {floor}",
+    "markClean": "Tandai siap dipakai",
+    "noFloorHint": "Tambahkan lantai di menu Meja pada backoffice.",
+    "noMatch": "Tidak ada meja yang cocok",
+    "noMatchHint": "Pilih area atau status lain.",
+    "noTables": "Belum ada meja di lantai ini",
+    "noTablesHint": "Meja ditambahkan di menu Meja pada backoffice.",
+    "openTable": "Buka meja",
+    "policySaved": "Tersimpan.",
+    "posAccessDenied": "Minta pemilik atau manajer jika Anda perlu melihat meja.",
+    "posAccessDeniedTitle": "Anda tidak punya akses ke meja",
+    "posTitle": "Meja",
+    "seatedFor": "Lama",
+    "seatedSince": "Duduk sejak",
+    "statusFilter": "Status",
+    "tableCleaned": "Meja {label} siap dipakai.",
+    "tableOpened": "Meja {label} dibuka untuk {count, plural, other {# tamu}}.",
+    "tableStatus": {
+      "AVAILABLE": "Tersedia",
+      "CLEANING": "Dibersihkan",
+      "CLOSING": "Menutup",
+      "INACTIVE": "Nonaktif",
+      "OCCUPIED": "Terisi"
+    },
+    "visitClosed": "Kunjungan di {label} ditutup.",
+    "visitTitle": "{label} · Kunjungan {number}"
   }
 }

@@ -52,7 +52,8 @@
     "changeApprovalPin": "Change approval PIN",
     "setApprovalPin": "Set approval PIN",
     "enterKiosk": "Full screen",
-    "exitKiosk": "Exit full screen"
+    "exitKiosk": "Exit full screen",
+    "navTables": "Tables"
   },
   "access": {
     "retry": "Try again",
@@ -467,7 +468,13 @@
     "FLOOR_AREA_INACTIVE": "This area is inactive. Choose an active area.",
     "FLOOR_LAYOUT_INVALID": "Some tables would stand on each other or past the edge. Check the plan and save again.",
     "FLOOR_TABLE_LABEL_TAKEN": "This table label is already used at this outlet.",
-    "FLOOR_TABLE_NOT_FOUND": "A table is no longer on this floor. Reload the page."
+    "FLOOR_TABLE_NOT_FOUND": "A table is no longer on this floor. Reload the page.",
+    "FLOOR_TABLE_IN_USE": "Guests are at this table. Set it aside after their visit.",
+    "TABLE_NOT_AVAILABLE": "This table cannot take guests right now. The view is refreshed.",
+    "TABLE_NOT_CLEANING": "This table is not waiting to be cleaned.",
+    "TABLE_SESSION_CLOSED": "This visit is already closed.",
+    "TABLE_SESSION_NOT_FOUND": "This visit was not found. The view is refreshed.",
+    "TABLE_SESSION_UNPAID": "Some orders of this visit are not paid yet."
   },
   "subscription": {
     "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",
@@ -1263,6 +1270,42 @@
     "trayEmpty": "Every table has a place.",
     "trayTitle": "Not placed yet",
     "unplace": "Back to the tray",
-    "unsaved": "{count, plural, one {# table changed} other {# tables changed}}"
+    "unsaved": "{count, plural, one {# table changed} other {# tables changed}}",
+    "allAreas": "All areas",
+    "allStatuses": "All statuses",
+    "cleaningAfterClose": "Tables are cleaned before the next guests",
+    "closeVisit": "Close visit",
+    "durationLabel": "{minutes, plural, one {# minute} other {# minutes}}",
+    "durationShort": "{minutes}m",
+    "guests": "Guests",
+    "guestsDown": "Fewer guests",
+    "guestsMetric": "{count, plural, one {# guest} other {# guests}}",
+    "guestsUp": "More guests",
+    "listName": "Tables of {floor}",
+    "markClean": "Mark as ready",
+    "noFloorHint": "Add a floor under Tables in the backoffice.",
+    "noMatch": "No table fits the filter",
+    "noMatchHint": "Choose another area or status.",
+    "noTables": "No tables on this floor yet",
+    "noTablesHint": "Tables are added under Tables in the backoffice.",
+    "openTable": "Seat guests",
+    "policySaved": "Saved.",
+    "posAccessDenied": "Ask the owner or a manager if you need to see the tables.",
+    "posAccessDeniedTitle": "You cannot open the tables",
+    "posTitle": "Tables",
+    "seatedFor": "Seated for",
+    "seatedSince": "Seated at",
+    "statusFilter": "Status",
+    "tableCleaned": "Table {label} is ready for guests.",
+    "tableOpened": "{count, plural, one {# guest} other {# guests}} seated at {label}.",
+    "tableStatus": {
+      "AVAILABLE": "Free",
+      "CLEANING": "Cleaning",
+      "CLOSING": "Closing",
+      "INACTIVE": "Inactive",
+      "OCCUPIED": "Taken"
+    },
+    "visitClosed": "The visit at {label} is closed.",
+    "visitTitle": "{label} · Visit {number}"
   }
 }

@@ -31,6 +31,8 @@ export type OrderRecord = {
   source: OrderSource;
   status: OrderStatus;
   submittedAt: Date | null;
+  /** The table session of a dine-in order; a reference the kernel does not follow. */
+  tableSessionId: string | null;
   tenantId: string;
 };
 
@@ -42,6 +44,7 @@ export type NewSubmittedOrder = {
   orderType: OrderType;
   outletId: string;
   source: OrderSource;
+  tableSessionId: string | null;
   tenantId: string;
 };
 
@@ -76,6 +79,8 @@ export interface OrderRepository {
     from: readonly OrderStatus[],
     to: OrderStatus,
   ): Promise<"missing" | "moved" | "unchanged">;
+  /** The orders of one table session, oldest first. */
+  listBySession(tenantId: string, outletId: string, tableSessionId: string): Promise<OrderRecord[]>;
   /** The outlet's orders created since `since`, newest first. */
   listSince(tenantId: string, outletId: string, since: Date, limit: number): Promise<OrderRecord[]>;
   findByIdempotencyKey(

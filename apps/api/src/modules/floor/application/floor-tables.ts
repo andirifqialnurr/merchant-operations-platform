@@ -197,6 +197,20 @@ export class FloorTables {
       });
     }
 
+    // Guests at a table keep it in service until their visit is over.
+    const held = await this.tables.heldTableIds(tenantId, outletId);
+    const busy = written.find(
+      ({ before, table }) =>
+        before.status === "ACTIVE" && table.status === "INACTIVE" && held.has(table.id),
+    );
+    if (busy) {
+      throw new ConflictException({
+        code: "FLOOR_TABLE_IN_USE",
+        details: { label: busy.table.label },
+        message: "Guests are at this table; it can be set aside after their visit.",
+      });
+    }
+
     const reactivated = written.filter(
       ({ before, table }) => before.status === "INACTIVE" && table.status === "ACTIVE",
     ).length;

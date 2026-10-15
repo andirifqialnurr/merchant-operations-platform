@@ -100,6 +100,12 @@ import {
   createFloorSchema,
   createFloorTableSchema,
   floorTableListSchema,
+  floorPolicySchema,
+  liveFloorSchema,
+  openTableSessionSchema,
+  tableSessionSchema,
+  type FloorPolicy,
+  type OpenTableSession,
   floorTableSchema,
   saveFloorLayoutSchema,
   type CreateFloorTable,
@@ -829,6 +835,40 @@ export const merchantApi = {
       { ids },
       reorderFloorItemsSchema,
       floorListSchema,
+      outletHeaders(tenantId, outletId),
+    ),
+  /** Who sits where right now: floors, every table's status, open visits. */
+  liveFloor: (tenantId: string, outletId: string) =>
+    apiRequest("/floor/live", liveFloorSchema, { headers: outletHeaders(tenantId, outletId) }),
+  openTableSession: (tenantId: string, outletId: string, input: OpenTableSession) =>
+    jsonMutation(
+      "/floor/sessions",
+      "POST",
+      input,
+      openTableSessionSchema,
+      tableSessionSchema,
+      outletHeaders(tenantId, outletId),
+    ),
+  closeTableSession: (tenantId: string, outletId: string, id: string) =>
+    apiRequest(
+      `/floor/sessions/${entityIdParamsSchema.parse({ id }).id}/close`,
+      tableSessionSchema,
+      { headers: outletHeaders(tenantId, outletId), method: "POST" },
+    ),
+  cleanTable: (tenantId: string, outletId: string, tableId: string) =>
+    apiRequest(`/floor/tables/${entityIdParamsSchema.parse({ id: tableId }).id}/clean`, noContent, {
+      headers: outletHeaders(tenantId, outletId),
+      method: "POST",
+    }),
+  floorPolicy: (tenantId: string, outletId: string) =>
+    apiRequest("/floor/policy", floorPolicySchema, { headers: outletHeaders(tenantId, outletId) }),
+  setFloorPolicy: (tenantId: string, outletId: string, input: FloorPolicy) =>
+    jsonMutation(
+      "/floor/policy",
+      "PUT",
+      input,
+      floorPolicySchema,
+      floorPolicySchema,
       outletHeaders(tenantId, outletId),
     ),
   /** The outlet's tables, placed or waiting in the tray. */

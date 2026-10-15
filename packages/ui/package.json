@@ -12,7 +12,10 @@
     "./button": "./src/components/button.tsx",
     "./icon-button": "./src/components/button.tsx",
     "./form-field": "./src/components/text-field.tsx",
+    "./area-selector": "./src/components/area-selector.tsx",
     "./floor-selector": "./src/components/floor-selector.tsx",
+    "./live-table-view": "./src/components/live-table-view.tsx",
+    "./table-session-panel": "./src/components/table-session-panel.tsx",
     "./input": "./src/components/text-field.tsx",
     "./textarea": "./src/components/text-field.tsx",
     "./pin-input": "./src/components/text-field.tsx",
@@ -115,6 +118,7 @@
     "./styles/table-layout-tray.css": "./src/styles/table-layout-tray.css",
     "./styles/table-layout-tools.css": "./src/styles/table-layout-tools.css",
     "./styles/table-qr.css": "./src/styles/table-qr.css",
+    "./styles/floor-live.css": "./src/styles/floor-live.css",
     "./styles/table-tile.css": "./src/styles/table-tile.css",
     "./styles/typography.css": "./src/styles/typography.css"
   },

@@ -1,0 +1,106 @@
+/* Area choice: a row of pills, the chosen one filled. */
+.ui-area-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.ui-area-selector__item {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--foundation-radius-full);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-family: var(--font-family-sans);
+  font-size: var(--text-label);
+  font-weight: 600;
+  min-block-size: var(--control-height-md);
+  padding-inline: var(--space-4);
+}
+
+.ui-area-selector__item[aria-checked="true"] {
+  background: var(--color-action-primary);
+  border-color: var(--color-action-primary);
+  color: var(--color-action-on-primary);
+}
+
+.ui-area-selector__item:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* The live view on small screens: one table per row, as large tiles. */
+.ui-live-table-view__list {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ui-live-table-view__list .ui-table-tile {
+  min-width: 0;
+  width: 100%;
+}
+
+.ui-table-session-panel {
+  color: var(--color-text-primary);
+  display: grid;
+  font-family: var(--font-family-sans);
+  gap: var(--space-4);
+}
+
+.ui-table-session-panel__header {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: space-between;
+}
+
+.ui-table-session-panel__title {
+  font-size: var(--text-heading-sm);
+  font-weight: 650;
+  margin: 0;
+}
+
+.ui-table-session-panel__title--hidden {
+  block-size: 1px;
+  clip-path: inset(50%);
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
+
+.ui-table-session-panel__status {
+  color: var(--color-text-secondary);
+  font-size: var(--text-label);
+  font-weight: 600;
+}
+
+.ui-table-session-panel__facts {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  margin: 0;
+}
+
+.ui-table-session-panel__facts dt {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+}
+
+.ui-table-session-panel__facts dd {
+  font-size: var(--text-body);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  margin: 0;
+}
+
+.ui-table-session-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IconPlus, IconStack2 } from "@tabler/icons-react";
 
 import { PERMISSIONS, type Floor, type FloorTable } from "@merchant/contracts";
@@ -36,6 +36,7 @@ import {
 import { NewTableSheet } from "./new-table-sheet";
 import { StructureSheet } from "./structure-sheet";
 import { TableForm } from "./table-form";
+import { useCellSize } from "./use-cell-size";
 
 /** Smallest and largest size of one grid cell on screen, in pixels. */
 const CELL_MIN = 20;
@@ -62,23 +63,6 @@ export function FloorPage() {
   return <OutletFloors key={`${tenantId}:${outlet.id}`} outletId={outlet.id} tenantId={tenantId} />;
 }
 
-/** The size of a grid cell that fits the floor into the space it has. */
-function useCellSize(columns: number) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [cell, setCell] = useState(32);
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-    const measure = () =>
-      setCell(Math.max(CELL_MIN, Math.min(CELL_MAX, Math.floor(node.clientWidth / columns))));
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [columns]);
-  return { cell, ref };
-}
-
 const canvasShape = (shape: FloorTable["shape"]) =>
   shape === "RECTANGLE" ? "rectangle" : shape === "ROUND" ? "round" : "square";
 
@@ -98,7 +82,7 @@ function OutletFloors({ outletId, tenantId }: Readonly<{ outletId: string; tenan
   const active = floors.filter((floor) => floor.status === "ACTIVE");
   const current = active.find((floor) => floor.id === chosen) ?? active[0];
   const grid = { cols: current?.gridCols ?? 24, rows: current?.gridRows ?? 16 };
-  const { cell, ref: canvasBox } = useCellSize(grid.cols);
+  const { cell, ref: canvasBox } = useCellSize(grid.cols, CELL_MIN, CELL_MAX);
 
   const floorOfArea = useMemo(
     () => new Map(floors.flatMap((floor) => floor.areas.map((area) => [area.id, floor.id]))),

@@ -52,6 +52,8 @@ export const orderSchema = z.object({
   source: orderSourceSchema,
   status: orderStatusSchema,
   submittedAt: z.iso.datetime().nullable(),
+  /** The table session of a dine-in order. */
+  tableSessionId: z.uuid().nullable(),
   /** Sum of the line totals; discounts, tax, and rounding belong to the bill. */
   subtotalMinor: moneyMinorSchema,
 });

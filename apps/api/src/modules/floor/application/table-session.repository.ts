@@ -1,0 +1,76 @@
+import type { FloorRecordStatus, TableSessionStatus } from "@merchant/contracts";
+
+import type { ActorCommandOrigin, CommandOrigin } from "../../../shared/command/command-origin.js";
+import type { FloorTableRecord } from "./floor-table.repository.js";
+
+export type TableSessionRecord = {
+  cleanedAt: Date | null;
+  displayNumber: number;
+  guestCount: number;
+  id: string;
+  needsCleaning: boolean;
+  openedAt: Date;
+  status: TableSessionStatus;
+  /** The tables it holds now, the primary one first. */
+  tableIds: string[];
+};
+
+/** A table with the session that holds it, if one does. */
+export type HeldTable = FloorTableRecord & { holder: TableSessionRecord | null };
+
+export type SeatableTable = {
+  areaActive: boolean;
+  floorActive: boolean;
+  held: boolean;
+  id: string;
+  label: string;
+  status: FloorRecordStatus;
+};
+
+/**
+ * Where table sessions are kept. Opening a session on a table that another
+ * session holds throws `TableTakenError`; the database decides, so two
+ * cashiers seating the same table at once cannot both succeed.
+ */
+export interface TableSessionRepository {
+  /** Lets go of a closed session's tables once they are cleaned. */
+  clean(
+    tenantId: string,
+    outletId: string,
+    tableId: string,
+    now: Date,
+    origin: CommandOrigin,
+  ): Promise<TableSessionRecord | null>;
+  close(
+    tenantId: string,
+    outletId: string,
+    sessionId: string,
+    change: { needsCleaning: boolean; now: Date },
+    origin: ActorCommandOrigin,
+  ): Promise<TableSessionRecord | null>;
+  findSession(
+    tenantId: string,
+    outletId: string,
+    sessionId: string,
+  ): Promise<TableSessionRecord | null>;
+  findTable(tenantId: string, outletId: string, tableId: string): Promise<SeatableTable | null>;
+  /** Every table of the outlet with its holder, and the sessions still holding tables. */
+  live(tenantId: string, outletId: string): Promise<HeldTable[]>;
+  open(
+    tenantId: string,
+    outletId: string,
+    seat: { guestCount: number; tableId: string },
+    origin: ActorCommandOrigin,
+  ): Promise<TableSessionRecord>;
+  policy(tenantId: string, outletId: string): Promise<{ cleaningAfterClose: boolean }>;
+  setPolicy(
+    tenantId: string,
+    outletId: string,
+    policy: { cleaningAfterClose: boolean },
+    origin: CommandOrigin,
+  ): Promise<{ cleaningAfterClose: boolean }>;
+}
+
+export class TableTakenError extends Error {}
+
+export const TABLE_SESSION_REPOSITORY = Symbol("TABLE_SESSION_REPOSITORY");

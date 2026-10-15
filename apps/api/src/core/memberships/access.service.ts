@@ -51,6 +51,7 @@ export const DEFAULT_ROLE_DEFINITIONS: SystemRoleDefinition[] = [
       PERMISSIONS.orderCancel,
       PERMISSIONS.orderMoveTable,
       PERMISSIONS.tableView,
+      PERMISSIONS.tableManage,
       PERMISSIONS.paymentConfirm,
       PERMISSIONS.shiftOpen,
       PERMISSIONS.shiftClose,
@@ -64,7 +65,12 @@ export const DEFAULT_ROLE_DEFINITIONS: SystemRoleDefinition[] = [
   {
     code: "WAITER",
     name: "Waiter",
-    permissionKeys: [PERMISSIONS.orderCreate, PERMISSIONS.orderMoveTable, PERMISSIONS.tableView],
+    permissionKeys: [
+      PERMISSIONS.orderCreate,
+      PERMISSIONS.orderMoveTable,
+      PERMISSIONS.tableView,
+      PERMISSIONS.tableManage,
+    ],
   },
   {
     code: "INVENTORY_STAFF",

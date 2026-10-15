@@ -198,3 +198,82 @@ export type FloorTableList = z.infer<typeof floorTableListSchema>;
 export type FloorTableRotation = z.infer<typeof floorTableRotationSchema>;
 
 export type SaveFloorLayout = z.infer<typeof saveFloorLayoutSchema>;
+
+/**
+ * Whether guests can be seated, worked out from the table's sessions and
+ * settings; never stored or typed in.
+ */
+export const floorTableStatusSchema = z.enum([
+  "AVAILABLE",
+  "OCCUPIED",
+  "CLOSING",
+  "CLEANING",
+  "INACTIVE",
+]);
+
+export const tableSessionStatusSchema = z.enum(["OPEN", "CLOSING", "CLOSED"]);
+
+/** One party's visit, as staff see it. */
+export const tableSessionSchema = z
+  .object({
+    displayNumber: z.number().int().min(1),
+    guestCount: z.number().int().min(1).max(99),
+    id: z.uuid(),
+    openedAt: z.iso.datetime(),
+    status: tableSessionStatusSchema,
+    /** The tables it holds, the primary one first; none once a closed visit let them go. */
+    tableIds: z.array(z.uuid()),
+  })
+  .strict();
+
+/** A table on the live view: where it is, and whether it is free. */
+export const liveTableSchema = z
+  .object({
+    areaId: z.uuid(),
+    capacity: capacitySchema,
+    gridH: z.number().int().min(1).max(12),
+    gridW: z.number().int().min(1).max(12),
+    gridX: gridCellSchema.nullable(),
+    gridY: gridCellSchema.nullable(),
+    id: z.uuid(),
+    label: tableLabelSchema,
+    sessionId: z.uuid().nullable(),
+    shape: floorTableShapeSchema,
+    status: floorTableStatusSchema,
+  })
+  .strict();
+
+export const floorPolicySchema = z
+  .object({
+    /** A closed table is "cleaning" until someone marks it free. */
+    cleaningAfterClose: z.boolean(),
+  })
+  .strict();
+
+/** Everything the cashier's table view shows, read at once. */
+export const liveFloorSchema = z
+  .object({
+    floors: z.array(floorSchema),
+    policy: floorPolicySchema,
+    sessions: z.array(tableSessionSchema),
+    tables: z.array(liveTableSchema),
+  })
+  .strict();
+
+export const openTableSessionSchema = z
+  .object({ guestCount: z.number().int().min(1).max(99), tableId: z.uuid() })
+  .strict();
+
+export type FloorPolicy = z.infer<typeof floorPolicySchema>;
+
+export type FloorTableStatus = z.infer<typeof floorTableStatusSchema>;
+
+export type LiveFloor = z.infer<typeof liveFloorSchema>;
+
+export type LiveTable = z.infer<typeof liveTableSchema>;
+
+export type OpenTableSession = z.infer<typeof openTableSessionSchema>;
+
+export type TableSession = z.infer<typeof tableSessionSchema>;
+
+export type TableSessionStatus = z.infer<typeof tableSessionStatusSchema>;

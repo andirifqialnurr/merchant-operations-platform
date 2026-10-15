@@ -291,7 +291,18 @@ function TableLayoutCanvasItem({
   };
   const tileProps: TableTileProps = {
     "aria-invalid": conflicted || undefined,
-    "aria-label": labels.position(item.label.trim(), item.gridX + 1, item.gridY + 1, conflicted),
+    // While editing, a table is found by where it stands; otherwise the tile
+    // names itself with its status and service numbers.
+    ...(mode === "edit"
+      ? {
+          "aria-label": labels.position(
+            item.label.trim(),
+            item.gridX + 1,
+            item.gridY + 1,
+            conflicted,
+          ),
+        }
+      : {}),
     footprint: { height: item.gridH, width: item.gridW },
     label: item.label,
     mode: mode === "edit" ? "edit" : "view",

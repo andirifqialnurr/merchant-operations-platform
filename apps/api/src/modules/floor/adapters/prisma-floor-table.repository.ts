@@ -137,6 +137,14 @@ export class PrismaFloorTableRepository implements FloorTableRepository {
     return area?.floor ?? null;
   }
 
+  async heldTableIds(tenantId: string, outletId: string) {
+    const rows = await getPrismaClient().floorSessionTable.findMany({
+      select: { tableId: true },
+      where: { detachedAt: null, outletId, tenantId },
+    });
+    return new Set(rows.map((row) => row.tableId));
+  }
+
   async list(tenantId: string, outletId: string) {
     const rows = await getPrismaClient().floorServiceTable.findMany({
       orderBy: [{ label: "asc" }],

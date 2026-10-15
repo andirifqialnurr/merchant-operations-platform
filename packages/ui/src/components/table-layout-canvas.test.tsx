@@ -69,14 +69,16 @@ describe("TableLayoutCanvas", () => {
     );
 
     expect(screen.getByRole("group", { name: "Canvas layout meja" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "Meja 01, posisi kolom 1, baris 1" })).toBeVisible();
-    expect(
-      screen.getByRole("button", { name: "Meja 02, posisi kolom 5, baris 3" }),
-    ).toHaveAttribute("aria-pressed", "true");
+    // Out of edit mode a table names itself with its status, not its place.
+    expect(screen.getByRole("button", { name: "Meja 01" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Meja 02, Terisi, 4 tamu" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
     expect(screen.getAllByRole("button", { name: /Meja 02/ })).toHaveLength(1);
     expect(screen.queryByText(/table-internal/)).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Meja 02, posisi kolom 5, baris 3" }));
+    await user.click(screen.getByRole("button", { name: "Meja 02, Terisi, 4 tamu" }));
     expect(onSelectItem).toHaveBeenCalledWith("table-internal-2");
   });
 
@@ -93,10 +95,8 @@ describe("TableLayoutCanvas", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Meja servis, posisi kolom 9, baris 5" }));
-    expect(
-      screen.getByRole("button", { name: "Meja servis, posisi kolom 9, baris 5" }),
-    ).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Meja servis" }));
+    expect(screen.getByRole("button", { name: "Meja servis" })).toBeDisabled();
     expect(onSelectItem).not.toHaveBeenCalled();
 
     rerender(

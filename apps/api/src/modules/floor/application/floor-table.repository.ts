@@ -50,6 +50,8 @@ export interface FloorTableRepository {
   findFloor(tenantId: string, outletId: string, floorId: string): Promise<FloorPlace | null>;
   /** The floor an area lies on, when the area is one of the outlet's. */
   findFloorOfArea(tenantId: string, outletId: string, areaId: string): Promise<FloorPlace | null>;
+  /** Tables that guests hold right now: an open, closing, or uncleaned visit. */
+  heldTableIds(tenantId: string, outletId: string): Promise<Set<string>>;
   /** Every table of the outlet, active or not. */
   list(tenantId: string, outletId: string): Promise<FloorTableRecord[]>;
   /** Writes the changed tables of one floor together, or none of them. */

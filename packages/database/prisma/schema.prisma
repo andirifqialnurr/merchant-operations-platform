@@ -260,6 +260,8 @@ model User {
   paymentsConfirmed      BillingPayment[]     @relation("PaymentConfirmedBy")
   refundsRecorded        SaleRefund[]         @relation("RefundActor")
   refundsApproved        SaleRefund[]         @relation("RefundApprovedBy")
+  tableSessionsOpened    FloorTableSession[]  @relation("TableSessionOpenedBy")
+  tableSessionsClosed    FloorTableSession[]  @relation("TableSessionClosedBy")
   approvalPins           CoreApprovalPin[]
   heldCarts              PosHeldCart[]
 
@@ -380,6 +382,7 @@ model Tenant {
   floorFloors                  FloorFloor[]
   floorAreas                   FloorArea[]
   floorServiceTables           FloorServiceTable[]
+  floorTableSessions           FloorTableSession[]
 
   @@map("tenants")
 }
@@ -435,6 +438,8 @@ model Outlet {
   kdsTickets          KdsTicket[]
   kdsIntakeSources    KdsIntakeSource[]
   floorFloors         FloorFloor[]
+  floorTableSessions  FloorTableSession[]
+  floorPolicy         FloorOutletPolicy?
   saleNumberCounter   SaleNumberCounter?
   orderNumberCounter  OrderNumberCounter?
 
@@ -1299,6 +1304,8 @@ model Order {
   canceledBy     String?     @map("canceled_by") @db.Uuid
   cancelReason   String?     @map("cancel_reason") @db.VarChar(300)
   idempotencyKey String      @map("idempotency_key") @db.VarChar(255)
+  /// The table session the order belongs to; a reference only, owned by the tables module.
+  tableSessionId String?     @map("table_session_id") @db.Uuid
   createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
   tenant         Tenant      @relation(fields: [tenantId], references: [id], onDelete: Restrict)
@@ -1370,6 +1377,8 @@ model Bill {
   totalMinor          BigInt              @map("total_minor") @db.BigInt
   paidMinor           BigInt              @default(0) @map("paid_minor") @db.BigInt
   status              BillStatus          @default(UNPAID)
+  /// The table session the bill was paid with; a reference only.
+  tableSessionId      String?             @map("table_session_id") @db.Uuid
   createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt           DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
   tenant              Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
@@ -1717,28 +1726,100 @@ model FloorArea {
 /// A table guests sit at. No position (`gridX`/`gridY` empty) means it waits
 /// in the "not placed" tray. Free or taken follows from its sessions.
 model FloorServiceTable {
-  id         String            @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  tenantId   String            @map("tenant_id") @db.Uuid
-  outletId   String            @map("outlet_id") @db.Uuid
-  areaId     String            @map("area_id") @db.Uuid
-  label      String            @db.VarChar(20)
+  id         String              @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId   String              @map("tenant_id") @db.Uuid
+  outletId   String              @map("outlet_id") @db.Uuid
+  areaId     String              @map("area_id") @db.Uuid
+  label      String              @db.VarChar(20)
   capacity   Int
   shape      FloorTableShape
-  visualSize FloorTableSize    @default(MEDIUM) @map("visual_size")
-  gridX      Int?              @map("grid_x")
-  gridY      Int?              @map("grid_y")
-  gridW      Int               @map("grid_w")
-  gridH      Int               @map("grid_h")
-  rotation   Int               @default(0) @db.SmallInt
-  qrOrdering Boolean           @default(true) @map("qr_ordering")
-  status     FloorRecordStatus @default(ACTIVE)
-  createdAt  DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime          @default(now()) @map("updated_at") @db.Timestamptz(6)
-  tenant     Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  area       FloorArea         @relation(fields: [tenantId, outletId, areaId], references: [tenantId, outletId, id], onDelete: Restrict, map: "floor_service_tables_area_fkey")
+  visualSize FloorTableSize      @default(MEDIUM) @map("visual_size")
+  gridX      Int?                @map("grid_x")
+  gridY      Int?                @map("grid_y")
+  gridW      Int                 @map("grid_w")
+  gridH      Int                 @map("grid_h")
+  rotation   Int                 @default(0) @db.SmallInt
+  qrOrdering Boolean             @default(true) @map("qr_ordering")
+  status     FloorRecordStatus   @default(ACTIVE)
+  createdAt  DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime            @default(now()) @map("updated_at") @db.Timestamptz(6)
+  tenant     Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  area       FloorArea           @relation(fields: [tenantId, outletId, areaId], references: [tenantId, outletId, id], onDelete: Restrict, map: "floor_service_tables_area_fkey")
+  sessions   FloorSessionTable[]
 
   @@unique([tenantId, id])
+  @@unique([tenantId, outletId, id], map: "floor_service_tables_tenant_outlet_id_key")
   @@unique([tenantId, outletId, label], map: "floor_service_tables_tenant_outlet_label_key")
   @@index([tenantId, areaId], map: "floor_service_tables_tenant_area_idx")
   @@map("floor_service_tables")
+}
+
+enum FloorTableSessionStatus {
+  OPEN
+  CLOSING
+  CLOSED
+}
+
+enum FloorSessionTableRole {
+  PRIMARY
+  MERGED
+}
+
+/// One party's visit. History is kept: a closed session is never reused.
+model FloorTableSession {
+  id            String                  @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId      String                  @map("tenant_id") @db.Uuid
+  outletId      String                  @map("outlet_id") @db.Uuid
+  displayNumber Int                     @map("display_number")
+  guestCount    Int                     @map("guest_count")
+  status        FloorTableSessionStatus @default(OPEN)
+  openedAt      DateTime                @default(now()) @map("opened_at") @db.Timestamptz(6)
+  openedBy      String                  @map("opened_by") @db.Uuid
+  closingAt     DateTime?               @map("closing_at") @db.Timestamptz(6)
+  closedAt      DateTime?               @map("closed_at") @db.Timestamptz(6)
+  closedBy      String?                 @map("closed_by") @db.Uuid
+  needsCleaning Boolean                 @default(false) @map("needs_cleaning")
+  cleanedAt     DateTime?               @map("cleaned_at") @db.Timestamptz(6)
+  createdAt     DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime                @default(now()) @map("updated_at") @db.Timestamptz(6)
+  tenant        Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet        Outlet                  @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict, map: "floor_table_sessions_outlet_fkey")
+  opener        User                    @relation("TableSessionOpenedBy", fields: [openedBy], references: [id], onDelete: Restrict)
+  closer        User?                   @relation("TableSessionClosedBy", fields: [closedBy], references: [id], onDelete: Restrict)
+  tables        FloorSessionTable[]
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, outletId, id], map: "floor_table_sessions_tenant_outlet_id_key")
+  @@unique([tenantId, outletId, displayNumber], map: "floor_table_sessions_number_key")
+  @@index([tenantId, outletId, status], map: "floor_table_sessions_open_idx")
+  @@map("floor_table_sessions")
+}
+
+/// Which tables a session holds. While `detachedAt` is empty the table is taken.
+model FloorSessionTable {
+  id         String                @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId   String                @map("tenant_id") @db.Uuid
+  outletId   String                @map("outlet_id") @db.Uuid
+  sessionId  String                @map("session_id") @db.Uuid
+  tableId    String                @map("table_id") @db.Uuid
+  role       FloorSessionTableRole @default(PRIMARY)
+  attachedAt DateTime              @default(now()) @map("attached_at") @db.Timestamptz(6)
+  detachedAt DateTime?             @map("detached_at") @db.Timestamptz(6)
+  session    FloorTableSession     @relation(fields: [tenantId, outletId, sessionId], references: [tenantId, outletId, id], onDelete: Restrict, map: "floor_session_tables_session_fkey")
+  table      FloorServiceTable     @relation(fields: [tenantId, outletId, tableId], references: [tenantId, outletId, id], onDelete: Restrict, map: "floor_session_tables_table_fkey")
+
+  @@index([tenantId, sessionId], map: "floor_session_tables_session_idx")
+  @@map("floor_session_tables")
+}
+
+/// How an outlet turns its tables around.
+model FloorOutletPolicy {
+  tenantId           String   @map("tenant_id") @db.Uuid
+  outletId           String   @map("outlet_id") @db.Uuid
+  cleaningAfterClose Boolean  @default(false) @map("cleaning_after_close")
+  updatedAt          DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  outlet             Outlet   @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict, map: "floor_outlet_policies_outlet_fkey")
+
+  @@id([tenantId, outletId])
+  @@map("floor_outlet_policies")
 }

@@ -230,6 +230,7 @@
 }
 
 .ui-table-tile--shaped .ui-table-tile__header {
+  inline-size: 100%;
   max-inline-size: 100%;
   min-inline-size: 0;
 }
@@ -250,6 +251,7 @@
 
 .ui-table-tile--shaped .ui-table-tile__status {
   background: transparent;
+  display: block;
   font-size: var(--text-caption);
   padding: 0;
 }

@@ -64,7 +64,7 @@ test("the dictionaries name no module that has no menu entry", () => {
   }
 });
 
-test("settings come last and whole-business entries are hidden from outlet-scoped people", async () => {
+test("settings come last, cashier surfaces stay in the POS bar, and whole-business entries are hidden from outlet-scoped people", async () => {
   const { arrangeNavigation } = await import("./module-navigation.tsx");
   const entries = [
     { moduleKey: MODULES.coreSubscription, path: "/settings/subscription" },
@@ -72,6 +72,8 @@ test("settings come last and whole-business entries are hidden from outlet-scope
     { moduleKey: MODULES.pos, path: "/pos" },
     // A module this build cannot name yet stays visible.
     { moduleKey: MODULES.kds, path: "/kds" },
+    // A cashier surface belongs to the POS bar.
+    { moduleKey: MODULES.tableSelfOrder, path: "/pos/tables" },
   ];
   assert.deepEqual(
     arrangeNavigation(entries, true).map((entry) => entry.path),

@@ -50,6 +50,7 @@ export function toOrder(record: OrderRecord): Order {
     source: record.source,
     status: record.status,
     submittedAt: record.submittedAt?.toISOString() ?? null,
+    tableSessionId: record.tableSessionId,
     subtotalMinor: subtotalMinor.toString(),
   });
 }
@@ -96,11 +97,17 @@ export class OrderIntakeService {
           orderType: input.orderType,
           outletId,
           source: "POS",
+          tableSessionId: null,
           tenantId,
         },
         context,
       ),
     );
+  }
+
+  /** The orders of one table session, oldest first, canceled ones included. */
+  async listBySession(tenantId: string, outletId: string, tableSessionId: string) {
+    return (await this.orders.listBySession(tenantId, outletId, tableSessionId)).map(toOrder);
   }
 
   /** Orders of the outlet created in the last `hours` hours, newest first. */

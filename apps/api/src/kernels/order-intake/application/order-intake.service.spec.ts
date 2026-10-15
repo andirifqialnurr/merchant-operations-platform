@@ -95,6 +95,15 @@ class InMemoryOrderRepository implements OrderRepository {
     return "moved" as const;
   }
 
+  async listBySession(tenantId: string, outletId: string, tableSessionId: string) {
+    return this.orders.filter(
+      (order) =>
+        order.tenantId === tenantId &&
+        order.outletId === outletId &&
+        order.tableSessionId === tableSessionId,
+    );
+  }
+
   async listSince(tenantId: string, outletId: string, since: Date, limit: number) {
     return this.orders
       .filter(
@@ -148,6 +157,7 @@ class InMemoryOrderRepository implements OrderRepository {
       currency: order.currency,
       id: randomUUID(),
       idempotencyKey: order.idempotencyKey,
+      tableSessionId: order.tableSessionId,
       items: order.lines.map((line) => ({
         id: randomUUID(),
         lineTotalMinor: line.lineTotalMinor,

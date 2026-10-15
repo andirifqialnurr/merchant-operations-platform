@@ -12,6 +12,7 @@ import { AppIcon } from "@merchant/ui/app-icon";
 import { PosStatus } from "@/features/pos";
 import { useWorkspace } from "@/features/workspace";
 
+import { useModuleNavigation } from "./module-navigation";
 import { ShellAccount, ShellContext, type ShellUser } from "./shell-controls";
 
 /**
@@ -30,9 +31,13 @@ export function PosShell({
 }>) {
   const t = useTranslations("shell");
   const pathname = usePathname();
-  const { can } = useWorkspace();
+  const { can, workspace } = useWorkspace();
+  const entries = useModuleNavigation(workspace.tenant.id);
+  // Tables appear once the workspace has them and the person may see them.
+  const hasTables = (entries.data?.entries ?? []).some((entry) => entry.path === "/pos/tables");
   const surfaces = [
     ...(can(PERMISSIONS.orderCreate) ? [{ href: "/pos", label: t("navSell") }] : []),
+    ...(hasTables ? [{ href: "/pos/tables", label: t("navTables") }] : []),
     ...(can(PERMISSIONS.orderCreate) ? [{ href: "/pos/orders", label: t("navOrders") }] : []),
     ...(can(PERMISSIONS.shiftOpen) ? [{ href: "/pos/shift", label: t("navShift") }] : []),
   ];

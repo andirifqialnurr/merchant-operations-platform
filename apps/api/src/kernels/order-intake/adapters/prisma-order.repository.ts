@@ -42,6 +42,7 @@ const orderSelect = {
   source: true,
   status: true,
   submittedAt: true,
+  tableSessionId: true,
   tenantId: true,
 } as const;
 
@@ -55,6 +56,14 @@ export class PrismaOrderRepository implements OrderRepository {
     return getPrismaClient().order.findFirst({
       select: orderSelect,
       where: { id: orderId, outletId, tenantId },
+    });
+  }
+
+  async listBySession(tenantId: string, outletId: string, tableSessionId: string) {
+    return getPrismaClient().order.findMany({
+      orderBy: { createdAt: "asc" },
+      select: orderSelect,
+      where: { outletId, tableSessionId, tenantId },
     });
   }
 
@@ -190,6 +199,7 @@ export class PrismaOrderRepository implements OrderRepository {
             source: order.source,
             status: "SUBMITTED",
             submittedAt,
+            tableSessionId: order.tableSessionId,
             tenantId,
           },
           select: { id: true },
