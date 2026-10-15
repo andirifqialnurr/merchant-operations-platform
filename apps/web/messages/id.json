@@ -1327,6 +1327,16 @@
     "pay": "Bayar",
     "saleNumbers": "Nomor penjualan",
     "visitLoadFailed": "Pesanan kunjungan ini tidak bisa dimuat",
-    "visitPaid": "Kunjungan dibayar"
+    "visitPaid": "Kunjungan dibayar",
+    "chooseDestination": "Pilih meja",
+    "destinations": "Meja kosong",
+    "mergeLocked": "Tersedia di Meja Pro",
+    "mergeTables": "Gabung atau pisah meja",
+    "moveFrom": "Pindah dari {label}",
+    "moveTable": "Pindah meja",
+    "moveTo": "Pindahkan ke {label}",
+    "noFreeTable": "Tidak ada meja kosong sekarang.",
+    "seatsShort": "{count, plural, other {# kursi}}",
+    "visitMoved": "Tamu {from} pindah ke {to}."
   }
 }

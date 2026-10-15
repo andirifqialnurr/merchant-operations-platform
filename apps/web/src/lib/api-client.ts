@@ -106,6 +106,8 @@ import {
   floorTableListSchema,
   floorPolicySchema,
   liveFloorSchema,
+  moveTableSessionSchema,
+  type MoveTableSession,
   openTableSessionSchema,
   tableSessionSchema,
   type FloorPolicy,
@@ -850,6 +852,16 @@ export const merchantApi = {
       "POST",
       input,
       openTableSessionSchema,
+      tableSessionSchema,
+      outletHeaders(tenantId, outletId),
+    ),
+  /** Moves a visit to a free table; its orders and bill stay with it. */
+  moveTableSession: (tenantId: string, outletId: string, id: string, input: MoveTableSession) =>
+    jsonMutation(
+      `/floor/sessions/${entityIdParamsSchema.parse({ id }).id}/move`,
+      "POST",
+      input,
+      moveTableSessionSchema,
       tableSessionSchema,
       outletHeaders(tenantId, outletId),
     ),

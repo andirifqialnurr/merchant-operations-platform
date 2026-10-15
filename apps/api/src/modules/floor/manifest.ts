@@ -40,7 +40,7 @@ export const floorManifest: ModuleManifest = {
     "self_order.policy.auto_accept": "PRO",
   },
   displayName: "Tables and Self-Order",
-  eventsProduced: ["table_session.opened.v1", "table_session.closed.v1"],
+  eventsProduced: ["table_session.opened.v1", "table_session.moved.v1", "table_session.closed.v1"],
   internalDependencies: [],
   key: MODULES.tableSelfOrder,
   limitDimensions: [
@@ -56,6 +56,7 @@ export const floorManifest: ModuleManifest = {
     { label: "Tables at the cashier", path: "/pos/tables", permissionKey: PERMISSIONS.tableView },
   ],
   permissions: [
+    PERMISSIONS.orderMoveTable,
     PERMISSIONS.tableView,
     PERMISSIONS.tableManage,
     PERMISSIONS.tableLayoutManage,

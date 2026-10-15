@@ -56,6 +56,17 @@ export interface TableSessionRepository {
   findTable(tenantId: string, outletId: string, tableId: string): Promise<SeatableTable | null>;
   /** Every table of the outlet with its holder, and the sessions still holding tables. */
   live(tenantId: string, outletId: string): Promise<HeldTable[]>;
+  /**
+   * Moves a visit from its primary table to another. Null when the visit is
+   * closed; `TableTakenError` when the other table was taken meanwhile.
+   */
+  move(
+    tenantId: string,
+    outletId: string,
+    sessionId: string,
+    toTableId: string,
+    origin: ActorCommandOrigin,
+  ): Promise<{ fromTableId: string | null; session: TableSessionRecord } | null>;
   open(
     tenantId: string,
     outletId: string,

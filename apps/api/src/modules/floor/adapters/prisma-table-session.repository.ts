@@ -207,6 +207,64 @@ export class PrismaTableSessionRepository implements TableSessionRepository {
     }
   }
 
+  async move(
+    tenantId: string,
+    outletId: string,
+    sessionId: string,
+    toTableId: string,
+    origin: ActorCommandOrigin,
+  ) {
+    try {
+      return await getPrismaClient().$transaction(async (transaction) => {
+        const now = new Date();
+        // Locks the visit; a closed one does not move.
+        const open = await transaction.floorTableSession.updateMany({
+          data: { updatedAt: now },
+          where: { id: sessionId, outletId, status: { in: ["OPEN", "CLOSING"] }, tenantId },
+        });
+        if (open.count !== 1) return null;
+        const from = await transaction.floorSessionTable.findFirst({
+          select: { id: true, tableId: true },
+          where: { detachedAt: null, role: "PRIMARY", sessionId, tenantId },
+        });
+        if (from) {
+          await transaction.floorSessionTable.update({
+            data: { detachedAt: now },
+            where: { id: from.id },
+          });
+        }
+        // The partial unique index refuses a table another visit holds.
+        await transaction.floorSessionTable.create({
+          data: { outletId, role: "PRIMARY", sessionId, tableId: toTableId, tenantId },
+        });
+        await record(
+          transaction,
+          {
+            action: "floor.table_session.move",
+            eventType: "table_session.moved.v1",
+            outletId,
+            payload: {
+              fromTableId: from?.tableId ?? null,
+              occurredAt: now.toISOString(),
+              toTableId,
+            },
+            sessionId,
+            tenantId,
+          },
+          origin,
+        );
+        const session = await transaction.floorTableSession.findUniqueOrThrow({
+          select: sessionSelect,
+          where: { tenantId_id: { id: sessionId, tenantId } },
+        });
+        return { fromTableId: from?.tableId ?? null, session: toSession(session) };
+      });
+    } catch (error) {
+      if (isUniqueViolation(error)) throw new TableTakenError();
+      throw error;
+    }
+  }
+
   async close(
     tenantId: string,
     outletId: string,

@@ -8,6 +8,7 @@ import {
   floorPolicySchema,
   liveFloorSchema,
   MODULES,
+  moveTableSessionSchema,
   openTableSessionSchema,
   PERMISSIONS,
   requestContextHeadersSchema,
@@ -16,6 +17,7 @@ import {
   type CreateTableOrder,
   type IdempotentRequestHeaders,
   type FloorPolicy,
+  type MoveTableSession,
   type OpenTableSession,
   type RequestContextHeaders,
 } from "@merchant/contracts";
@@ -159,6 +161,32 @@ export class TableSessionController {
         params.id,
         input,
         headers[API_HEADERS.idempotencyKey],
+        commandOriginFromRequest(access.userId, headers, access.deviceId),
+      ),
+    );
+  }
+
+  @ApiOperation({ summary: "Move a visit to a free table; its orders and bill stay with it" })
+  @ApiBody({ schema: { $ref: "#/components/schemas/MoveTableSession" } })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/TableSession" } })
+  @ApiNotFoundResponse({ schema: { $ref: "#/components/schemas/ApiError" } })
+  @ApiConflictResponse({ schema: { $ref: "#/components/schemas/ApiError" } })
+  @RequirePermission(PERMISSIONS.orderMoveTable)
+  @HttpCode(200)
+  @Post("sessions/:id/move")
+  async move(
+    @RequestHeaders(new ZodValidationPipe(requestContextHeadersSchema))
+    headers: RequestContextHeaders,
+    @Param(new ZodValidationPipe(entityIdParamsSchema)) params: { id: string },
+    @Body(new ZodValidationPipe(moveTableSessionSchema)) input: MoveTableSession,
+    @CurrentAccess() access: AuthorizationContext,
+  ) {
+    return tableSessionSchema.parse(
+      await this.sessions.move(
+        headers[API_HEADERS.tenantId],
+        headers[API_HEADERS.outletId],
+        params.id,
+        input,
         commandOriginFromRequest(access.userId, headers, access.deviceId),
       ),
     );

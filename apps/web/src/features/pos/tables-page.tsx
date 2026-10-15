@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { IconLock } from "@tabler/icons-react";
 
 import {
   PERMISSIONS,
@@ -15,6 +16,7 @@ import {
   type TableSessionCheckout,
   type TableSessionDetail,
 } from "@merchant/contracts";
+import { AppIcon } from "@merchant/ui/app-icon";
 import { AreaSelector } from "@merchant/ui/area-selector";
 import { Button } from "@merchant/ui/button";
 import { Badge, EmptyState, ErrorState, Skeleton } from "@merchant/ui/feedback";
@@ -70,7 +72,7 @@ const canvasShape = (shape: LiveTable["shape"]) =>
 const minutesSince = (iso: string, now: number) =>
   Math.max(0, Math.floor((now - new Date(iso).getTime()) / 60_000));
 
-type Permissions = { canOrder: boolean; canPay: boolean; canSeat: boolean };
+type Permissions = { canMove: boolean; canOrder: boolean; canPay: boolean; canSeat: boolean };
 
 /** POS > Tables: who sits where, seating guests, their orders and bill, and letting tables go. */
 export function PosTablesPage() {
@@ -92,6 +94,7 @@ export function PosTablesPage() {
   return (
     <LiveTables
       allowed={{
+        canMove: can(PERMISSIONS.orderMoveTable),
         canOrder: can(PERMISSIONS.orderCreate),
         canPay: can(PERMISSIONS.paymentConfirm),
         canSeat: can(PERMISSIONS.tableManage),
@@ -215,6 +218,12 @@ function LiveTables({
       (areaId === null || table.areaId === areaId) && (status === "ALL" || table.status === status),
   );
   const selectedSession = selected?.sessionId ? sessions.get(selected.sessionId) : undefined;
+  const floorRank = (tableAreaId: string) => {
+    const index = live.floors.findIndex((item) =>
+      item.areas.some((area) => area.id === tableAreaId),
+    );
+    return live.floors[index]?.id === floor?.id ? -1 : index;
+  };
   // A visit is named by its table and number; a free or cleaning table by its label.
   const panelTitle = (table: LiveTable) => {
     const session = table.sessionId ? sessions.get(table.sessionId) : undefined;
@@ -260,7 +269,7 @@ function LiveTables({
       <VisitPanel
         allowed={allowed}
         busy={action.isPending}
-        key={selectedSession.id}
+        key={`${selectedSession.id}:${selected.id}`}
         now={now}
         onClose={() =>
           action.mutate(
@@ -269,6 +278,28 @@ function LiveTables({
               success: t("visitClosed", { label: selected.label }),
             },
             { onSuccess: () => setSelectedId(undefined) },
+          )
+        }
+        canMerge={live.canMergeTables}
+        destinations={live.tables
+          .filter((table) => table.status === "AVAILABLE" && table.id !== selected.id)
+          // The floor on screen first, then the others in their order.
+          .sort(
+            (left, right) =>
+              floorRank(left.areaId) - floorRank(right.areaId) ||
+              left.label.localeCompare(right.label, undefined, { numeric: true }),
+          )}
+        floors={live.floors}
+        onMove={(to) =>
+          action.mutate(
+            {
+              run: () =>
+                merchantApi.moveTableSession(tenantId, outletId, selectedSession.id, {
+                  tableId: to.id,
+                }),
+              success: t("visitMoved", { from: selected.label, to: to.label }),
+            },
+            { onSuccess: () => setSelectedId(to.id) },
           )
         }
         onPay={(dueMinor) => setPaying({ dueMinor, sessionId: selectedSession.id })}
@@ -483,8 +514,12 @@ function TablePanel({
 function VisitPanel({
   allowed,
   busy,
+  canMerge,
+  destinations,
+  floors,
   now,
   onClose,
+  onMove,
   onPay,
   outletId,
   session,
@@ -495,8 +530,14 @@ function VisitPanel({
 }: Readonly<{
   allowed: Permissions;
   busy: boolean;
+  /** Whether the package lets a visit take more tables (Pro). */
+  canMerge: boolean;
+  /** Free tables the guests may move to. */
+  destinations: readonly LiveTable[];
+  floors: LiveFloor["floors"];
   now: number;
   onClose: () => void;
+  onMove: (to: LiveTable) => void;
   onPay: (dueMinor: string) => void;
   outletId: string;
   session: TableSession;
@@ -515,6 +556,63 @@ function VisitPanel({
   const minutes = minutesSince(session.openedAt, now);
   const visit: TableSessionDetail | undefined = detail.data;
   const owing = visit ? BigInt(visit.dueMinor) > 0n : false;
+  const [moving, setMoving] = useState(false);
+  const [target, setTarget] = useState<LiveTable>();
+
+  if (moving) {
+    const areaName = new Map(
+      floors.flatMap((floor) =>
+        floor.areas.map((area) => [area.id, `${floor.name} · ${area.name}`] as const),
+      ),
+    );
+    return (
+      <TableSessionPanel
+        actions={
+          <>
+            <Button disabled={!target || busy} onClick={() => target && onMove(target)}>
+              {target ? t("moveTo", { label: target.label }) : t("chooseDestination")}
+            </Button>
+            <Button onClick={() => setMoving(false)} variant="ghost">
+              {t("cancel")}
+            </Button>
+          </>
+        }
+        facts={[]}
+        status={t("moveFrom", { label: table.label })}
+        title={title}
+        titleHidden={titleHidden}
+      >
+        {destinations.length === 0 ? (
+          <p className="m-0 text-body-sm text-foreground-secondary">{t("noFreeTable")}</p>
+        ) : (
+          <ul
+            aria-label={t("destinations")}
+            className="m-0 grid max-h-80 list-none gap-2 overflow-auto p-0"
+          >
+            {destinations.map((item) => (
+              <li key={item.id}>
+                <button
+                  aria-pressed={target?.id === item.id}
+                  className={`flex w-full items-center justify-between gap-2 rounded-md border px-3 py-2 text-start ${
+                    target?.id === item.id
+                      ? "border-primary bg-primary-subtle"
+                      : "border-line-default"
+                  }`}
+                  onClick={() => setTarget(item)}
+                  type="button"
+                >
+                  <span className="text-label font-semibold">{item.label}</span>
+                  <span className="text-caption text-foreground-secondary">
+                    {areaName.get(item.areaId)} · {t("seatsShort", { count: item.capacity })}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </TableSessionPanel>
+    );
+  }
 
   // One main step at a time: pay while something is owed, close once nothing is.
   const actions = (
@@ -525,6 +623,11 @@ function VisitPanel({
       {visit && !owing && allowed.canSeat ? (
         <Button disabled={busy} onClick={onClose}>
           {t("closeVisit")}
+        </Button>
+      ) : null}
+      {allowed.canMove ? (
+        <Button disabled={busy} onClick={() => setMoving(true)} variant="secondary">
+          {t("moveTable")}
         </Button>
       ) : null}
       {allowed.canOrder ? (
@@ -604,6 +707,18 @@ function VisitPanel({
       ) : (
         <p className="m-0 text-body-sm text-foreground-secondary">{t("noOrders")}</p>
       )}
+      {/* Joining or splitting tables comes with Tables Pro; Basic shows that it exists. */}
+      {!canMerge ? (
+        <div className="flex flex-wrap items-center gap-2 border-t border-line-subtle pt-3">
+          <Button disabled iconLeft={IconLock} size="sm" variant="secondary">
+            {t("mergeTables")}
+          </Button>
+          <span className="flex items-center gap-1 text-caption text-foreground-secondary">
+            <AppIcon icon={IconLock} size="xs" />
+            {t("mergeLocked")}
+          </span>
+        </div>
+      ) : null}
     </TableSessionPanel>
   );
 }

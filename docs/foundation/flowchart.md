@@ -294,7 +294,7 @@ flowchart TD
 
 Menggeser meja di editor tidak memindahkan tamu. Pindah meja adalah aksi tersendiri dengan pemilihan asal dan tujuan.
 
-**Berjalan sejak 16 Oktober 2026 (`/pos/tables`):** buka meja, tutup kunjungan, dan tandai bersih. Kunjungan hanya bisa ditutup bila semua pesanannya dibayar atau dibatalkan. Kebijakan bersih-bersih diatur di Backoffice > Meja > Lantai dan area. Bila dua kasir membuka meja yang sama bersamaan, yang kedua mendapat pesan bahwa meja tidak tersedia. **Pesanan dan bayar (16 Oktober 2026):** Tambah pesanan membuka layar jual untuk kunjungan itu (Kirim pesanan → dapur → kembali ke meja). Bayar mengambil satu pembayaran untuk semua pesanan yang belum dibayar; setelah lunas, tindakan utama menjadi Tutup kunjungan. Pindah meja: M4-FT-05.
+**Berjalan sejak 16 Oktober 2026 (`/pos/tables`):** buka meja, tutup kunjungan, dan tandai bersih. Kunjungan hanya bisa ditutup bila semua pesanannya dibayar atau dibatalkan. Kebijakan bersih-bersih diatur di Backoffice > Meja > Lantai dan area. Bila dua kasir membuka meja yang sama bersamaan, yang kedua mendapat pesan bahwa meja tidak tersedia. **Pesanan dan bayar (16 Oktober 2026):** Tambah pesanan membuka layar jual untuk kunjungan itu (Kirim pesanan → dapur → kembali ke meja). Bayar mengambil satu pembayaran untuk semua pesanan yang belum dibayar; setelah lunas, tindakan utama menjadi Tutup kunjungan. **Pindah meja (16 Oktober 2026):** Pindah meja → pilih meja kosong → Pindahkan; kunjungan, pesanan, dan tagihan ikut. Gabung/pisah meja tampil terkunci dengan keterangan Meja Pro pada paket Basic.
 
 ---
 

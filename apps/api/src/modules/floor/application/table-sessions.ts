@@ -1,14 +1,17 @@
 import {
   computeCharges,
+  MODULES,
   liveFloorSchema,
   tableSessionDetailSchema,
   tableSessionSchema,
   type CreateTableOrder,
+  type MoveTableSession,
   type OpenTableSession,
 } from "@merchant/contracts";
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
 import { BillingService } from "../../../kernels/billing-payment-ledger/public.js";
+import { EntitlementService } from "../../../core/entitlements/public.js";
 import { OrganizationService } from "../../../core/workspaces/public.js";
 import { OrderIntakeService } from "../../../kernels/order-intake/public.js";
 import type { ActorCommandOrigin, CommandOrigin } from "../../../shared/command/command-origin.js";
@@ -31,6 +34,9 @@ export const toSession = (record: TableSessionRecord) =>
     tableIds: record.tableIds,
   });
 
+/** Joining or splitting tables within one visit is a Pro capability. */
+export const MERGE_TABLES_CAPABILITY = "floor.table_session.merge_split";
+
 const notAvailable = () =>
   new ConflictException({
     code: "TABLE_NOT_AVAILABLE",
@@ -49,14 +55,16 @@ export class TableSessions {
     @Inject(OrderIntakeService) private readonly orders: OrderIntakeService,
     @Inject(BillingService) private readonly billing: BillingService,
     @Inject(OrganizationService) private readonly organization: OrganizationService,
+    @Inject(EntitlementService) private readonly entitlements: EntitlementService,
   ) {}
 
   /** Active floors and areas, every table with its status, and who holds them. */
   async live(tenantId: string, outletId: string) {
-    const [floors, tables, policy] = await Promise.all([
+    const [floors, tables, policy, access] = await Promise.all([
       this.structure.list(tenantId, outletId),
       this.sessions.live(tenantId, outletId),
       this.sessions.policy(tenantId, outletId),
+      this.entitlements.describeAccess(tenantId, MODULES.tableSelfOrder),
     ]);
     const shown = floors
       .filter((floor) => floor.status === "ACTIVE")
@@ -68,6 +76,7 @@ export class TableSessions {
     const sessions = new Map<string, TableSessionRecord>();
     for (const table of tables) if (table.holder) sessions.set(table.holder.id, table.holder);
     return liveFloorSchema.parse({
+      canMergeTables: access.capabilities.has(MERGE_TABLES_CAPABILITY),
       floors: shown,
       policy,
       sessions: [...sessions.values()].map(toSession),
@@ -116,6 +125,49 @@ export class TableSessions {
 
   async get(tenantId: string, outletId: string, sessionId: string) {
     return toSession(await this.find(tenantId, outletId, sessionId));
+  }
+
+  /**
+   * Moves the guests to a free table. The visit keeps its number, orders,
+   * and bill; only the table it holds changes.
+   */
+  async move(
+    tenantId: string,
+    outletId: string,
+    sessionId: string,
+    input: MoveTableSession,
+    origin: ActorCommandOrigin,
+  ) {
+    const session = await this.find(tenantId, outletId, sessionId);
+    if (session.status === "CLOSED") {
+      throw new ConflictException({
+        code: "TABLE_SESSION_CLOSED",
+        message: "This visit is already closed.",
+      });
+    }
+    const table = await this.sessions.findTable(tenantId, outletId, input.tableId);
+    if (!table) {
+      throw new NotFoundException({
+        code: "FLOOR_TABLE_NOT_FOUND",
+        message: "Table was not found.",
+      });
+    }
+    if (table.held || table.status !== "ACTIVE" || !table.areaActive || !table.floorActive) {
+      throw notAvailable();
+    }
+    try {
+      const moved = await this.sessions.move(tenantId, outletId, sessionId, input.tableId, origin);
+      if (!moved) {
+        throw new ConflictException({
+          code: "TABLE_SESSION_CLOSED",
+          message: "This visit is already closed.",
+        });
+      }
+      return toSession(moved.session);
+    } catch (error) {
+      if (error instanceof TableTakenError) throw notAvailable();
+      throw error;
+    }
   }
 
   /** The visit with its orders, whether each is paid, and what is still owed. */

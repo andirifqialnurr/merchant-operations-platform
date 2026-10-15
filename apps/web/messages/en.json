@@ -1327,6 +1327,16 @@
     "pay": "Pay",
     "saleNumbers": "Sale numbers",
     "visitLoadFailed": "The orders of this visit could not be loaded",
-    "visitPaid": "Visit paid"
+    "visitPaid": "Visit paid",
+    "chooseDestination": "Choose a table",
+    "destinations": "Free tables",
+    "mergeLocked": "Available with Tables Pro",
+    "mergeTables": "Join or split tables",
+    "moveFrom": "Moving from {label}",
+    "moveTable": "Move table",
+    "moveTo": "Move to {label}",
+    "noFreeTable": "No table is free right now.",
+    "seatsShort": "{count, plural, one {# seat} other {# seats}}",
+    "visitMoved": "The guests of {from} moved to {to}."
   }
 }

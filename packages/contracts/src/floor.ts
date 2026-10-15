@@ -256,12 +256,17 @@ export const floorPolicySchema = z
 /** Everything the cashier's table view shows, read at once. */
 export const liveFloorSchema = z
   .object({
+    /** Whether the package lets a visit take more tables (`floor.table_session.merge_split`, Pro). */
+    canMergeTables: z.boolean(),
     floors: z.array(floorSchema),
     policy: floorPolicySchema,
     sessions: z.array(tableSessionSchema),
     tables: z.array(liveTableSchema),
   })
   .strict();
+
+/** Where the guests move to; the visit, its orders, and its bill stay as they are. */
+export const moveTableSessionSchema = z.object({ tableId: z.uuid() }).strict();
 
 export const openTableSessionSchema = z
   .object({ guestCount: z.number().int().min(1).max(99), tableId: z.uuid() })
@@ -274,6 +279,8 @@ export type FloorTableStatus = z.infer<typeof floorTableStatusSchema>;
 export type LiveFloor = z.infer<typeof liveFloorSchema>;
 
 export type LiveTable = z.infer<typeof liveTableSchema>;
+
+export type MoveTableSession = z.infer<typeof moveTableSessionSchema>;
 
 export type OpenTableSession = z.infer<typeof openTableSessionSchema>;
 
