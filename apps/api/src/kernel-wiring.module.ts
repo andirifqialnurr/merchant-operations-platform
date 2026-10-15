@@ -6,13 +6,17 @@ import {
   OrderIntakeService,
   SELLABLE_MENU_SOURCE,
 } from "./kernels/order-intake/public.js";
+import { FloorModule, TableSessions } from "./modules/floor/public.js";
 import { KITCHEN_ORDER_SOURCE, type KitchenOrderSource } from "./modules/kds/public.js";
 
 /**
  * What the kitchen may know about an order: what to prepare. The order's
  * prices stay on this side; they are not part of the shape that is returned.
  */
-export function kitchenOrderSource(orders: Pick<OrderIntakeService, "getOrder">) {
+export function kitchenOrderSource(
+  orders: Pick<OrderIntakeService, "getOrder">,
+  tables?: Pick<TableSessions, "tableLabel">,
+) {
   return {
     async kitchenOrder(tenantId, outletId, orderId) {
       let order;
@@ -22,6 +26,11 @@ export function kitchenOrderSource(orders: Pick<OrderIntakeService, "getOrder">)
         if (error instanceof NotFoundException) return null;
         throw error;
       }
+      // An order taken at a table tells the kitchen where to bring it.
+      const tableLabel =
+        order.tableSessionId && tables
+          ? await tables.tableLabel(tenantId, outletId, order.tableSessionId)
+          : null;
       return {
         canceled: order.status === "CANCELED",
         items: order.items.map((item) => ({
@@ -36,6 +45,7 @@ export function kitchenOrderSource(orders: Pick<OrderIntakeService, "getOrder">)
         })),
         orderLabel: `#${order.orderNumber}`,
         source: order.source === "SELF_ORDER" ? "SELF_ORDER" : "POS",
+        ...(tableLabel ? { tableLabel } : {}),
       };
     },
   } satisfies KitchenOrderSource;
@@ -49,12 +59,16 @@ export function kitchenOrderSource(orders: Pick<OrderIntakeService, "getOrder">)
 @Global()
 @Module({
   exports: [KITCHEN_ORDER_SOURCE, SELLABLE_MENU_SOURCE],
-  imports: [CatalogModule, OrderIntakeModule],
+  imports: [CatalogModule, FloorModule, OrderIntakeModule],
   providers: [
     // Orders are priced from the catalog's sellable menu.
     { provide: SELLABLE_MENU_SOURCE, useExisting: CatalogService },
     // The kitchen reads what to prepare from the owner of orders.
-    { inject: [OrderIntakeService], provide: KITCHEN_ORDER_SOURCE, useFactory: kitchenOrderSource },
+    {
+      inject: [OrderIntakeService, TableSessions],
+      provide: KITCHEN_ORDER_SOURCE,
+      useFactory: kitchenOrderSource,
+    },
   ],
 })
 export class KernelWiringModule {}

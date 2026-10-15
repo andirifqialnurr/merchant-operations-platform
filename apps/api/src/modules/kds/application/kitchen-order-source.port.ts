@@ -13,6 +13,8 @@ export type KitchenOrder = {
   items: Array<{ modifiers: string[]; name: string; note?: string; quantity: number }>;
   orderLabel: string;
   source: "POS" | "SELF_ORDER";
+  /** The table the guests sit at, for an order taken at a table. */
+  tableLabel?: string;
 };
 
 export interface KitchenOrderSource {

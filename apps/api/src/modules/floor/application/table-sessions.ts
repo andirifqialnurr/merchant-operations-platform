@@ -1,7 +1,15 @@
-import { liveFloorSchema, tableSessionSchema, type OpenTableSession } from "@merchant/contracts";
+import {
+  computeCharges,
+  liveFloorSchema,
+  tableSessionDetailSchema,
+  tableSessionSchema,
+  type CreateTableOrder,
+  type OpenTableSession,
+} from "@merchant/contracts";
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
 import { BillingService } from "../../../kernels/billing-payment-ledger/public.js";
+import { OrganizationService } from "../../../core/workspaces/public.js";
 import { OrderIntakeService } from "../../../kernels/order-intake/public.js";
 import type { ActorCommandOrigin, CommandOrigin } from "../../../shared/command/command-origin.js";
 import { tableStatus } from "../domain/table-status.js";
@@ -40,6 +48,7 @@ export class TableSessions {
     @Inject(FloorStructure) private readonly structure: FloorStructure,
     @Inject(OrderIntakeService) private readonly orders: OrderIntakeService,
     @Inject(BillingService) private readonly billing: BillingService,
+    @Inject(OrganizationService) private readonly organization: OrganizationService,
   ) {}
 
   /** Active floors and areas, every table with its status, and who holds them. */
@@ -107,6 +116,78 @@ export class TableSessions {
 
   async get(tenantId: string, outletId: string, sessionId: string) {
     return toSession(await this.find(tenantId, outletId, sessionId));
+  }
+
+  /** The visit with its orders, whether each is paid, and what is still owed. */
+  async detail(tenantId: string, outletId: string, sessionId: string) {
+    const session = await this.find(tenantId, outletId, sessionId);
+    const orders = await this.orders.listBySession(tenantId, outletId, sessionId);
+    const [paid, charges, tableLabel] = await Promise.all([
+      this.billing.paidOrders(
+        tenantId,
+        orders.map((order) => order.id),
+      ),
+      this.organization.outletCharges(tenantId, outletId),
+      this.sessions.primaryTableLabel(tenantId, outletId, sessionId),
+    ]);
+    const rows = orders.map((order) => {
+      const settled = paid.get(order.id);
+      return {
+        createdAt: order.createdAt,
+        id: order.id,
+        lines: order.items.map((item) => ({
+          name: item.variantName ? `${item.name} (${item.variantName})` : item.name,
+          quantity: item.quantity,
+        })),
+        orderNumber: order.orderNumber,
+        paid: settled !== undefined,
+        status: order.status,
+        // What was paid stays; an unpaid order is priced with today's charges.
+        totalMinor: (
+          settled?.totalMinor ?? computeCharges(BigInt(order.subtotalMinor), charges).totalMinor
+        ).toString(),
+      };
+    });
+    const dueMinor = rows
+      .filter((row) => !row.paid && row.status !== "CANCELED")
+      .reduce((sum, row) => sum + BigInt(row.totalMinor), 0n);
+    return tableSessionDetailSchema.parse({
+      dueMinor: dueMinor.toString(),
+      orders: rows,
+      session: toSession(session),
+      tableLabel,
+    });
+  }
+
+  /** Takes an order for the guests of an open visit; the kitchen hears of it like any order. */
+  async addOrder(
+    tenantId: string,
+    outletId: string,
+    sessionId: string,
+    input: CreateTableOrder,
+    idempotencyKey: string,
+    origin: ActorCommandOrigin,
+  ) {
+    const session = await this.find(tenantId, outletId, sessionId);
+    if (session.status === "CLOSED") {
+      throw new ConflictException({
+        code: "TABLE_SESSION_CLOSED",
+        message: "This visit is already closed.",
+      });
+    }
+    return this.orders.submitTableOrder(
+      tenantId,
+      outletId,
+      sessionId,
+      input,
+      idempotencyKey,
+      origin,
+    );
+  }
+
+  /** The label of the table a visit sits at, for the kitchen's ticket. */
+  async tableLabel(tenantId: string, outletId: string, sessionId: string) {
+    return this.sessions.primaryTableLabel(tenantId, outletId, sessionId);
   }
 
   /**

@@ -63,6 +63,8 @@ export interface TableSessionRepository {
     origin: ActorCommandOrigin,
   ): Promise<TableSessionRecord>;
   policy(tenantId: string, outletId: string): Promise<{ cleaningAfterClose: boolean }>;
+  /** The label of the visit's primary table, the last one it had once closed. */
+  primaryTableLabel(tenantId: string, outletId: string, sessionId: string): Promise<string | null>;
   setPolicy(
     tenantId: string,
     outletId: string,

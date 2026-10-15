@@ -341,7 +341,13 @@
     "totalWithCharges": "Includes service charge and tax.",
     "kitchenPreparing": "Preparing",
     "kitchenReady": "Ready",
-    "kitchenServed": "Served"
+    "kitchenServed": "Served",
+    "backToTables": "Back to tables",
+    "orderForTable": "Order for {label} · Visit {number}",
+    "orderSent": "The order for {label} went to the kitchen.",
+    "sendOrder": "Send order",
+    "visitClosedHint": "Open the table again from Tables to take more orders.",
+    "visitClosedTitle": "This visit is closed"
   },
   "errors": {
     "API_REQUEST_FAILED": "The service could not process the request. Try again.",
@@ -474,7 +480,9 @@
     "TABLE_NOT_CLEANING": "This table is not waiting to be cleaned.",
     "TABLE_SESSION_CLOSED": "This visit is already closed.",
     "TABLE_SESSION_NOT_FOUND": "This visit was not found. The view is refreshed.",
-    "TABLE_SESSION_UNPAID": "Some orders of this visit are not paid yet."
+    "TABLE_SESSION_UNPAID": "Some orders of this visit are not paid yet.",
+    "BILL_CURRENCY_MIXED": "The orders of this visit use different currencies.",
+    "TABLE_SESSION_NOTHING_TO_PAY": "Every order of this visit is already paid."
   },
   "subscription": {
     "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",
@@ -1306,6 +1314,19 @@
       "OCCUPIED": "Taken"
     },
     "visitClosed": "The visit at {label} is closed.",
-    "visitTitle": "{label} · Visit {number}"
+    "visitTitle": "{label} · Visit {number}",
+    "addOrder": "Add order",
+    "backToTables": "Back to tables",
+    "due": "Still owed",
+    "noOrders": "No orders yet.",
+    "orderCanceled": "Canceled",
+    "orderLine": "{quantity}× {name}",
+    "orderPaid": "Paid",
+    "orderUnpaid": "Unpaid",
+    "ordersTitle": "Orders",
+    "pay": "Pay",
+    "saleNumbers": "Sale numbers",
+    "visitLoadFailed": "The orders of this visit could not be loaded",
+    "visitPaid": "Visit paid"
   }
 }

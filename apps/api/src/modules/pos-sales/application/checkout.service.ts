@@ -48,4 +48,47 @@ export class CheckoutService {
       context,
     );
   }
+
+  /**
+   * Pays every unpaid order of a table visit at once. Which orders belong to
+   * the visit is read from the orders themselves; the visit's tables and its
+   * state belong to the tables module.
+   */
+  async payTableSession(
+    tenantId: string,
+    outletId: string,
+    tableSessionId: string,
+    pay: PayOrder,
+    idempotencyKey: string,
+    context: ShiftMutationContext,
+  ) {
+    const shift = await this.shifts.findOpen(tenantId, outletId, context.actorId);
+    if (!shift) {
+      throw new ConflictException({
+        code: "POS_SHIFT_REQUIRED",
+        message: "Open a shift before taking payments.",
+      });
+    }
+    const orders = (await this.orders.listBySession(tenantId, outletId, tableSessionId)).filter(
+      (order) => order.status !== "CANCELED",
+    );
+    const paid = await this.billing.paidOrders(
+      tenantId,
+      orders.map((order) => order.id),
+    );
+    const charges = await this.organization.outletCharges(tenantId, outletId);
+    return this.billing.payTableSessionInFull(
+      {
+        charges,
+        idempotencyKey,
+        orders: orders.filter((order) => !paid.has(order.id)),
+        outletId,
+        pay,
+        registerSessionId: shift.id,
+        tableSessionId,
+        tenantId,
+      },
+      context,
+    );
+  }
 }

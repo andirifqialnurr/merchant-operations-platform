@@ -14,6 +14,7 @@ import type {
   CheckoutRecord,
   FullPayment,
   FullPaymentOutcome,
+  SessionPayment,
 } from "./billing.repository.js";
 import { BillingService, type PayableOrder } from "./billing.service.js";
 
@@ -26,6 +27,74 @@ class InMemoryBillingRepository implements BillingRepository {
   readonly checkouts: (CheckoutRecord & { key: string; method: string; shift: string })[] = [];
   shiftOpen = true;
   canceledOrders = new Set<string>();
+
+  async findSessionCheckoutByIdempotencyKey(_tenantId: string, _outletId: string, key: string) {
+    const found = this.checkouts.filter((item) => item.key === key);
+    if (found.length === 0) return null;
+    return {
+      checkouts: found.map(({ bill, sale }) => ({ bill, sale })),
+      payment: found[0]!.payment,
+    };
+  }
+
+  async recordSessionPayment(payment: SessionPayment) {
+    if (!this.shiftOpen) return { kind: "shift_not_open" as const };
+    if (payment.bills.some((line) => this.canceledOrders.has(line.orderId))) {
+      return { kind: "order_canceled" as const };
+    }
+    if (
+      this.checkouts.some((item) =>
+        payment.bills.some((line) => line.orderId === item.bill.orderId),
+      )
+    ) {
+      return { kind: "bill_already_paid" as const };
+    }
+    const now = new Date();
+    const paid = {
+      amountMinor: payment.totalMinor,
+      confirmedAt: now,
+      id: randomUUID(),
+      method: payment.method,
+      reference: payment.reference,
+      status: "PAID" as const,
+      tenderedMinor: payment.tenderedMinor,
+    };
+    const made = payment.bills.map((line) => {
+      const checkout = {
+        bill: {
+          chargesIncluded: payment.charges.included,
+          currency: payment.currency,
+          discountMinor: 0n,
+          id: randomUUID(),
+          orderId: line.orderId,
+          paidMinor: line.totalMinor,
+          roundingMinor: 0n,
+          serviceChargeMinor: line.serviceChargeMinor,
+          serviceChargeRateBp: payment.charges.serviceChargeRateBp,
+          status: "PAID" as const,
+          subtotalMinor: line.subtotalMinor,
+          tableSessionId: payment.tableSessionId,
+          taxMinor: line.taxMinor,
+          taxRateBp: payment.charges.taxRateBp,
+          totalMinor: line.totalMinor,
+        },
+        key: payment.idempotencyKey,
+        method: payment.method,
+        payment: paid,
+        sale: {
+          completedAt: now,
+          id: randomUUID(),
+          saleNumber: this.checkouts.length + 1,
+          status: "COMPLETED" as const,
+          totalMinor: line.totalMinor,
+        },
+        shift: payment.registerSessionId,
+      };
+      this.checkouts.push(checkout);
+      return { bill: checkout.bill, sale: checkout.sale };
+    });
+    return { checkout: { checkouts: made, payment: paid }, kind: "recorded" as const };
+  }
 
   async findPaidCheckoutByOrder(_tenantId: string, _outletId: string, orderId: string) {
     const found = this.checkouts.find((item) => item.bill.orderId === orderId);
@@ -139,6 +208,7 @@ class InMemoryBillingRepository implements BillingRepository {
         serviceChargeRateBp: payment.charges.serviceChargeRateBp,
         status: "PAID" as const,
         subtotalMinor: payment.subtotalMinor,
+        tableSessionId: null,
         taxMinor: payment.taxMinor,
         taxRateBp: payment.charges.taxRateBp,
         totalMinor: payment.totalMinor,
@@ -555,4 +625,81 @@ test("a total other than the one the cashier saw is not charged", async () => {
     context,
   );
   assert.equal(paid.bill.totalMinor, "55500");
+});
+
+const VISIT = "019f738d-e61f-7d46-92de-17b35f975199";
+
+test("a table visit pays all its orders with one payment, a bill and a sale per order", async () => {
+  const { repository, service } = setup();
+  const paid = await service.payTableSessionInFull(
+    {
+      ...base,
+      charges: { included: false, serviceChargeRateBp: 500, taxRateBp: 1_000 },
+      idempotencyKey: "visit-1",
+      orders: [order({ subtotalMinor: "50000" }), order({ subtotalMinor: "30000" })],
+      pay: { ...cash("100000"), expectedTotalMinor: "92400" },
+      tableSessionId: VISIT,
+    },
+    context,
+  );
+  // Each order is billed as if paid alone: 50.000 + 5% + 10% and 30.000 + 5% + 10%.
+  assert.deepEqual(
+    paid.checkouts.map(({ bill }) => bill.totalMinor),
+    ["57750", "34650"],
+  );
+  assert.equal(paid.payment.amountMinor, "92400");
+  assert.equal(paid.payment.changeMinor, "7600");
+  assert.deepEqual(
+    paid.checkouts.map(({ sale }) => sale.saleNumber),
+    [1, 2],
+  );
+  assert.equal(repository.checkouts.length, 2);
+
+  // The same key returns the same payment.
+  const again = await service.payTableSessionInFull(
+    {
+      ...base,
+      idempotencyKey: "visit-1",
+      orders: [],
+      pay: cash("100000"),
+      tableSessionId: VISIT,
+    },
+    context,
+  );
+  assert.equal(again.payment.id, paid.payment.id);
+  await rejectsWithCode(
+    service.payTableSessionInFull(
+      {
+        ...base,
+        idempotencyKey: "visit-1",
+        orders: [],
+        pay: cash("100000"),
+        tableSessionId: randomUUID(),
+      },
+      context,
+    ),
+    "IDEMPOTENCY_KEY_REUSED",
+  );
+});
+
+test("a table visit is not paid with a changed total, too little cash, or nothing owed", async () => {
+  const { service } = setup();
+  const visit = (
+    pay: Parameters<BillingService["payTableSessionInFull"]>[0]["pay"],
+    orders = [order(), order()],
+  ) =>
+    service.payTableSessionInFull(
+      { ...base, idempotencyKey: randomUUID(), orders, pay, tableSessionId: VISIT },
+      context,
+    );
+  await rejectsWithCode(
+    visit({ ...cash("200000"), expectedTotalMinor: "64000" }),
+    "ORDER_TOTAL_CHANGED",
+  );
+  await rejectsWithCode(visit(cash("100000")), "PAYMENT_TENDERED_INSUFFICIENT");
+  await rejectsWithCode(visit(cash("100000"), []), "TABLE_SESSION_NOTHING_TO_PAY");
+  await rejectsWithCode(
+    visit({ method: "EDC" }, [order(), order({ status: "CANCELED" })]),
+    "ORDER_CANCELED",
+  );
 });

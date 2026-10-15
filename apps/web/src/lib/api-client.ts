@@ -39,6 +39,10 @@ import {
   openRegisterSessionSchema,
   orderSchema,
   payOrderSchema,
+  tableSessionCheckoutSchema,
+  tableSessionDetailSchema,
+  createTableOrderSchema,
+  type CreateTableOrder,
   posOrderListSchema,
   receiptSchema,
   refundOrderSchema,
@@ -959,6 +963,45 @@ export const merchantApi = {
     apiRequest("/pos/orders/charges", posChargesSchema, {
       headers: outletHeaders(tenantId, outletId),
     }),
+  /** Pays every unpaid order of a table visit with one payment. */
+  payTableSession: (
+    tenantId: string,
+    outletId: string,
+    sessionId: string,
+    input: PayOrder,
+    idempotencyKey: string,
+  ) =>
+    jsonMutation(
+      `/pos/table-sessions/${entityIdParamsSchema.parse({ id: sessionId }).id}/payments`,
+      "POST",
+      input,
+      payOrderSchema,
+      tableSessionCheckoutSchema,
+      { ...outletHeaders(tenantId, outletId), [API_HEADERS.idempotencyKey]: idempotencyKey },
+    ),
+  /** A visit with its orders and what is still owed. */
+  tableSessionDetail: (tenantId: string, outletId: string, sessionId: string) =>
+    apiRequest(
+      `/floor/sessions/${entityIdParamsSchema.parse({ id: sessionId }).id}`,
+      tableSessionDetailSchema,
+      { headers: outletHeaders(tenantId, outletId) },
+    ),
+  /** One more order for the guests of a visit; the key makes a retry return the same order. */
+  addTableOrder: (
+    tenantId: string,
+    outletId: string,
+    sessionId: string,
+    input: CreateTableOrder,
+    idempotencyKey: string,
+  ) =>
+    jsonMutation(
+      `/floor/sessions/${entityIdParamsSchema.parse({ id: sessionId }).id}/orders`,
+      "POST",
+      input,
+      createTableOrderSchema,
+      orderSchema,
+      { ...outletHeaders(tenantId, outletId), [API_HEADERS.idempotencyKey]: idempotencyKey },
+    ),
   payOrder: (
     tenantId: string,
     outletId: string,

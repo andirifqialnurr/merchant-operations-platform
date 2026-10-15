@@ -80,6 +80,15 @@ export const checkoutSchema = z.object({
 });
 
 /**
+ * The result of paying every unpaid order of a table visit at once: one
+ * payment, and a bill and a sale for each order.
+ */
+export const tableSessionCheckoutSchema = z.object({
+  checkouts: z.array(z.object({ bill: billSchema, sale: saleSchema })).min(1),
+  payment: paymentSchema,
+});
+
+/**
  * The cashier states how the order was paid. The amount is always the full
  * amount due and is decided by the server.
  */
@@ -122,6 +131,8 @@ export type BillStatus = z.infer<typeof billStatusSchema>;
 export type Checkout = z.infer<typeof checkoutSchema>;
 
 export type PayOrder = z.infer<typeof payOrderSchema>;
+
+export type TableSessionCheckout = z.infer<typeof tableSessionCheckoutSchema>;
 
 export type Payment = z.infer<typeof paymentSchema>;
 

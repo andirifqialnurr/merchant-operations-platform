@@ -72,6 +72,7 @@ export class OrderEventsHandler implements OnModuleInit {
         receivedAt: event.occurredAt.toISOString(),
         source: order.source,
         sourceReference: orderId,
+        ...(order.tableLabel ? { tableLabel: order.tableLabel } : {}),
       },
       commandOriginFromEvent(event),
     );

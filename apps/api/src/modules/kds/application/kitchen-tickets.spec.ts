@@ -617,4 +617,13 @@ test("what the kitchen is told about an order has no price in it", async () => {
     getOrder: async () => ({ ...order, status: "CANCELED" }) as never,
   });
   assert.equal((await canceled.kitchenOrder(TENANT, OUTLET, ORDER))?.canceled, true);
+
+  // An order taken at a table names the table, and only that.
+  const visit = randomUUID();
+  const atTable = kitchenOrderSource(
+    { getOrder: async () => ({ ...order, orderType: "DINE_IN", tableSessionId: visit }) as never },
+    { tableLabel: async (_tenantId, _outletId, sessionId) => (sessionId === visit ? "T3" : null) },
+  );
+  assert.equal((await atTable.kitchenOrder(TENANT, OUTLET, ORDER))?.tableLabel, "T3");
+  assert.equal("tableLabel" in (seen ?? {}), false);
 });

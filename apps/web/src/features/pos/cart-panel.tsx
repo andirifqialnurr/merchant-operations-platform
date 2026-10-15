@@ -24,6 +24,7 @@ export function CartPanel({
   onPay,
   onQuantityChange,
   onRemove,
+  send,
   totalMinor,
   totalNote,
 }: Readonly<{
@@ -34,6 +35,8 @@ export function CartPanel({
   onPay?: (() => void) | undefined;
   onQuantityChange: (key: string, quantity: number) => void;
   onRemove: (key: string) => void;
+  /** For guests at a table: the order goes to the kitchen now and is paid with the visit. */
+  send?: { busy: boolean; label: string; onSend: () => void } | undefined;
   totalMinor: bigint;
   /** Says what the total holds beyond the lines above, e.g. tax and service. */
   totalNote?: string;
@@ -130,7 +133,19 @@ export function CartPanel({
           <Button onClick={onHold} size="lg" variant="secondary">
             {t("hold")}
           </Button>
-          {onPay ? (
+          {send ? (
+            <div className="min-w-0 flex-1">
+              <Button
+                disabled={lines.length === 0}
+                fullWidth
+                loading={send.busy}
+                onClick={send.onSend}
+                size="lg"
+              >
+                {send.label}
+              </Button>
+            </div>
+          ) : onPay ? (
             <div className="min-w-0 flex-1">
               <Button fullWidth onClick={onPay} size="lg">
                 {t("pay")}

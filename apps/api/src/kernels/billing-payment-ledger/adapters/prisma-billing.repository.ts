@@ -11,9 +11,15 @@ import type {
   CheckoutRecord,
   FullPayment,
   FullPaymentOutcome,
+  SessionCheckoutRecord,
+  SessionPayment,
+  SessionPaymentOutcome,
 } from "../application/billing.repository.js";
 import { eventOrigin } from "../../../shared/command/command-origin.js";
 import { safeEventPayload } from "../../../shared/command/event-payload.js";
+
+/** Thrown inside a transaction to undo a table visit's payment when a bill does not match. */
+class SessionBillMismatch extends Error {}
 
 const billSelect = {
   chargesIncluded: true,
@@ -27,6 +33,7 @@ const billSelect = {
   serviceChargeRateBp: true,
   status: true,
   subtotalMinor: true,
+  tableSessionId: true,
   taxMinor: true,
   taxRateBp: true,
   totalMinor: true,
@@ -97,6 +104,217 @@ export class PrismaBillingRepository implements BillingRepository {
     };
   }
 
+  async findSessionCheckoutByIdempotencyKey(
+    tenantId: string,
+    outletId: string,
+    idempotencyKey: string,
+  ): Promise<SessionCheckoutRecord | null> {
+    const row = await getPrismaClient().billingPayment.findUnique({
+      select: {
+        ...paymentSelect,
+        allocations: {
+          orderBy: { createdAt: "asc" },
+          select: { bill: { select: { ...billSelect, sale: { select: saleSelect } } } },
+        },
+      },
+      where: { tenantId_outletId_idempotencyKey: { idempotencyKey, outletId, tenantId } },
+    });
+    if (!row) return null;
+    const checkouts = row.allocations.flatMap(({ bill: { sale, ...bill } }) =>
+      sale ? [{ bill, sale }] : [],
+    );
+    if (checkouts.length === 0) return null;
+    const { allocations: _allocations, ...payment } = row;
+    void _allocations;
+    return { checkouts, payment };
+  }
+
+  async recordSessionPayment(
+    payment: SessionPayment,
+    context: BillingMutationContext,
+  ): Promise<SessionPaymentOutcome> {
+    const { outletId, tenantId } = payment;
+    try {
+      return await getPrismaClient().$transaction(async (transaction) => {
+        // The same shift lock as a single payment: a closing shift either
+        // counts this payment or refuses it.
+        const shift = await transaction.posRegisterSession.updateMany({
+          data: { updatedAt: new Date() },
+          where: { id: payment.registerSessionId, outletId, status: "OPEN", tenantId },
+        });
+        if (shift.count !== 1) return { kind: "shift_not_open" as const };
+
+        // Every order is locked before anything is written, so a canceled or
+        // paid one stops the whole payment without leaving half of it behind.
+        for (const line of payment.bills) {
+          const order = await transaction.order.updateMany({
+            data: { updatedAt: new Date() },
+            where: { id: line.orderId, outletId, status: { not: "CANCELED" }, tenantId },
+          });
+          if (order.count !== 1) return { kind: "order_canceled" as const };
+        }
+        const existing = await transaction.bill.findMany({
+          select: { id: true, orderId: true, status: true },
+          where: { orderId: { in: payment.bills.map((line) => line.orderId) }, tenantId },
+        });
+        if (existing.some((bill) => bill.status !== "UNPAID")) {
+          return { kind: "bill_already_paid" as const };
+        }
+        const existingByOrder = new Map(existing.map((bill) => [bill.orderId, bill.id]));
+
+        const now = new Date();
+        const billIds: string[] = [];
+        for (const line of payment.bills) {
+          const billId =
+            existingByOrder.get(line.orderId) ??
+            (
+              await transaction.bill.create({
+                data: {
+                  chargesIncluded: payment.charges.included,
+                  currency: payment.currency,
+                  orderId: line.orderId,
+                  outletId,
+                  serviceChargeMinor: line.serviceChargeMinor,
+                  serviceChargeRateBp: payment.charges.serviceChargeRateBp,
+                  subtotalMinor: line.subtotalMinor,
+                  tableSessionId: payment.tableSessionId,
+                  taxMinor: line.taxMinor,
+                  taxRateBp: payment.charges.taxRateBp,
+                  tenantId,
+                  totalMinor: line.totalMinor,
+                },
+                select: { id: true },
+              })
+            ).id;
+          const settled = await transaction.bill.updateMany({
+            data: {
+              paidMinor: line.totalMinor,
+              status: "PAID",
+              tableSessionId: payment.tableSessionId,
+            },
+            where: { id: billId, status: "UNPAID", tenantId, totalMinor: line.totalMinor },
+          });
+          // A bill made earlier with another total: undo everything.
+          if (settled.count !== 1) throw new SessionBillMismatch();
+          billIds.push(billId);
+        }
+
+        const paid = await transaction.billingPayment.create({
+          data: {
+            actorId: context.actorId,
+            amountMinor: payment.totalMinor,
+            confirmedAt: now,
+            confirmedBy: context.actorId,
+            idempotencyKey: payment.idempotencyKey,
+            method: payment.method,
+            outletId,
+            reference: payment.reference,
+            registerSessionId: payment.registerSessionId,
+            status: "PAID",
+            tenantId,
+            tenderedMinor: payment.tenderedMinor,
+          },
+          select: paymentSelect,
+        });
+
+        const checkouts: SessionCheckoutRecord["checkouts"] = [];
+        for (const [index, line] of payment.bills.entries()) {
+          const billId = billIds[index]!;
+          await transaction.paymentAllocation.create({
+            data: { amountMinor: line.totalMinor, billId, paymentId: paid.id, tenantId },
+          });
+          const counter = await transaction.saleNumberCounter.upsert({
+            create: { lastNumber: 1, outletId, tenantId },
+            select: { lastNumber: true },
+            update: { lastNumber: { increment: 1 } },
+            where: { tenantId_outletId: { outletId, tenantId } },
+          });
+          const sale = await transaction.sale.create({
+            data: {
+              billId,
+              completedAt: now,
+              outletId,
+              saleNumber: counter.lastNumber,
+              status: "COMPLETED",
+              tenantId,
+              totalMinor: line.totalMinor,
+            },
+            select: saleSelect,
+          });
+          const bill = await transaction.bill.findUniqueOrThrow({
+            select: billSelect,
+            where: { tenantId_id: { id: billId, tenantId } },
+          });
+          checkouts.push({ bill, sale });
+
+          // Each order's share is told like a payment of its own, so whoever
+          // listens hears the same thing for a table as for the counter.
+          const payload = {
+            amountMinor: line.totalMinor.toString(),
+            billId,
+            method: payment.method,
+            orderId: line.orderId,
+            paymentId: paid.id,
+            shiftId: payment.registerSessionId,
+            saleId: sale.id,
+            saleNumber: sale.saleNumber,
+          };
+          await transaction.auditLog.create({
+            data: {
+              action: "payment.record",
+              actorId: context.actorId,
+              entityId: paid.id,
+              entityType: "billing_payment",
+              metadata: buildAuditMetadata("payment.record", payload),
+              outletId,
+              ...(context.requestId ? { requestId: context.requestId } : {}),
+              tenantId,
+            },
+          });
+          await transaction.outboxEvent.createMany({
+            data: [
+              {
+                ...eventOrigin(context, "CORE_PAYMENT_LEDGER"),
+                aggregateId: paid.id,
+                aggregateType: "billing_payment",
+                outletId,
+                payload: safeEventPayload(payload),
+                tenantId,
+                type: "payment.recorded.v1",
+              },
+              {
+                ...eventOrigin(context, "CORE_BILL"),
+                aggregateId: sale.id,
+                aggregateType: "sales_sale",
+                outletId,
+                payload: safeEventPayload({
+                  completedAt: now.toISOString(),
+                  currency: payment.currency,
+                  orderId: line.orderId,
+                  saleId: sale.id,
+                  saleNumber: sale.saleNumber,
+                  totalMinor: line.totalMinor.toString(),
+                }),
+                tenantId,
+                type: "sale.completed.v1",
+              },
+            ],
+          });
+        }
+        return { checkout: { checkouts, payment: paid }, kind: "recorded" as const };
+      });
+    } catch (error) {
+      if (error instanceof SessionBillMismatch) return { kind: "bill_already_paid" };
+      if (!isUniqueConstraintError(error)) throw error;
+      const replayed = await this.findSessionCheckoutByIdempotencyKey(
+        tenantId,
+        outletId,
+        payment.idempotencyKey,
+      );
+      return replayed ? { checkout: replayed, kind: "recorded" } : { kind: "bill_already_paid" };
+    }
+  }
+
   async findPaidCheckoutByOrder(tenantId: string, outletId: string, orderId: string) {
     const bill = await getPrismaClient().bill.findFirst({
       select: {
@@ -125,6 +343,7 @@ export class PrismaBillingRepository implements BillingRepository {
         paidMinor: bill.paidMinor,
         roundingMinor: bill.roundingMinor,
         serviceChargeMinor: bill.serviceChargeMinor,
+        tableSessionId: bill.tableSessionId,
         serviceChargeRateBp: bill.serviceChargeRateBp,
         status: bill.status,
         subtotalMinor: bill.subtotalMinor,

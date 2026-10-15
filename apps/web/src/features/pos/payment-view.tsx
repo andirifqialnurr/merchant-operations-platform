@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import type { Checkout, CreateOrderItem, Order } from "@merchant/contracts";
+import type { Checkout, CreateOrderItem, Order, TableSessionCheckout } from "@merchant/contracts";
 import { Button } from "@merchant/ui/button";
 import { Alert } from "@merchant/ui/alert";
 import { FormField, Input } from "@merchant/ui/input";
@@ -33,7 +33,9 @@ export type PaymentSource =
       /** One key per cart, so a retry returns the same order. */
       orderKey: string;
     }
-  | { kind: "order"; order: Order };
+  | { kind: "order"; order: Order }
+  /** Every unpaid order of a table visit; the server worked out what is due. */
+  | { dueMinor: string; kind: "session"; sessionId: string };
 
 /**
  * Takes the payment for a cart or an earlier order. It replaces whatever was
@@ -45,6 +47,7 @@ export function PaymentView({
   onBack,
   onLater,
   onPaid,
+  onSessionPaid,
   outletId,
   source,
   tenantId,
@@ -52,7 +55,9 @@ export function PaymentView({
   onBack: () => void;
   /** Leaves a submitted but unpaid order in the order list. */
   onLater?: () => void;
-  onPaid: (checkout: Checkout, order: Order) => void;
+  onPaid?: (checkout: Checkout, order: Order) => void;
+  /** For a table visit: one payment, a sale per order. */
+  onSessionPaid?: (checkout: TableSessionCheckout) => void;
   outletId: string;
   source: PaymentSource;
   tenantId: string;
@@ -82,8 +87,11 @@ export function PaymentView({
     : source.kind === "cart"
       ? source.cartTotalMinor
       : 0n;
-  const due = charges.data ? payable(menuTotalMinor, charges.data) : undefined;
-  const totalMinor = due?.totalMinor ?? menuTotalMinor;
+  // A visit's total comes from the server, already with tax and service.
+  const due =
+    charges.data && source.kind !== "session" ? payable(menuTotalMinor, charges.data) : undefined;
+  const totalMinor =
+    source.kind === "session" ? BigInt(source.dueMinor) : (due?.totalMinor ?? menuTotalMinor);
   const tenderedMinor = tendered === undefined ? undefined : BigInt(tendered);
   const tenderedTooLow = tenderedMinor === undefined || tenderedMinor < totalMinor;
   const changeMinor =
@@ -91,6 +99,26 @@ export function PaymentView({
 
   const confirm = useMutation({
     mutationFn: async () => {
+      if (source.kind === "session") {
+        if (method === "CASH" && (tenderedMinor === undefined || tenderedMinor < totalMinor)) {
+          return undefined;
+        }
+        const expectedTotalMinor = totalMinor.toString();
+        const session = await merchantApi.payTableSession(
+          tenantId,
+          outletId,
+          source.sessionId,
+          method === "CASH"
+            ? { expectedTotalMinor, method, tenderedMinor: String(tenderedMinor) }
+            : {
+                expectedTotalMinor,
+                method,
+                ...(reference.trim() ? { reference: reference.trim() } : {}),
+              },
+          payKey,
+        );
+        return { session };
+      }
       let current = order;
       if (!current && source.kind === "cart") {
         current = await merchantApi.submitPosOrder(
@@ -147,7 +175,8 @@ export function PaymentView({
       if (!result) return;
       void queryClient.invalidateQueries({ queryKey: shiftKeys.current(tenantId, outletId) });
       void queryClient.invalidateQueries({ queryKey: orderKeys.list(tenantId, outletId) });
-      onPaid(result.checkout, result.order);
+      if ("session" in result) onSessionPaid?.(result.session);
+      else onPaid?.(result.checkout, result.order);
     },
   });
 
@@ -259,7 +288,7 @@ export function PaymentView({
       <div className="grid gap-2">
         <Button
           // No payment on a total that is not known yet.
-          disabled={!charges.data}
+          disabled={source.kind !== "session" && !charges.data}
           fullWidth
           loading={confirm.isPending}
           loadingLabel={t("confirming")}

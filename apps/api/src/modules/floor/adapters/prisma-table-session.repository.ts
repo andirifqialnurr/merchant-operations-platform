@@ -309,6 +309,15 @@ export class PrismaTableSessionRepository implements TableSessionRepository {
     });
   }
 
+  async primaryTableLabel(tenantId: string, outletId: string, sessionId: string) {
+    const row = await getPrismaClient().floorSessionTable.findFirst({
+      orderBy: [{ detachedAt: { nulls: "first", sort: "desc" } }, { attachedAt: "desc" }],
+      select: { table: { select: { label: true } } },
+      where: { outletId, role: "PRIMARY", sessionId, tenantId },
+    });
+    return row?.table.label ?? null;
+  }
+
   async policy(tenantId: string, outletId: string) {
     const row = await getPrismaClient().floorOutletPolicy.findUnique({
       select: { cleaningAfterClose: true },

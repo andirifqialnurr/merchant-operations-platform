@@ -341,7 +341,13 @@
     "totalWithCharges": "Sudah termasuk service charge dan pajak.",
     "kitchenPreparing": "Disiapkan",
     "kitchenReady": "Siap",
-    "kitchenServed": "Disajikan"
+    "kitchenServed": "Disajikan",
+    "backToTables": "Kembali ke meja",
+    "orderForTable": "Pesanan untuk {label} · Kunjungan {number}",
+    "orderSent": "Pesanan untuk {label} dikirim ke dapur.",
+    "sendOrder": "Kirim pesanan",
+    "visitClosedHint": "Buka lagi mejanya di menu Meja untuk menerima pesanan.",
+    "visitClosedTitle": "Kunjungan ini sudah ditutup"
   },
   "errors": {
     "API_REQUEST_FAILED": "Layanan tidak dapat memproses permintaan. Coba lagi.",
@@ -474,7 +480,9 @@
     "TABLE_NOT_CLEANING": "Meja ini tidak sedang menunggu dibersihkan.",
     "TABLE_SESSION_CLOSED": "Kunjungan ini sudah ditutup.",
     "TABLE_SESSION_NOT_FOUND": "Kunjungan tidak ditemukan. Tampilan diperbarui.",
-    "TABLE_SESSION_UNPAID": "Masih ada pesanan kunjungan ini yang belum dibayar."
+    "TABLE_SESSION_UNPAID": "Masih ada pesanan kunjungan ini yang belum dibayar.",
+    "BILL_CURRENCY_MIXED": "Pesanan kunjungan ini memakai mata uang berbeda.",
+    "TABLE_SESSION_NOTHING_TO_PAY": "Semua pesanan kunjungan ini sudah dibayar."
   },
   "subscription": {
     "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat langganan.",
@@ -1306,6 +1314,19 @@
       "OCCUPIED": "Terisi"
     },
     "visitClosed": "Kunjungan di {label} ditutup.",
-    "visitTitle": "{label} · Kunjungan {number}"
+    "visitTitle": "{label} · Kunjungan {number}",
+    "addOrder": "Tambah pesanan",
+    "backToTables": "Kembali ke meja",
+    "due": "Belum dibayar",
+    "noOrders": "Belum ada pesanan.",
+    "orderCanceled": "Batal",
+    "orderLine": "{quantity}× {name}",
+    "orderPaid": "Lunas",
+    "orderUnpaid": "Belum dibayar",
+    "ordersTitle": "Pesanan",
+    "pay": "Bayar",
+    "saleNumbers": "Nomor penjualan",
+    "visitLoadFailed": "Pesanan kunjungan ini tidak bisa dimuat",
+    "visitPaid": "Kunjungan dibayar"
   }
 }

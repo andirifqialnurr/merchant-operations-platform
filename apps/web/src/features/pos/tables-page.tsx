@@ -2,6 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import {
@@ -10,13 +12,16 @@ import {
   type LiveFloor,
   type LiveTable,
   type TableSession,
+  type TableSessionCheckout,
+  type TableSessionDetail,
 } from "@merchant/contracts";
 import { AreaSelector } from "@merchant/ui/area-selector";
 import { Button } from "@merchant/ui/button";
-import { EmptyState, ErrorState, Skeleton } from "@merchant/ui/feedback";
+import { Badge, EmptyState, ErrorState, Skeleton } from "@merchant/ui/feedback";
 import { FloorSelector } from "@merchant/ui/floor-selector";
 import { LiveTableView, type LiveTableViewItem } from "@merchant/ui/live-table-view";
 import { ModuleAccessState } from "@merchant/ui/module-access-state";
+import { MoneyDisplay } from "@merchant/ui/money-display";
 import { Sheet } from "@merchant/ui/overlay";
 import { PageHeader } from "@merchant/ui/page";
 import { Select } from "@merchant/ui/select";
@@ -27,11 +32,12 @@ import type { TableTileMetric, TableTileState } from "@merchant/ui/table-tile";
 import { useWorkspace } from "@/features/workspace";
 import { merchantApi } from "@/lib/api-client";
 import { useErrorMessage, useFormat } from "@/lib/i18n";
+import { useCellSize } from "@/lib/use-cell-size";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { useToast } from "@/providers/toast-provider";
 import { RequestErrorState } from "@/shell/request-error-state";
 
-import { useCellSize } from "./use-cell-size";
+import { PaymentView } from "./payment-view";
 
 /** How often the cashier's view of the tables is read again. */
 export const LIVE_FLOOR_REFRESH_MS = 10_000;
@@ -54,15 +60,19 @@ const TILE_STATE: Record<FloorTableStatus, TableTileState> = {
 
 const liveKey = (tenantId: string, outletId: string) =>
   ["floor", tenantId, outletId, "live"] as const;
+const visitKey = (tenantId: string, outletId: string, sessionId: string) =>
+  ["floor", tenantId, outletId, "visit", sessionId] as const;
 
 const canvasShape = (shape: LiveTable["shape"]) =>
   shape === "RECTANGLE" ? "rectangle" : shape === "ROUND" ? "round" : "square";
 
-/** Minutes since the guests sat down; the clock is only read when the view renders. */
+/** Minutes since the guests sat down, counted to the moment the view was read. */
 const minutesSince = (iso: string, now: number) =>
   Math.max(0, Math.floor((now - new Date(iso).getTime()) / 60_000));
 
-/** POS > Tables: who sits where, seating guests, and letting tables go. */
+type Permissions = { canOrder: boolean; canPay: boolean; canSeat: boolean };
+
+/** POS > Tables: who sits where, seating guests, their orders and bill, and letting tables go. */
 export function PosTablesPage() {
   const t = useTranslations("floor");
   const { can, outlet, workspace } = useWorkspace();
@@ -81,7 +91,11 @@ export function PosTablesPage() {
   const tenantId = workspace.tenant.id;
   return (
     <LiveTables
-      canSeat={can(PERMISSIONS.tableManage)}
+      allowed={{
+        canOrder: can(PERMISSIONS.orderCreate),
+        canPay: can(PERMISSIONS.paymentConfirm),
+        canSeat: can(PERMISSIONS.tableManage),
+      }}
       key={`${tenantId}:${outlet.id}`}
       outletId={outlet.id}
       tenantId={tenantId}
@@ -90,14 +104,15 @@ export function PosTablesPage() {
 }
 
 function LiveTables({
-  canSeat,
+  allowed,
   outletId,
   tenantId,
-}: Readonly<{ canSeat: boolean; outletId: string; tenantId: string }>) {
+}: Readonly<{ allowed: Permissions; outletId: string; tenantId: string }>) {
   const t = useTranslations("floor");
   const notify = useToast();
   const errorMessage = useErrorMessage();
   const queryClient = useQueryClient();
+  const params = useSearchParams();
   const wide = useMediaQuery("(min-width: 1024px)");
   const plan = useMediaQuery("(min-width: 768px)");
   const query = useQuery({
@@ -105,24 +120,60 @@ function LiveTables({
     queryKey: liveKey(tenantId, outletId),
     refetchInterval: LIVE_FLOOR_REFRESH_MS,
   });
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: ["floor", tenantId, outletId] as const });
   const action = useMutation({
     mutationFn: ({ run }: { run: () => Promise<unknown>; success: string }) => run(),
-    onError: (error) => notify({ message: errorMessage(error), tone: "danger" }),
+    onError: (error) => {
+      notify({ message: errorMessage(error), tone: "danger" });
+      void refresh();
+    },
     onSuccess: async (_result, { success }) => {
-      await queryClient.invalidateQueries({ queryKey: liveKey(tenantId, outletId) });
+      await refresh();
       notify({ message: success, tone: "success" });
     },
   });
   const [floorId, setFloorId] = useState<string>();
   const [areaId, setAreaId] = useState<string | null>(null);
   const [status, setStatus] = useState<"ALL" | FloorTableStatus>("ALL");
-  const [selectedId, setSelectedId] = useState<string>();
+  // Coming back from the sell screen, the table the order was for is open again.
+  const [selectedId, setSelectedId] = useState<string | undefined>(
+    () => params.get("table") ?? undefined,
+  );
+  const [paying, setPaying] = useState<{ dueMinor: string; sessionId: string }>();
+  const [paid, setPaid] = useState<TableSessionCheckout>();
   const { cell, ref: planBox } = useCellSize(
     (query.data?.floors.find((floor) => floor.id === floorId) ?? query.data?.floors[0])?.gridCols ??
       24,
     20,
     48,
   );
+
+  if (paid) {
+    return (
+      <VisitPaid
+        checkout={paid}
+        onDone={() => {
+          setPaid(undefined);
+          void refresh();
+        }}
+      />
+    );
+  }
+  if (paying) {
+    return (
+      <PaymentView
+        onBack={() => setPaying(undefined)}
+        onSessionPaid={(checkout) => {
+          setPaying(undefined);
+          setPaid(checkout);
+        }}
+        outletId={outletId}
+        source={{ dueMinor: paying.dueMinor, kind: "session", sessionId: paying.sessionId }}
+        tenantId={tenantId}
+      />
+    );
+  }
 
   if (query.isPending) {
     return (
@@ -149,7 +200,11 @@ function LiveTables({
   }
 
   const live: LiveFloor = query.data;
-  const floor = live.floors.find((item) => item.id === floorId) ?? live.floors[0];
+  const selected = live.tables.find((table) => table.id === selectedId);
+  const floor =
+    live.floors.find((item) => item.id === floorId) ??
+    live.floors.find((item) => item.areas.some((area) => area.id === selected?.areaId)) ??
+    live.floors[0];
   const areaIds = new Set(floor?.areas.map((area) => area.id) ?? []);
   const sessions = new Map(live.sessions.map((session) => [session.id, session]));
   // Durations count to the moment the view was last read, so they move with each refresh.
@@ -159,7 +214,6 @@ function LiveTables({
     (table) =>
       (areaId === null || table.areaId === areaId) && (status === "ALL" || table.status === status),
   );
-  const selected = live.tables.find((table) => table.id === selectedId);
   const selectedSession = selected?.sessionId ? sessions.get(selected.sessionId) : undefined;
   // A visit is named by its table and number; a free or cleaning table by its label.
   const panelTitle = (table: LiveTable) => {
@@ -202,41 +256,58 @@ function LiveTables({
   }));
 
   const panel = selected ? (
-    <TablePanel
-      busy={action.isPending}
-      canSeat={canSeat}
-      key={`${selected.id}:${selected.sessionId ?? ""}`}
-      now={now}
-      onClean={() =>
-        action.mutate(
-          {
-            run: () => merchantApi.cleanTable(tenantId, outletId, selected.id),
-            success: t("tableCleaned", { label: selected.label }),
-          },
-          { onSuccess: () => setSelectedId(undefined) },
-        )
-      }
-      onClose={(session) =>
-        action.mutate(
-          {
-            run: () => merchantApi.closeTableSession(tenantId, outletId, session.id),
-            success: t("visitClosed", { label: selected.label }),
-          },
-          { onSuccess: () => setSelectedId(undefined) },
-        )
-      }
-      onOpen={(guestCount) =>
-        action.mutate({
-          run: () =>
-            merchantApi.openTableSession(tenantId, outletId, { guestCount, tableId: selected.id }),
-          success: t("tableOpened", { count: guestCount, label: selected.label }),
-        })
-      }
-      session={selectedSession}
-      table={selected}
-      title={panelTitle(selected)}
-      titleHidden={!wide}
-    />
+    selectedSession && selected.status !== "CLEANING" ? (
+      <VisitPanel
+        allowed={allowed}
+        busy={action.isPending}
+        key={selectedSession.id}
+        now={now}
+        onClose={() =>
+          action.mutate(
+            {
+              run: () => merchantApi.closeTableSession(tenantId, outletId, selectedSession.id),
+              success: t("visitClosed", { label: selected.label }),
+            },
+            { onSuccess: () => setSelectedId(undefined) },
+          )
+        }
+        onPay={(dueMinor) => setPaying({ dueMinor, sessionId: selectedSession.id })}
+        outletId={outletId}
+        session={selectedSession}
+        table={selected}
+        tenantId={tenantId}
+        title={panelTitle(selected)}
+        titleHidden={!wide}
+      />
+    ) : (
+      <TablePanel
+        busy={action.isPending}
+        canSeat={allowed.canSeat}
+        key={selected.id}
+        onClean={() =>
+          action.mutate(
+            {
+              run: () => merchantApi.cleanTable(tenantId, outletId, selected.id),
+              success: t("tableCleaned", { label: selected.label }),
+            },
+            { onSuccess: () => setSelectedId(undefined) },
+          )
+        }
+        onOpen={(guestCount) =>
+          action.mutate({
+            run: () =>
+              merchantApi.openTableSession(tenantId, outletId, {
+                guestCount,
+                tableId: selected.id,
+              }),
+            success: t("tableOpened", { count: guestCount, label: selected.label }),
+          })
+        }
+        table={selected}
+        title={panelTitle(selected)}
+        titleHidden={!wide}
+      />
+    )
   ) : null;
 
   return (
@@ -337,58 +408,28 @@ function LiveTables({
   );
 }
 
-/** What a table offers right now: seat guests, see the visit, let the table go. */
+/** A table without guests: seat them, or mark it ready once cleaned. */
 function TablePanel({
   busy,
   canSeat,
-  now,
   onClean,
-  onClose,
   onOpen,
-  session,
   table,
   title,
   titleHidden,
 }: Readonly<{
   busy: boolean;
   canSeat: boolean;
-  now: number;
   onClean: () => void;
-  onClose: (session: TableSession) => void;
   onOpen: (guestCount: number) => void;
-  session: TableSession | undefined;
   table: LiveTable;
   title: string;
   /** In a sheet the sheet already names the table. */
   titleHidden: boolean;
 }>) {
   const t = useTranslations("floor");
-  const { time } = useFormat();
   const [guests, setGuests] = useState(Math.min(table.capacity, 2));
   const statusText = t(`tableStatus.${table.status}`);
-
-  if (session && table.status !== "CLEANING") {
-    const minutes = minutesSince(session.openedAt, now);
-    return (
-      <TableSessionPanel
-        actions={
-          canSeat ? (
-            <Button disabled={busy} onClick={() => onClose(session)} variant="secondary">
-              {t("closeVisit")}
-            </Button>
-          ) : undefined
-        }
-        facts={[
-          { label: t("guests"), value: session.guestCount },
-          { label: t("seatedSince"), value: time(session.openedAt) },
-          { label: t("seatedFor"), value: t("durationLabel", { minutes }) },
-        ]}
-        status={statusText}
-        title={title}
-        titleHidden={titleHidden}
-      />
-    );
-  }
 
   if (table.status === "CLEANING") {
     return (
@@ -408,10 +449,11 @@ function TablePanel({
     );
   }
 
+  const seatable = canSeat && table.status === "AVAILABLE";
   return (
     <TableSessionPanel
       actions={
-        canSeat && table.status === "AVAILABLE" ? (
+        seatable ? (
           <Button loading={busy} loadingLabel={t("saving")} onClick={() => onOpen(guests)}>
             {t("openTable")}
           </Button>
@@ -422,7 +464,7 @@ function TablePanel({
       title={title}
       titleHidden={titleHidden}
     >
-      {canSeat && table.status === "AVAILABLE" ? (
+      {seatable ? (
         <QuantityStepper
           decreaseLabel={t("guestsDown")}
           increaseLabel={t("guestsUp")}
@@ -434,5 +476,184 @@ function TablePanel({
         />
       ) : null}
     </TableSessionPanel>
+  );
+}
+
+/** Guests at a table: their orders, what they still owe, and what comes next. */
+function VisitPanel({
+  allowed,
+  busy,
+  now,
+  onClose,
+  onPay,
+  outletId,
+  session,
+  table,
+  tenantId,
+  title,
+  titleHidden,
+}: Readonly<{
+  allowed: Permissions;
+  busy: boolean;
+  now: number;
+  onClose: () => void;
+  onPay: (dueMinor: string) => void;
+  outletId: string;
+  session: TableSession;
+  table: LiveTable;
+  tenantId: string;
+  title: string;
+  titleHidden: boolean;
+}>) {
+  const t = useTranslations("floor");
+  const { locale, time } = useFormat();
+  const detail = useQuery({
+    queryFn: () => merchantApi.tableSessionDetail(tenantId, outletId, session.id),
+    queryKey: visitKey(tenantId, outletId, session.id),
+    refetchInterval: LIVE_FLOOR_REFRESH_MS,
+  });
+  const minutes = minutesSince(session.openedAt, now);
+  const visit: TableSessionDetail | undefined = detail.data;
+  const owing = visit ? BigInt(visit.dueMinor) > 0n : false;
+
+  // One main step at a time: pay while something is owed, close once nothing is.
+  const actions = (
+    <>
+      {visit && owing && allowed.canPay ? (
+        <Button onClick={() => onPay(visit.dueMinor)}>{t("pay")}</Button>
+      ) : null}
+      {visit && !owing && allowed.canSeat ? (
+        <Button disabled={busy} onClick={onClose}>
+          {t("closeVisit")}
+        </Button>
+      ) : null}
+      {allowed.canOrder ? (
+        <Link
+          className="ui-button ui-button--md ui-button--secondary"
+          href={`/pos?table=${session.id}`}
+        >
+          <span className="ui-button__label">{t("addOrder")}</span>
+        </Link>
+      ) : null}
+    </>
+  );
+
+  return (
+    <TableSessionPanel
+      actions={actions}
+      facts={[
+        { label: t("guests"), value: session.guestCount },
+        { label: t("seatedSince"), value: time(session.openedAt) },
+        { label: t("seatedFor"), value: t("durationLabel", { minutes }) },
+        ...(visit
+          ? [
+              {
+                label: t("due"),
+                value: <MoneyDisplay amountMinor={visit.dueMinor} locale={locale} />,
+              },
+            ]
+          : []),
+      ]}
+      status={t(`tableStatus.${table.status}`)}
+      title={title}
+      titleHidden={titleHidden}
+    >
+      {detail.isPending ? (
+        <Skeleton variant="table-row" />
+      ) : detail.isError ? (
+        <RequestErrorState
+          error={detail.error}
+          onRetry={() => void detail.refetch()}
+          title={t("visitLoadFailed")}
+        />
+      ) : visit && visit.orders.length > 0 ? (
+        <section aria-label={t("ordersTitle")} className="grid gap-2">
+          <h3 className="m-0 text-label font-semibold">{t("ordersTitle")}</h3>
+          <ul className="m-0 grid list-none gap-2 p-0">
+            {visit.orders.map((order) => (
+              <li
+                className="grid gap-1 border-b border-line-subtle pb-2 last:border-b-0"
+                key={order.id}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-label font-semibold">#{order.orderNumber}</span>
+                  <span className="flex items-center gap-2">
+                    <MoneyDisplay amountMinor={order.totalMinor} locale={locale} />
+                    <Badge
+                      tone={
+                        order.status === "CANCELED" ? "neutral" : order.paid ? "success" : "warning"
+                      }
+                    >
+                      {order.status === "CANCELED"
+                        ? t("orderCanceled")
+                        : order.paid
+                          ? t("orderPaid")
+                          : t("orderUnpaid")}
+                    </Badge>
+                  </span>
+                </div>
+                <p className="m-0 text-body-sm text-foreground-secondary">
+                  {order.lines
+                    .map((line) => t("orderLine", { name: line.name, quantity: line.quantity }))
+                    .join(", ")}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : (
+        <p className="m-0 text-body-sm text-foreground-secondary">{t("noOrders")}</p>
+      )}
+    </TableSessionPanel>
+  );
+}
+
+/** A visit paid at once: what was taken, the change, and the sale of each order. */
+function VisitPaid({
+  checkout,
+  onDone,
+}: Readonly<{ checkout: TableSessionCheckout; onDone: () => void }>) {
+  const t = useTranslations("floor");
+  const pos = useTranslations("pos");
+  const { locale } = useFormat();
+  const { payment } = checkout;
+  const row = "flex items-baseline justify-between gap-3 py-3";
+  return (
+    <div className="mx-auto grid w-full max-w-md gap-6">
+      <h1 className="m-0 text-heading-lg">{t("visitPaid")}</h1>
+      <dl className="m-0 divide-y divide-line-subtle border-y border-line-default">
+        <div className={row}>
+          <dt className="text-body-sm text-foreground-secondary">{t("saleNumbers")}</dt>
+          <dd className="m-0 text-label font-semibold">
+            {checkout.checkouts.map(({ sale }) => `#${sale.saleNumber}`).join(", ")}
+          </dd>
+        </div>
+        <div className={row}>
+          <dt className="text-body-sm text-foreground-secondary">{pos("total")}</dt>
+          <dd className="m-0">
+            <MoneyDisplay amountMinor={payment.amountMinor} locale={locale} />
+          </dd>
+        </div>
+        {payment.tenderedMinor !== null && payment.changeMinor !== null ? (
+          <>
+            <div className={row}>
+              <dt className="text-body-sm text-foreground-secondary">{pos("tendered")}</dt>
+              <dd className="m-0">
+                <MoneyDisplay amountMinor={payment.tenderedMinor} locale={locale} />
+              </dd>
+            </div>
+            <div className={row}>
+              <dt className="text-label font-semibold">{pos("change")}</dt>
+              <dd className="m-0">
+                <MoneyDisplay amountMinor={payment.changeMinor} locale={locale} variant="total" />
+              </dd>
+            </div>
+          </>
+        ) : null}
+      </dl>
+      <Button fullWidth onClick={onDone} size="lg">
+        {t("backToTables")}
+      </Button>
+    </div>
   );
 }

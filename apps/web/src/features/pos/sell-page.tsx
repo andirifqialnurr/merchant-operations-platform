@@ -1,8 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   PERMISSIONS,
@@ -19,7 +21,8 @@ import { Sheet } from "@merchant/ui/sheet";
 
 import { useWorkspace } from "@/features/workspace";
 import { RequestErrorState } from "@/shell/request-error-state";
-import { useFormat } from "@/lib/i18n";
+import { merchantApi } from "@/lib/api-client";
+import { useErrorMessage, useFormat } from "@/lib/i18n";
 import { useToast } from "@/providers/toast-provider";
 
 import { useCurrentShift, useHeldCarts, useMenu, useOutletCharges } from "./api";
@@ -42,14 +45,27 @@ import { productImageUrl } from "@/lib/api-client";
 
 const ALL_CATEGORIES = "all";
 
+/** The table visit an order is taken for, when the sell screen was opened from a table. */
+type TableVisit = { id: string; label: string; number: number; tableId: string };
+
 function SellScreen({
   canPay,
   menu,
   outletId,
   tenantId,
-}: Readonly<{ canPay: boolean; menu: SellableMenu; outletId: string; tenantId: string }>) {
+  visit,
+}: Readonly<{
+  canPay: boolean;
+  menu: SellableMenu;
+  outletId: string;
+  tenantId: string;
+  visit?: TableVisit | undefined;
+}>) {
   const t = useTranslations("pos");
   const { money } = useFormat();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const errorMessage = useErrorMessage();
   const [cart, setCart] = useState<readonly CartLine[]>([]);
   // One key per cart: it changes with the cart, so an edited cart is a new order.
   const [orderKey, setOrderKey] = useState(() => crypto.randomUUID());
@@ -76,6 +92,26 @@ function SellScreen({
     categoryId === ALL_CATEGORIES
       ? menu.products
       : menu.products.filter((product) => product.categoryId === categoryId);
+
+  // At a table the order goes to the kitchen now; the visit is paid as a whole later.
+  const send = useMutation({
+    mutationFn: (current: TableVisit) =>
+      merchantApi.addTableOrder(
+        tenantId,
+        outletId,
+        current.id,
+        { items: toOrderItems(view.lines) },
+        orderKey,
+      ),
+    onError: (error) => notify({ message: errorMessage(error), tone: "danger" }),
+    onSuccess: async (_order, current) => {
+      // The table view shows the new order as soon as it opens.
+      await queryClient.invalidateQueries({ queryKey: ["floor", tenantId, outletId] as const });
+      notify({ message: t("orderSent", { label: current.label }), tone: "success" });
+      changeCart([]);
+      router.push(`/pos/tables?table=${current.tableId}`);
+    },
+  });
 
   function changeCart(next: readonly CartLine[]) {
     setCart(next);
@@ -133,10 +169,22 @@ function SellScreen({
     <CartPanel
       lines={view.lines}
       onPay={
-        canPay
+        canPay && !visit
           ? () => {
               setCartOpen(false);
               setStage("pay");
+            }
+          : undefined
+      }
+      send={
+        visit
+          ? {
+              busy: send.isPending,
+              label: t("sendOrder"),
+              onSend: () => {
+                setCartOpen(false);
+                send.mutate(visit);
+              },
             }
           : undefined
       }
@@ -155,6 +203,22 @@ function SellScreen({
   return (
     <>
       <h1 className="ui-visually-hidden">{t("sell")}</h1>
+      {visit ? (
+        <div
+          className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-line-default bg-surface p-3"
+          role="status"
+        >
+          <span className="text-label font-semibold">
+            {t("orderForTable", { label: visit.label, number: visit.number })}
+          </span>
+          <Link
+            className="ui-button ui-button--sm ui-button--ghost"
+            href={`/pos/tables?table=${visit.tableId}`}
+          >
+            <span className="ui-button__label">{t("backToTables")}</span>
+          </Link>
+        </div>
+      ) : null}
       <div className="grid grid-cols-1 items-start gap-4 pb-20 lg:grid-cols-[minmax(0,1fr)_22rem] lg:pb-0">
         <section className="grid min-w-0 grid-cols-1 gap-4">
           <div className="flex items-center gap-3">
@@ -275,12 +339,18 @@ function SellForOutlet({
   canPay,
   outletId,
   tenantId,
-}: Readonly<{ canPay: boolean; outletId: string; tenantId: string }>) {
+  visitId,
+}: Readonly<{ canPay: boolean; outletId: string; tenantId: string; visitId: string | null }>) {
   const t = useTranslations("pos");
   const shift = useCurrentShift(tenantId, outletId, true);
   const menu = useMenu(tenantId, outletId);
+  const visit = useQuery({
+    enabled: visitId !== null,
+    queryFn: () => merchantApi.tableSessionDetail(tenantId, outletId, visitId ?? ""),
+    queryKey: ["floor", tenantId, outletId, "visit", visitId] as const,
+  });
 
-  if (shift.isPending || menu.isPending) {
+  if (shift.isPending || menu.isPending || (visitId !== null && visit.isPending)) {
     return (
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
         <Skeleton variant="product-card" />
@@ -291,7 +361,7 @@ function SellForOutlet({
     );
   }
 
-  const failure = shift.error ?? menu.error;
+  const failure = shift.error ?? menu.error ?? visit.error;
   if (failure || !shift.data || !menu.data) {
     return (
       <RequestErrorState
@@ -299,8 +369,42 @@ function SellForOutlet({
         onRetry={() => {
           void shift.refetch();
           void menu.refetch();
+          if (visitId) void visit.refetch();
         }}
         title={t("menuLoadFailed")}
+      />
+    );
+  }
+
+  if (visitId !== null && visit.data) {
+    const { session, tableLabel } = visit.data;
+    const tableId = session.tableIds[0];
+    if (session.status === "CLOSED" || !tableId) {
+      return (
+        <EmptyState
+          action={
+            <Link className="ui-button ui-button--md ui-button--primary" href="/pos/tables">
+              <span className="ui-button__label">{t("backToTables")}</span>
+            </Link>
+          }
+          description={t("visitClosedHint")}
+          title={t("visitClosedTitle")}
+        />
+      );
+    }
+    // An order for a table takes no money, so it needs no open shift.
+    return (
+      <SellScreen
+        canPay={false}
+        menu={menu.data}
+        outletId={outletId}
+        tenantId={tenantId}
+        visit={{
+          id: session.id,
+          label: tableLabel ?? "",
+          number: session.displayNumber,
+          tableId,
+        }}
       />
     );
   }
@@ -327,6 +431,8 @@ function SellForOutlet({
 export function SellPage() {
   const t = useTranslations("pos");
   const { can, outlet, workspace } = useWorkspace();
+  // Opened from a table: the order is for that visit.
+  const visitId = useSearchParams().get("table");
 
   if (!can(PERMISSIONS.orderCreate)) {
     return (
@@ -345,9 +451,10 @@ export function SellPage() {
   return (
     <SellForOutlet
       canPay={can(PERMISSIONS.paymentConfirm)}
-      key={`${workspace.tenant.id}:${outlet.id}`}
+      key={`${workspace.tenant.id}:${outlet.id}:${visitId ?? ""}`}
       outletId={outlet.id}
       tenantId={workspace.tenant.id}
+      visitId={visitId}
     />
   );
 }

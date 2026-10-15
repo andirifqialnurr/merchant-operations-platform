@@ -74,6 +74,12 @@ export const createPosOrderSchema = z.object({
   orderType: z.literal("TAKEAWAY"),
 });
 
+/** An order for guests at a table: what they asked for; the visit decides the rest. */
+export const createTableOrderSchema = z.object({
+  items: z.array(createOrderItemSchema).min(1).max(100),
+  note: z.string().trim().min(1).max(500).optional(),
+});
+
 export const cancelOrderSchema = z.object({
   reason: z.string().trim().min(3).max(300),
 });
@@ -110,6 +116,8 @@ export type PosOrderSummary = z.infer<typeof posOrderSummarySchema>;
 export type CreateOrderItem = z.infer<typeof createOrderItemSchema>;
 
 export type CreatePosOrder = z.infer<typeof createPosOrderSchema>;
+
+export type CreateTableOrder = z.infer<typeof createTableOrderSchema>;
 
 export type Order = z.infer<typeof orderSchema>;
 

@@ -1,4 +1,10 @@
-import { orderSchema, type CreatePosOrder, type Order } from "@merchant/contracts";
+import {
+  orderSchema,
+  type CreatePosOrder,
+  type CreateTableOrder,
+  type Order,
+  type OrderType,
+} from "@merchant/contracts";
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
 import { SELLABLE_MENU_SOURCE, type SellableMenuSource } from "./sellable-menu.port.js";
@@ -73,6 +79,39 @@ export class OrderIntakeService {
     idempotencyKey: string,
     context: OrderMutationContext,
   ) {
+    return this.submit(tenantId, outletId, input, null, idempotencyKey, context);
+  }
+
+  /**
+   * Takes an order for guests at a table. The caller vouches that the visit
+   * is open; the kernel only keeps its id with the order.
+   */
+  async submitTableOrder(
+    tenantId: string,
+    outletId: string,
+    tableSessionId: string,
+    input: CreateTableOrder,
+    idempotencyKey: string,
+    context: OrderMutationContext,
+  ) {
+    return this.submit(
+      tenantId,
+      outletId,
+      { ...input, orderType: "DINE_IN" },
+      tableSessionId,
+      idempotencyKey,
+      context,
+    );
+  }
+
+  private async submit(
+    tenantId: string,
+    outletId: string,
+    input: { items: CreatePosOrder["items"]; note?: string | undefined; orderType: OrderType },
+    tableSessionId: string | null,
+    idempotencyKey: string,
+    context: OrderMutationContext,
+  ) {
     // A retry returns the order already taken, priced as it was then.
     const existing = await this.orders.findByIdempotencyKey(tenantId, outletId, idempotencyKey);
     if (existing) return toOrder(existing);
@@ -97,7 +136,7 @@ export class OrderIntakeService {
           orderType: input.orderType,
           outletId,
           source: "POS",
-          tableSessionId: null,
+          tableSessionId,
           tenantId,
         },
         context,

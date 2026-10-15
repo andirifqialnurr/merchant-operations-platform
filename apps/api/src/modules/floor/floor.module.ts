@@ -28,6 +28,8 @@ import { TableSessions } from "./application/table-sessions.js";
  */
 @Module({
   controllers: [FloorStructureController, FloorTableController, TableSessionController],
+  // The kitchen's tickets name the table a visit sits at.
+  exports: [TableSessions],
   imports: [
     AccessModule,
     AuthModule,

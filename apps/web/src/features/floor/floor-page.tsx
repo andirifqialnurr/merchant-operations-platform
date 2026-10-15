@@ -36,7 +36,7 @@ import {
 import { NewTableSheet } from "./new-table-sheet";
 import { StructureSheet } from "./structure-sheet";
 import { TableForm } from "./table-form";
-import { useCellSize } from "./use-cell-size";
+import { useCellSize } from "@/lib/use-cell-size";
 
 /** Smallest and largest size of one grid cell on screen, in pixels. */
 const CELL_MIN = 20;

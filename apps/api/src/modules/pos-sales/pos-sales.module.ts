@@ -12,6 +12,7 @@ import { OrderController } from "./adapters/order.controller.js";
 import { PrismaHeldCartRepository } from "./adapters/prisma-held-cart.repository.js";
 import { PrismaRegisterSessionRepository } from "./adapters/prisma-register-session.repository.js";
 import { ShiftController } from "./adapters/shift.controller.js";
+import { TableSessionPaymentController } from "./adapters/table-session-payment.controller.js";
 import { HELD_CART_REPOSITORY } from "./application/held-cart.repository.js";
 import { HeldCartService } from "./application/held-cart.service.js";
 import { CheckoutService } from "./application/checkout.service.js";
@@ -21,7 +22,13 @@ import { ShiftService } from "./application/shift.service.js";
 
 /** POS & Sales. Owns pos_register_sessions and pos_cash_movements. */
 @Module({
-  controllers: [HeldCartController, MenuController, OrderController, ShiftController],
+  controllers: [
+    HeldCartController,
+    MenuController,
+    OrderController,
+    ShiftController,
+    TableSessionPaymentController,
+  ],
   imports: [
     AccessModule,
     AuthModule,

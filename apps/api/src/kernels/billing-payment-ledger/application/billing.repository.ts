@@ -21,6 +21,8 @@ export type BillRecord = {
   serviceChargeRateBp: number;
   status: BillStatus;
   subtotalMinor: bigint;
+  /** The table visit the bill was paid with, if any. */
+  tableSessionId: string | null;
   taxMinor: bigint;
   taxRateBp: number;
   totalMinor: bigint;
@@ -65,6 +67,37 @@ export type FullPayment = {
   tenderedMinor: bigint | null;
   totalMinor: bigint;
 };
+
+/** One order's part of a table visit's payment. */
+export type SessionBillLine = {
+  orderId: string;
+  serviceChargeMinor: bigint;
+  subtotalMinor: bigint;
+  taxMinor: bigint;
+  totalMinor: bigint;
+};
+
+/** Every unpaid order of a table visit, paid at once. */
+export type SessionPayment = Omit<
+  FullPayment,
+  "orderId" | "serviceChargeMinor" | "subtotalMinor" | "taxMinor" | "totalMinor"
+> & {
+  bills: readonly SessionBillLine[];
+  tableSessionId: string;
+  /** The sum of the bills: what the one payment takes. */
+  totalMinor: bigint;
+};
+
+export type SessionCheckoutRecord = {
+  checkouts: Array<{ bill: BillRecord; sale: SaleRecord }>;
+  payment: PaymentRecord;
+};
+
+export type SessionPaymentOutcome =
+  | { checkout: SessionCheckoutRecord; kind: "recorded" }
+  | { kind: "bill_already_paid" }
+  | { kind: "order_canceled" }
+  | { kind: "shift_not_open" };
 
 export type RefundRecord = {
   amountMinor: bigint;
@@ -120,6 +153,21 @@ export interface BillingRepository {
     payment: FullPayment,
     context: BillingMutationContext,
   ): Promise<FullPaymentOutcome>;
+  /** The bills and sales a table visit's payment with this key produced, if the key was used. */
+  findSessionCheckoutByIdempotencyKey(
+    tenantId: string,
+    outletId: string,
+    idempotencyKey: string,
+  ): Promise<SessionCheckoutRecord | null>;
+  /**
+   * In one transaction: bills every order of the visit, takes one payment
+   * for all of them in the given open shift, and completes a sale per bill.
+   * Nothing is written when any order is canceled or already paid.
+   */
+  recordSessionPayment(
+    payment: SessionPayment,
+    context: BillingMutationContext,
+  ): Promise<SessionPaymentOutcome>;
   /**
    * The paid checkout of an order with the name of the cashier who took the
    * payment, or null while the order is unpaid.

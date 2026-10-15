@@ -2,6 +2,7 @@ import {
   computeCharges,
   type OutletCharges,
   checkoutSchema,
+  tableSessionCheckoutSchema,
   saleRefundsSchema,
   type Checkout,
   type OrderStatus,
@@ -16,6 +17,7 @@ import {
   type BillingMutationContext,
   type BillingRepository,
   type CheckoutRecord,
+  type SessionCheckoutRecord,
   type SaleRefundsRecord,
 } from "./billing.repository.js";
 
@@ -66,6 +68,51 @@ export function toCheckout({ bill, payment, sale }: CheckoutRecord): Checkout {
       saleNumber: sale.saleNumber,
       status: sale.status,
       totalMinor: sale.totalMinor.toString(),
+    },
+  });
+}
+
+const toBill = (bill: CheckoutRecord["bill"]) => ({
+  chargesIncluded: bill.chargesIncluded,
+  currency: bill.currency,
+  discountMinor: bill.discountMinor.toString(),
+  id: bill.id,
+  orderId: bill.orderId,
+  paidMinor: bill.paidMinor.toString(),
+  roundingMinor: bill.roundingMinor.toString(),
+  serviceChargeMinor: bill.serviceChargeMinor.toString(),
+  serviceChargeRateBp: bill.serviceChargeRateBp,
+  status: bill.status,
+  subtotalMinor: bill.subtotalMinor.toString(),
+  taxMinor: bill.taxMinor.toString(),
+  taxRateBp: bill.taxRateBp,
+  totalMinor: bill.totalMinor.toString(),
+});
+
+/** Maps a table visit's payment: one payment, a bill and a sale per order. */
+export function toSessionCheckout({ checkouts, payment }: SessionCheckoutRecord) {
+  const change =
+    payment.tenderedMinor === null ? null : cashChange(payment.tenderedMinor, payment.amountMinor);
+  return tableSessionCheckoutSchema.parse({
+    checkouts: checkouts.map(({ bill, sale }) => ({
+      bill: toBill(bill),
+      sale: {
+        completedAt: sale.completedAt?.toISOString() ?? null,
+        id: sale.id,
+        saleNumber: sale.saleNumber,
+        status: sale.status,
+        totalMinor: sale.totalMinor.toString(),
+      },
+    })),
+    payment: {
+      amountMinor: payment.amountMinor.toString(),
+      changeMinor: change?.toString() ?? null,
+      confirmedAt: payment.confirmedAt?.toISOString() ?? null,
+      id: payment.id,
+      method: payment.method,
+      reference: payment.reference,
+      status: payment.status,
+      tenderedMinor: payment.tenderedMinor?.toString() ?? null,
     },
   });
 }
@@ -191,6 +238,111 @@ export class BillingService {
       throw conflict("POS_SHIFT_NOT_OPEN", "This shift is already closed.");
     }
     return toCheckout(outcome.checkout);
+  }
+
+  /**
+   * Pays every given order of a table visit with one payment. Each order is
+   * billed with the outlet's charges as they are now, exactly as when it is
+   * paid alone; the payment takes the sum. Nothing is paid unless all are.
+   */
+  async payTableSessionInFull(
+    input: {
+      charges: OutletCharges;
+      idempotencyKey: string;
+      orders: readonly PayableOrder[];
+      outletId: string;
+      pay: PayOrder;
+      registerSessionId: string;
+      tableSessionId: string;
+      tenantId: string;
+    },
+    context: BillingMutationContext,
+  ) {
+    const { idempotencyKey, orders, outletId, pay, tenantId } = input;
+
+    const replayed = await this.billing.findSessionCheckoutByIdempotencyKey(
+      tenantId,
+      outletId,
+      idempotencyKey,
+    );
+    if (replayed) {
+      if (replayed.checkouts.some(({ bill }) => bill.tableSessionId !== input.tableSessionId)) {
+        throw conflict(
+          "IDEMPOTENCY_KEY_REUSED",
+          "This idempotency key was already used for a different request.",
+        );
+      }
+      return toSessionCheckout(replayed);
+    }
+
+    if (orders.length === 0) {
+      throw conflict("TABLE_SESSION_NOTHING_TO_PAY", "Every order of this visit is paid.");
+    }
+    if (orders.some((order) => order.status === "CANCELED")) {
+      throw conflict("ORDER_CANCELED", "A canceled order cannot be paid.");
+    }
+    const currency = orders[0]!.currency;
+    if (orders.some((order) => order.currency !== currency)) {
+      throw conflict("BILL_CURRENCY_MIXED", "The orders of a visit must share one currency.");
+    }
+
+    const bills = orders.map((order) => {
+      const parts = computeCharges(BigInt(order.subtotalMinor), input.charges);
+      return {
+        orderId: order.id,
+        serviceChargeMinor: parts.serviceChargeMinor,
+        subtotalMinor: parts.baseMinor,
+        taxMinor: parts.taxMinor,
+        totalMinor: billTotal({
+          serviceChargeMinor: parts.serviceChargeMinor,
+          subtotalMinor: parts.baseMinor,
+          taxMinor: parts.taxMinor,
+        }),
+      };
+    });
+    const totalMinor = bills.reduce((sum, bill) => sum + bill.totalMinor, 0n);
+    if (totalMinor <= 0n) {
+      throw conflict("BILL_NOTHING_TO_PAY", "This visit has nothing to pay.");
+    }
+    if (pay.expectedTotalMinor !== undefined && BigInt(pay.expectedTotalMinor) !== totalMinor) {
+      throw new ConflictException({
+        code: "ORDER_TOTAL_CHANGED",
+        details: { totalMinor: totalMinor.toString() },
+        message: "The total of this visit changed. Check it again before taking payment.",
+      });
+    }
+    const tenderedMinor = pay.method === "CASH" ? BigInt(pay.tenderedMinor) : null;
+    if (tenderedMinor !== null && cashChange(tenderedMinor, totalMinor) === null) {
+      throw conflict("PAYMENT_TENDERED_INSUFFICIENT", "The cash received is less than the total.");
+    }
+
+    const outcome = await this.billing.recordSessionPayment(
+      {
+        bills,
+        charges: input.charges,
+        currency,
+        idempotencyKey,
+        method: pay.method,
+        outletId,
+        reference: pay.method === "CASH" ? null : (pay.reference ?? null),
+        registerSessionId: input.registerSessionId,
+        tableSessionId: input.tableSessionId,
+        tenantId,
+        tenderedMinor,
+        totalMinor,
+      },
+      context,
+    );
+    if (outcome.kind === "bill_already_paid") {
+      throw conflict("BILL_ALREADY_PAID", "An order of this visit is already paid.");
+    }
+    if (outcome.kind === "order_canceled") {
+      throw conflict("ORDER_CANCELED", "A canceled order cannot be paid.");
+    }
+    if (outcome.kind === "shift_not_open") {
+      throw conflict("POS_SHIFT_NOT_OPEN", "This shift is already closed.");
+    }
+    return toSessionCheckout(outcome.checkout);
   }
 
   /** The paid checkout of an order, its cashier, and its refunds, or null while unpaid. */

@@ -1,6 +1,10 @@
 import {
   API_HEADERS,
+  createTableOrderSchema,
   entityIdParamsSchema,
+  idempotentRequestHeadersSchema,
+  orderSchema,
+  tableSessionDetailSchema,
   floorPolicySchema,
   liveFloorSchema,
   MODULES,
@@ -9,6 +13,8 @@ import {
   requestContextHeadersSchema,
   tableSessionSchema,
   type AuthorizationContext,
+  type CreateTableOrder,
+  type IdempotentRequestHeaders,
   type FloorPolicy,
   type OpenTableSession,
   type RequestContextHeaders,
@@ -107,6 +113,52 @@ export class TableSessionController {
         headers[API_HEADERS.tenantId],
         headers[API_HEADERS.outletId],
         input,
+        commandOriginFromRequest(access.userId, headers, access.deviceId),
+      ),
+    );
+  }
+
+  @ApiOperation({ summary: "A visit with its orders and what is still owed" })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/TableSessionDetail" } })
+  @ApiNotFoundResponse({ schema: { $ref: "#/components/schemas/ApiError" } })
+  @RequirePermission(PERMISSIONS.tableView)
+  @Get("sessions/:id")
+  async detail(
+    @RequestHeaders(new ZodValidationPipe(requestContextHeadersSchema))
+    headers: RequestContextHeaders,
+    @Param(new ZodValidationPipe(entityIdParamsSchema)) params: { id: string },
+  ) {
+    return tableSessionDetailSchema.parse(
+      await this.sessions.detail(
+        headers[API_HEADERS.tenantId],
+        headers[API_HEADERS.outletId],
+        params.id,
+      ),
+    );
+  }
+
+  @ApiOperation({ summary: "Take an order for the guests of a visit; it goes to the kitchen" })
+  @ApiHeader({ name: API_HEADERS.idempotencyKey, required: true })
+  @ApiBody({ schema: { $ref: "#/components/schemas/CreateTableOrder" } })
+  @ApiCreatedResponse({ schema: { $ref: "#/components/schemas/Order" } })
+  @ApiNotFoundResponse({ schema: { $ref: "#/components/schemas/ApiError" } })
+  @ApiConflictResponse({ schema: { $ref: "#/components/schemas/ApiError" } })
+  @RequirePermission(PERMISSIONS.orderCreate)
+  @Post("sessions/:id/orders")
+  async addOrder(
+    @RequestHeaders(new ZodValidationPipe(idempotentRequestHeadersSchema))
+    headers: IdempotentRequestHeaders,
+    @Param(new ZodValidationPipe(entityIdParamsSchema)) params: { id: string },
+    @Body(new ZodValidationPipe(createTableOrderSchema)) input: CreateTableOrder,
+    @CurrentAccess() access: AuthorizationContext,
+  ) {
+    return orderSchema.parse(
+      await this.sessions.addOrder(
+        headers[API_HEADERS.tenantId],
+        headers[API_HEADERS.outletId],
+        params.id,
+        input,
+        headers[API_HEADERS.idempotencyKey],
         commandOriginFromRequest(access.userId, headers, access.deviceId),
       ),
     );

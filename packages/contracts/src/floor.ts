@@ -1,5 +1,8 @@
 import * as z from "zod";
 
+import { moneyMinorSchema } from "./money.ts";
+import { orderStatusSchema } from "./orders.ts";
+
 /** Floors, areas, and tables can be set aside without being deleted. */
 export const floorRecordStatusSchema = z.enum(["ACTIVE", "INACTIVE"]);
 
@@ -277,3 +280,35 @@ export type OpenTableSession = z.infer<typeof openTableSessionSchema>;
 export type TableSession = z.infer<typeof tableSessionSchema>;
 
 export type TableSessionStatus = z.infer<typeof tableSessionStatusSchema>;
+
+/** One order of a table visit as the cashier sees it: what, how much, and whether paid. */
+export const tableSessionOrderSchema = z
+  .object({
+    createdAt: z.iso.datetime(),
+    id: z.uuid(),
+    lines: z.array(
+      z.object({ name: z.string().min(1), quantity: z.number().int().min(1) }).strict(),
+    ),
+    orderNumber: z.number().int().min(1),
+    paid: z.boolean(),
+    status: orderStatusSchema,
+    /** With the outlet's tax and service: paid amount once paid, otherwise as of now. */
+    totalMinor: moneyMinorSchema,
+  })
+  .strict();
+
+/** A visit with its orders and what is still owed. */
+export const tableSessionDetailSchema = z
+  .object({
+    /** What the guests still owe, canceled orders aside. */
+    dueMinor: moneyMinorSchema,
+    orders: z.array(tableSessionOrderSchema),
+    session: tableSessionSchema,
+    /** The label of the table the visit sits at. */
+    tableLabel: z.string().nullable(),
+  })
+  .strict();
+
+export type TableSessionDetail = z.infer<typeof tableSessionDetailSchema>;
+
+export type TableSessionOrder = z.infer<typeof tableSessionOrderSchema>;
