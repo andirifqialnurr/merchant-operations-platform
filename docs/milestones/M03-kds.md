@@ -42,7 +42,7 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 - [x] **M3-BE-04 Transisi status** `a832842` — mesin status di domain; event `kitchen_ticket.started/ready/served.v1`. Selesai 12 Oktober 2026 (TODO 14.7). `POST /kds/tickets/:id/advance` dan `GET /kds/tickets/finished`. Menerima ticket (`NEW` → `ACCEPTED`) tidak mengumumkan event; tiga langkah lainnya mengumumkan.
 - [x] **M3-BE-05 Handler pembatalan** `0a08380` — `order.canceled.v1` menandai ticket batal. Selesai 13 Oktober 2026 (TODO 14.11). Ticket yang sudah disajikan tidak diubah.
 - [x] **M3-BE-06 Status kembali ke pesanan** `4a80c10` — order intake menerima event KDS dan memperbarui status pemenuhan (`ACCEPTED`/`PREPARING`/`READY`/`SERVED`), terpisah dari status bayar. Selesai 13 Oktober 2026 (TODO 14.12). `PREPARING`, `READY`, dan `SERVED` mengikuti event dapur. `ACCEPTED` tidak diisi: dapur tidak mengumumkan 'diterima' karena katalog event tidak punya event untuk itu.
-- [x] **M3-BE-07 Realtime** — Socket.IO per outlet dengan autentikasi sesi perangkat; klien mengambil ulang saat tersambung kembali. Selesai 15 Oktober 2026 (TODO 14.14). Namespace `/kds` di jalur `/api/realtime`. Trigger `kds_tickets_notify_queue` mengirim `pg_notify` setiap ticket dibuat atau berubah status, dari API maupun worker; API meneruskannya ke ruang `workspace:outlet`. Pesan hanya `{ outletId }`; layar mengambil ulang lewat REST saat menerima pesan dan setiap tersambung (ulang).
+- [x] **M3-BE-07 Realtime** `f6aceef` — Socket.IO per outlet dengan autentikasi sesi perangkat; klien mengambil ulang saat tersambung kembali. Selesai 15 Oktober 2026 (TODO 14.14). Namespace `/kds` di jalur `/api/realtime`. Trigger `kds_tickets_notify_queue` mengirim `pg_notify` setiap ticket dibuat atau berubah status, dari API maupun worker; API meneruskannya ke ruang `workspace:outlet`. Pesan hanya `{ outletId }`; layar mengambil ulang lewat REST saat menerima pesan dan setiap tersambung (ulang).
 - [ ] **M3-BE-08 API intake eksternal** — endpoint dengan kredensial integrasi dan rate limit (bila `OD-04` memilih API).
 
 ### UX — Alur dan interaksi
@@ -50,7 +50,7 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 - [x] **M3-UX-01 Shell KDS** `f0e9d9b` — rute `(kds)`, layar penuh, mode kios, tanpa sidebar. Selesai 13 Oktober 2026 (TODO 14.9). Mode kios memakai layar penuh browser lewat tombol di bar atas; belum diuji di perangkat dapur sungguhan.
 - [x] **M3-UX-02 Tata letak** `f0e9d9b` — kolom per status di layar lebar; daftar satu kolom di tablet potret. Selesai 13 Oktober 2026 (TODO 14.9). Papan empat kolom mulai lebar 1024px; di bawahnya satu daftar, terlama di awal.
 - [ ] **M3-UX-03 Timer** — berubah warna saat mendekati dan melewati batas, tanpa berkedip.
-- [x] **M3-UX-04 Koneksi** — banner menyambung ulang dan data mungkin usang. Selesai 15 Oktober 2026 (TODO 14.14). 'Menyambung ulang…' atau 'Perangkat offline' + 'Ticket di layar mungkin belum terbaru.' dengan tombol 'Muat ulang'. Hilang sendiri setelah tersambung dan antrean diambil ulang.
+- [x] **M3-UX-04 Koneksi** `f6aceef` — banner menyambung ulang dan data mungkin usang. Selesai 15 Oktober 2026 (TODO 14.14). 'Menyambung ulang…' atau 'Perangkat offline' + 'Ticket di layar mungkin belum terbaru.' dengan tombol 'Muat ulang'. Hilang sendiri setelah tersambung dan antrean diambil ulang.
 
 ### DS — Design system dan komponen
 
@@ -65,7 +65,7 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 ### SC — Keamanan dan privasi
 
 - [ ] **M3-SC-01 Data guard KDS** — test respons dan payload realtime tanpa harga, pembayaran, atau telepon.
-- [x] **M3-SC-02 Sesi perangkat KDS** — hanya perangkat terdaftar outlet itu yang menerima antrean outlet. Selesai 15 Oktober 2026 (TODO 14.14). Berlaku untuk **realtime**: hanya sesi yang dibuka di layar dapur aktif outlet itu, oleh orang yang boleh melihat antrean, yang menerima pembaruan; izin diperiksa ulang tiap 60 detik. Akun berizin di browser biasa tetap membaca antrean lewat REST (dibaca ulang tiap 4 detik), seperti sebelumnya.
+- [x] **M3-SC-02 Sesi perangkat KDS** `f6aceef` — hanya perangkat terdaftar outlet itu yang menerima antrean outlet. Selesai 15 Oktober 2026 (TODO 14.14). Berlaku untuk **realtime**: hanya sesi yang dibuka di layar dapur aktif outlet itu, oleh orang yang boleh melihat antrean, yang menerima pembaruan; izin diperiksa ulang tiap 60 detik. Akun berizin di browser biasa tetap membaca antrean lewat REST (dibaca ulang tiap 4 detik), seperti sebelumnya.
 - [ ] **M3-SC-03 Rate limit API intake.**
 
 ### QA — Kualitas kode dan test
