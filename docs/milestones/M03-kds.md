@@ -1,6 +1,6 @@
 # M3 — Kitchen Display System
 
-**Status:** Berjalan
+**Status:** Berjalan — semua 29 task selesai 16 Oktober 2026; menunggu review pengguna
 **Tahap PRD:** D (KDS)
 **Bergantung pada:** M2 (event, inbox, binding, perangkat)
 
@@ -16,13 +16,13 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 
 ## 3. Kriteria selesai
 
-- [ ] KDS-only: ticket manual berjalan penuh tanpa POS terpasang.
-- [ ] POS + KDS: pesanan yang dikirim POS menjadi ticket dalam ≤5 detik (p99) tanpa duplikat walau event terkirim dua kali.
+- [x] KDS-only: ticket manual berjalan penuh tanpa POS terpasang. _Integration `kds-order-flow` (KDS-only) dan browser (TODO 14.10, 14.11)._
+- [x] POS + KDS: pesanan yang dikirim POS menjadi ticket dalam ≤5 detik (p99) tanpa duplikat walau event terkirim dua kali. _Integration `kds-latency`: 200 pesanan, p99 1,29 detik (satu mesin, worker dengan jeda 1 detik seperti produksi); event ganda: M3-QA-02 (TODO 14.23)._
 - [x] Ticket manual, dari POS, dan dari API memakai use case `CreateKitchenTicket` yang sama. _Dibuktikan oleh M3-QA-01 (TODO 14.22)._
-- [ ] Pesanan yang dibatalkan menandai ticket batal; ticket tidak hilang.
+- [x] Pesanan yang dibatalkan menandai ticket batal; ticket tidak hilang. _M3-BE-05 (TODO 14.11)._
 - [x] Layar KDS tidak menerima harga, HPP, pembayaran, atau telepon pelanggan (`security.md` 10.1). _Dibuktikan oleh test M3-SC-01 (TODO 14.19)._
 - [x] Putus koneksi menampilkan banner, lalu antrean diambil ulang saat tersambung. _Diperiksa di browser 15 Oktober 2026 (TODO 14.14): API dimatikan dan dinyalakan lagi, perangkat dibuat offline lalu online._
-- [ ] Terbaca dari jarak 1–2 meter, tombol ≥44 px, terang/gelap, `id`/`en`.
+- [ ] Terbaca dari jarak 1–2 meter, tombol ≥44 px, terang/gelap, `id`/`en`. _Tombol 56 px (64 px di mode kios), terang/gelap, dan `id`/`en` sudah diperiksa di browser; keterbacaan dari 1–2 meter perlu dicek di monitor dapur sungguhan._
 
 ## 4. Task
 
