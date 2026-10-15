@@ -192,6 +192,13 @@ test("an external system sends tickets with its key, through the same use case a
       const elsewhere = await send(key, { ...order, outletId: pusat.id, reference: "order-x" });
       assert.equal(elsewhere.status, 400);
 
+      // M3-SC-03: KDS Basic allows 60 requests a minute per source; two were sent.
+      const answers = [];
+      for (let index = 0; index < 59; index += 1) {
+        answers.push((await send(key, { ...order, reference: `burst-${index}` })).status);
+      }
+      assert.deepEqual(answers.slice(0, 58), Array(58).fill(201));
+      assert.equal(answers[58], 429);
       // Revoked: the key stops at once.
       const revoked = await ownerApi("POST", `/kds/intake-sources/${source.id}/revoke`);
       assert.equal(revoked.status, 200);
@@ -203,6 +210,14 @@ test("an external system sends tickets with its key, through the same use case a
         ])
       ).rows[0].last_used_at;
       assert.ok(lastUsed);
+
+      // Wrong keys are counted per address: 30 a minute, then 429; three were sent.
+      const wrong = [];
+      for (let index = 0; index < 28; index += 1) {
+        wrong.push((await send(`kds_bbbbbbbbbb_${"B".repeat(43)}`, order)).status);
+      }
+      assert.deepEqual(wrong.slice(0, 27), Array(27).fill(401));
+      assert.equal(wrong[27], 429);
     } finally {
       await app.close();
       await db.$disconnect();

@@ -4,13 +4,19 @@ import {
   MODULES,
   type IntakeKitchenTicket as IntakeRequest,
 } from "@merchant/contracts";
-import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import { Inject, Injectable, Optional, UnauthorizedException } from "@nestjs/common";
 
 import {
   assertAccess,
   EntitlementService,
   evaluateAccess,
 } from "../../../core/entitlements/public.js";
+import {
+  InMemoryRateLimitService,
+  RATE_LIMIT_SERVICE,
+  type RateLimitPolicy,
+  type RateLimitService,
+} from "../../../core/security/public.js";
 import type { CommandOrigin } from "../../../shared/command/command-origin.js";
 import { readIntakeKey, secretMatches } from "../domain/intake-key.js";
 import { CreateKitchenTicket } from "./create-kitchen-ticket.js";
@@ -22,6 +28,18 @@ import {
 
 /** What every package with the kitchen screen includes; Pro adds `kds.intake.api`. */
 export const INTAKE_CAPABILITY = "kds.intake.api_lite";
+export const INTAKE_PRO_CAPABILITY = "kds.intake.api";
+
+/**
+ * Requests per minute for one source (packages-limits 5.4): 60 on KDS Basic,
+ * 600 when the package includes the Pro intake. A wrong key is limited per
+ * network address, so hammering costs the caller and not the database.
+ */
+export const INTAKE_RATE_LIMITS = {
+  basic: { limit: 60, windowMs: 60_000 },
+  invalidKey: { limit: 30, windowMs: 60_000 },
+  pro: { limit: 600, windowMs: 60_000 },
+} as const satisfies Record<string, RateLimitPolicy>;
 
 function invalidKey() {
   // A missing, malformed, wrong, or revoked key all get the same answer.
@@ -42,14 +60,26 @@ export class IntakeKitchenTicket {
     @Inject(INTAKE_SOURCE_REPOSITORY) private readonly sources: IntakeSourceRepository,
     @Inject(CreateKitchenTicket) private readonly createTicket: CreateKitchenTicket,
     @Inject(EntitlementService) private readonly entitlements: EntitlementService,
+    @Optional()
+    @Inject(RATE_LIMIT_SERVICE)
+    private readonly rateLimit: RateLimitService = new InMemoryRateLimitService(),
   ) {}
 
   /** The active source behind an `Authorization` header, or a refusal. */
-  async authenticate(authorization: string | undefined): Promise<IntakeSourceRecord> {
+  async authenticate(
+    authorization: string | undefined,
+    ipAddress?: string,
+  ): Promise<IntakeSourceRecord> {
     const key = readIntakeKey(authorization);
-    if (!key) throw invalidKey();
-    const source = await this.sources.findActiveByPrefix(key.prefix);
-    if (!source || !secretMatches(key.secret, source.secretHash)) throw invalidKey();
+    const source = key ? await this.sources.findActiveByPrefix(key.prefix) : null;
+    if (!key || !source || !secretMatches(key.secret, source.secretHash)) {
+      // Counted only when it fails; past the limit the answer is 429 instead.
+      await this.rateLimit.consume(
+        `kds-intake-invalid:${ipAddress?.trim() || "unknown"}`,
+        INTAKE_RATE_LIMITS.invalidKey,
+      );
+      throw invalidKey();
+    }
     return source;
   }
 
@@ -65,6 +95,13 @@ export class IntakeKitchenTicket {
       this.entitlements.describeAccess(source.tenantId, MODULES.kds, now),
       this.sources.findOutlet(source.tenantId, source.outletId),
     ]);
+    // Every request of a source counts, whatever happens to it next.
+    await this.rateLimit.consume(
+      `kds-intake:${source.id}`,
+      entitlement.capabilities.has(INTAKE_PRO_CAPABILITY)
+        ? INTAKE_RATE_LIMITS.pro
+        : INTAKE_RATE_LIMITS.basic,
+    );
     assertAccess(
       evaluateAccess(
         {

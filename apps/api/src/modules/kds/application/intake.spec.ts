@@ -16,7 +16,12 @@ import {
   secretMatches,
 } from "../domain/intake-key.js";
 import type { CreateKitchenTicket } from "./create-kitchen-ticket.js";
-import { INTAKE_CAPABILITY, IntakeKitchenTicket } from "./intake-kitchen-ticket.js";
+import {
+  INTAKE_CAPABILITY,
+  INTAKE_PRO_CAPABILITY,
+  INTAKE_RATE_LIMITS,
+  IntakeKitchenTicket,
+} from "./intake-kitchen-ticket.js";
 import type {
   IntakeSourceRecord,
   IntakeSourceRepository,
@@ -286,4 +291,49 @@ test("intake stops when the workspace no longer has the kitchen or the outlet is
     closed.intake.execute(await closed.intake.authenticate(`Bearer ${three.key}`), request),
   );
   assert.equal(closed.made.length, 0);
+});
+
+test("a source may send 60 requests a minute on Basic and 600 with the Pro intake", async () => {
+  const tooMany = (error: HttpException) =>
+    error.getStatus() === 429 &&
+    (error.getResponse() as { code: string }).code === "RATE_LIMIT_EXCEEDED";
+  for (const [capabilities, allowed] of [
+    [[INTAKE_CAPABILITY], INTAKE_RATE_LIMITS.basic.limit],
+    [[INTAKE_CAPABILITY, INTAKE_PRO_CAPABILITY], INTAKE_RATE_LIMITS.pro.limit],
+  ] as const) {
+    const { intake, made, manage } = setup({ capabilities: [...capabilities] });
+    const { key } = await manage.create(TENANT, { label: "GrabFood", outletId: OUTLET }, ACTOR);
+    const caller = await intake.authenticate(`Bearer ${key}`);
+    for (let index = 0; index < allowed; index += 1) {
+      await intake.execute(caller, { ...request, reference: `order-${index}` });
+    }
+    await assert.rejects(intake.execute(caller, { ...request, reference: "one-more" }), tooMany);
+    assert.equal(made.length, allowed);
+  }
+  assert.deepEqual([INTAKE_RATE_LIMITS.basic.limit, INTAKE_RATE_LIMITS.pro.limit], [60, 600]);
+});
+
+test("each source has its own minute, and wrong keys are limited per network address", async () => {
+  const { intake, manage } = setup({ limit: 2 });
+  const one = await manage.create(TENANT, { label: "Satu", outletId: OUTLET }, ACTOR);
+  const two = await manage.create(TENANT, { label: "Dua", outletId: OUTLET }, ACTOR);
+  const first = await intake.authenticate(`Bearer ${one.key}`);
+  for (let index = 0; index < INTAKE_RATE_LIMITS.basic.limit; index += 1) {
+    await intake.execute(first, { ...request, reference: `a-${index}` });
+  }
+  // The other source is not held back by the first.
+  await intake.execute(await intake.authenticate(`Bearer ${two.key}`), request);
+
+  const status = async (promise: Promise<unknown>) =>
+    promise.then(
+      () => 200,
+      (error: HttpException) => error.getStatus(),
+    );
+  for (let index = 0; index < INTAKE_RATE_LIMITS.invalidKey.limit; index += 1) {
+    assert.equal(await status(intake.authenticate("Bearer wrong", "203.0.113.7")), 401);
+  }
+  assert.equal(await status(intake.authenticate("Bearer wrong", "203.0.113.7")), 429);
+  // Another address, and a right key from the same one, still get through to the check.
+  assert.equal(await status(intake.authenticate("Bearer wrong", "198.51.100.2")), 401);
+  assert.equal(await status(intake.authenticate(`Bearer ${two.key}`, "203.0.113.7")), 200);
 });

@@ -4,7 +4,7 @@ import {
   requestIdSchema,
   type IntakeKitchenTicket as IntakeRequest,
 } from "@merchant/contracts";
-import { Body, Controller, Headers, Inject, Post, Res } from "@nestjs/common";
+import { Body, Controller, Headers, Inject, Ip, Post, Res } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -49,9 +49,10 @@ export class IntakeController {
     @Headers("authorization") authorization: string | undefined,
     @Headers(API_HEADERS.requestId) requestId: string | undefined,
     @Body(new ZodValidationPipe(intakeKitchenTicketSchema)) input: IntakeRequest,
+    @Ip() ipAddress: string | undefined,
     @Res({ passthrough: true }) response: StatusResponse,
   ) {
-    const source = await this.intake.authenticate(authorization);
+    const source = await this.intake.authenticate(authorization, ipAddress);
     const parsedRequestId = requestIdSchema.safeParse(requestId);
     const result = await this.intake.execute(source, input, {
       ...(parsedRequestId.success ? { requestId: parsedRequestId.data } : {}),
