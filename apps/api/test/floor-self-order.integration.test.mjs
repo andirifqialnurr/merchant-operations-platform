@@ -224,6 +224,27 @@ test("guests order from the table QR into the same kitchen as the cashier, seein
       await drain();
       assert.equal((await guest("GET", "/visit")).body.orders[0].status, "PREPARING");
 
+      // Calling a waiter (M4-BE-06): asking twice while waiting is one request.
+      await guest("POST", "/requests", { type: "WAITER" });
+      const asked = await guest("POST", "/requests", { type: "WAITER" });
+      assert.equal(asked.status, 200);
+      assert.deepEqual(asked.body.requests, ["WAITER"]);
+      const waiting = (await staff("GET", "/floor/live")).body.requests;
+      assert.deepEqual(
+        waiting.map((request) => [request.type, request.sessionId]),
+        [["WAITER", table.sessionId]],
+      );
+      assert.equal((await staff("POST", `/floor/requests/${waiting[0].id}/done`)).status, 204);
+      assert.equal((await staff("POST", `/floor/requests/${waiting[0].id}/done`)).status, 404);
+      assert.deepEqual((await guest("GET", "/visit")).body.requests, []);
+      assert.deepEqual((await staff("GET", "/floor/live")).body.requests, []);
+      // Asking again after staff came is a new request.
+      await guest("POST", "/requests", { type: "BILL" });
+      assert.deepEqual(
+        (await staff("GET", "/floor/live")).body.requests.map((request) => request.type),
+        ["BILL"],
+      );
+
       // Data guard (M4-SC-01): nothing a guest received names an internal id,
       // a position on the floor, or the token.
       const secret = [tenant.id, outlet.id, t1.id, table.sessionId, area.id, brand.id, token];

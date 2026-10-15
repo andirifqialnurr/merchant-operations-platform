@@ -3,6 +3,7 @@ import * as z from "zod";
 import { outletChargesSchema } from "./charges.ts";
 import { catalogNameSchema } from "./catalog.ts";
 import { currencyCodeSchema, moneyMinorSchema } from "./money.ts";
+import { serviceRequestTypeSchema } from "./floor.ts";
 import { createOrderItemSchema } from "./orders.ts";
 import { sellableMenuModifierGroupSchema, sellableMenuOptionSchema } from "./menu.ts";
 
@@ -73,8 +74,13 @@ export const guestVisitSchema = z
     /** What is still to be paid for the visit. */
     dueMinor: moneyMinorSchema,
     orders: z.array(guestOrderSchema),
+    /** What the guests asked staff for and are still waiting on. */
+    requests: z.array(serviceRequestTypeSchema),
   })
   .strict();
+
+/** Calling a waiter, or asking for the bill. */
+export const placeServiceRequestSchema = z.object({ type: serviceRequestTypeSchema }).strict();
 
 export type GuestMenu = z.infer<typeof guestMenuSchema>;
 
@@ -87,3 +93,5 @@ export type GuestOrderStatus = z.infer<typeof guestOrderStatusSchema>;
 export type GuestVisit = z.infer<typeof guestVisitSchema>;
 
 export type PlaceGuestOrder = z.infer<typeof placeGuestOrderSchema>;
+
+export type PlaceServiceRequest = z.infer<typeof placeServiceRequestSchema>;

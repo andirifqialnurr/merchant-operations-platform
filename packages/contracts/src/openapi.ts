@@ -165,6 +165,7 @@ import {
   floorPolicySchema,
   floorSchema,
   liveFloorSchema,
+  serviceRequestSchema,
   moveTableSessionSchema,
   openTableSessionSchema,
   tableQrSchema,
@@ -182,6 +183,7 @@ import {
   guestOrderSchema,
   guestVisitSchema,
   placeGuestOrderSchema,
+  placeServiceRequestSchema,
 } from "./self-order.ts";
 import {
   heldCartListSchema,
@@ -390,6 +392,7 @@ export const floorOpenApiSchemas = {
   FloorList: toOpenApiSchema(floorListSchema),
   FloorPolicy: toOpenApiSchema(floorPolicySchema),
   LiveFloor: toOpenApiSchema(liveFloorSchema),
+  ServiceRequest: toOpenApiSchema(serviceRequestSchema),
   MoveTableSession: toOpenApiSchema(moveTableSessionSchema),
   OpenTableSession: toOpenApiSchema(openTableSessionSchema),
   TableQr: toOpenApiSchema(tableQrSchema),
@@ -408,4 +411,5 @@ export const selfOrderOpenApiSchemas = {
   GuestOrder: toOpenApiSchema(guestOrderSchema),
   GuestVisit: toOpenApiSchema(guestVisitSchema),
   PlaceGuestOrder: toOpenApiSchema(placeGuestOrderSchema),
+  PlaceServiceRequest: toOpenApiSchema(placeServiceRequestSchema),
 } as const;

@@ -18,6 +18,10 @@ import type { ActorCommandOrigin, CommandOrigin } from "../../../shared/command/
 import { tableStatus } from "../domain/table-status.js";
 import { FloorStructure } from "./floor-structure.js";
 import {
+  SERVICE_REQUEST_REPOSITORY,
+  type ServiceRequestRepository,
+} from "./service-request.repository.js";
+import {
   TABLE_SESSION_REPOSITORY,
   TableTakenError,
   type TableSessionRecord,
@@ -56,15 +60,17 @@ export class TableSessions {
     @Inject(BillingService) private readonly billing: BillingService,
     @Inject(OrganizationService) private readonly organization: OrganizationService,
     @Inject(EntitlementService) private readonly entitlements: EntitlementService,
+    @Inject(SERVICE_REQUEST_REPOSITORY) private readonly requests: ServiceRequestRepository,
   ) {}
 
   /** Active floors and areas, every table with its status, and who holds them. */
   async live(tenantId: string, outletId: string) {
-    const [floors, tables, policy, access] = await Promise.all([
+    const [floors, tables, policy, access, requests] = await Promise.all([
       this.structure.list(tenantId, outletId),
       this.sessions.live(tenantId, outletId),
       this.sessions.policy(tenantId, outletId),
       this.entitlements.describeAccess(tenantId, MODULES.tableSelfOrder),
+      this.requests.openAt(tenantId, outletId),
     ]);
     const shown = floors
       .filter((floor) => floor.status === "ACTIVE")
@@ -79,6 +85,9 @@ export class TableSessions {
       canMergeTables: access.capabilities.has(MERGE_TABLES_CAPABILITY),
       floors: shown,
       policy,
+      requests: requests
+        .filter((request) => sessions.has(request.sessionId))
+        .map((request) => ({ ...request, requestedAt: request.requestedAt.toISOString() })),
       sessions: [...sessions.values()].map(toSession),
       tables: tables
         .filter((table) => areaIds.has(table.areaId))
@@ -96,6 +105,17 @@ export class TableSessions {
           status: tableStatus(table, table.holder),
         })),
     });
+  }
+
+  /** Staff came to the table or brought the bill: the request is done. */
+  async finishRequest(tenantId: string, outletId: string, id: string, origin: ActorCommandOrigin) {
+    const done = await this.requests.done(tenantId, outletId, id, new Date(), origin);
+    if (!done) {
+      throw new NotFoundException({
+        code: "SERVICE_REQUEST_NOT_FOUND",
+        message: "This request was already handled.",
+      });
+    }
   }
 
   async open(

@@ -9,6 +9,7 @@ import type {
   GuestMenuProduct,
   GuestOrder,
   PublicQrResolution,
+  ServiceRequestType,
 } from "@merchant/contracts";
 import { Button } from "@merchant/ui/button";
 import { OrderProgress, StickyCartBar } from "@merchant/ui/customer-order";
@@ -218,6 +219,16 @@ function Ordering({
     }
   }
 
+  const ask = useMutation({
+    mutationFn: (type: ServiceRequestType) => guestApi.requestService(token, type),
+    onError: (error) => notify({ message: errorMessage(error), tone: "danger" }),
+    onSuccess: (next) => {
+      queryClient.setQueryData(guestKeys.visit(token), next);
+      notify({ message: t("requestSent"), tone: "success" });
+    },
+  });
+  const waiting = new Set(visit.data?.requests ?? []);
+
   const send = useMutation({
     mutationFn: () =>
       guestApi.placeOrder(
@@ -289,6 +300,24 @@ function Ordering({
           <EmptyState description={t("ordersEmptyBody")} title={t("ordersEmptyTitle")} />
         ) : (
           <>
+            <div className="flex flex-wrap gap-2 pb-2">
+              <Button
+                disabled={waiting.has("WAITER") || ask.isPending}
+                onClick={() => ask.mutate("WAITER")}
+                size="sm"
+                variant="secondary"
+              >
+                {t(waiting.has("WAITER") ? "waiterCalled" : "callWaiter")}
+              </Button>
+              <Button
+                disabled={waiting.has("BILL") || ask.isPending}
+                onClick={() => ask.mutate("BILL")}
+                size="sm"
+                variant="secondary"
+              >
+                {t(waiting.has("BILL") ? "billAsked" : "askBill")}
+              </Button>
+            </div>
             <ul className="m-0 list-none divide-y divide-line-subtle p-0">
               {orders.map((order) => (
                 <OrderCard

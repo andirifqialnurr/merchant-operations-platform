@@ -11,6 +11,7 @@ import { FloorStructureController } from "./adapters/floor-structure.controller.
 import { FloorTableController } from "./adapters/floor-table.controller.js";
 import { PrismaFloorStructureRepository } from "./adapters/prisma-floor-structure.repository.js";
 import { PrismaFloorTableRepository } from "./adapters/prisma-floor-table.repository.js";
+import { PrismaServiceRequestRepository } from "./adapters/prisma-service-request.repository.js";
 import { PrismaTableQrRepository } from "./adapters/prisma-table-qr.repository.js";
 import { PrismaTableSessionRepository } from "./adapters/prisma-table-session.repository.js";
 import { PublicTableQrController, TableQrController } from "./adapters/table-qr.controller.js";
@@ -20,6 +21,7 @@ import { FLOOR_STRUCTURE_REPOSITORY } from "./application/floor-structure.reposi
 import { FLOOR_TABLE_REPOSITORY } from "./application/floor-table.repository.js";
 import { FloorTables } from "./application/floor-tables.js";
 import { GuestOrdering } from "./application/guest-ordering.js";
+import { SERVICE_REQUEST_REPOSITORY } from "./application/service-request.repository.js";
 import { TableQrCodes } from "./application/table-qr-codes.js";
 import { TABLE_QR_REPOSITORY, TABLE_QR_SECRET } from "./application/table-qr.repository.js";
 import { TABLE_SESSION_REPOSITORY } from "./application/table-session.repository.js";
@@ -74,6 +76,8 @@ export function tableQrSecret(environment: NodeJS.ProcessEnv = process.env) {
     TableSessions,
     PrismaTableSessionRepository,
     { provide: TABLE_SESSION_REPOSITORY, useExisting: PrismaTableSessionRepository },
+    PrismaServiceRequestRepository,
+    { provide: SERVICE_REQUEST_REPOSITORY, useExisting: PrismaServiceRequestRepository },
     TableQrCodes,
     GuestOrdering,
     PrismaTableQrRepository,

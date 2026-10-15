@@ -229,6 +229,19 @@ export const tableSessionSchema = z
   })
   .strict();
 
+/** What guests at a table ask for from its QR. */
+export const serviceRequestTypeSchema = z.enum(["WAITER", "BILL"]);
+
+/** A guest's request that staff have not marked done yet. */
+export const serviceRequestSchema = z
+  .object({
+    id: z.uuid(),
+    requestedAt: z.iso.datetime(),
+    sessionId: z.uuid(),
+    type: serviceRequestTypeSchema,
+  })
+  .strict();
+
 /** A table on the live view: where it is, and whether it is free. */
 export const liveTableSchema = z
   .object({
@@ -260,6 +273,8 @@ export const liveFloorSchema = z
     canMergeTables: z.boolean(),
     floors: z.array(floorSchema),
     policy: floorPolicySchema,
+    /** Open requests of guests still seated, oldest first. */
+    requests: z.array(serviceRequestSchema),
     sessions: z.array(tableSessionSchema),
     tables: z.array(liveTableSchema),
   })
@@ -283,6 +298,10 @@ export type LiveTable = z.infer<typeof liveTableSchema>;
 export type MoveTableSession = z.infer<typeof moveTableSessionSchema>;
 
 export type OpenTableSession = z.infer<typeof openTableSessionSchema>;
+
+export type ServiceRequest = z.infer<typeof serviceRequestSchema>;
+
+export type ServiceRequestType = z.infer<typeof serviceRequestTypeSchema>;
 
 export type TableSession = z.infer<typeof tableSessionSchema>;
 

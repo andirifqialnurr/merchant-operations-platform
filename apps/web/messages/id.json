@@ -485,7 +485,9 @@
     "TABLE_SESSION_NOTHING_TO_PAY": "Semua pesanan kunjungan ini sudah dibayar.",
     "TABLE_QR_NOT_ACTIVE": "Meja ini belum punya QR yang berlaku. Buat dulu.",
     "SELF_ORDER_CLOSED": "Meja ini sedang tidak menerima pesanan dari QR. Silakan hubungi staf kami.",
-    "TABLE_QR_INVALID": "QR ini sudah tidak mengarah ke meja. Silakan hubungi staf kami."
+    "TABLE_QR_INVALID": "QR ini sudah tidak mengarah ke meja. Silakan hubungi staf kami.",
+    "TABLE_VISIT_NOT_OPEN": "Pesan dulu, atau hubungi staf kami langsung.",
+    "SERVICE_REQUEST_NOT_FOUND": "Permintaan ini sudah ditangani."
   },
   "subscription": {
     "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat langganan.",
@@ -1373,7 +1375,15 @@
       "REVOKED": "Dihentikan"
     },
     "qrTitle": "QR {label}",
-    "qrVersion": "Versi {version}"
+    "qrVersion": "Versi {version}",
+    "requestsTitle": "Permintaan tamu",
+    "requestAge": "{minutes} mnt lalu",
+    "requestDoneAction": "Selesai",
+    "requestDone": "Permintaan di {label} selesai.",
+    "request": {
+      "WAITER": "Panggil pelayan",
+      "BILL": "Minta bill"
+    }
   },
   "guest": {
     "allCategories": "Semua",
@@ -1415,6 +1425,11 @@
       "RECEIVED": "Diterima"
     },
     "table": "Meja {label}",
-    "totalWithCharges": "Sudah termasuk pajak dan service."
+    "totalWithCharges": "Sudah termasuk pajak dan service.",
+    "callWaiter": "Panggil pelayan",
+    "askBill": "Minta bill",
+    "waiterCalled": "Pelayan dipanggil",
+    "billAsked": "Bill diminta",
+    "requestSent": "Staf kami segera datang."
   }
 }

@@ -97,6 +97,26 @@ export class TableSessionController {
     );
   }
 
+  @ApiOperation({ summary: "Mark a guest's call for a waiter or the bill as handled" })
+  @ApiNoContentResponse()
+  @ApiNotFoundResponse({ schema: { $ref: "#/components/schemas/ApiError" } })
+  @RequirePermission(PERMISSIONS.tableManage)
+  @HttpCode(204)
+  @Post("requests/:id/done")
+  async finishRequest(
+    @RequestHeaders(new ZodValidationPipe(requestContextHeadersSchema))
+    headers: RequestContextHeaders,
+    @Param(new ZodValidationPipe(entityIdParamsSchema)) params: { id: string },
+    @CurrentAccess() access: AuthorizationContext,
+  ) {
+    await this.sessions.finishRequest(
+      headers[API_HEADERS.tenantId],
+      headers[API_HEADERS.outletId],
+      params.id,
+      commandOriginFromRequest(access.userId, headers, access.deviceId),
+    );
+  }
+
   @ApiOperation({ summary: "Seat guests at a free table" })
   @ApiBody({ schema: { $ref: "#/components/schemas/OpenTableSession" } })
   @ApiCreatedResponse({ schema: { $ref: "#/components/schemas/TableSession" } })

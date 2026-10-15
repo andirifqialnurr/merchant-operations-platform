@@ -4,6 +4,8 @@ import {
   guestOrderSchema,
   guestVisitSchema,
   placeGuestOrderSchema,
+  placeServiceRequestSchema,
+  type ServiceRequestType,
   publicQrResolutionSchema,
   publicQrTokenParamsSchema,
   type PlaceGuestOrder,
@@ -863,6 +865,12 @@ export const merchantApi = {
       tableSessionSchema,
       outletHeaders(tenantId, outletId),
     ),
+  /** Staff came to the table or brought the bill. */
+  finishServiceRequest: (tenantId: string, outletId: string, id: string) =>
+    apiRequest(`/floor/requests/${entityIdParamsSchema.parse({ id }).id}/done`, noContent, {
+      headers: outletHeaders(tenantId, outletId),
+      method: "POST",
+    }),
   /** A table's QR and, while it works, the address to print. */
   tableQr: (tenantId: string, outletId: string, tableId: string) =>
     apiRequest(
@@ -1083,6 +1091,16 @@ export const guestApi = {
   resolve: (token: string) => apiRequest(guestPath(token), publicQrResolutionSchema),
   menu: (token: string) => apiRequest(guestPath(token, "/menu"), guestMenuSchema),
   visit: (token: string) => apiRequest(guestPath(token, "/visit"), guestVisitSchema),
+  /** Calls a waiter or asks for the bill; asking again while waiting changes nothing. */
+  requestService: (token: string, type: ServiceRequestType) =>
+    jsonMutation(
+      guestPath(token, "/requests"),
+      "POST",
+      { type },
+      placeServiceRequestSchema,
+      guestVisitSchema,
+      {},
+    ),
   /** The same key for the same cart, so a repeated tap places one order. */
   placeOrder: (token: string, input: PlaceGuestOrder, idempotencyKey: string) =>
     jsonMutation(

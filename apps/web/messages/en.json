@@ -485,7 +485,9 @@
     "TABLE_SESSION_NOTHING_TO_PAY": "Every order of this visit is already paid.",
     "TABLE_QR_NOT_ACTIVE": "This table has no working QR. Make one first.",
     "SELF_ORDER_CLOSED": "This table is not taking orders from its QR right now. Please ask our staff.",
-    "TABLE_QR_INVALID": "This QR code no longer leads to a table. Please ask our staff."
+    "TABLE_QR_INVALID": "This QR code no longer leads to a table. Please ask our staff.",
+    "TABLE_VISIT_NOT_OPEN": "Order first, or speak to our staff directly.",
+    "SERVICE_REQUEST_NOT_FOUND": "This request was already handled."
   },
   "subscription": {
     "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",
@@ -1373,7 +1375,15 @@
       "REVOKED": "Stopped"
     },
     "qrTitle": "QR of {label}",
-    "qrVersion": "Version {version}"
+    "qrVersion": "Version {version}",
+    "requestsTitle": "Guest requests",
+    "requestAge": "{minutes} min ago",
+    "requestDoneAction": "Done",
+    "requestDone": "Request at {label} done.",
+    "request": {
+      "WAITER": "Calls a waiter",
+      "BILL": "Asks for the bill"
+    }
   },
   "guest": {
     "allCategories": "All",
@@ -1415,6 +1425,11 @@
       "RECEIVED": "Received"
     },
     "table": "Table {label}",
-    "totalWithCharges": "Includes tax and service."
+    "totalWithCharges": "Includes tax and service.",
+    "callWaiter": "Call a waiter",
+    "askBill": "Ask for the bill",
+    "waiterCalled": "Waiter called",
+    "billAsked": "Bill requested",
+    "requestSent": "Our staff will be with you shortly."
   }
 }

@@ -40,7 +40,13 @@ export const floorManifest: ModuleManifest = {
     "self_order.policy.auto_accept": "PRO",
   },
   displayName: "Tables and Self-Order",
-  eventsProduced: ["table_session.opened.v1", "table_session.moved.v1", "table_session.closed.v1"],
+  eventsProduced: [
+    "table_session.opened.v1",
+    "table_session.moved.v1",
+    "table_session.closed.v1",
+    "service_request.created.v1",
+    "service_request.done.v1",
+  ],
   internalDependencies: [],
   key: MODULES.tableSelfOrder,
   limitDimensions: [

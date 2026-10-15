@@ -6,6 +6,7 @@ import {
   type GuestOrderStatus,
   type Order,
   type PlaceGuestOrder,
+  type ServiceRequestType,
 } from "@merchant/contracts";
 import { ConflictException, Inject, Injectable, NotFoundException, Optional } from "@nestjs/common";
 
@@ -20,6 +21,10 @@ import { BillingService } from "../../../kernels/billing-payment-ledger/public.j
 import { CatalogService } from "../../../kernels/catalog/public.js";
 import { OrderIntakeService } from "../../../kernels/order-intake/public.js";
 import { hashQrToken } from "../domain/qr-token.js";
+import {
+  SERVICE_REQUEST_REPOSITORY,
+  type ServiceRequestRepository,
+} from "./service-request.repository.js";
 import { TableQrCodes } from "./table-qr-codes.js";
 import type { QrTarget } from "./table-qr.repository.js";
 import {
@@ -38,6 +43,12 @@ export const GUEST_ORDER_RATE_LIMITS = {
   address: { limit: 60, windowMs: 10 * 60_000 },
   table: { limit: 20, windowMs: 10 * 60_000 },
 } as const satisfies Record<string, RateLimitPolicy>;
+
+/** Calling staff repeatedly does not call them faster; this stops a stuck button. */
+export const GUEST_REQUEST_RATE_LIMIT = {
+  limit: 10,
+  windowMs: 10 * 60_000,
+} as const satisfies RateLimitPolicy;
 
 const GUEST_STATUS: Partial<Record<Order["status"], GuestOrderStatus>> = {
   ACCEPTED: "RECEIVED",
@@ -77,6 +88,7 @@ export class GuestOrdering {
     @Inject(BillingService) private readonly billing: BillingService,
     @Inject(CatalogService) private readonly catalog: CatalogService,
     @Inject(OrganizationService) private readonly organization: OrganizationService,
+    @Inject(SERVICE_REQUEST_REPOSITORY) private readonly requests: ServiceRequestRepository,
     @Optional()
     @Inject(RATE_LIMIT_SERVICE)
     private readonly rateLimit: RateLimitService = new InMemoryRateLimitService(),
@@ -109,8 +121,32 @@ export class GuestOrdering {
     const target = await this.resolve(token);
     const session = await this.sessions.holderOf(target.tenantId, target.outletId, target.tableId);
     if (!session || session.status === "CLOSED") {
-      return guestVisitSchema.parse({ dueMinor: "0", orders: [] });
+      return guestVisitSchema.parse({ dueMinor: "0", orders: [], requests: [] });
     }
+    return this.visitOf(target, session);
+  }
+
+  /**
+   * Calls a waiter or asks for the bill for the visit at the table. Guests
+   * who have not ordered yet have no visit to ask for, so they order first
+   * or speak to staff.
+   */
+  async requestService(token: string, type: ServiceRequestType) {
+    await this.rateLimit.consume(
+      `self-order:request:${hashQrToken(token).slice(0, 32)}`,
+      GUEST_REQUEST_RATE_LIMIT,
+    );
+    const target = await this.ready(token);
+    const session = await this.sessions.holderOf(target.tenantId, target.outletId, target.tableId);
+    if (!session || session.status !== "OPEN") {
+      throw new ConflictException({
+        code: "TABLE_VISIT_NOT_OPEN",
+        message: "There is no visit at this table to ask staff for.",
+      });
+    }
+    await this.requests.ask(target.tenantId, target.outletId, session.id, type, {
+      channel: "WEB",
+    });
     return this.visitOf(target, session);
   }
 
@@ -178,12 +214,13 @@ export class GuestOrdering {
 
   private async visitOf(target: QrTarget, session: TableSessionRecord) {
     const orders = await this.orders.listBySession(target.tenantId, target.outletId, session.id);
-    const [paid, charges] = await Promise.all([
+    const [paid, charges, requests] = await Promise.all([
       this.billing.paidOrders(
         target.tenantId,
         orders.map((order) => order.id),
       ),
       this.organization.outletCharges(target.tenantId, target.outletId),
+      this.requests.openFor(target.tenantId, session.id),
     ]);
     const rows = orders.map((order) => {
       const settled = paid.get(order.id);
@@ -198,6 +235,7 @@ export class GuestOrdering {
     return guestVisitSchema.parse({
       dueMinor: dueMinor.toString(),
       orders: rows.map((row) => row.guest),
+      requests,
     });
   }
 

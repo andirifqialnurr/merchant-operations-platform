@@ -344,6 +344,58 @@ function LiveTables({
   return (
     <>
       <PageHeader title={t("posTitle")} />
+      {live.requests.length > 0 ? (
+        <section
+          aria-labelledby="guest-requests"
+          className="mb-4 rounded-md border border-line-default bg-surface"
+        >
+          <h2
+            className="m-0 border-b border-line-subtle px-4 py-2 text-label font-semibold"
+            id="guest-requests"
+          >
+            {t("requestsTitle")}
+          </h2>
+          <ul className="m-0 list-none divide-y divide-line-subtle p-0">
+            {live.requests.map((request) => {
+              const table = live.tables.find((item) => item.sessionId === request.sessionId);
+              const label = table?.label ?? "";
+              return (
+                <li
+                  className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-4 py-2"
+                  key={request.id}
+                >
+                  <button
+                    className="min-w-0 cursor-pointer border-0 bg-transparent p-0 text-start text-body-sm text-foreground"
+                    onClick={() => table && setSelectedId(table.id)}
+                    type="button"
+                  >
+                    <span className="font-semibold">{label}</span> · {t(`request.${request.type}`)}{" "}
+                    <span className="text-foreground-secondary">
+                      · {t("requestAge", { minutes: minutesSince(request.requestedAt, now) })}
+                    </span>
+                  </button>
+                  {allowed.canSeat ? (
+                    <Button
+                      disabled={action.isPending}
+                      onClick={() =>
+                        action.mutate({
+                          run: () =>
+                            merchantApi.finishServiceRequest(tenantId, outletId, request.id),
+                          success: t("requestDone", { label }),
+                        })
+                      }
+                      size="sm"
+                      variant="secondary"
+                    >
+                      {t("requestDoneAction")}
+                    </Button>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ) : null}
       {floor ? (
         <div className="grid gap-4">
           <div className="flex flex-wrap items-end gap-3">

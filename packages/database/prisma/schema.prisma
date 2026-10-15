@@ -235,33 +235,34 @@ enum RefundStatus {
 }
 
 model User {
-  id                     String               @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  email                  String               @unique @db.VarChar(254)
-  passwordHash           String               @map("password_hash") @db.VarChar(255)
-  displayName            String               @map("display_name") @db.VarChar(160)
-  status                 UserStatus           @default(ACTIVE)
-  passwordChangedAt      DateTime             @default(now()) @map("password_changed_at") @db.Timestamptz(6)
-  lastLoginAt            DateTime?            @map("last_login_at") @db.Timestamptz(6)
+  id                     String                @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  email                  String                @unique @db.VarChar(254)
+  passwordHash           String                @map("password_hash") @db.VarChar(255)
+  displayName            String                @map("display_name") @db.VarChar(160)
+  status                 UserStatus            @default(ACTIVE)
+  passwordChangedAt      DateTime              @default(now()) @map("password_changed_at") @db.Timestamptz(6)
+  lastLoginAt            DateTime?             @map("last_login_at") @db.Timestamptz(6)
   /// Chosen language; null follows the browser.
-  locale                 String?              @db.VarChar(2)
+  locale                 String?               @db.VarChar(2)
   /// Chosen theme; null follows the system.
-  theme                  String?              @db.VarChar(6)
-  createdAt              DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt              DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+  theme                  String?               @db.VarChar(6)
+  createdAt              DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime              @updatedAt @map("updated_at") @db.Timestamptz(6)
   loginSessions          LoginSession[]
   tenantMemberships      TenantMembership[]
-  openedRegisterSessions PosRegisterSession[] @relation("RegisterSessionOpenedBy")
-  closedRegisterSessions PosRegisterSession[] @relation("RegisterSessionClosedBy")
+  openedRegisterSessions PosRegisterSession[]  @relation("RegisterSessionOpenedBy")
+  closedRegisterSessions PosRegisterSession[]  @relation("RegisterSessionClosedBy")
   acceptedInvitations    CoreInvitation[]
   cashMovements          PosCashMovement[]
-  orders                 Order[]              @relation("OrderActor")
-  canceledOrders         Order[]              @relation("OrderCanceledBy")
-  paymentsRecorded       BillingPayment[]     @relation("PaymentActor")
-  paymentsConfirmed      BillingPayment[]     @relation("PaymentConfirmedBy")
-  refundsRecorded        SaleRefund[]         @relation("RefundActor")
-  refundsApproved        SaleRefund[]         @relation("RefundApprovedBy")
-  tableSessionsOpened    FloorTableSession[]  @relation("TableSessionOpenedBy")
-  tableSessionsClosed    FloorTableSession[]  @relation("TableSessionClosedBy")
+  orders                 Order[]               @relation("OrderActor")
+  canceledOrders         Order[]               @relation("OrderCanceledBy")
+  paymentsRecorded       BillingPayment[]      @relation("PaymentActor")
+  paymentsConfirmed      BillingPayment[]      @relation("PaymentConfirmedBy")
+  refundsRecorded        SaleRefund[]          @relation("RefundActor")
+  refundsApproved        SaleRefund[]          @relation("RefundApprovedBy")
+  tableSessionsOpened    FloorTableSession[]   @relation("TableSessionOpenedBy")
+  tableSessionsClosed    FloorTableSession[]   @relation("TableSessionClosedBy")
+  serviceRequestsHandled FloorServiceRequest[] @relation("ServiceRequestHandledBy")
   approvalPins           CoreApprovalPin[]
   heldCarts              PosHeldCart[]
 
@@ -1789,6 +1790,7 @@ model FloorTableSession {
   opener        User?                   @relation("TableSessionOpenedBy", fields: [openedBy], references: [id], onDelete: Restrict)
   closer        User?                   @relation("TableSessionClosedBy", fields: [closedBy], references: [id], onDelete: Restrict)
   tables        FloorSessionTable[]
+  requests      FloorServiceRequest[]
 
   @@unique([tenantId, id])
   @@unique([tenantId, outletId, id], map: "floor_table_sessions_tenant_outlet_id_key")
@@ -1812,6 +1814,34 @@ model FloorSessionTable {
 
   @@index([tenantId, sessionId], map: "floor_session_tables_session_idx")
   @@map("floor_session_tables")
+}
+
+enum FloorServiceRequestType {
+  WAITER
+  BILL
+}
+
+enum FloorServiceRequestStatus {
+  OPEN
+  DONE
+}
+
+/// A guest asking for staff from the table's QR. At most one open request of
+/// each type per visit (partial unique index in the migration).
+model FloorServiceRequest {
+  id          String                    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId    String                    @map("tenant_id") @db.Uuid
+  outletId    String                    @map("outlet_id") @db.Uuid
+  sessionId   String                    @map("session_id") @db.Uuid
+  type        FloorServiceRequestType
+  status      FloorServiceRequestStatus @default(OPEN)
+  requestedAt DateTime                  @default(now()) @map("requested_at") @db.Timestamptz(6)
+  handledAt   DateTime?                 @map("handled_at") @db.Timestamptz(6)
+  handledBy   String?                   @map("handled_by") @db.Uuid
+  session     FloorTableSession         @relation(fields: [tenantId, outletId, sessionId], references: [tenantId, outletId, id], onDelete: Restrict, map: "floor_service_requests_session_fkey")
+  handler     User?                     @relation("ServiceRequestHandledBy", fields: [handledBy], references: [id], onDelete: Restrict)
+
+  @@map("floor_service_requests")
 }
 
 /// How an outlet turns its tables around.

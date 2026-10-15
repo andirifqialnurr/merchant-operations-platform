@@ -10,6 +10,8 @@ import {
   guestVisitSchema,
   idempotencyKeySchema,
   placeGuestOrderSchema,
+  placeServiceRequestSchema,
+  type PlaceServiceRequest,
   type PlaceGuestOrder,
   requestContextHeadersSchema,
   tableQrSchema,
@@ -204,5 +206,19 @@ export class PublicTableQrController {
     return guestOrderSchema.parse(
       await this.guests.placeOrder(params.token, input, idempotencyKey, address),
     );
+  }
+
+  @ApiOperation({
+    summary: "Call a waiter or ask for the bill; asking again while waiting changes nothing",
+  })
+  @ApiBody({ schema: { $ref: "#/components/schemas/PlaceServiceRequest" } })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/GuestVisit" } })
+  @HttpCode(200)
+  @Post(":token/requests")
+  async request(
+    @Param(new ZodValidationPipe(publicQrTokenParamsSchema)) params: { token: string },
+    @Body(new ZodValidationPipe(placeServiceRequestSchema)) input: PlaceServiceRequest,
+  ) {
+    return guestVisitSchema.parse(await this.guests.requestService(params.token, input.type));
   }
 }

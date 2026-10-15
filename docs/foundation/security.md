@@ -295,6 +295,7 @@ Yang berjalan sejak 4 Oktober 2026 (`core/devices`):
 - `GET .../menu`, `GET .../visit`, `POST .../orders` di bawah `/api/v1/public/table-qr/:token`, tanpa sesi dan tanpa cookie. Jawaban hanya nama, nomor pesanan, status, uang, dan id produk/kategori untuk memesan.
 - Kirim pesanan: kunci idempotensi wajib; 20 pesanan per QR dan 60 per alamat jaringan per 10 menit; dihitung sebelum pemeriksaan lain sehingga permintaan yang ditolak pun memakai jatah.
 - Kunjungan yang dibuka tamu tidak punya pengguna pembuka; pesanan tamu tanpa `actor_id`.
+- Panggil pelayan/minta bill (`POST .../requests`, M4-BE-06): hanya untuk kunjungan terbuka di meja QR itu, 10 per QR per 10 menit; meminta lagi saat masih menunggu tidak membuat permintaan baru.
 
 **Integrasi eksternal (nanti)**
 
