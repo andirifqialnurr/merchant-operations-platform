@@ -56,7 +56,7 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 
 - [x] **M3-DS-01 Rapikan `KdsTicket`** `888bdec` — label lewat props, ukuran terbaca jarak jauh, tanpa harga. Selesai 12 Oktober 2026 (TODO 14.8). `KdsNewTicketAlert` dan `KdsConnectionStatus` di file yang sama masih berisi teks tertanam; dirapikan saat dipakai (M3-FT-05, M3-UX-04).
 - [x] **M3-DS-02 Form ticket manual** `66045fa` — komponen input item cepat. Selesai 13 Oktober 2026 (TODO 14.10): `QuickItemEntry` (`@merchant/ui/quick-item-entry`).
-- [x] **M3-DS-03 Varian kios** — skala tipografi dan jarak untuk layar dapur. Selesai 15 Oktober 2026 (TODO 14.16). `KdsTicket size="kiosk"`: label pesanan 28px, nama item 24px, jumlah dan waktu tunggu 20px, catatan 18px, tombol 64px. Layar dapur memakainya selama mode kios (layar penuh) aktif.
+- [x] **M3-DS-03 Varian kios** `26036a9` — skala tipografi dan jarak untuk layar dapur. Selesai 15 Oktober 2026 (TODO 14.16). `KdsTicket size="kiosk"`: label pesanan 28px, nama item 24px, jumlah dan waktu tunggu 20px, catatan 18px, tombol 64px. Layar dapur memakainya selama mode kios (layar penuh) aktif.
 
 ### AS — Aset
 
