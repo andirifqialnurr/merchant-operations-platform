@@ -5,6 +5,7 @@ import {
   tableSessionDetailSchema,
   tableSessionSchema,
   type CreateTableOrder,
+  type UpdateFloorPolicy,
   type MoveTableSession,
   type OpenTableSession,
 } from "@merchant/contracts";
@@ -65,12 +66,13 @@ export class TableSessions {
 
   /** Active floors and areas, every table with its status, and who holds them. */
   async live(tenantId: string, outletId: string) {
-    const [floors, tables, policy, access, requests] = await Promise.all([
+    const [floors, tables, policy, access, requests, claims] = await Promise.all([
       this.structure.list(tenantId, outletId),
       this.sessions.live(tenantId, outletId),
       this.sessions.policy(tenantId, outletId),
       this.entitlements.describeAccess(tenantId, MODULES.tableSelfOrder),
       this.requests.openAt(tenantId, outletId),
+      this.billing.verifyingClaims(tenantId, outletId),
     ]);
     const shown = floors
       .filter((floor) => floor.status === "ACTIVE")
@@ -83,6 +85,7 @@ export class TableSessions {
     for (const table of tables) if (table.holder) sessions.set(table.holder.id, table.holder);
     return liveFloorSchema.parse({
       canMergeTables: access.capabilities.has(MERGE_TABLES_CAPABILITY),
+      claims: claims.filter((claim) => sessions.has(claim.sessionId)),
       floors: shown,
       policy,
       requests: requests
@@ -321,13 +324,26 @@ export class TableSessions {
     return this.sessions.policy(tenantId, outletId);
   }
 
-  setPolicy(
+  /** Changes what is given; the rest of the policy stays as it is. */
+  async setPolicy(
     tenantId: string,
     outletId: string,
-    policy: { cleaningAfterClose: boolean },
+    change: UpdateFloorPolicy,
     origin: CommandOrigin,
   ) {
-    return this.sessions.setPolicy(tenantId, outletId, policy, origin);
+    const current = await this.sessions.policy(tenantId, outletId);
+    return this.sessions.setPolicy(
+      tenantId,
+      outletId,
+      {
+        cleaningAfterClose: change.cleaningAfterClose ?? current.cleaningAfterClose,
+        guestPaymentNote:
+          change.guestPaymentNote === undefined
+            ? current.guestPaymentNote
+            : change.guestPaymentNote,
+      },
+      origin,
+    );
   }
 
   private async find(tenantId: string, outletId: string, sessionId: string) {

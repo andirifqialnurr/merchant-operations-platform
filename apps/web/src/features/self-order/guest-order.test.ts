@@ -34,7 +34,12 @@ test("a guest sees canceled orders without steps and others at their step", () =
 });
 
 test("the order just sent comes first", () => {
-  const visit = { dueMinor: "0", orders: [order([], 1), order([], 2)], requests: [] };
+  const visit = {
+    claim: null,
+    dueMinor: "0",
+    orders: [order([], 1), order([], 2)],
+    requests: [],
+  };
   assert.deepEqual(
     newestFirst(visit).map((item) => item.orderNumber),
     [2, 1],

@@ -1,5 +1,7 @@
 import * as z from "zod";
 
+import { paymentClaimSchema } from "./billing.ts";
+
 import { moneyMinorSchema } from "./money.ts";
 import { orderStatusSchema } from "./orders.ts";
 
@@ -263,14 +265,24 @@ export const floorPolicySchema = z
   .object({
     /** A closed table is "cleaning" until someone marks it free. */
     cleaningAfterClose: z.boolean(),
+    /**
+     * How guests can pay from the table, e.g. the bank account or "scan the
+     * QRIS at the counter". Without it guests pay at the cashier.
+     */
+    guestPaymentNote: z.string().trim().min(1).max(500).nullable(),
   })
   .strict();
+
+/** Changes to the policy; what is left out stays as it is. */
+export const updateFloorPolicySchema = floorPolicySchema.partial();
 
 /** Everything the cashier's table view shows, read at once. */
 export const liveFloorSchema = z
   .object({
     /** Whether the package lets a visit take more tables (`floor.table_session.merge_split`, Pro). */
     canMergeTables: z.boolean(),
+    /** Guests' "I have paid" waiting on a cashier, oldest first. */
+    claims: z.array(paymentClaimSchema),
     floors: z.array(floorSchema),
     policy: floorPolicySchema,
     /** Open requests of guests still seated, oldest first. */
@@ -288,6 +300,8 @@ export const openTableSessionSchema = z
   .strict();
 
 export type FloorPolicy = z.infer<typeof floorPolicySchema>;
+
+export type UpdateFloorPolicy = z.infer<typeof updateFloorPolicySchema>;
 
 export type FloorTableStatus = z.infer<typeof floorTableStatusSchema>;
 

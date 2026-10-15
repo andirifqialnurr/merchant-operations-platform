@@ -120,7 +120,11 @@ import {
   type MoveTableSession,
   openTableSessionSchema,
   tableSessionSchema,
-  type FloorPolicy,
+  type UpdateFloorPolicy,
+  updateFloorPolicySchema,
+  paymentClaimSchema,
+  claimGuestPaymentSchema,
+  type ClaimMethod,
   type OpenTableSession,
   floorTableSchema,
   saveFloorLayoutSchema,
@@ -865,6 +869,31 @@ export const merchantApi = {
       tableSessionSchema,
       outletHeaders(tenantId, outletId),
     ),
+  /** The guests' transfer or QRIS arrived: their claim becomes the visit's payment. */
+  confirmPaymentClaim: (
+    tenantId: string,
+    outletId: string,
+    sessionId: string,
+    claimId: string,
+    idempotencyKey: string,
+  ) =>
+    apiRequest(
+      `/pos/table-sessions/${entityIdParamsSchema.parse({ id: sessionId }).id}/claims/${entityIdParamsSchema.parse({ id: claimId }).id}/confirm`,
+      tableSessionCheckoutSchema,
+      {
+        headers: {
+          ...outletHeaders(tenantId, outletId),
+          [API_HEADERS.idempotencyKey]: idempotencyKey,
+        },
+        method: "POST",
+      },
+    ),
+  rejectPaymentClaim: (tenantId: string, outletId: string, sessionId: string, claimId: string) =>
+    apiRequest(
+      `/pos/table-sessions/${entityIdParamsSchema.parse({ id: sessionId }).id}/claims/${entityIdParamsSchema.parse({ id: claimId }).id}/reject`,
+      paymentClaimSchema,
+      { headers: outletHeaders(tenantId, outletId), method: "POST" },
+    ),
   /** Staff came to the table or brought the bill. */
   finishServiceRequest: (tenantId: string, outletId: string, id: string) =>
     apiRequest(`/floor/requests/${entityIdParamsSchema.parse({ id }).id}/done`, noContent, {
@@ -925,12 +954,12 @@ export const merchantApi = {
     }),
   floorPolicy: (tenantId: string, outletId: string) =>
     apiRequest("/floor/policy", floorPolicySchema, { headers: outletHeaders(tenantId, outletId) }),
-  setFloorPolicy: (tenantId: string, outletId: string, input: FloorPolicy) =>
+  setFloorPolicy: (tenantId: string, outletId: string, input: UpdateFloorPolicy) =>
     jsonMutation(
       "/floor/policy",
       "PUT",
       input,
-      floorPolicySchema,
+      updateFloorPolicySchema,
       floorPolicySchema,
       outletHeaders(tenantId, outletId),
     ),
@@ -1091,6 +1120,16 @@ export const guestApi = {
   resolve: (token: string) => apiRequest(guestPath(token), publicQrResolutionSchema),
   menu: (token: string) => apiRequest(guestPath(token, "/menu"), guestMenuSchema),
   visit: (token: string) => apiRequest(guestPath(token, "/visit"), guestVisitSchema),
+  /** "I have paid": the cashier checks the money and confirms. */
+  claimPayment: (token: string, method: ClaimMethod, idempotencyKey: string) =>
+    jsonMutation(
+      guestPath(token, "/payment-claims"),
+      "POST",
+      { method },
+      claimGuestPaymentSchema,
+      guestVisitSchema,
+      { [API_HEADERS.idempotencyKey]: idempotencyKey },
+    ),
   /** Calls a waiter or asks for the bill; asking again while waiting changes nothing. */
   requestService: (token: string, type: ServiceRequestType) =>
     jsonMutation(

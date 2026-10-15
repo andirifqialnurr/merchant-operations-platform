@@ -11,15 +11,47 @@ import type {
   CheckoutRecord,
   FullPayment,
   FullPaymentOutcome,
+  NewPaymentClaim,
+  PaymentClaimRecord,
   SessionCheckoutRecord,
   SessionPayment,
   SessionPaymentOutcome,
 } from "../application/billing.repository.js";
-import { eventOrigin } from "../../../shared/command/command-origin.js";
+import { eventOrigin, type CommandOrigin } from "../../../shared/command/command-origin.js";
 import { safeEventPayload } from "../../../shared/command/event-payload.js";
 
 /** Thrown inside a transaction to undo a table visit's payment when a bill does not match. */
 class SessionBillMismatch extends Error {}
+
+/** Thrown inside a transaction when the claim being confirmed is no longer as the cashier saw it. */
+class ClaimChanged extends Error {}
+
+const claimSelect = {
+  amountMinor: true,
+  createdAt: true,
+  id: true,
+  method: true,
+  status: true,
+  tableSessionId: true,
+} as const;
+
+function toClaim(row: {
+  amountMinor: bigint;
+  createdAt: Date;
+  id: string;
+  method: string;
+  status: PaymentClaimRecord["status"];
+  tableSessionId: string | null;
+}): PaymentClaimRecord {
+  return {
+    amountMinor: row.amountMinor,
+    claimedAt: row.createdAt,
+    id: row.id,
+    method: row.method as PaymentClaimRecord["method"],
+    status: row.status,
+    tableSessionId: row.tableSessionId ?? "",
+  };
+}
 
 const billSelect = {
   chargesIncluded: true,
@@ -199,23 +231,54 @@ export class PrismaBillingRepository implements BillingRepository {
           billIds.push(billId);
         }
 
-        const paid = await transaction.billingPayment.create({
-          data: {
-            actorId: context.actorId,
-            amountMinor: payment.totalMinor,
-            confirmedAt: now,
-            confirmedBy: context.actorId,
-            idempotencyKey: payment.idempotencyKey,
-            method: payment.method,
-            outletId,
-            reference: payment.reference,
-            registerSessionId: payment.registerSessionId,
-            status: "PAID",
-            tenantId,
-            tenderedMinor: payment.tenderedMinor,
-          },
-          select: paymentSelect,
-        });
+        let paid;
+        if (payment.claimId) {
+          // The guest's claim becomes this payment: the money is counted once,
+          // in the confirming cashier's shift.
+          const confirmed = await transaction.billingPayment.updateMany({
+            data: {
+              actorId: context.actorId,
+              confirmedAt: now,
+              confirmedBy: context.actorId,
+              idempotencyKey: payment.idempotencyKey,
+              reference: payment.reference,
+              registerSessionId: payment.registerSessionId,
+              status: "PAID",
+            },
+            where: {
+              amountMinor: payment.totalMinor,
+              id: payment.claimId,
+              method: payment.method,
+              outletId,
+              status: "VERIFYING",
+              tableSessionId: payment.tableSessionId,
+              tenantId,
+            },
+          });
+          if (confirmed.count !== 1) throw new ClaimChanged();
+          paid = await transaction.billingPayment.findUniqueOrThrow({
+            select: paymentSelect,
+            where: { tenantId_id: { id: payment.claimId, tenantId } },
+          });
+        } else {
+          paid = await transaction.billingPayment.create({
+            data: {
+              actorId: context.actorId,
+              amountMinor: payment.totalMinor,
+              confirmedAt: now,
+              confirmedBy: context.actorId,
+              idempotencyKey: payment.idempotencyKey,
+              method: payment.method,
+              outletId,
+              reference: payment.reference,
+              registerSessionId: payment.registerSessionId,
+              status: "PAID",
+              tenantId,
+              tenderedMinor: payment.tenderedMinor,
+            },
+            select: paymentSelect,
+          });
+        }
 
         const checkouts: SessionCheckoutRecord["checkouts"] = [];
         for (const [index, line] of payment.bills.entries()) {
@@ -305,6 +368,7 @@ export class PrismaBillingRepository implements BillingRepository {
       });
     } catch (error) {
       if (error instanceof SessionBillMismatch) return { kind: "bill_already_paid" };
+      if (error instanceof ClaimChanged) return { kind: "claim_changed" };
       if (!isUniqueConstraintError(error)) throw error;
       const replayed = await this.findSessionCheckoutByIdempotencyKey(
         tenantId,
@@ -331,7 +395,8 @@ export class PrismaBillingRepository implements BillingRepository {
       where: { orderId, outletId, status: "PAID", tenantId },
     });
     const paid = bill?.allocations[0]?.payment;
-    if (!bill?.sale || !paid) return null;
+    // A paid payment always has its cashier; only an undecided claim has none.
+    if (!bill?.sale || !paid?.actor) return null;
     const { actor, ...payment } = paid;
     return {
       bill: {
@@ -525,6 +590,144 @@ export class PrismaBillingRepository implements BillingRepository {
       if (!replayed) throw error;
       return { kind: "recorded", result: replayed.result };
     }
+  }
+
+  async claimPayment(claim: NewPaymentClaim, origin: CommandOrigin): Promise<PaymentClaimRecord> {
+    const { outletId, tenantId } = claim;
+    const waiting = () =>
+      getPrismaClient().billingPayment.findFirst({
+        select: claimSelect,
+        where: { status: "VERIFYING", tableSessionId: claim.tableSessionId, tenantId },
+      });
+    const existing = await waiting();
+    if (existing) return toClaim(existing);
+    try {
+      return await getPrismaClient().$transaction(async (transaction) => {
+        const row = await transaction.billingPayment.create({
+          data: {
+            amountMinor: claim.amountMinor,
+            idempotencyKey: claim.idempotencyKey,
+            method: claim.method,
+            outletId,
+            status: "VERIFYING",
+            tableSessionId: claim.tableSessionId,
+            tenantId,
+          },
+          select: claimSelect,
+        });
+        const payload = {
+          amountMinor: row.amountMinor.toString(),
+          method: row.method,
+          paymentId: row.id,
+        };
+        await transaction.auditLog.create({
+          data: {
+            action: "payment.claim",
+            entityId: row.id,
+            entityType: "billing_payment",
+            metadata: buildAuditMetadata("payment.claim", payload),
+            outletId,
+            ...(origin.requestId ? { requestId: origin.requestId } : {}),
+            tenantId,
+          },
+        });
+        await transaction.outboxEvent.create({
+          data: {
+            ...eventOrigin(origin, "CORE_PAYMENT_LEDGER"),
+            aggregateId: row.id,
+            aggregateType: "billing_payment",
+            outletId,
+            payload: safeEventPayload(payload),
+            tenantId,
+            type: "payment.claimed.v1",
+          },
+        });
+        return toClaim(row);
+      });
+    } catch (error) {
+      // Another tap made the claim a moment earlier: that one stands.
+      if (!isUniqueConstraintError(error)) throw error;
+      const now = await waiting();
+      if (now) return toClaim(now);
+      const same = await getPrismaClient().billingPayment.findUnique({
+        select: claimSelect,
+        where: {
+          tenantId_outletId_idempotencyKey: {
+            idempotencyKey: claim.idempotencyKey,
+            outletId,
+            tenantId,
+          },
+        },
+      });
+      if (same) return toClaim(same);
+      throw error;
+    }
+  }
+
+  async findClaim(tenantId: string, outletId: string, id: string) {
+    const row = await getPrismaClient().billingPayment.findFirst({
+      select: claimSelect,
+      where: { id, outletId, tableSessionId: { not: null }, tenantId },
+    });
+    return row ? toClaim(row) : null;
+  }
+
+  async verifyingClaims(tenantId: string, outletId: string) {
+    const rows = await getPrismaClient().billingPayment.findMany({
+      orderBy: { createdAt: "asc" },
+      select: claimSelect,
+      where: { outletId, status: "VERIFYING", tenantId },
+    });
+    return rows.map(toClaim);
+  }
+
+  async rejectClaim(
+    tenantId: string,
+    outletId: string,
+    id: string,
+    now: Date,
+    context: BillingMutationContext,
+  ) {
+    return getPrismaClient().$transaction(async (transaction) => {
+      const changed = await transaction.billingPayment.updateMany({
+        data: { confirmedAt: now, confirmedBy: context.actorId, status: "FAILED" },
+        where: { id, outletId, status: "VERIFYING", tenantId },
+      });
+      if (changed.count !== 1) return null;
+      const row = await transaction.billingPayment.findUniqueOrThrow({
+        select: claimSelect,
+        where: { tenantId_id: { id, tenantId } },
+      });
+      const payload = {
+        amountMinor: row.amountMinor.toString(),
+        method: row.method,
+        paymentId: row.id,
+      };
+      await transaction.auditLog.create({
+        data: {
+          action: "payment.claim.reject",
+          actorId: context.actorId,
+          entityId: row.id,
+          entityType: "billing_payment",
+          metadata: buildAuditMetadata("payment.claim.reject", payload),
+          outletId,
+          ...(context.requestId ? { requestId: context.requestId } : {}),
+          tenantId,
+        },
+      });
+      await transaction.outboxEvent.create({
+        data: {
+          ...eventOrigin(context, "CORE_PAYMENT_LEDGER"),
+          aggregateId: row.id,
+          aggregateType: "billing_payment",
+          outletId,
+          payload: safeEventPayload(payload),
+          tenantId,
+          type: "payment.claim_rejected.v1",
+        },
+      });
+      return toClaim(row);
+    });
   }
 
   async sumPaymentsByMethod(tenantId: string, registerSessionId: string) {

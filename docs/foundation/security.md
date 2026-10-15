@@ -296,6 +296,7 @@ Yang berjalan sejak 4 Oktober 2026 (`core/devices`):
 - Kirim pesanan: kunci idempotensi wajib; 20 pesanan per QR dan 60 per alamat jaringan per 10 menit; dihitung sebelum pemeriksaan lain sehingga permintaan yang ditolak pun memakai jatah.
 - Kunjungan yang dibuka tamu tidak punya pengguna pembuka; pesanan tamu tanpa `actor_id`.
 - Panggil pelayan/minta bill (`POST .../requests`, M4-BE-06): hanya untuk kunjungan terbuka di meja QR itu, 10 per QR per 10 menit; meminta lagi saat masih menunggu tidak membuat permintaan baru.
+- Klaim sudah bayar (`POST .../payment-claims`, M4-BE-07): hanya bila outlet menulis cara bayar dan ada kunjungan terbuka; jumlah dihitung server dari pesanan yang belum dibayar, tamu hanya memilih metode. Klaim tidak pernah menandai lunas: hanya kasir dengan `payment.confirm` dan shift terbuka yang mengubahnya menjadi pembayaran.
 
 **Integrasi eksternal (nanti)**
 

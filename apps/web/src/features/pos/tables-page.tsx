@@ -12,6 +12,7 @@ import {
   type FloorTableStatus,
   type LiveFloor,
   type LiveTable,
+  type PaymentClaim,
   type TableSession,
   type TableSessionCheckout,
   type TableSessionDetail,
@@ -19,7 +20,7 @@ import {
 import { AppIcon } from "@merchant/ui/app-icon";
 import { AreaSelector } from "@merchant/ui/area-selector";
 import { Button } from "@merchant/ui/button";
-import { Badge, EmptyState, ErrorState, Skeleton } from "@merchant/ui/feedback";
+import { Alert, Badge, EmptyState, ErrorState, Skeleton } from "@merchant/ui/feedback";
 import { FloorSelector } from "@merchant/ui/floor-selector";
 import { LiveTableView, type LiveTableViewItem } from "@merchant/ui/live-table-view";
 import { ModuleAccessState } from "@merchant/ui/module-access-state";
@@ -136,6 +137,17 @@ function LiveTables({
       notify({ message: success, tone: "success" });
     },
   });
+  // The guests' transfer arrived: their claim becomes the visit's payment.
+  const confirm = useMutation({
+    mutationFn: ({ claim, sessionId }: { claim: PaymentClaim; label: string; sessionId: string }) =>
+      merchantApi.confirmPaymentClaim(tenantId, outletId, sessionId, claim.id, crypto.randomUUID()),
+    onError: (error) => {
+      notify({ message: errorMessage(error), tone: "danger" });
+      void refresh();
+    },
+    onSuccess: (checkout) => setPaid(checkout),
+  });
+  const { money } = useFormat();
   const [floorId, setFloorId] = useState<string>();
   const [areaId, setAreaId] = useState<string | null>(null);
   const [status, setStatus] = useState<"ALL" | FloorTableStatus>("ALL");
@@ -281,6 +293,17 @@ function LiveTables({
           )
         }
         canMerge={live.canMergeTables}
+        claim={live.claims.find((claim) => claim.sessionId === selectedSession.id)}
+        onConfirmClaim={(claim) =>
+          confirm.mutate({ claim, label: selected.label, sessionId: selectedSession.id })
+        }
+        onRejectClaim={(claim) =>
+          action.mutate({
+            run: () =>
+              merchantApi.rejectPaymentClaim(tenantId, outletId, selectedSession.id, claim.id),
+            success: t("claimRejected", { label: selected.label }),
+          })
+        }
         destinations={live.tables
           .filter((table) => table.status === "AVAILABLE" && table.id !== selected.id)
           // The floor on screen first, then the others in their order.
@@ -344,7 +367,7 @@ function LiveTables({
   return (
     <>
       <PageHeader title={t("posTitle")} />
-      {live.requests.length > 0 ? (
+      {live.requests.length > 0 || live.claims.length > 0 ? (
         <section
           aria-labelledby="guest-requests"
           className="mb-4 rounded-md border border-line-default bg-surface"
@@ -390,6 +413,24 @@ function LiveTables({
                       {t("requestDoneAction")}
                     </Button>
                   ) : null}
+                </li>
+              );
+            })}
+            {live.claims.map((claim) => {
+              const table = live.tables.find((item) => item.sessionId === claim.sessionId);
+              return (
+                <li className="px-4 py-2" key={claim.id}>
+                  <button
+                    className="min-w-0 cursor-pointer border-0 bg-transparent p-0 text-start text-body-sm text-foreground"
+                    onClick={() => table && setSelectedId(table.id)}
+                    type="button"
+                  >
+                    <span className="font-semibold">{table?.label ?? ""}</span> ·{" "}
+                    {t(`claim.${claim.method}`)} · {money(claim.amountMinor)}{" "}
+                    <span className="text-foreground-secondary">
+                      · {t("requestAge", { minutes: minutesSince(claim.claimedAt, now) })}
+                    </span>
+                  </button>
                 </li>
               );
             })}
@@ -567,6 +608,9 @@ function VisitPanel({
   allowed,
   busy,
   canMerge,
+  claim,
+  onConfirmClaim,
+  onRejectClaim,
   destinations,
   floors,
   now,
@@ -584,6 +628,10 @@ function VisitPanel({
   busy: boolean;
   /** Whether the package lets a visit take more tables (Pro). */
   canMerge: boolean;
+  /** The guests say they paid; the cashier decides. */
+  claim: PaymentClaim | undefined;
+  onConfirmClaim: (claim: PaymentClaim) => void;
+  onRejectClaim: (claim: PaymentClaim) => void;
   /** Free tables the guests may move to. */
   destinations: readonly LiveTable[];
   floors: LiveFloor["floors"];
@@ -599,7 +647,7 @@ function VisitPanel({
   titleHidden: boolean;
 }>) {
   const t = useTranslations("floor");
-  const { locale, time } = useFormat();
+  const { locale, money, time } = useFormat();
   const detail = useQuery({
     queryFn: () => merchantApi.tableSessionDetail(tenantId, outletId, session.id),
     queryKey: visitKey(tenantId, outletId, session.id),
@@ -669,7 +717,16 @@ function VisitPanel({
   // One main step at a time: pay while something is owed, close once nothing is.
   const actions = (
     <>
-      {visit && owing && allowed.canPay ? (
+      {claim && allowed.canPay ? (
+        <>
+          <Button disabled={busy} onClick={() => onConfirmClaim(claim)}>
+            {t("confirmClaim")}
+          </Button>
+          <Button disabled={busy} onClick={() => onRejectClaim(claim)} variant="secondary">
+            {t("rejectClaim")}
+          </Button>
+        </>
+      ) : visit && owing && allowed.canPay ? (
         <Button onClick={() => onPay(visit.dueMinor)}>{t("pay")}</Button>
       ) : null}
       {visit && !owing && allowed.canSeat ? (
@@ -713,6 +770,11 @@ function VisitPanel({
       title={title}
       titleHidden={titleHidden}
     >
+      {claim ? (
+        <Alert title={t(`claim.${claim.method}`)} tone="info">
+          {t("claimNotice", { amount: money(claim.amountMinor) })}
+        </Alert>
+      ) : null}
       {detail.isPending ? (
         <Skeleton variant="table-row" />
       ) : detail.isError ? (

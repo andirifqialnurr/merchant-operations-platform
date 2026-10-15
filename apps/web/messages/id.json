@@ -487,7 +487,9 @@
     "SELF_ORDER_CLOSED": "Meja ini sedang tidak menerima pesanan dari QR. Silakan hubungi staf kami.",
     "TABLE_QR_INVALID": "QR ini sudah tidak mengarah ke meja. Silakan hubungi staf kami.",
     "TABLE_VISIT_NOT_OPEN": "Pesan dulu, atau hubungi staf kami langsung.",
-    "SERVICE_REQUEST_NOT_FOUND": "Permintaan ini sudah ditangani."
+    "SERVICE_REQUEST_NOT_FOUND": "Permintaan ini sudah ditangani.",
+    "PAYMENT_CLAIM_CHANGED": "Klaim bayar ini sudah diputuskan atau totalnya berubah. Tampilan diperbarui.",
+    "SELF_ORDER_PAYMENT_UNAVAILABLE": "Silakan bayar di kasir."
   },
   "subscription": {
     "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat langganan.",
@@ -1383,7 +1385,19 @@
     "request": {
       "WAITER": "Panggil pelayan",
       "BILL": "Minta bill"
-    }
+    },
+    "claim": {
+      "MERCHANT_QRIS": "Sudah bayar via QRIS",
+      "TRANSFER": "Sudah bayar via transfer"
+    },
+    "claimNotice": "Tamu bilang sudah bayar {amount}. Periksa uang masuk sebelum konfirmasi.",
+    "claimRejected": "Klaim bayar di {label} ditolak.",
+    "confirmClaim": "Konfirmasi bayar",
+    "guestPaymentNote": "Cara bayar dari meja",
+    "guestPaymentNoteHint": "Tampil untuk tamu, misalnya nomor rekening atau letak QRIS. Kosongkan bila tamu bayar di kasir.",
+    "rejectClaim": "Tolak",
+    "savePaymentNote": "Simpan cara bayar",
+    "optional": "opsional"
   },
   "guest": {
     "allCategories": "Semua",
@@ -1430,6 +1444,16 @@
     "askBill": "Minta bill",
     "waiterCalled": "Pelayan dipanggil",
     "billAsked": "Bill diminta",
-    "requestSent": "Staf kami segera datang."
+    "requestSent": "Staf kami segera datang.",
+    "claimPaid": "Saya sudah bayar",
+    "claimSent": "Kasir akan memeriksa pembayaran Anda.",
+    "claimWaiting": "Menunggu konfirmasi kasir",
+    "method": {
+      "MERCHANT_QRIS": "QRIS",
+      "TRANSFER": "Transfer"
+    },
+    "paidAll": "Semua pesanan sudah dibayar. Terima kasih!",
+    "payMethod": "Dibayar lewat",
+    "payTitle": "Bayar dari meja"
   }
 }

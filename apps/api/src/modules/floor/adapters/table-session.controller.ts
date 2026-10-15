@@ -16,7 +16,8 @@ import {
   type AuthorizationContext,
   type CreateTableOrder,
   type IdempotentRequestHeaders,
-  type FloorPolicy,
+  type UpdateFloorPolicy,
+  updateFloorPolicySchema,
   type MoveTableSession,
   type OpenTableSession,
   type RequestContextHeaders,
@@ -268,15 +269,17 @@ export class TableSessionController {
     );
   }
 
-  @ApiOperation({ summary: "Whether closed tables must be cleaned before the next guests" })
-  @ApiBody({ schema: { $ref: "#/components/schemas/FloorPolicy" } })
+  @ApiOperation({
+    summary: "Whether closed tables must be cleaned, and how guests can pay from the table",
+  })
+  @ApiBody({ schema: { $ref: "#/components/schemas/UpdateFloorPolicy" } })
   @ApiOkResponse({ schema: { $ref: "#/components/schemas/FloorPolicy" } })
   @RequirePermission(PERMISSIONS.tableLayoutManage)
   @Put("policy")
   async setPolicy(
     @RequestHeaders(new ZodValidationPipe(requestContextHeadersSchema))
     headers: RequestContextHeaders,
-    @Body(new ZodValidationPipe(floorPolicySchema)) input: FloorPolicy,
+    @Body(new ZodValidationPipe(updateFloorPolicySchema)) input: UpdateFloorPolicy,
     @CurrentAccess() access: AuthorizationContext,
   ) {
     return floorPolicySchema.parse(

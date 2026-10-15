@@ -11,12 +11,15 @@ import {
 } from "@merchant/contracts";
 import { ConflictException, Inject, Injectable } from "@nestjs/common";
 
+import type { CommandOrigin } from "../../../shared/command/command-origin.js";
+
 import { billTotal, cashChange } from "../domain/bill-total.js";
 import {
   BILLING_REPOSITORY,
   type BillingMutationContext,
   type BillingRepository,
   type CheckoutRecord,
+  type PaymentClaimRecord,
   type SessionCheckoutRecord,
   type SaleRefundsRecord,
 } from "./billing.repository.js";
@@ -30,6 +33,53 @@ export type PayableOrder = {
   status: OrderStatus;
   subtotalMinor: string;
 };
+
+/**
+ * The bills of a visit's unpaid orders, each made with the outlet's charges
+ * as they are now, and their sum: what the visit owes.
+ */
+function sessionBills(orders: readonly PayableOrder[], charges: OutletCharges) {
+  if (orders.length === 0) {
+    throw conflict("TABLE_SESSION_NOTHING_TO_PAY", "Every order of this visit is paid.");
+  }
+  if (orders.some((order) => order.status === "CANCELED")) {
+    throw conflict("ORDER_CANCELED", "A canceled order cannot be paid.");
+  }
+  const currency = orders[0]!.currency;
+  if (orders.some((order) => order.currency !== currency)) {
+    throw conflict("BILL_CURRENCY_MIXED", "The orders of a visit must share one currency.");
+  }
+  const bills = orders.map((order) => {
+    const parts = computeCharges(BigInt(order.subtotalMinor), charges);
+    return {
+      orderId: order.id,
+      serviceChargeMinor: parts.serviceChargeMinor,
+      subtotalMinor: parts.baseMinor,
+      taxMinor: parts.taxMinor,
+      totalMinor: billTotal({
+        serviceChargeMinor: parts.serviceChargeMinor,
+        subtotalMinor: parts.baseMinor,
+        taxMinor: parts.taxMinor,
+      }),
+    };
+  });
+  const totalMinor = bills.reduce((sum, bill) => sum + bill.totalMinor, 0n);
+  if (totalMinor <= 0n) {
+    throw conflict("BILL_NOTHING_TO_PAY", "This visit has nothing to pay.");
+  }
+  return { bills, currency, totalMinor };
+}
+
+/** A guest's claim as the cashier and the guest see it. */
+export function toPaymentClaim(claim: PaymentClaimRecord) {
+  return {
+    amountMinor: claim.amountMinor.toString(),
+    claimedAt: claim.claimedAt.toISOString(),
+    id: claim.id,
+    method: claim.method,
+    sessionId: claim.tableSessionId,
+  };
+}
 
 /** Maps a stored checkout to its DTO; the change is derived here. */
 export function toCheckout({ bill, payment, sale }: CheckoutRecord): Checkout {
@@ -255,6 +305,8 @@ export class BillingService {
       registerSessionId: string;
       tableSessionId: string;
       tenantId: string;
+      /** The guest's claim this payment confirms; it then becomes the payment. */
+      claimId?: string;
     },
     context: BillingMutationContext,
   ) {
@@ -275,35 +327,7 @@ export class BillingService {
       return toSessionCheckout(replayed);
     }
 
-    if (orders.length === 0) {
-      throw conflict("TABLE_SESSION_NOTHING_TO_PAY", "Every order of this visit is paid.");
-    }
-    if (orders.some((order) => order.status === "CANCELED")) {
-      throw conflict("ORDER_CANCELED", "A canceled order cannot be paid.");
-    }
-    const currency = orders[0]!.currency;
-    if (orders.some((order) => order.currency !== currency)) {
-      throw conflict("BILL_CURRENCY_MIXED", "The orders of a visit must share one currency.");
-    }
-
-    const bills = orders.map((order) => {
-      const parts = computeCharges(BigInt(order.subtotalMinor), input.charges);
-      return {
-        orderId: order.id,
-        serviceChargeMinor: parts.serviceChargeMinor,
-        subtotalMinor: parts.baseMinor,
-        taxMinor: parts.taxMinor,
-        totalMinor: billTotal({
-          serviceChargeMinor: parts.serviceChargeMinor,
-          subtotalMinor: parts.baseMinor,
-          taxMinor: parts.taxMinor,
-        }),
-      };
-    });
-    const totalMinor = bills.reduce((sum, bill) => sum + bill.totalMinor, 0n);
-    if (totalMinor <= 0n) {
-      throw conflict("BILL_NOTHING_TO_PAY", "This visit has nothing to pay.");
-    }
+    const { bills, currency, totalMinor } = sessionBills(orders, input.charges);
     if (pay.expectedTotalMinor !== undefined && BigInt(pay.expectedTotalMinor) !== totalMinor) {
       throw new ConflictException({
         code: "ORDER_TOTAL_CHANGED",
@@ -330,11 +354,18 @@ export class BillingService {
         tenantId,
         tenderedMinor,
         totalMinor,
+        ...(input.claimId ? { claimId: input.claimId } : {}),
       },
       context,
     );
     if (outcome.kind === "bill_already_paid") {
       throw conflict("BILL_ALREADY_PAID", "An order of this visit is already paid.");
+    }
+    if (outcome.kind === "claim_changed") {
+      throw conflict(
+        "PAYMENT_CLAIM_CHANGED",
+        "This claim was decided already, or the visit's total no longer matches it.",
+      );
     }
     if (outcome.kind === "order_canceled") {
       throw conflict("ORDER_CANCELED", "A canceled order cannot be paid.");
@@ -343,6 +374,65 @@ export class BillingService {
       throw conflict("POS_SHIFT_NOT_OPEN", "This shift is already closed.");
     }
     return toSessionCheckout(outcome.checkout);
+  }
+
+  /**
+   * Guests at a table say they paid the visit by transfer or QRIS. The claim
+   * is for what the visit owes now and waits for a cashier (VERIFYING);
+   * nothing is paid until a cashier confirms it. A visit waits on one claim
+   * at a time, so claiming again returns the first.
+   */
+  async claimTableSessionPayment(
+    input: {
+      charges: OutletCharges;
+      idempotencyKey: string;
+      method: PaymentClaimRecord["method"];
+      orders: readonly PayableOrder[];
+      outletId: string;
+      tableSessionId: string;
+      tenantId: string;
+    },
+    origin: CommandOrigin,
+  ) {
+    const { totalMinor } = sessionBills(input.orders, input.charges);
+    return toPaymentClaim(
+      await this.billing.claimPayment(
+        {
+          amountMinor: totalMinor,
+          idempotencyKey: input.idempotencyKey,
+          method: input.method,
+          outletId: input.outletId,
+          tableSessionId: input.tableSessionId,
+          tenantId: input.tenantId,
+        },
+        origin,
+      ),
+    );
+  }
+
+  /** Claims of the outlet still waiting on a cashier, oldest first. */
+  async verifyingClaims(tenantId: string, outletId: string) {
+    return (await this.billing.verifyingClaims(tenantId, outletId)).map(toPaymentClaim);
+  }
+
+  /** A claim waiting on a cashier, or null when there is none by that id any more. */
+  async verifyingClaim(tenantId: string, outletId: string, id: string) {
+    const claim = await this.billing.findClaim(tenantId, outletId, id);
+    return claim?.status === "VERIFYING" ? claim : null;
+  }
+
+  /** The cashier did not receive the money; the guest can claim again. */
+  async rejectClaim(
+    tenantId: string,
+    outletId: string,
+    id: string,
+    context: BillingMutationContext,
+  ) {
+    const rejected = await this.billing.rejectClaim(tenantId, outletId, id, new Date(), context);
+    if (!rejected) {
+      throw conflict("PAYMENT_CLAIM_CHANGED", "This claim was decided already.");
+    }
+    return toPaymentClaim(rejected);
   }
 
   /** The paid checkout of an order, its cashier, and its refunds, or null while unpaid. */

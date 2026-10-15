@@ -124,6 +124,24 @@ export const payOrderSchema = z.discriminatedUnion("method", [
   }),
 ]);
 
+/** How guests at a table may say they paid; cash is always paid to the cashier. */
+export const claimMethodSchema = z.enum(["MERCHANT_QRIS", "TRANSFER"]);
+
+/** A guest's "I have paid" that a cashier has not decided yet (payment status VERIFYING). */
+export const paymentClaimSchema = z
+  .object({
+    amountMinor: moneyMinorSchema,
+    claimedAt: z.iso.datetime(),
+    id: z.uuid(),
+    method: claimMethodSchema,
+    /** The table visit the claim is for. */
+    sessionId: z.uuid(),
+  })
+  .strict();
+
+/** The visit and the claim a cashier decides on. */
+export const tableSessionClaimParamsSchema = z.object({ claimId: z.uuid(), id: z.uuid() }).strict();
+
 export type Bill = z.infer<typeof billSchema>;
 
 export type BillStatus = z.infer<typeof billStatusSchema>;
@@ -131,6 +149,10 @@ export type BillStatus = z.infer<typeof billStatusSchema>;
 export type Checkout = z.infer<typeof checkoutSchema>;
 
 export type PayOrder = z.infer<typeof payOrderSchema>;
+
+export type ClaimMethod = z.infer<typeof claimMethodSchema>;
+
+export type PaymentClaim = z.infer<typeof paymentClaimSchema>;
 
 export type TableSessionCheckout = z.infer<typeof tableSessionCheckoutSchema>;
 

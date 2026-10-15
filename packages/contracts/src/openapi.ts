@@ -143,6 +143,7 @@ import {
   posChargesSchema,
   refundOrderSchema,
   saleRefundsSchema,
+  paymentClaimSchema,
 } from "./billing.ts";
 import {
   advanceKitchenTicketSchema,
@@ -166,6 +167,7 @@ import {
   floorSchema,
   liveFloorSchema,
   serviceRequestSchema,
+  updateFloorPolicySchema,
   moveTableSessionSchema,
   openTableSessionSchema,
   tableQrSchema,
@@ -184,6 +186,7 @@ import {
   guestVisitSchema,
   placeGuestOrderSchema,
   placeServiceRequestSchema,
+  claimGuestPaymentSchema,
 } from "./self-order.ts";
 import {
   heldCartListSchema,
@@ -393,6 +396,8 @@ export const floorOpenApiSchemas = {
   FloorPolicy: toOpenApiSchema(floorPolicySchema),
   LiveFloor: toOpenApiSchema(liveFloorSchema),
   ServiceRequest: toOpenApiSchema(serviceRequestSchema),
+  UpdateFloorPolicy: toOpenApiSchema(updateFloorPolicySchema),
+  PaymentClaim: toOpenApiSchema(paymentClaimSchema),
   MoveTableSession: toOpenApiSchema(moveTableSessionSchema),
   OpenTableSession: toOpenApiSchema(openTableSessionSchema),
   TableQr: toOpenApiSchema(tableQrSchema),
@@ -412,4 +417,5 @@ export const selfOrderOpenApiSchemas = {
   GuestVisit: toOpenApiSchema(guestVisitSchema),
   PlaceGuestOrder: toOpenApiSchema(placeGuestOrderSchema),
   PlaceServiceRequest: toOpenApiSchema(placeServiceRequestSchema),
+  ClaimGuestPayment: toOpenApiSchema(claimGuestPaymentSchema),
 } as const;

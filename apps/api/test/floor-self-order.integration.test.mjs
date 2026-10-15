@@ -245,6 +245,53 @@ test("guests order from the table QR into the same kitchen as the cashier, seein
         ["BILL"],
       );
 
+      // Paying from the table (M4-BE-07): not offered until the outlet says how.
+      const claimKey = randomUUID();
+      assert.equal(
+        (await guest("POST", "/payment-claims", { method: "TRANSFER" }, claimKey)).body.code,
+        "SELF_ORDER_PAYMENT_UNAVAILABLE",
+      );
+      await staff("PUT", "/floor/policy", {
+        guestPaymentNote: "Transfer ke BCA 123 a.n. Kopi Tamu",
+      });
+      assert.equal(
+        (await guest("GET", "/menu")).body.paymentNote,
+        "Transfer ke BCA 123 a.n. Kopi Tamu",
+      );
+      const claimed = await guest("POST", "/payment-claims", { method: "TRANSFER" }, randomUUID());
+      assert.equal(claimed.status, 200);
+      assert.deepEqual(claimed.body.claim, { amountMinor: "75000", method: "TRANSFER" });
+      // Claiming again while waiting is the same claim; nothing is paid yet.
+      await guest("POST", "/payment-claims", { method: "MERCHANT_QRIS" }, randomUUID());
+      assert.equal((await guest("GET", "/visit")).body.dueMinor, "75000");
+      const waitingClaims = (await staff("GET", "/floor/live")).body.claims;
+      assert.deepEqual(
+        waitingClaims.map((claim) => [claim.method, claim.amountMinor, claim.sessionId]),
+        [["TRANSFER", "75000", table.sessionId]],
+      );
+      const status = async () =>
+        (
+          await database.query(`SELECT status, actor_id FROM billing_payments WHERE id = $1`, [
+            waitingClaims[0].id,
+          ])
+        ).rows[0];
+      assert.deepEqual(await status(), { actor_id: null, status: "VERIFYING" });
+      // Confirming needs the cashier's shift; the claim becomes the payment.
+      const claimPath = `/pos/table-sessions/${table.sessionId}/claims/${waitingClaims[0].id}`;
+      assert.equal((await staff("POST", `${claimPath}/confirm`)).body.code, "POS_SHIFT_REQUIRED");
+      assert.equal((await staff("POST", "/pos/shifts", { openingCashMinor: "0" })).status, 201);
+      const confirmed = await staff("POST", `${claimPath}/confirm`);
+      assert.equal(confirmed.status, 200);
+      assert.equal(confirmed.body.payment.id, waitingClaims[0].id);
+      assert.equal(confirmed.body.payment.amountMinor, "75000");
+      assert.equal(confirmed.body.checkouts.length, 2);
+      assert.deepEqual(await status(), { actor_id: owner.id, status: "PAID" });
+      assert.equal((await staff("POST", `${claimPath}/reject`)).body.code, "PAYMENT_CLAIM_CHANGED");
+      const settled = await guest("GET", "/visit");
+      assert.equal(settled.body.dueMinor, "0");
+      assert.equal(settled.body.claim, null);
+      assert.deepEqual((await staff("GET", "/floor/live")).body.claims, []);
+
       // Data guard (M4-SC-01): nothing a guest received names an internal id,
       // a position on the floor, or the token.
       const secret = [tenant.id, outlet.id, t1.id, table.sessionId, area.id, brand.id, token];

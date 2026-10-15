@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import type {
+  ClaimMethod,
   GuestMenu,
   GuestMenuProduct,
   GuestOrder,
@@ -228,6 +229,18 @@ function Ordering({
     },
   });
   const waiting = new Set(visit.data?.requests ?? []);
+  const [method, setMethod] = useState<ClaimMethod>("TRANSFER");
+  // One key per claim the guest makes; a double tap is one claim.
+  const [claimKey, setClaimKey] = useState(() => crypto.randomUUID());
+  const claim = useMutation({
+    mutationFn: () => guestApi.claimPayment(token, method, claimKey),
+    onError: (error) => notify({ message: errorMessage(error), tone: "danger" }),
+    onSuccess: (next) => {
+      queryClient.setQueryData(guestKeys.visit(token), next);
+      setClaimKey(crypto.randomUUID());
+      notify({ message: t("claimSent"), tone: "success" });
+    },
+  });
 
   const send = useMutation({
     mutationFn: () =>
@@ -332,10 +345,47 @@ function Ordering({
               ))}
             </ul>
             {visit.data && visit.data.dueMinor !== "0" ? (
-              <div className="flex items-baseline justify-between gap-3 border-t border-line-default pt-4">
-                <span className="text-label font-semibold">{t("due")}</span>
-                <MoneyDisplay amountMinor={visit.data.dueMinor} locale={locale} variant="summary" />
+              <div className="grid gap-3 border-t border-line-default pt-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="text-label font-semibold">{t("due")}</span>
+                  <MoneyDisplay
+                    amountMinor={visit.data.dueMinor}
+                    locale={locale}
+                    variant="summary"
+                  />
+                </div>
+                {visit.data.claim ? (
+                  <p className="m-0 text-body-sm text-foreground-secondary" role="status">
+                    {t("claimWaiting")} · {t(`method.${visit.data.claim.method}`)}
+                  </p>
+                ) : menu.paymentNote ? (
+                  <section aria-labelledby="guest-pay" className="grid gap-3">
+                    <h2 className="m-0 text-label font-semibold" id="guest-pay">
+                      {t("payTitle")}
+                    </h2>
+                    <p className="m-0 text-body-sm whitespace-pre-line">{menu.paymentNote}</p>
+                    <SegmentedControl
+                      items={(["TRANSFER", "MERCHANT_QRIS"] as const).map((value) => ({
+                        label: t(`method.${value}`),
+                        value,
+                      }))}
+                      label={t("payMethod")}
+                      onValueChange={(value) =>
+                        setMethod(value === "MERCHANT_QRIS" ? "MERCHANT_QRIS" : "TRANSFER")
+                      }
+                      size="sm"
+                      value={method}
+                    />
+                    <Button loading={claim.isPending} onClick={() => claim.mutate()}>
+                      {t("claimPaid")}
+                    </Button>
+                  </section>
+                ) : null}
               </div>
+            ) : visit.data && orders.some((order) => order.status !== "CANCELED") ? (
+              <p className="m-0 border-t border-line-default pt-4 text-body-sm" role="status">
+                {t("paidAll")}
+              </p>
             ) : null}
           </>
         )}

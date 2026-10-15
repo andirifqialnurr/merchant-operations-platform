@@ -5,6 +5,7 @@ import {
   guestVisitSchema,
   type GuestOrderStatus,
   type Order,
+  type ClaimMethod,
   type PlaceGuestOrder,
   type ServiceRequestType,
 } from "@merchant/contracts";
@@ -97,14 +98,16 @@ export class GuestOrdering {
   /** What the outlet sells now, priced, with how tax and service are added. */
   async menu(token: string) {
     const target = await this.ready(token);
-    const [menu, charges] = await Promise.all([
+    const [menu, charges, policy] = await Promise.all([
       this.catalog.getSellableMenu(target.tenantId, target.outletId),
       this.organization.outletCharges(target.tenantId, target.outletId),
+      this.sessions.policy(target.tenantId, target.outletId),
     ]);
     return guestMenuSchema.parse({
       categories: menu.categories.map((category) => ({ id: category.id, name: category.name })),
       charges,
       currency: menu.products[0]?.currency ?? "IDR",
+      paymentNote: policy.guestPaymentNote,
       products: menu.products.map((product) => ({
         categoryId: product.categoryId,
         id: product.id,
@@ -121,8 +124,49 @@ export class GuestOrdering {
     const target = await this.resolve(token);
     const session = await this.sessions.holderOf(target.tenantId, target.outletId, target.tableId);
     if (!session || session.status === "CLOSED") {
-      return guestVisitSchema.parse({ dueMinor: "0", orders: [], requests: [] });
+      return guestVisitSchema.parse({ claim: null, dueMinor: "0", orders: [], requests: [] });
     }
+    return this.visitOf(target, session);
+  }
+
+  /**
+   * "I have paid": the guests paid the visit by transfer or QRIS as the
+   * outlet's note told them. The claim waits for a cashier, who confirms it
+   * into a payment or rejects it; until then nothing is paid.
+   */
+  async claimPayment(token: string, method: ClaimMethod, idempotencyKey: string) {
+    await this.rateLimit.consume(
+      `self-order:request:${hashQrToken(token).slice(0, 32)}`,
+      GUEST_REQUEST_RATE_LIMIT,
+    );
+    const target = await this.ready(token);
+    const policy = await this.sessions.policy(target.tenantId, target.outletId);
+    if (!policy.guestPaymentNote) {
+      throw new ConflictException({
+        code: "SELF_ORDER_PAYMENT_UNAVAILABLE",
+        message: "Guests at this outlet pay at the cashier.",
+      });
+    }
+    const session = await this.openVisit(target);
+    const orders = (
+      await this.orders.listBySession(target.tenantId, target.outletId, session.id)
+    ).filter((order) => order.status !== "CANCELED");
+    const paid = await this.billing.paidOrders(
+      target.tenantId,
+      orders.map((order) => order.id),
+    );
+    await this.billing.claimTableSessionPayment(
+      {
+        charges: await this.organization.outletCharges(target.tenantId, target.outletId),
+        idempotencyKey,
+        method,
+        orders: orders.filter((order) => !paid.has(order.id)),
+        outletId: target.outletId,
+        tableSessionId: session.id,
+        tenantId: target.tenantId,
+      },
+      { channel: "WEB" },
+    );
     return this.visitOf(target, session);
   }
 
@@ -137,13 +181,7 @@ export class GuestOrdering {
       GUEST_REQUEST_RATE_LIMIT,
     );
     const target = await this.ready(token);
-    const session = await this.sessions.holderOf(target.tenantId, target.outletId, target.tableId);
-    if (!session || session.status !== "OPEN") {
-      throw new ConflictException({
-        code: "TABLE_VISIT_NOT_OPEN",
-        message: "There is no visit at this table to ask staff for.",
-      });
-    }
+    const session = await this.openVisit(target);
     await this.requests.ask(target.tenantId, target.outletId, session.id, type, {
       channel: "WEB",
     });
@@ -184,6 +222,18 @@ export class GuestOrdering {
     return this.toGuestOrder(order, charges);
   }
 
+  /** The visit seated at the table now; guests who have not ordered have none. */
+  private async openVisit(target: QrTarget) {
+    const session = await this.sessions.holderOf(target.tenantId, target.outletId, target.tableId);
+    if (!session || session.status !== "OPEN") {
+      throw new ConflictException({
+        code: "TABLE_VISIT_NOT_OPEN",
+        message: "There is no visit at this table yet.",
+      });
+    }
+    return session;
+  }
+
   private async seat(target: QrTarget, guestCount: number) {
     const held = await this.sessions.holderOf(target.tenantId, target.outletId, target.tableId);
     if (held) {
@@ -214,14 +264,16 @@ export class GuestOrdering {
 
   private async visitOf(target: QrTarget, session: TableSessionRecord) {
     const orders = await this.orders.listBySession(target.tenantId, target.outletId, session.id);
-    const [paid, charges, requests] = await Promise.all([
+    const [paid, charges, requests, claims] = await Promise.all([
       this.billing.paidOrders(
         target.tenantId,
         orders.map((order) => order.id),
       ),
       this.organization.outletCharges(target.tenantId, target.outletId),
       this.requests.openFor(target.tenantId, session.id),
+      this.billing.verifyingClaims(target.tenantId, target.outletId),
     ]);
+    const claim = claims.find((item) => item.sessionId === session.id);
     const rows = orders.map((order) => {
       const settled = paid.get(order.id);
       return {
@@ -233,6 +285,7 @@ export class GuestOrdering {
       .filter((row) => row.owing)
       .reduce((sum, row) => sum + BigInt(row.guest.totalMinor), 0n);
     return guestVisitSchema.parse({
+      claim: claim ? { amountMinor: claim.amountMinor, method: claim.method } : null,
       dueMinor: dueMinor.toString(),
       orders: rows.map((row) => row.guest),
       requests,

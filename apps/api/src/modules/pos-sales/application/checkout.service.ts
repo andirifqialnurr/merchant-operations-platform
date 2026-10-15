@@ -61,6 +61,8 @@ export class CheckoutService {
     pay: PayOrder,
     idempotencyKey: string,
     context: ShiftMutationContext,
+    /** The guests' claim this payment confirms. */
+    claimId?: string,
   ) {
     const shift = await this.shifts.findOpen(tenantId, outletId, context.actorId);
     if (!shift) {
@@ -87,8 +89,58 @@ export class CheckoutService {
         registerSessionId: shift.id,
         tableSessionId,
         tenantId,
+        ...(claimId ? { claimId } : {}),
       },
       context,
     );
+  }
+
+  /**
+   * The cashier saw the guests' transfer or QRIS payment arrive: their claim
+   * becomes the visit's payment in this cashier's shift, for exactly the
+   * amount claimed.
+   */
+  async confirmClaim(
+    tenantId: string,
+    outletId: string,
+    tableSessionId: string,
+    claimId: string,
+    idempotencyKey: string,
+    context: ShiftMutationContext,
+  ) {
+    const claim = await this.billing.verifyingClaim(tenantId, outletId, claimId);
+    if (!claim || claim.tableSessionId !== tableSessionId) {
+      throw new ConflictException({
+        code: "PAYMENT_CLAIM_CHANGED",
+        message: "This claim was decided already.",
+      });
+    }
+    return this.payTableSession(
+      tenantId,
+      outletId,
+      tableSessionId,
+      { expectedTotalMinor: claim.amountMinor.toString(), method: claim.method },
+      idempotencyKey,
+      context,
+      claim.id,
+    );
+  }
+
+  /** The money did not arrive: the claim fails and the guests can pay again. */
+  async rejectClaim(
+    tenantId: string,
+    outletId: string,
+    tableSessionId: string,
+    claimId: string,
+    context: ShiftMutationContext,
+  ) {
+    const claim = await this.billing.verifyingClaim(tenantId, outletId, claimId);
+    if (!claim || claim.tableSessionId !== tableSessionId) {
+      throw new ConflictException({
+        code: "PAYMENT_CLAIM_CHANGED",
+        message: "This claim was decided already.",
+      });
+    }
+    return this.billing.rejectClaim(tenantId, outletId, claimId, context);
   }
 }

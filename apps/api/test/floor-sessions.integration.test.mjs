@@ -196,6 +196,7 @@ test("guests are seated at one table at a time, and leave only once everything i
         (await ownerApi("PUT", "/floor/policy", { cleaningAfterClose: true })).body,
         {
           cleaningAfterClose: true,
+          guestPaymentNote: null,
         },
       );
       const closed = await cashierApi("POST", `/floor/sessions/${seated.id}/close`);

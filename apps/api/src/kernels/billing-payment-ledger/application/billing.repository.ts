@@ -5,7 +5,10 @@ import type {
   PaymentStatus,
   SaleStatus,
 } from "@merchant/contracts";
-import { type ActorCommandOrigin } from "../../../shared/command/command-origin.js";
+import {
+  type ActorCommandOrigin,
+  type CommandOrigin,
+} from "../../../shared/command/command-origin.js";
 
 export type BillingMutationContext = ActorCommandOrigin;
 
@@ -86,6 +89,30 @@ export type SessionPayment = Omit<
   tableSessionId: string;
   /** The sum of the bills: what the one payment takes. */
   totalMinor: bigint;
+  /**
+   * A guest's claim this payment confirms. The claim becomes the payment, so
+   * the money is counted once; its amount must equal the total.
+   */
+  claimId?: string;
+};
+
+/** Guests at a table say they paid; the cashier has not decided yet (VERIFYING). */
+export type PaymentClaimRecord = {
+  amountMinor: bigint;
+  claimedAt: Date;
+  id: string;
+  method: Extract<PaymentMethod, "MERCHANT_QRIS" | "TRANSFER">;
+  status: PaymentStatus;
+  tableSessionId: string;
+};
+
+export type NewPaymentClaim = {
+  amountMinor: bigint;
+  idempotencyKey: string;
+  method: PaymentClaimRecord["method"];
+  outletId: string;
+  tableSessionId: string;
+  tenantId: string;
 };
 
 export type SessionCheckoutRecord = {
@@ -96,6 +123,7 @@ export type SessionCheckoutRecord = {
 export type SessionPaymentOutcome =
   | { checkout: SessionCheckoutRecord; kind: "recorded" }
   | { kind: "bill_already_paid" }
+  | { kind: "claim_changed" }
   | { kind: "order_canceled" }
   | { kind: "shift_not_open" };
 
@@ -197,6 +225,23 @@ export interface BillingRepository {
     tenantId: string,
     registerSessionId: string,
   ): Promise<Map<PaymentMethod, bigint>>;
+  /**
+   * Records a guest's claim, or returns the one the visit already waits on
+   * (only one at a time), so asking twice is one claim.
+   */
+  claimPayment(claim: NewPaymentClaim, origin: CommandOrigin): Promise<PaymentClaimRecord>;
+  /** A claim of the outlet, whatever was decided on it. */
+  findClaim(tenantId: string, outletId: string, id: string): Promise<PaymentClaimRecord | null>;
+  /** Claims still waiting on a cashier, oldest first. */
+  verifyingClaims(tenantId: string, outletId: string): Promise<PaymentClaimRecord[]>;
+  /** The cashier did not receive the money: the claim fails. Null when it was not waiting. */
+  rejectClaim(
+    tenantId: string,
+    outletId: string,
+    id: string,
+    now: Date,
+    context: BillingMutationContext,
+  ): Promise<PaymentClaimRecord | null>;
   /** Paid payments attached to a shift, summed per method. */
   sumPaymentsByMethod(
     tenantId: string,

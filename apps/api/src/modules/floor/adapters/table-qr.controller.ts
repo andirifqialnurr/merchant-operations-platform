@@ -11,6 +11,8 @@ import {
   idempotencyKeySchema,
   placeGuestOrderSchema,
   placeServiceRequestSchema,
+  claimGuestPaymentSchema,
+  type ClaimGuestPayment,
   type PlaceServiceRequest,
   type PlaceGuestOrder,
   requestContextHeadersSchema,
@@ -205,6 +207,25 @@ export class PublicTableQrController {
     const idempotencyKey = new ZodValidationPipe(idempotencyKeySchema).transform(key) as string;
     return guestOrderSchema.parse(
       await this.guests.placeOrder(params.token, input, idempotencyKey, address),
+    );
+  }
+
+  @ApiOperation({
+    summary: "Say the visit was paid by transfer or QRIS; a cashier confirms it",
+  })
+  @ApiHeader({ name: API_HEADERS.idempotencyKey, required: true })
+  @ApiBody({ schema: { $ref: "#/components/schemas/ClaimGuestPayment" } })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/GuestVisit" } })
+  @HttpCode(200)
+  @Post(":token/payment-claims")
+  async claimPayment(
+    @Param(new ZodValidationPipe(publicQrTokenParamsSchema)) params: { token: string },
+    @Headers(API_HEADERS.idempotencyKey) key: string | undefined,
+    @Body(new ZodValidationPipe(claimGuestPaymentSchema)) input: ClaimGuestPayment,
+  ) {
+    const idempotencyKey = new ZodValidationPipe(idempotencyKeySchema).transform(key) as string;
+    return guestVisitSchema.parse(
+      await this.guests.claimPayment(params.token, input.method, idempotencyKey),
     );
   }
 

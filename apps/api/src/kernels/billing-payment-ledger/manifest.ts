@@ -29,7 +29,7 @@ export const billManifest: ModuleManifest = {
 export const paymentLedgerManifest: ModuleManifest = {
   ...shared,
   displayName: "Payment Ledger Core",
-  eventsProduced: ["payment.recorded.v1"],
+  eventsProduced: ["payment.recorded.v1", "payment.claimed.v1", "payment.claim_rejected.v1"],
   internalDependencies: [MODULES.coreBill],
   key: MODULES.corePaymentLedger,
 };

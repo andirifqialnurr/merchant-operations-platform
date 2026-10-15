@@ -7,7 +7,7 @@ import { IconArrowDown, IconArrowUp, IconPencil, IconPlus } from "@tabler/icons-
 import type { Floor, FloorArea, FloorRecordStatus } from "@merchant/contracts";
 import { Button, IconButton } from "@merchant/ui/button";
 import { Badge } from "@merchant/ui/feedback";
-import { FormField, Input } from "@merchant/ui/form-field";
+import { FormField, Input, Textarea } from "@merchant/ui/form-field";
 import { Sheet } from "@merchant/ui/overlay";
 import { Switch } from "@merchant/ui/selection-control";
 
@@ -33,6 +33,50 @@ function moved(ids: readonly string[], id: string, step: -1 | 1) {
 }
 
 /** A name typed in place, for adding or renaming. */
+const MAX_PAYMENT_NOTE = 500;
+
+/** How guests pay from the table; empty means they pay at the cashier. */
+function PaymentNoteForm({
+  initial,
+  onSave,
+  pending,
+}: Readonly<{ initial: string | null; onSave: (note: string | null) => void; pending: boolean }>) {
+  const t = useTranslations("floor");
+  const [note, setNote] = useState(initial ?? "");
+  const id = useId();
+  const changed = note.trim() !== (initial ?? "");
+  return (
+    <form
+      className="grid gap-2"
+      noValidate
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSave(note.trim() || null);
+      }}
+    >
+      <FormField
+        helperText={t("guestPaymentNoteHint")}
+        htmlFor={id}
+        label={t("guestPaymentNote")}
+        optionalLabel={t("optional")}
+      >
+        <Textarea
+          id={id}
+          maxLength={MAX_PAYMENT_NOTE}
+          onChange={(event) => setNote(event.target.value)}
+          rows={3}
+          value={note}
+        />
+      </FormField>
+      <div>
+        <Button disabled={!changed || pending} size="sm" type="submit" variant="secondary">
+          {t("savePaymentNote")}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 function NameForm({
   initial = "",
   label,
@@ -289,6 +333,19 @@ export function StructureSheet({
                 )
               }
             />
+            <div className="mt-3">
+              <PaymentNoteForm
+                initial={policy.data.guestPaymentNote}
+                key={policy.data.guestPaymentNote ?? ""}
+                onSave={(guestPaymentNote) =>
+                  run(
+                    () => merchantApi.setFloorPolicy(tenantId, outletId, { guestPaymentNote }),
+                    t("policySaved"),
+                  )
+                }
+                pending={pending}
+              />
+            </div>
           </div>
         ) : null}
         {floors.map((floor, index) => (

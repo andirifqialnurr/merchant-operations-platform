@@ -1,4 +1,4 @@
-import type { FloorRecordStatus, TableSessionStatus } from "@merchant/contracts";
+import type { FloorPolicy, FloorRecordStatus, TableSessionStatus } from "@merchant/contracts";
 
 import type { ActorCommandOrigin, CommandOrigin } from "../../../shared/command/command-origin.js";
 import type { FloorTableRecord } from "./floor-table.repository.js";
@@ -76,15 +76,15 @@ export interface TableSessionRepository {
   ): Promise<TableSessionRecord>;
   /** The visit holding the table now, open, closing, or waiting to be cleaned. */
   holderOf(tenantId: string, outletId: string, tableId: string): Promise<TableSessionRecord | null>;
-  policy(tenantId: string, outletId: string): Promise<{ cleaningAfterClose: boolean }>;
+  policy(tenantId: string, outletId: string): Promise<FloorPolicy>;
   /** The label of the visit's primary table, the last one it had once closed. */
   primaryTableLabel(tenantId: string, outletId: string, sessionId: string): Promise<string | null>;
   setPolicy(
     tenantId: string,
     outletId: string,
-    policy: { cleaningAfterClose: boolean },
+    policy: FloorPolicy,
     origin: CommandOrigin,
-  ): Promise<{ cleaningAfterClose: boolean }>;
+  ): Promise<FloorPolicy>;
 }
 
 export class TableTakenError extends Error {}

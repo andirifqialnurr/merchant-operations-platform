@@ -487,7 +487,9 @@
     "SELF_ORDER_CLOSED": "This table is not taking orders from its QR right now. Please ask our staff.",
     "TABLE_QR_INVALID": "This QR code no longer leads to a table. Please ask our staff.",
     "TABLE_VISIT_NOT_OPEN": "Order first, or speak to our staff directly.",
-    "SERVICE_REQUEST_NOT_FOUND": "This request was already handled."
+    "SERVICE_REQUEST_NOT_FOUND": "This request was already handled.",
+    "PAYMENT_CLAIM_CHANGED": "This payment claim was decided already or its total changed. The view is refreshed.",
+    "SELF_ORDER_PAYMENT_UNAVAILABLE": "Please pay at the cashier."
   },
   "subscription": {
     "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",
@@ -1383,7 +1385,19 @@
     "request": {
       "WAITER": "Calls a waiter",
       "BILL": "Asks for the bill"
-    }
+    },
+    "claim": {
+      "MERCHANT_QRIS": "Paid by QRIS",
+      "TRANSFER": "Paid by transfer"
+    },
+    "claimNotice": "The guests say they paid {amount}. Check the money arrived before confirming.",
+    "claimRejected": "Payment claim at {label} rejected.",
+    "confirmClaim": "Confirm payment",
+    "guestPaymentNote": "How guests pay from the table",
+    "guestPaymentNoteHint": "Shown to guests, e.g. the bank account or where the QRIS is. Leave empty when guests pay at the cashier.",
+    "rejectClaim": "Reject",
+    "savePaymentNote": "Save payment note",
+    "optional": "optional"
   },
   "guest": {
     "allCategories": "All",
@@ -1430,6 +1444,16 @@
     "askBill": "Ask for the bill",
     "waiterCalled": "Waiter called",
     "billAsked": "Bill requested",
-    "requestSent": "Our staff will be with you shortly."
+    "requestSent": "Our staff will be with you shortly.",
+    "claimPaid": "I have paid",
+    "claimSent": "The cashier will check your payment.",
+    "claimWaiting": "Waiting for the cashier to confirm",
+    "method": {
+      "MERCHANT_QRIS": "QRIS",
+      "TRANSFER": "Transfer"
+    },
+    "paidAll": "Everything is paid. Thank you!",
+    "payMethod": "Paid with",
+    "payTitle": "Pay from your table"
   }
 }

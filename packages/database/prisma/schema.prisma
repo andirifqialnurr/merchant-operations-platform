@@ -1405,16 +1405,19 @@ model BillingPayment {
   tenderedMinor     BigInt?             @map("tendered_minor") @db.BigInt
   status            PaymentStatus
   reference         String?             @db.VarChar(120)
-  actorId           String              @map("actor_id") @db.Uuid
+  /// Empty only on a guest's claim that no cashier has decided yet.
+  actorId           String?             @map("actor_id") @db.Uuid
   confirmedBy       String?             @map("confirmed_by") @db.Uuid
   confirmedAt       DateTime?           @map("confirmed_at") @db.Timestamptz(6)
   idempotencyKey    String              @map("idempotency_key") @db.VarChar(255)
+  /// The table visit a guest's claim is for; a reference only.
+  tableSessionId    String?             @map("table_session_id") @db.Uuid
   createdAt         DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt         DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
   tenant            Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   outlet            Outlet              @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
   registerSession   PosRegisterSession? @relation(fields: [tenantId, registerSessionId], references: [tenantId, id], onDelete: Restrict)
-  actor             User                @relation("PaymentActor", fields: [actorId], references: [id], onDelete: Restrict)
+  actor             User?               @relation("PaymentActor", fields: [actorId], references: [id], onDelete: Restrict)
   confirmer         User?               @relation("PaymentConfirmedBy", fields: [confirmedBy], references: [id], onDelete: Restrict)
   allocations       PaymentAllocation[]
   refunds           SaleRefund[]
@@ -1849,6 +1852,8 @@ model FloorOutletPolicy {
   tenantId           String   @map("tenant_id") @db.Uuid
   outletId           String   @map("outlet_id") @db.Uuid
   cleaningAfterClose Boolean  @default(false) @map("cleaning_after_close")
+  /// How guests can pay from the table; none means they pay at the cashier.
+  guestPaymentNote   String?  @map("guest_payment_note") @db.VarChar(500)
   updatedAt          DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
   outlet             Outlet   @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict, map: "floor_outlet_policies_outlet_fkey")
 

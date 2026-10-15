@@ -14,6 +14,8 @@ import type {
   CheckoutRecord,
   FullPayment,
   FullPaymentOutcome,
+  NewPaymentClaim,
+  PaymentClaimRecord,
   SessionPayment,
 } from "./billing.repository.js";
 import { BillingService, type PayableOrder } from "./billing.service.js";
@@ -27,6 +29,39 @@ class InMemoryBillingRepository implements BillingRepository {
   readonly checkouts: (CheckoutRecord & { key: string; method: string; shift: string })[] = [];
   shiftOpen = true;
   canceledOrders = new Set<string>();
+  readonly claims: PaymentClaimRecord[] = [];
+
+  async claimPayment(claim: NewPaymentClaim) {
+    const waiting = this.claims.find(
+      (item) => item.status === "VERIFYING" && item.tableSessionId === claim.tableSessionId,
+    );
+    if (waiting) return waiting;
+    const made: PaymentClaimRecord = {
+      amountMinor: claim.amountMinor,
+      claimedAt: new Date(),
+      id: randomUUID(),
+      method: claim.method,
+      status: "VERIFYING",
+      tableSessionId: claim.tableSessionId,
+    };
+    this.claims.push(made);
+    return made;
+  }
+
+  async findClaim(_tenantId: string, _outletId: string, id: string) {
+    return this.claims.find((item) => item.id === id) ?? null;
+  }
+
+  async verifyingClaims() {
+    return this.claims.filter((item) => item.status === "VERIFYING");
+  }
+
+  async rejectClaim(_tenantId: string, _outletId: string, id: string) {
+    const claim = this.claims.find((item) => item.id === id && item.status === "VERIFYING");
+    if (!claim) return null;
+    claim.status = "FAILED";
+    return claim;
+  }
 
   async findSessionCheckoutByIdempotencyKey(_tenantId: string, _outletId: string, key: string) {
     const found = this.checkouts.filter((item) => item.key === key);
@@ -39,6 +74,18 @@ class InMemoryBillingRepository implements BillingRepository {
 
   async recordSessionPayment(payment: SessionPayment) {
     if (!this.shiftOpen) return { kind: "shift_not_open" as const };
+    if (payment.claimId) {
+      const claim = this.claims.find((item) => item.id === payment.claimId);
+      if (
+        !claim ||
+        claim.status !== "VERIFYING" ||
+        claim.amountMinor !== payment.totalMinor ||
+        claim.method !== payment.method
+      ) {
+        return { kind: "claim_changed" as const };
+      }
+      claim.status = "PAID";
+    }
     if (payment.bills.some((line) => this.canceledOrders.has(line.orderId))) {
       return { kind: "order_canceled" as const };
     }
@@ -701,5 +748,102 @@ test("a table visit is not paid with a changed total, too little cash, or nothin
   await rejectsWithCode(
     visit({ method: "EDC" }, [order(), order({ status: "CANCELED" })]),
     "ORDER_CANCELED",
+  );
+});
+
+test("guests claim a visit's payment; it waits for a cashier, who confirms or rejects it", async () => {
+  const { repository, service } = setup();
+  const orders = [order({ subtotalMinor: "50000" }), order({ subtotalMinor: "25000" })];
+  const claimFor = (key: string) =>
+    service.claimTableSessionPayment(
+      {
+        charges: NO_CHARGES,
+        idempotencyKey: key,
+        method: "TRANSFER",
+        orders,
+        outletId: OUTLET,
+        tableSessionId: VISIT,
+        tenantId: TENANT,
+      },
+      { channel: "WEB" },
+    );
+  const claim = await claimFor("guest-1");
+  assert.equal(claim.amountMinor, "75000");
+  // Claiming again while waiting is the same claim; nothing is paid yet.
+  assert.equal((await claimFor("guest-2")).id, claim.id);
+  assert.equal(repository.checkouts.length, 0);
+  assert.deepEqual(
+    (await service.verifyingClaims(TENANT, OUTLET)).map((item) => item.id),
+    [claim.id],
+  );
+
+  // A claim for a different amount than the visit now owes is not confirmed.
+  await rejectsWithCode(
+    service.payTableSessionInFull(
+      {
+        ...base,
+        claimId: claim.id,
+        idempotencyKey: "cashier-0",
+        orders: [...orders, order({ subtotalMinor: "10000" })],
+        pay: { method: "TRANSFER" },
+        tableSessionId: VISIT,
+      },
+      context,
+    ),
+    "PAYMENT_CLAIM_CHANGED",
+  );
+
+  const paid = await service.payTableSessionInFull(
+    {
+      ...base,
+      claimId: claim.id,
+      idempotencyKey: "cashier-1",
+      orders,
+      pay: { expectedTotalMinor: "75000", method: "TRANSFER" },
+      tableSessionId: VISIT,
+    },
+    context,
+  );
+  assert.equal(paid.payment.amountMinor, "75000");
+  assert.equal(repository.claims[0]!.status, "PAID");
+  assert.deepEqual(await service.verifyingClaims(TENANT, OUTLET), []);
+  await rejectsWithCode(
+    service.rejectClaim(TENANT, OUTLET, claim.id, context),
+    "PAYMENT_CLAIM_CHANGED",
+  );
+
+  // Rejected: the guest may claim again.
+  const second = await service.claimTableSessionPayment(
+    {
+      charges: NO_CHARGES,
+      idempotencyKey: "guest-3",
+      method: "MERCHANT_QRIS",
+      orders: [order()],
+      outletId: OUTLET,
+      tableSessionId: randomUUID(),
+      tenantId: TENANT,
+    },
+    { channel: "WEB" },
+  );
+  assert.equal((await service.rejectClaim(TENANT, OUTLET, second.id, context)).id, second.id);
+  assert.equal(await service.verifyingClaim(TENANT, OUTLET, second.id), null);
+
+  // Nothing owed, nothing to claim.
+  await rejectsWithCode(
+    claimFor("guest-4").then(() =>
+      service.claimTableSessionPayment(
+        {
+          charges: NO_CHARGES,
+          idempotencyKey: "guest-5",
+          method: "TRANSFER",
+          orders: [],
+          outletId: OUTLET,
+          tableSessionId: VISIT,
+          tenantId: TENANT,
+        },
+        { channel: "WEB" },
+      ),
+    ),
+    "TABLE_SESSION_NOTHING_TO_PAY",
   );
 });

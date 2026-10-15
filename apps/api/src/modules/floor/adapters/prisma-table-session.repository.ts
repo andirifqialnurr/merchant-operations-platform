@@ -1,4 +1,4 @@
-import type { FloorTableRotation } from "@merchant/contracts";
+import type { FloorPolicy, FloorTableRotation } from "@merchant/contracts";
 import { getPrismaClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
@@ -386,22 +386,20 @@ export class PrismaTableSessionRepository implements TableSessionRepository {
 
   async policy(tenantId: string, outletId: string) {
     const row = await getPrismaClient().floorOutletPolicy.findUnique({
-      select: { cleaningAfterClose: true },
+      select: { cleaningAfterClose: true, guestPaymentNote: true },
       where: { tenantId_outletId: { outletId, tenantId } },
     });
-    return { cleaningAfterClose: row?.cleaningAfterClose ?? false };
+    return {
+      cleaningAfterClose: row?.cleaningAfterClose ?? false,
+      guestPaymentNote: row?.guestPaymentNote ?? null,
+    };
   }
 
-  async setPolicy(
-    tenantId: string,
-    outletId: string,
-    policy: { cleaningAfterClose: boolean },
-    origin: CommandOrigin,
-  ) {
+  async setPolicy(tenantId: string, outletId: string, policy: FloorPolicy, origin: CommandOrigin) {
     return getPrismaClient().$transaction(async (transaction) => {
       const saved = await transaction.floorOutletPolicy.upsert({
         create: { ...policy, outletId, tenantId },
-        select: { cleaningAfterClose: true },
+        select: { cleaningAfterClose: true, guestPaymentNote: true },
         update: { ...policy, updatedAt: new Date() },
         where: { tenantId_outletId: { outletId, tenantId } },
       });

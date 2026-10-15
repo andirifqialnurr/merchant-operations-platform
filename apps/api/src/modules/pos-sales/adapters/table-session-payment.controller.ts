@@ -5,7 +5,11 @@ import {
   MODULES,
   payOrderSchema,
   PERMISSIONS,
+  paymentClaimSchema,
+  requestContextHeadersSchema,
   tableSessionCheckoutSchema,
+  tableSessionClaimParamsSchema,
+  type RequestContextHeaders,
   type AuthorizationContext,
   type IdempotentRequestHeaders,
   type PayOrder,
@@ -84,6 +88,56 @@ export class TableSessionPaymentController {
         params.id,
         input,
         headers[API_HEADERS.idempotencyKey],
+        commandOriginFromRequest(access.userId, headers, access.deviceId),
+      ),
+    );
+  }
+
+  @ApiOperation({ summary: "Confirm the guests' transfer or QRIS claim as the visit's payment" })
+  @ApiHeader({ name: API_HEADERS.idempotencyKey, required: true })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/TableSessionCheckout" } })
+  @ApiConflictResponse({ schema: { $ref: "#/components/schemas/ApiError" } })
+  @RequirePermission(PERMISSIONS.paymentConfirm)
+  @HttpCode(200)
+  @Post(":id/claims/:claimId/confirm")
+  async confirmClaim(
+    @RequestHeaders(new ZodValidationPipe(idempotentRequestHeadersSchema))
+    headers: IdempotentRequestHeaders,
+    @Param(new ZodValidationPipe(tableSessionClaimParamsSchema))
+    params: { claimId: string; id: string },
+    @CurrentAccess() access: AuthorizationContext,
+  ) {
+    return tableSessionCheckoutSchema.parse(
+      await this.checkout.confirmClaim(
+        headers[API_HEADERS.tenantId],
+        headers[API_HEADERS.outletId],
+        params.id,
+        params.claimId,
+        headers[API_HEADERS.idempotencyKey],
+        commandOriginFromRequest(access.userId, headers, access.deviceId),
+      ),
+    );
+  }
+
+  @ApiOperation({ summary: "The guests' payment did not arrive: reject their claim" })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/PaymentClaim" } })
+  @ApiConflictResponse({ schema: { $ref: "#/components/schemas/ApiError" } })
+  @RequirePermission(PERMISSIONS.paymentConfirm)
+  @HttpCode(200)
+  @Post(":id/claims/:claimId/reject")
+  async rejectClaim(
+    @RequestHeaders(new ZodValidationPipe(requestContextHeadersSchema))
+    headers: RequestContextHeaders,
+    @Param(new ZodValidationPipe(tableSessionClaimParamsSchema))
+    params: { claimId: string; id: string },
+    @CurrentAccess() access: AuthorizationContext,
+  ) {
+    return paymentClaimSchema.parse(
+      await this.checkout.rejectClaim(
+        headers[API_HEADERS.tenantId],
+        headers[API_HEADERS.outletId],
+        params.id,
+        params.claimId,
         commandOriginFromRequest(access.userId, headers, access.deviceId),
       ),
     );
