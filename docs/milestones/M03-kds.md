@@ -77,7 +77,7 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 ### OP — Operasional dan dokumentasi
 
 - [x] **M3-OP-01 Seed dan akun dapur** `dc96233` — akun Kitchen dan satu perangkat KDS lokal. Selesai 13 Oktober 2026 (TODO 14.13): `pnpm --filter @merchant/api local:users:provision`.
-- [ ] **M3-OP-02 Perbarui dokumen** — `schema.md` B.5, `flowchart.md` 8, `architecture.md` 7.2.
+- [x] **M3-OP-02 Perbarui dokumen** — `schema.md` B.5, `flowchart.md` 8, `architecture.md` 7.2. Selesai 15 Oktober 2026 (TODO 14.20). `schema.md` B.5 (tabel, migrasi, trigger), `flowchart.md` 8 (layar, ticket baru, timer, koneksi, kios), `architecture.md` 7.2 (event dan konsumen dapur) dan 10 (realtime). Pintu API eksternal belum didokumentasikan karena menunggu `OD-04`.
 
 ## 5. Urutan checkpoint yang disarankan
 

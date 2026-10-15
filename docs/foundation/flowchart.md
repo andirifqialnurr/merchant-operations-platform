@@ -341,6 +341,14 @@ flowchart TD
 
 Setiap ticket hanya menampilkan satu tombol aksi: langkah berikutnya yang sah. Timer berubah warna saat mendekati dan melewati batas waktu, tanpa berkedip.
 
+Yang berjalan sejak 15 Oktober 2026:
+
+- **Membuka layar:** `/kds`. Perangkat yang diaktifkan sebagai layar dapur (`/activate` → 'Buka layar dapur', lalu masuk) menerima perubahan antrean seketika lewat realtime. Akun berizin di browser biasa melihat antrean yang sama, dibaca ulang tiap 4 detik.
+- **Ticket baru:** hanya ticket yang masuk setelah layar dibuka: satu bunyi dan cincin tetap selama 30 detik. Tombol suara di toolbar: bisu dan volume (pelan/sedang/keras) untuk perangkat itu. Bila browser menahan suara sampai ada ketukan, muncul 'Suara belum aktif' dengan 'Nyalakan suara'.
+- **Timer:** kuning mulai menit ke-10, merah mulai menit ke-15 sejak ticket diterima.
+- **Koneksi:** realtime putus → satu bunyi dan banner 'Menyambung ulang…'; perangkat offline → 'Perangkat offline'. Keduanya dengan 'Ticket di layar mungkin belum terbaru.' dan 'Muat ulang'. Setelah tersambung, antrean diambil ulang dan banner hilang.
+- **Mode kios:** tombol layar penuh di bar atas; selama aktif ticket memakai ukuran `kiosk` yang terbaca dari 1–2 meter.
+
 ---
 
 ## 9. Stok
