@@ -270,6 +270,8 @@ flowchart TD
 
 Lokasi baru sudah memiliki `Main Floor` dan `Main Area`, sehingga pengguna dapat langsung menambah meja. Pada layar kecil, posisi dan properti diatur lewat form; seret presisi tidak diwajibkan.
 
+**Berjalan sejak 16 Oktober 2026 (`/floor`):** "Tempatkan" dari baki menaruh meja di tempat kosong pertama yang muat; setelah itu meja diseret, digeser dengan panah, atau diisi kolom/barisnya. Semua perubahan satu lantai disimpan bersama dengan **Simpan tata letak**; server menolak seluruh simpanan bila ada meja yang saling menimpa atau keluar denah (`FLOOR_LAYOUT_INVALID`, dengan label meja yang bermasalah). Meja yang menimpa ditandai di denah dan tombol Simpan mati sampai diperbaiki. Menutup halaman dengan perubahan belum disimpan memunculkan peringatan browser.
+
 ### 6.2 Operasi meja (POS)
 
 ```mermaid

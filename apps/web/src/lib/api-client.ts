@@ -98,6 +98,12 @@ import {
   createKdsIntakeSourceSchema,
   createFloorAreaSchema,
   createFloorSchema,
+  createFloorTableSchema,
+  floorTableListSchema,
+  floorTableSchema,
+  saveFloorLayoutSchema,
+  type CreateFloorTable,
+  type FloorTableLayout,
   floorAreaSchema,
   floorListSchema,
   floorSchema,
@@ -249,7 +255,7 @@ function outletHeaders(tenantId: string, outletId: string) {
 
 function jsonMutation<TInput, TOutput>(
   path: string,
-  method: "POST" | "PATCH",
+  method: "POST" | "PATCH" | "PUT",
   input: TInput,
   inputSchema: Schema<TInput>,
   outputSchema: Schema<TOutput>,
@@ -823,6 +829,35 @@ export const merchantApi = {
       { ids },
       reorderFloorItemsSchema,
       floorListSchema,
+      outletHeaders(tenantId, outletId),
+    ),
+  /** The outlet's tables, placed or waiting in the tray. */
+  floorTables: (tenantId: string, outletId: string) =>
+    apiRequest("/floor/tables", floorTableListSchema, {
+      headers: outletHeaders(tenantId, outletId),
+    }),
+  createFloorTable: (tenantId: string, outletId: string, input: CreateFloorTable) =>
+    jsonMutation(
+      "/floor/tables",
+      "POST",
+      input,
+      createFloorTableSchema,
+      floorTableSchema,
+      outletHeaders(tenantId, outletId),
+    ),
+  /** Saves the changed tables of one floor, all or none. */
+  saveFloorLayout: (
+    tenantId: string,
+    outletId: string,
+    floorId: string,
+    tables: FloorTableLayout[],
+  ) =>
+    jsonMutation(
+      `/floor/floors/${entityIdParamsSchema.parse({ id: floorId }).id}/layout`,
+      "PUT",
+      { tables },
+      saveFloorLayoutSchema,
+      floorTableListSchema,
       outletHeaders(tenantId, outletId),
     ),
   /** The outlet's kitchen tickets still being worked on, oldest first. */

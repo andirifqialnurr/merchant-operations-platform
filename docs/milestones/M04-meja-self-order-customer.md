@@ -17,7 +17,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 ## 3. Kriteria selesai
 
 - [x] Lokasi baru langsung memiliki `Main Floor` dan `Main Area`. _Trigger database pada `outlets`; integration `floor-layout` (TODO 13.10)._
-- [ ] Editor menempatkan meja tiga bentuk; tumpang tindih dan keluar batas ditolak; tersedia alternatif form untuk layar kecil dan keyboard.
+- [x] Editor menempatkan meja tiga bentuk; tumpang tindih dan keluar batas ditolak; tersedia alternatif form untuk layar kecil dan keyboard. _M4-FT-02, M4-UX-01 (TODO 13.12)._
 - [ ] Sesi meja dibuka, ditambah pesanan, dipindah meja dengan pesanan dan tagihan tetap, dibayar, lalu ditutup.
 - [ ] Status meja adalah projection dari sesi, tidak bisa diisi bebas.
 - [ ] QR mentah tidak disimpan; rotasi dan cabut membuat QR lama tidak berlaku.
@@ -31,7 +31,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 ### FT — Fitur produk
 
 - [x] **M4-FT-01 Lantai dan area** `993dbb1` — tambah, ubah nama, urutkan, nonaktifkan. Selesai 16 Oktober 2026 (TODO 13.10). Halaman **Meja** (`/floor`, izin `table.layout.manage`): tab lantai aktif dan daftar area lantai terpilih; panel **Lantai dan area** untuk tambah, ubah nama, naik/turun, nonaktifkan/aktifkan lagi. Lantai/area terakhir yang aktif atau yang masih berisi meja aktif tidak bisa dinonaktifkan. Tidak ada hapus.
-- [ ] **M4-FT-02 Editor meja** — label, kapasitas, bentuk, ukuran, rotasi, aktif, pesan lewat QR; baki "belum ditempatkan"; simpan tata letak.
+- [x] **M4-FT-02 Editor meja** — label, kapasitas, bentuk, ukuran, rotasi, aktif, pesan lewat QR; baki "belum ditempatkan"; simpan tata letak. Selesai 16 Oktober 2026 (TODO 13.12). Meja baru (label, kursi, bentuk, ukuran, area) masuk baki; "Tempatkan" menaruhnya di tempat kosong pertama. Panel meja: label, kursi, bentuk, ukuran, arah (persegi panjang saja), area, kolom/baris, pesan lewat QR, aktif, kembalikan ke baki. Semua perubahan jadi draf sampai **Simpan tata letak**; Buang perubahan mengembalikannya. Ukuran sel grid tidak bisa diketik: mengikuti bentuk + ukuran + arah (aturan yang sama di API dan web, `floorTableFootprint` di contracts).
 - [ ] **M4-FT-03 Tampilan meja di POS** — filter lantai, area, status; buka meja dengan jumlah tamu.
 - [ ] **M4-FT-04 Panel sesi** — tamu, durasi, pesanan, tagihan; tambah pesanan; bayar; tutup sesi; kebijakan bersih-bersih.
 - [ ] **M4-FT-05 Pindah meja** — aksi tersendiri dengan asal dan tujuan.
@@ -56,7 +56,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 
 ### UX — Alur dan interaksi
 
-- [ ] **M4-UX-01 Editor tata letak** — seret di layar lebar, form di layar kecil, alternatif keyboard.
+- [x] **M4-UX-01 Editor tata letak** — seret di layar lebar, form di layar kecil, alternatif keyboard. Selesai 16 Oktober 2026 (TODO 13.12). ≥1280 px: denah + panel meja di samping. Di bawahnya: denah bisa digulir di kotaknya sendiri, panel meja jadi sheet dengan kolom/baris sebagai pengganti seret. Keyboard: Enter/Spasi memilih meja, panah menggeser satu sel, plus tombol panah di atas denah. Seret mouse mulai setelah 5 px sehingga klik tetap memilih. Meja yang saling menimpa ditandai dan Simpan dimatikan; server tetap memeriksa ulang.
 - [ ] **M4-UX-02 Surface tamu** — rute `(customer)`, HP dulu, pemilih bahasa di header, bar keranjang lengket.
 - [ ] **M4-UX-03 State QR** — tidak berlaku, outlet tutup, menu kosong.
 - [ ] **M4-UX-04 Capability terkunci** — gabung/pisah meja menampilkan state "butuh tier Pro".

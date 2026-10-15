@@ -3,13 +3,12 @@
 import { type CSSProperties, type KeyboardEvent } from "react";
 import {
   DragDropProvider,
-  KeyboardSensor,
   PointerSensor,
   type DragEndEvent,
   useDraggable,
   useDroppable,
 } from "@dnd-kit/react";
-import { Accessibility } from "@dnd-kit/dom";
+import { Accessibility, PointerActivationConstraints } from "@dnd-kit/dom";
 import { IconArrowDown, IconArrowLeft, IconArrowRight, IconArrowUp } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
@@ -22,7 +21,8 @@ import {
 } from "./table-tile";
 
 export type TableLayoutCanvasMode = "view" | "edit" | "preview";
-export type TableLayoutCanvasVariant = "compact" | "default" | "wide";
+/** `fit` takes exactly the grid's size; the others keep a minimum area. */
+export type TableLayoutCanvasVariant = "compact" | "default" | "fit" | "wide";
 
 export type TableLayoutGridPosition = {
   gridH: number;
@@ -482,9 +482,13 @@ export function TableLayoutCanvas({
       <DragDropProvider
         onDragEnd={handleDragEnd}
         plugins={(defaults) => defaults.filter((plugin) => plugin !== Accessibility)}
+        // A press that does not travel is a click that selects the table.
+        // Keys are handled by the tiles themselves: Enter or Space selects,
+        // the arrows move the selected table one cell.
         sensors={[
-          PointerSensor,
-          KeyboardSensor.configure({ offset: { x: cellSize, y: cellSize } }),
+          PointerSensor.configure({
+            activationConstraints: [new PointerActivationConstraints.Distance({ value: 5 })],
+          }),
         ]}
       >
         <TableLayoutCanvasSurface

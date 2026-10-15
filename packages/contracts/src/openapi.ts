@@ -157,10 +157,14 @@ import {
 import {
   createFloorAreaSchema,
   createFloorSchema,
+  createFloorTableSchema,
   floorAreaSchema,
   floorListSchema,
   floorSchema,
+  floorTableListSchema,
+  floorTableSchema,
   reorderFloorItemsSchema,
+  saveFloorLayoutSchema,
   updateFloorAreaSchema,
   updateFloorSchema,
 } from "./floor.ts";
@@ -363,10 +367,14 @@ export const kdsOpenApiSchemas = {
 export const floorOpenApiSchemas = {
   CreateFloor: toOpenApiSchema(createFloorSchema),
   CreateFloorArea: toOpenApiSchema(createFloorAreaSchema),
+  CreateFloorTable: toOpenApiSchema(createFloorTableSchema),
   Floor: toOpenApiSchema(floorSchema),
   FloorArea: toOpenApiSchema(floorAreaSchema),
   FloorList: toOpenApiSchema(floorListSchema),
+  FloorTable: toOpenApiSchema(floorTableSchema),
+  FloorTableList: toOpenApiSchema(floorTableListSchema),
   ReorderFloorItems: toOpenApiSchema(reorderFloorItemsSchema),
+  SaveFloorLayout: toOpenApiSchema(saveFloorLayoutSchema),
   UpdateFloor: toOpenApiSchema(updateFloorSchema),
   UpdateFloorArea: toOpenApiSchema(updateFloorAreaSchema),
 } as const;

@@ -220,6 +220,88 @@ test("a new outlet has a Main Floor and Main Area; floors and areas are managed 
         /floor_service_tables_position_check/,
       );
 
+      // Tables through the editor's endpoints.
+      const mainArea = main.areas[0].id;
+      const added = await ownerApi("POST", "/floor/tables", pusat.id, {
+        areaId: mainArea,
+        capacity: 4,
+        label: "T2",
+        shape: "RECTANGLE",
+        visualSize: "MEDIUM",
+      });
+      assert.equal(added.status, 201);
+      assert.deepEqual([added.body.gridX, added.body.gridW, added.body.gridH], [null, 4, 2]);
+      assert.equal(
+        (
+          await ownerApi("POST", "/floor/tables", pusat.id, {
+            areaId: mainArea,
+            capacity: 2,
+            label: "t1",
+            shape: "ROUND",
+            visualSize: "SMALL",
+          })
+        ).body.code,
+        "FLOOR_TABLE_LABEL_TAKEN",
+      );
+      // The cashier sees the tables but cannot move them.
+      const seen = await cashierApi("GET", "/floor/tables", pusat.id);
+      assert.equal(seen.status, 200);
+      assert.deepEqual(seen.body.tables.map((table) => table.label).sort(), ["T1", "T2"]);
+      const layout = (table, change) => ({
+        areaId: table.areaId,
+        capacity: table.capacity,
+        gridX: table.gridX,
+        gridY: table.gridY,
+        id: table.id,
+        label: table.label,
+        qrOrdering: table.qrOrdering,
+        rotation: table.rotation,
+        shape: table.shape,
+        status: table.status,
+        visualSize: table.visualSize,
+        ...change,
+      });
+      const t1 = seen.body.tables.find((table) => table.label === "T1");
+      assert.equal(
+        (
+          await cashierApi("PUT", `/floor/floors/${main.id}/layout`, pusat.id, {
+            tables: [layout(added.body, { gridX: 0, gridY: 0 })],
+          })
+        ).status,
+        403,
+      );
+      // T1 sits at no place yet; T2 goes to the corner, turned.
+      const saved = await ownerApi("PUT", `/floor/floors/${main.id}/layout`, pusat.id, {
+        tables: [layout(added.body, { gridX: 0, gridY: 0, rotation: 90 })],
+      });
+      assert.equal(saved.status, 200);
+      const corner = saved.body.tables.find((table) => table.label === "T2");
+      assert.deepEqual([corner.gridX, corner.gridY, corner.gridW, corner.gridH], [0, 0, 2, 4]);
+      const clash = await ownerApi("PUT", `/floor/floors/${main.id}/layout`, pusat.id, {
+        tables: [layout(t1, { gridX: 1, gridY: 1 })],
+      });
+      assert.equal(clash.status, 409);
+      assert.equal(clash.body.code, "FLOOR_LAYOUT_INVALID");
+      assert.deepEqual(clash.body.details.issues, [{ kind: "OVERLAP", label: "T1", other: "T2" }]);
+      // Footprints sent by a client are not part of the request at all.
+      assert.equal(
+        (
+          await ownerApi("PUT", `/floor/floors/${main.id}/layout`, pusat.id, {
+            tables: [{ ...layout(t1, { gridX: 5, gridY: 5 }), gridW: 1 }],
+          })
+        ).status,
+        400,
+      );
+      // A table of this floor is not saved through another.
+      assert.equal(
+        (
+          await ownerApi("PUT", `/floor/floors/${upstairs.body.id}/layout`, pusat.id, {
+            tables: [layout(t1, { gridX: 5, gridY: 5 })],
+          })
+        ).body.code,
+        "FLOOR_TABLE_NOT_FOUND",
+      );
+
       const audits = (
         await database.query(
           `SELECT action FROM audit_logs WHERE entity_type IN ('floor_floor', 'floor_area')
@@ -229,6 +311,7 @@ test("a new outlet has a Main Floor and Main Area; floors and areas are managed 
       assert.ok(audits.includes("floor.floor.create"));
       assert.ok(audits.includes("floor.area.update"));
       assert.ok(audits.includes("floor.floor.reorder"));
+      assert.ok(audits.includes("floor.layout.save"));
     } finally {
       await app.close();
       await db.$disconnect();

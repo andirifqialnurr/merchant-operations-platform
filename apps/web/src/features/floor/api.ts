@@ -10,7 +10,16 @@ import { isLimitReached } from "@/shell/limit-reached-state";
 /** Keys carry the workspace and outlet: one outlet's floors are never another's. */
 export const floorKeys = {
   floors: (tenantId: string, outletId: string) => ["floor", tenantId, outletId, "floors"] as const,
+  tables: (tenantId: string, outletId: string) => ["floor", tenantId, outletId, "tables"] as const,
 };
+
+/** The outlet's tables, placed or waiting in the tray. */
+export function useFloorTables(tenantId: string, outletId: string) {
+  return useQuery({
+    queryFn: () => merchantApi.floorTables(tenantId, outletId),
+    queryKey: floorKeys.tables(tenantId, outletId),
+  });
+}
 
 /** The outlet's floors with their areas, active or not, in display order. */
 export function useFloors(tenantId: string, outletId: string, enabled: boolean) {
@@ -38,6 +47,7 @@ export function useFloorMutation(tenantId: string, outletId: string) {
     onSuccess: async (_result, { success }) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: floorKeys.floors(tenantId, outletId) }),
+        queryClient.invalidateQueries({ queryKey: floorKeys.tables(tenantId, outletId) }),
         queryClient.invalidateQueries({ queryKey: ["subscription", tenantId] }),
       ]);
       if (success) notify({ message: success, tone: "success" });

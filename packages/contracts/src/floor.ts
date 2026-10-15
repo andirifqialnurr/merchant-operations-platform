@@ -80,3 +80,121 @@ export type ReorderFloorItems = z.infer<typeof reorderFloorItemsSchema>;
 export type UpdateFloor = z.infer<typeof updateFloorSchema>;
 
 export type UpdateFloorArea = z.infer<typeof updateFloorAreaSchema>;
+
+export const floorTableRotationSchema = z.union([z.literal(0), z.literal(90)]);
+
+export type FloorTableFootprint = { gridH: number; gridW: number };
+
+/**
+ * How many grid cells a table takes. In Basic the footprint follows from its
+ * shape and size; free resizing is a Pro capability (`floor.layout.advanced`).
+ * A quarter turn swaps width and height.
+ */
+const FLOOR_TABLE_FOOTPRINTS: Record<
+  FloorTableShape,
+  Record<FloorTableSize, FloorTableFootprint>
+> = {
+  RECTANGLE: {
+    LARGE: { gridH: 3, gridW: 6 },
+    MEDIUM: { gridH: 2, gridW: 4 },
+    SMALL: { gridH: 2, gridW: 3 },
+  },
+  ROUND: {
+    LARGE: { gridH: 4, gridW: 4 },
+    MEDIUM: { gridH: 3, gridW: 3 },
+    SMALL: { gridH: 2, gridW: 2 },
+  },
+  SQUARE: {
+    LARGE: { gridH: 4, gridW: 4 },
+    MEDIUM: { gridH: 3, gridW: 3 },
+    SMALL: { gridH: 2, gridW: 2 },
+  },
+};
+
+export function floorTableFootprint(
+  shape: FloorTableShape,
+  size: FloorTableSize,
+  rotation: FloorTableRotation,
+): FloorTableFootprint {
+  const base = FLOOR_TABLE_FOOTPRINTS[shape][size];
+  return rotation === 90 ? { gridH: base.gridW, gridW: base.gridH } : base;
+}
+
+const tableLabelSchema = z.string().trim().min(1).max(20);
+const capacitySchema = z.number().int().min(1).max(50);
+const gridCellSchema = z.number().int().min(0).max(59);
+
+/** A table as staff see it. The footprint is derived, never typed in. */
+export const floorTableSchema = z
+  .object({
+    areaId: z.uuid(),
+    capacity: capacitySchema,
+    gridH: z.number().int().min(1).max(12),
+    gridW: z.number().int().min(1).max(12),
+    /** Both empty while the table waits in the "not placed" tray. */
+    gridX: gridCellSchema.nullable(),
+    gridY: gridCellSchema.nullable(),
+    id: z.uuid(),
+    label: tableLabelSchema,
+    qrOrdering: z.boolean(),
+    rotation: floorTableRotationSchema,
+    shape: floorTableShapeSchema,
+    status: floorRecordStatusSchema,
+    visualSize: floorTableSizeSchema,
+  })
+  .strict();
+
+export const floorTableListSchema = z.object({ tables: z.array(floorTableSchema) }).strict();
+
+/** A new table starts in the tray of its area's floor. */
+export const createFloorTableSchema = z
+  .object({
+    areaId: z.uuid(),
+    capacity: capacitySchema,
+    label: tableLabelSchema,
+    shape: floorTableShapeSchema,
+    visualSize: floorTableSizeSchema,
+  })
+  .strict();
+
+/** One table as the editor leaves it: where it stands and what it is. */
+export const floorTableLayoutSchema = z
+  .object({
+    areaId: z.uuid(),
+    capacity: capacitySchema,
+    gridX: gridCellSchema.nullable(),
+    gridY: gridCellSchema.nullable(),
+    id: z.uuid(),
+    label: tableLabelSchema,
+    qrOrdering: z.boolean(),
+    rotation: floorTableRotationSchema,
+    shape: floorTableShapeSchema,
+    status: floorRecordStatusSchema,
+    visualSize: floorTableSizeSchema,
+  })
+  .strict()
+  .refine((value) => (value.gridX === null) === (value.gridY === null), {
+    message: "A table is either placed or in the tray.",
+    path: ["gridX"],
+  });
+
+/** The tables of one floor that changed in the editor; the others stay as they are. */
+export const saveFloorLayoutSchema = z
+  .object({ tables: z.array(floorTableLayoutSchema).min(1).max(200) })
+  .strict()
+  .refine((value) => new Set(value.tables.map((table) => table.id)).size === value.tables.length, {
+    message: "A table is listed twice.",
+    path: ["tables"],
+  });
+
+export type CreateFloorTable = z.infer<typeof createFloorTableSchema>;
+
+export type FloorTable = z.infer<typeof floorTableSchema>;
+
+export type FloorTableLayout = z.infer<typeof floorTableLayoutSchema>;
+
+export type FloorTableList = z.infer<typeof floorTableListSchema>;
+
+export type FloorTableRotation = z.infer<typeof floorTableRotationSchema>;
+
+export type SaveFloorLayout = z.infer<typeof saveFloorLayoutSchema>;

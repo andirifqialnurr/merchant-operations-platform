@@ -1,4 +1,4 @@
-import type { FloorTableShape, FloorTableSize } from "@merchant/contracts";
+import { floorTableFootprint } from "@merchant/contracts";
 
 export type GridSize = { cols: number; rows: number };
 
@@ -8,35 +8,10 @@ export type Footprint = { gridH: number; gridW: number };
 export type PlacedTable = Footprint & { gridX: number; gridY: number; id: string };
 
 /**
- * How many cells a table takes. In Basic the footprint follows from its shape
- * and size; free resizing is a Pro capability (`floor.layout.advanced`).
+ * How many cells a table takes. The rule lives in the contracts so the editor
+ * draws exactly what the server will accept.
  */
-const FOOTPRINTS: Record<FloorTableShape, Record<FloorTableSize, Footprint>> = {
-  RECTANGLE: {
-    LARGE: { gridH: 3, gridW: 6 },
-    MEDIUM: { gridH: 2, gridW: 4 },
-    SMALL: { gridH: 2, gridW: 3 },
-  },
-  ROUND: {
-    LARGE: { gridH: 4, gridW: 4 },
-    MEDIUM: { gridH: 3, gridW: 3 },
-    SMALL: { gridH: 2, gridW: 2 },
-  },
-  SQUARE: {
-    LARGE: { gridH: 4, gridW: 4 },
-    MEDIUM: { gridH: 3, gridW: 3 },
-    SMALL: { gridH: 2, gridW: 2 },
-  },
-};
-
-export function footprintOf(
-  shape: FloorTableShape,
-  size: FloorTableSize,
-  rotation: 0 | 90,
-): Footprint {
-  const base = FOOTPRINTS[shape][size];
-  return rotation === 90 ? { gridH: base.gridW, gridW: base.gridH } : base;
-}
+export const footprintOf = floorTableFootprint;
 
 export type LayoutIssue =
   | { kind: "OUT_OF_BOUNDS"; tableId: string }
