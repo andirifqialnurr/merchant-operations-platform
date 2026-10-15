@@ -1,5 +1,5 @@
 import type { KitchenTicket, KitchenTicketStatus } from "@merchant/contracts";
-import type { KdsTicketStatus } from "@merchant/ui/kds-ticket";
+import type { KdsTicketStatus, KdsTicketTimerTone } from "@merchant/ui/kds-ticket";
 
 /** The statuses a ticket is worked on in, in the order the kitchen moves it. */
 export const BOARD_STATUSES = [
@@ -43,6 +43,21 @@ export function formatElapsed(milliseconds: number) {
 export function waitedMilliseconds(ticket: KitchenTicket, now: number) {
   const end = ticket.servedAt ?? ticket.canceledAt;
   return (end ? Date.parse(end) : now) - Date.parse(ticket.receivedAt);
+}
+
+/**
+ * After how many minutes an open ticket's waiting time turns yellow, then red.
+ * Fixed for every outlet; a target per station or product is a Pro capability.
+ */
+export const WAIT_WARNING_MINUTES = 10;
+export const WAIT_LATE_MINUTES = 15;
+
+/** The color of the waiting time: a steady change, never a blink. */
+export function timerTone(waitedMs: number): KdsTicketTimerTone {
+  const minutes = waitedMs / 60_000;
+  if (minutes >= WAIT_LATE_MINUTES) return "late";
+  if (minutes >= WAIT_WARNING_MINUTES) return "warning";
+  return "normal";
 }
 
 /** Tickets by status, each group longest waiting first, as the API ordered them. */

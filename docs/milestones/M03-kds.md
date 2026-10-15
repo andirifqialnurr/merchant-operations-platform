@@ -49,7 +49,7 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 
 - [x] **M3-UX-01 Shell KDS** `f0e9d9b` — rute `(kds)`, layar penuh, mode kios, tanpa sidebar. Selesai 13 Oktober 2026 (TODO 14.9). Mode kios memakai layar penuh browser lewat tombol di bar atas; belum diuji di perangkat dapur sungguhan.
 - [x] **M3-UX-02 Tata letak** `f0e9d9b` — kolom per status di layar lebar; daftar satu kolom di tablet potret. Selesai 13 Oktober 2026 (TODO 14.9). Papan empat kolom mulai lebar 1024px; di bawahnya satu daftar, terlama di awal.
-- [ ] **M3-UX-03 Timer** — berubah warna saat mendekati dan melewati batas, tanpa berkedip.
+- [x] **M3-UX-03 Timer** — berubah warna saat mendekati dan melewati batas, tanpa berkedip. Selesai 15 Oktober 2026 (TODO 14.15). Kuning mulai menit ke-10, merah mulai menit ke-15, dihitung dari ticket diterima; tetap untuk semua outlet (`WAIT_WARNING_MINUTES`, `WAIT_LATE_MINUTES` di `features/kds/ticket-view.ts`). **Angka ini asumsi**, belum ada di dokumen produk; target per station atau produk adalah SLA tier Pro.
 - [x] **M3-UX-04 Koneksi** `f6aceef` — banner menyambung ulang dan data mungkin usang. Selesai 15 Oktober 2026 (TODO 14.14). 'Menyambung ulang…' atau 'Perangkat offline' + 'Ticket di layar mungkin belum terbaru.' dengan tombol 'Muat ulang'. Hilang sendiri setelah tersambung dan antrean diambil ulang.
 
 ### DS — Design system dan komponen

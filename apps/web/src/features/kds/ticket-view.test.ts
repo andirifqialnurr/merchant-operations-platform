@@ -8,6 +8,9 @@ import {
   formatElapsed,
   groupByStatus,
   isBoardStatus,
+  timerTone,
+  WAIT_LATE_MINUTES,
+  WAIT_WARNING_MINUTES,
   waitedMilliseconds,
 } from "./ticket-view";
 
@@ -65,4 +68,15 @@ test("the board has a column per open status and keeps the order it was given", 
   assert.equal(groups.get("PREPARING")?.length, 1);
   assert.equal(isBoardStatus("SERVED"), false);
   assert.equal(componentStatus("CANCELED"), "canceled");
+});
+
+test("the waiting time turns yellow at the warning minute and red at the late one", () => {
+  const minutes = (value: number) => value * 60_000;
+  assert.equal(timerTone(0), "normal");
+  assert.equal(timerTone(minutes(WAIT_WARNING_MINUTES) - 1), "normal");
+  assert.equal(timerTone(minutes(WAIT_WARNING_MINUTES)), "warning");
+  assert.equal(timerTone(minutes(WAIT_LATE_MINUTES) - 1), "warning");
+  assert.equal(timerTone(minutes(WAIT_LATE_MINUTES)), "late");
+  assert.equal(timerTone(minutes(240)), "late");
+  assert.ok(WAIT_WARNING_MINUTES < WAIT_LATE_MINUTES);
 });

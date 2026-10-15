@@ -275,6 +275,7 @@ Migrasi tidak pernah dijalankan saat pelanggan membeli modul; aktivasi modul han
 ## 8. Database
 
 - Pengguna aplikasi tanpa hak DDL; pengguna migrasi terpisah.
+- Zona waktu server database `UTC` (`ALTER DATABASE … SET timezone TO 'UTC'`). Dengan zona lain, waktu yang ditulis lewat Prisma tersimpan bergeser terhadap `now()` di SQL (ditemukan 15 Oktober 2026 pada database lokal ber-zona `Asia/Shanghai`: selisih 8 jam).
 - Connection pooling: batasi koneksi per instance; pakai pooler bila jumlah instance bertambah.
 - Backup harian terenkripsi + pemulihan titik-waktu bila penyedia mendukung.
 - Uji restore terjadwal memakai `pnpm --filter @merchant/database db:backup-drill` (membutuhkan `pg_dump` dan `pg_restore`).

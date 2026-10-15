@@ -24,6 +24,7 @@ import {
   formatElapsed,
   groupByStatus,
   isBoardStatus,
+  timerTone,
   waitedMilliseconds,
 } from "./ticket-view";
 
@@ -54,6 +55,7 @@ function Ticket({
 }>) {
   const t = useTranslations("kds");
   const open = isBoardStatus(ticket.status);
+  const waited = waitedMilliseconds(ticket, now);
   return (
     <KdsTicket
       {...(open && onAdvance
@@ -67,7 +69,7 @@ function Ticket({
         : {})}
       {...(ticket.tableLabel ? { tableLabel: ticket.tableLabel } : {})}
       allergyLabel={t("allergy")}
-      elapsedLabel={formatElapsed(waitedMilliseconds(ticket, now))}
+      elapsedLabel={formatElapsed(waited)}
       fill
       items={ticket.items.map((item) => ({
         ...(item.allergyNote ? { allergyNote: item.allergyNote } : {}),
@@ -83,6 +85,8 @@ function Ticket({
       status={componentStatus(ticket.status)}
       statusLabel={t(`status.${ticket.status}`)}
       timerLabel={t(open ? "waiting" : "took")}
+      // A finished ticket keeps its time, without a warning color.
+      {...(open ? { timerTone: timerTone(waited) } : {})}
       variant={open ? "touch" : "history"}
     />
   );
