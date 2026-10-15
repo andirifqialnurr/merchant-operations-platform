@@ -1,12 +1,12 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IconPlus } from "@tabler/icons-react";
 
 import { PERMISSIONS, type KitchenTicket } from "@merchant/contracts";
 import { Button } from "@merchant/ui/button";
-import { EmptyState, ErrorState, Skeleton } from "@merchant/ui/feedback";
+import { Alert, EmptyState, ErrorState, Skeleton } from "@merchant/ui/feedback";
 import { KdsConnectionStatus, KdsTicket } from "@merchant/ui/kds-ticket";
 import { ModuleAccessState } from "@merchant/ui/module-access-state";
 import { Tabs } from "@merchant/ui/navigation";
@@ -16,9 +16,11 @@ import { useFullscreen } from "@/lib/use-fullscreen";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { RequestErrorState } from "@/shell/request-error-state";
 
+import { useArrivals, useKitchenSounds, useSoundSettings } from "./alerts";
 import { useAdvanceTicket, useFinishedTickets, useKitchenQueue } from "./api";
 import { ManualTicketSheet } from "./manual-ticket-sheet";
 import { useQueueLink, type QueueLink } from "./realtime";
+import { SoundSettings } from "./sound-settings";
 import {
   BOARD_STATUSES,
   componentStatus,
@@ -44,12 +46,15 @@ function useNow() {
 /** One ticket as the kitchen reads it, with the one next step when the viewer may take it. */
 function Ticket({
   busy,
+  highlighted = false,
   kiosk = false,
   now,
   onAdvance,
   ticket,
 }: Readonly<{
   busy?: boolean;
+  /** Came in a moment ago. */
+  highlighted?: boolean;
   /** Larger, for a kitchen monitor in kiosk mode. */
   kiosk?: boolean;
   now: number;
@@ -75,6 +80,7 @@ function Ticket({
       allergyLabel={t("allergy")}
       elapsedLabel={formatElapsed(waited)}
       fill
+      highlighted={highlighted}
       items={ticket.items.map((item) => ({
         ...(item.allergyNote ? { allergyNote: item.allergyNote } : {}),
         modifiers: item.modifiers,
@@ -107,11 +113,19 @@ function LoadingTickets() {
 }
 
 function Queue({
+  arrived,
   canManage,
   live,
   outletId,
   tenantId,
-}: Readonly<{ canManage: boolean; live: boolean; outletId: string; tenantId: string }>) {
+}: Readonly<{
+  /** Tickets that came in while the screen was open. */
+  arrived: ReadonlyMap<string, number>;
+  canManage: boolean;
+  live: boolean;
+  outletId: string;
+  tenantId: string;
+}>) {
   const t = useTranslations("kds");
   const now = useNow();
   const wide = useMediaQuery("(min-width: 1024px)");
@@ -141,6 +155,7 @@ function Queue({
     <li key={ticket.id}>
       <Ticket
         busy={busyId === ticket.id}
+        highlighted={arrived.has(ticket.id)}
         kiosk={kiosk}
         now={now}
         ticket={ticket}
@@ -271,11 +286,41 @@ function KitchenScreen({
   const [view, setView] = useState<View>("queue");
   const [adding, setAdding] = useState(false);
   const link = useQueueLink(tenantId, outletId);
+  const sound = useSoundSettings();
+  const sounds = useKitchenSounds(sound.settings);
+  const queue = useKitchenQueue(tenantId, outletId, link === "live");
+  const [announcement, setAnnouncement] = useState("");
+  const arrived = useArrivals(queue.data?.tickets, (count) => {
+    sounds.play("newTicket");
+    setAnnouncement(t("arrived", { count }));
+  });
+
+  // One sound when a live link drops, not one per retry.
+  const previousLink = useRef(link);
+  useEffect(() => {
+    if (previousLink.current === "live" && (link === "reconnecting" || link === "offline")) {
+      sounds.play("connectionLost");
+    }
+    previousLink.current = link;
+  }, [link, sounds]);
 
   return (
     <div className="grid gap-4">
       <h1 className="sr-only">{t("title")}</h1>
+      <p aria-live="polite" className="sr-only">
+        {announcement}
+      </p>
       <ConnectionBanner link={link} outletId={outletId} tenantId={tenantId} />
+      {sounds.blocked ? (
+        <Alert title={t("sound.blockedTitle")} tone="warning">
+          <div className="grid justify-items-start gap-2">
+            <span>{t("sound.blockedMessage")}</span>
+            <Button onClick={() => sounds.play("newTicket", true)} size="sm" variant="secondary">
+              {t("sound.turnOn")}
+            </Button>
+          </div>
+        </Alert>
+      ) : null}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Tabs
           items={[
@@ -286,14 +331,22 @@ function KitchenScreen({
           onValueChange={(value) => setView(value === "finished" ? "finished" : "queue")}
           value={view}
         />
-        {canManage ? (
-          <Button iconLeft={IconPlus} onClick={() => setAdding(true)}>
-            {t("addTicket")}
-          </Button>
-        ) : null}
+        <div className="flex items-center gap-2">
+          <SoundSettings
+            onChange={sound.update}
+            onTest={() => sounds.play("newTicket")}
+            settings={sound.settings}
+          />
+          {canManage ? (
+            <Button iconLeft={IconPlus} onClick={() => setAdding(true)}>
+              {t("addTicket")}
+            </Button>
+          ) : null}
+        </div>
       </div>
       {view === "queue" ? (
         <Queue
+          arrived={arrived}
           canManage={canManage}
           live={link === "live"}
           outletId={outletId}

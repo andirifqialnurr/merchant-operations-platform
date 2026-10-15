@@ -3,12 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
-import {
-  KdsConnectionStatus,
-  KdsNewTicketAlert,
-  KdsTicket,
-  type KdsTicketItem,
-} from "./kds-ticket";
+import { KdsConnectionStatus, KdsTicket, type KdsTicketItem } from "./kds-ticket";
 
 const items: KdsTicketItem[] = [
   {
@@ -38,49 +33,6 @@ const ticket = {
 } as const;
 
 describe("KdsTicket", () => {
-  it("renders new-ticket visual and audio state without exposing internal alert data", () => {
-    render(
-      <KdsNewTicketAlert
-        alertId="alert-internal-01"
-        audioState="ready"
-        count={3}
-        message="Pesanan baru masuk ke antrean dapur."
-        tone="urgent"
-      />,
-    );
-
-    expect(screen.getByRole("status", { name: "Alert ticket baru KDS" })).toBeVisible();
-    expect(screen.getByText("3 ticket baru")).toBeVisible();
-    expect(screen.getByText("Pesanan baru masuk ke antrean dapur.")).toBeVisible();
-    expect(screen.getByText("Audio siap")).toBeVisible();
-    expect(screen.getByRole("status")).toHaveClass("ui-kds-new-ticket-alert--urgent");
-    expect(
-      screen.queryByText(/alert-internal|sound|audio-url|ticket-|payment|hpp|telepon/i),
-    ).not.toBeInTheDocument();
-  });
-
-  it("calls alert actions with hidden alert id", async () => {
-    const onAcknowledge = vi.fn();
-    const onEnableAudio = vi.fn();
-    const user = userEvent.setup();
-
-    render(
-      <KdsNewTicketAlert
-        alertId="alert-internal-02"
-        audioState="blocked"
-        count={1}
-        onAcknowledge={onAcknowledge}
-        onEnableAudio={onEnableAudio}
-      />,
-    );
-
-    await user.click(screen.getByRole("button", { name: "Aktifkan audio" }));
-    await user.click(screen.getByRole("button", { name: "Tandai dilihat" }));
-    expect(onEnableAudio).toHaveBeenCalledWith("alert-internal-02");
-    expect(onAcknowledge).toHaveBeenCalledWith("alert-internal-02");
-    expect(screen.queryByText("alert-internal-02")).not.toBeInTheDocument();
-  });
-
   it("shows the connection banner in the caller's words, with an optional refresh", async () => {
     const onAction = vi.fn();
     const user = userEvent.setup();
@@ -132,18 +84,6 @@ describe("KdsTicket", () => {
         />,
       ),
     ).toThrow(/hppAmount/);
-    expect(() =>
-      render(
-        <KdsNewTicketAlert
-          {...({
-            alertId: "alert-sensitive",
-            audioState: "ready",
-            count: 1,
-            customerPhone: "081234567890",
-          } as Parameters<typeof KdsNewTicketAlert>[0] & { customerPhone: string })}
-        />,
-      ),
-    ).toThrow(/customerPhone/);
     expect(() =>
       render(
         <KdsConnectionStatus
@@ -239,6 +179,14 @@ describe("KdsTicket", () => {
     );
     expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--kiosk");
     expect(screen.getAllByRole("button")).toHaveLength(1);
+  });
+
+  it("rings a ticket that just arrived, and not one that is finished", () => {
+    const { rerender } = render(<KdsTicket {...ticket} highlighted />);
+    expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--highlighted");
+
+    rerender(<KdsTicket {...ticket} highlighted status="served" statusLabel="Disajikan" />);
+    expect(screen.getByRole("article")).not.toHaveClass("ui-kds-ticket--highlighted");
   });
 
   it("marks a long wait while the ticket is open, and not once it is finished", () => {

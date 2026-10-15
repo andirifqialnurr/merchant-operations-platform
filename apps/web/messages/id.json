@@ -1051,6 +1051,7 @@
     "addTicket": "Tambah ticket",
     "addingTicket": "Menambahkan",
     "allergy": "Alergi",
+    "arrived": "{count, plural, other {# ticket baru}}",
     "closeSheet": "Tutup",
     "connection": {
       "offline": "Perangkat offline",
@@ -1073,6 +1074,18 @@
     "queueEmpty": "Tidak ada ticket",
     "queueEmptyDescription": "Ticket baru muncul di sini begitu masuk.",
     "removeItem": "Hapus item {position}",
+    "sound": {
+      "blockedMessage": "Browser menunggu satu ketukan sebelum boleh membunyikan ticket baru.",
+      "blockedTitle": "Suara belum aktif",
+      "enabled": "Bunyikan ticket baru",
+      "settings": "Pengaturan suara",
+      "test": "Coba suara",
+      "turnOn": "Nyalakan suara",
+      "volume": "Volume",
+      "volumeHigh": "Keras",
+      "volumeLow": "Pelan",
+      "volumeMedium": "Sedang"
+    },
     "source": {
       "API": "Integrasi",
       "MANUAL": "Manual",

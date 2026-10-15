@@ -8,8 +8,6 @@ import {
   IconFlame,
   IconLoader2,
   IconPackageImport,
-  IconVolume,
-  IconVolumeOff,
   IconWifiOff,
 } from "@tabler/icons-react";
 
@@ -23,8 +21,6 @@ export type KdsTicketSize = "sm" | "md" | "lg" | "kiosk";
 export type KdsTicketVariant = "compact" | "default" | "touch" | "history";
 /** How the waiting time reads: fine, close to the limit, or past it. */
 export type KdsTicketTimerTone = "normal" | "warning" | "late";
-export type KdsNewTicketAlertAudioState = "ready" | "muted" | "blocked";
-export type KdsNewTicketAlertTone = "standard" | "urgent";
 /**
  * - `reconnecting`: the link to the server dropped and is being restored.
  * - `offline`: the device has no network at all.
@@ -37,17 +33,6 @@ export type KdsTicketItem = {
   name: string;
   note?: string;
   quantity: number;
-};
-
-export type KdsNewTicketAlertProps = {
-  alertId: string;
-  audioState: KdsNewTicketAlertAudioState;
-  className?: string;
-  count: number;
-  message?: string;
-  onAcknowledge?: (alertId: string) => void;
-  onEnableAudio?: (alertId: string) => void;
-  tone?: KdsNewTicketAlertTone;
 };
 
 export type KdsConnectionStatusProps = {
@@ -87,6 +72,8 @@ export type KdsTicketProps = {
   tableLabel?: string;
   /** Accessible name of the waiting time, e.g. "Menunggu". */
   timerLabel: string;
+  /** Just arrived: a steady ring around the ticket, never a blink. */
+  highlighted?: boolean;
   timerTone?: KdsTicketTimerTone;
   variant?: KdsTicketVariant;
 };
@@ -96,15 +83,6 @@ const actionIconByStatus: Partial<Record<KdsTicketStatus, typeof IconCircleCheck
   new: IconCircleCheck,
   preparing: IconBellRinging,
   ready: IconPackageImport,
-};
-
-const audioStateContent: Record<
-  KdsNewTicketAlertAudioState,
-  { icon: typeof IconCircleCheck; label: string }
-> = {
-  blocked: { icon: IconVolumeOff, label: "Audio perlu izin perangkat" },
-  muted: { icon: IconVolumeOff, label: "Audio dimatikan" },
-  ready: { icon: IconVolume, label: "Audio siap" },
 };
 
 const kdsSensitiveDataKeyPattern =
@@ -191,86 +169,6 @@ function assertKdsTicketContract({
   }
 }
 
-function assertKdsNewTicketAlertContract({
-  alertId,
-  count,
-  message,
-}: {
-  alertId: string;
-  count: number;
-  message: string | undefined;
-}) {
-  if (!alertId.trim()) throw new TypeError("KDS new-ticket alert memerlukan id internal alert.");
-  if (!Number.isSafeInteger(count) || count <= 0) {
-    throw new TypeError("Jumlah ticket baru KDS harus berupa safe integer positif.");
-  }
-  assertText(message, "Pesan new-ticket alert KDS");
-}
-
-export function KdsNewTicketAlert(props: KdsNewTicketAlertProps) {
-  assertNoKdsSensitiveData(props);
-
-  const {
-    alertId,
-    audioState,
-    className,
-    count,
-    message,
-    onAcknowledge,
-    onEnableAudio,
-    tone = "standard",
-  } = props;
-
-  assertKdsNewTicketAlertContract({ alertId, count, message });
-
-  const audioContent = audioStateContent[audioState];
-  const ticketLabel = count === 1 ? "1 ticket baru" : `${count} ticket baru`;
-
-  return (
-    <section
-      aria-label="Alert ticket baru KDS"
-      aria-live="polite"
-      className={classes(
-        "ui-kds-new-ticket-alert",
-        `ui-kds-new-ticket-alert--${audioState}`,
-        `ui-kds-new-ticket-alert--${tone}`,
-        className,
-      )}
-      role="status"
-    >
-      <span className="ui-kds-new-ticket-alert__icon" aria-hidden="true">
-        <AppIcon icon={IconBellRinging} size="md" />
-      </span>
-      <span className="ui-kds-new-ticket-alert__content">
-        <strong>{ticketLabel}</strong>
-        <span>{message?.trim() ?? "Pesanan masuk dan perlu diproses dapur."}</span>
-      </span>
-      <span className="ui-kds-new-ticket-alert__audio">
-        <AppIcon icon={audioContent.icon} size="xs" />
-        {audioContent.label}
-      </span>
-      {audioState === "blocked" ? (
-        <button
-          className="ui-kds-new-ticket-alert__button"
-          disabled={!onEnableAudio}
-          onClick={() => onEnableAudio?.(alertId)}
-          type="button"
-        >
-          Aktifkan audio
-        </button>
-      ) : null}
-      <button
-        className="ui-kds-new-ticket-alert__button ui-kds-new-ticket-alert__button--secondary"
-        disabled={!onAcknowledge}
-        onClick={() => onAcknowledge?.(alertId)}
-        type="button"
-      >
-        Tandai dilihat
-      </button>
-    </section>
-  );
-}
-
 /**
  * A banner across the kitchen screen while it cannot hear about new tickets.
  * Every word comes from the caller.
@@ -333,6 +231,7 @@ export function KdsTicket(props: KdsTicketProps) {
     className,
     elapsedLabel,
     fill = false,
+    highlighted = false,
     items,
     label,
     orderLabel,
@@ -362,6 +261,7 @@ export function KdsTicket(props: KdsTicketProps) {
         `ui-kds-ticket--${size}`,
         `ui-kds-ticket--${variant}`,
         fill && "ui-kds-ticket--fill",
+        highlighted && !finished && "ui-kds-ticket--highlighted",
         !finished && timerToneClass[timerTone],
         className,
       )}

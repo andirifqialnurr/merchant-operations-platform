@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import {
   KdsConnectionStatus,
-  KdsNewTicketAlert,
   KdsTicket,
   type KdsConnectionState,
   type KdsTicketProps,
@@ -68,34 +67,6 @@ function StatefulKdsTicket(props: Partial<KdsTicketProps>) {
         {...(step ? { action: { label: step.label, onAction: () => setStatus(step.to) } } : {})}
       />
     </div>
-  );
-}
-
-function NewTicketAlertDemo() {
-  const [acknowledged, setAcknowledged] = useState(false);
-  const [audioEnabled, setAudioEnabled] = useState(false);
-
-  if (acknowledged) {
-    return (
-      <KdsNewTicketAlert
-        alertId="alert-internal-ack"
-        audioState={audioEnabled ? "ready" : "muted"}
-        count={1}
-        message="Alert sudah dilihat oleh operator dapur."
-      />
-    );
-  }
-
-  return (
-    <KdsNewTicketAlert
-      alertId="alert-internal-01"
-      audioState={audioEnabled ? "ready" : "blocked"}
-      count={3}
-      message="Pesanan baru masuk ke antrean dapur."
-      onAcknowledge={() => setAcknowledged(true)}
-      onEnableAudio={() => setAudioEnabled(true)}
-      tone="urgent"
-    />
   );
 }
 
@@ -237,24 +208,12 @@ export const English: Story = {
   ),
 };
 
-export const NewTicketAlert: Story = {
+/** A ticket that just arrived, next to one that has been there a while. */
+export const JustArrived: Story = {
   render: () => (
-    <div className="story-kds-ticket-stack">
-      <NewTicketAlertDemo />
-      <div className="story-kds-ticket-row">
-        <KdsNewTicketAlert
-          alertId="alert-ready-01"
-          audioState="ready"
-          count={1}
-          message="Audio siap untuk ticket berikutnya."
-        />
-        <KdsNewTicketAlert
-          alertId="alert-muted-01"
-          audioState="muted"
-          count={2}
-          message="Operator memilih mode visual saja."
-        />
-      </div>
+    <div className="story-kds-ticket-row">
+      <KdsTicket {...base} action={{ label: "Terima", onAction: noop }} highlighted />
+      <KdsTicket {...base} action={{ label: "Terima", onAction: noop }} elapsedLabel="06:12" />
     </div>
   ),
 };
@@ -291,7 +250,6 @@ export const ThemeComparison: Story = {
         <h2 className="text-heading-sm">Light</h2>
         <div className="story-kds-ticket-stack">
           <ConnectionBanner />
-          <NewTicketAlertDemo />
           <StatefulKdsTicket />
         </div>
       </section>
@@ -299,7 +257,6 @@ export const ThemeComparison: Story = {
         <h2 className="text-heading-sm">Dark</h2>
         <div className="story-kds-ticket-stack">
           <ConnectionBanner />
-          <NewTicketAlertDemo />
           <StatefulKdsTicket />
         </div>
       </section>
@@ -312,7 +269,6 @@ export const Mobile: Story = {
   render: () => (
     <div className="story-kds-ticket-stack">
       <ConnectionBanner />
-      <NewTicketAlertDemo />
       <StatefulKdsTicket />
     </div>
   ),

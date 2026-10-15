@@ -1051,6 +1051,7 @@
     "addTicket": "Add ticket",
     "addingTicket": "Adding",
     "allergy": "Allergy",
+    "arrived": "{count, plural, one {# new ticket} other {# new tickets}}",
     "closeSheet": "Close",
     "connection": {
       "offline": "Device offline",
@@ -1073,6 +1074,18 @@
     "queueEmpty": "No tickets",
     "queueEmptyDescription": "New tickets appear here as they arrive.",
     "removeItem": "Remove item {position}",
+    "sound": {
+      "blockedMessage": "The browser needs one tap before it may sound new tickets.",
+      "blockedTitle": "Sound is not on yet",
+      "enabled": "Sound new tickets",
+      "settings": "Sound settings",
+      "test": "Play test sound",
+      "turnOn": "Turn on sound",
+      "volume": "Volume",
+      "volumeHigh": "Loud",
+      "volumeLow": "Quiet",
+      "volumeMedium": "Medium"
+    },
     "source": {
       "API": "Integration",
       "MANUAL": "Manual",
