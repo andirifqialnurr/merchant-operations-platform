@@ -2,6 +2,7 @@ import {
   API_HEADERS,
   tenantRequestHeadersSchema,
   type AuthorizationContext,
+  type Device,
   type ModuleKey,
   type PermissionKey,
 } from "@merchant/contracts";
@@ -49,6 +50,14 @@ export const RequireModule = (moduleKey: ModuleKey) => SetMetadata(REQUIRED_MODU
 export const RequireAllOutlets = () => SetMetadata(REQUIRE_ALL_OUTLETS, true);
 export const RequireFeature = (key: string) => SetMetadata(REQUIRED_FEATURE, key);
 
+/** What an action needs beyond a signed-in member of the workspace. */
+export type AccessRequirement = {
+  featureFlag?: string | undefined;
+  moduleKey?: ModuleKey | undefined;
+  permission?: PermissionKey | undefined;
+  requireAllOutlets?: boolean | undefined;
+};
+
 export const CurrentAccess = createParamDecorator((_data: unknown, context: ExecutionContext) => {
   const request = context.switchToHttp().getRequest<AuthorizedRequest>();
   return request.accessContext;
@@ -81,8 +90,38 @@ export class SessionPermissionGuard implements CanActivate {
         message: "Request tidak valid.",
       });
     }
+    const read = <Value>(key: string) =>
+      this.reflector.getAllAndOverride<Value | undefined>(key, [
+        context.getHandler(),
+        context.getClass(),
+      ]);
     const cookie = request.headers.cookie;
-    const cookieHeader = Array.isArray(cookie) ? cookie[0] : cookie;
+    const { context: accessContext } = await this.authorize(
+      Array.isArray(cookie) ? cookie[0] : cookie,
+      {
+        outletId: parsedHeaders.data[API_HEADERS.outletId],
+        tenantId: parsedHeaders.data[API_HEADERS.tenantId],
+      },
+      {
+        featureFlag: read<string>(REQUIRED_FEATURE),
+        moduleKey: read<ModuleKey>(REQUIRED_MODULE),
+        permission: read<PermissionKey>(REQUIRED_PERMISSION),
+        requireAllOutlets: read<boolean>(REQUIRE_ALL_OUTLETS),
+      },
+    );
+    request.accessContext = accessContext;
+    return true;
+  }
+
+  /**
+   * The decision behind every guarded request, for callers that are not one,
+   * such as a realtime connection. Throws the same refusals.
+   */
+  async authorize(
+    cookieHeader: string | undefined,
+    scope: { outletId?: string | undefined; tenantId: string },
+    requirement: AccessRequirement,
+  ): Promise<{ context: AuthorizationContext; device?: Device }> {
     const deviceCredential = readDeviceCredential(cookieHeader);
     const session = await this.authService.getSession(
       readSessionToken(cookieHeader),
@@ -93,37 +132,17 @@ export class SessionPermissionGuard implements CanActivate {
       session.surface && session.surface !== "BACKOFFICE"
         ? await this.devices?.authenticate(deviceCredential)
         : undefined;
-    const permission = this.reflector.getAllAndOverride<PermissionKey | undefined>(
-      REQUIRED_PERMISSION,
-      [context.getHandler(), context.getClass()],
-    );
-    const tenantId = parsedHeaders.data[API_HEADERS.tenantId];
+    const { featureFlag, moduleKey, permission, requireAllOutlets } = requirement;
+    const { outletId, tenantId } = scope;
     if (device) {
-      const outletId = parsedHeaders.data[API_HEADERS.outletId];
       if (device.workspaceId !== tenantId) throw accessDenied("WORKSPACE_ACCESS_DENIED");
       if (outletId && outletId !== device.outletId) throw accessDenied("LOCATION_SCOPE_DENIED");
     }
-    const moduleKey = this.reflector.getAllAndOverride<ModuleKey | undefined>(REQUIRED_MODULE, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
-    const requireAllOutlets = this.reflector.getAllAndOverride<boolean>(REQUIRE_ALL_OUTLETS, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
 
-    const access = await this.accessService.describeAccess(
-      session.user.id,
-      tenantId,
-      parsedHeaders.data[API_HEADERS.outletId],
-    );
+    const access = await this.accessService.describeAccess(session.user.id, tenantId, outletId);
     // Someone outside the workspace learns nothing about its subscription.
     if (!access.context) throw accessDenied("WORKSPACE_ACCESS_DENIED");
     const entitlement = await this.entitlementService.describeAccess(tenantId, moduleKey);
-    const featureFlag = this.reflector.getAllAndOverride<string | undefined>(REQUIRED_FEATURE, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
 
     // One decision, in the order of architecture.md 6.3, with one reason when refused.
     assertAccess(
@@ -151,7 +170,8 @@ export class SessionPermissionGuard implements CanActivate {
     if (featureFlag && !(await this.featureFlags?.enabled(featureFlag, tenantId))) {
       throw accessDenied("FEATURE_DISABLED", { featureFlag });
     }
-    request.accessContext = device ? { ...access.context, deviceId: device.id } : access.context;
-    return true;
+    return device
+      ? { context: { ...access.context, deviceId: device.id }, device }
+      : { context: access.context };
   }
 }

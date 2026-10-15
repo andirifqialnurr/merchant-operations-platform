@@ -6,15 +6,15 @@ import {
   IconCircleCheck,
   IconClock,
   IconFlame,
+  IconLoader2,
   IconPackageImport,
-  IconRefresh,
   IconVolume,
   IconVolumeOff,
-  IconWifi,
   IconWifiOff,
 } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
+import { Button } from "./button";
 
 export type KdsTicketStatus = "new" | "accepted" | "preparing" | "ready" | "served" | "canceled";
 
@@ -24,7 +24,11 @@ export type KdsTicketVariant = "compact" | "default" | "touch" | "history";
 export type KdsTicketTimerTone = "normal" | "warning" | "late";
 export type KdsNewTicketAlertAudioState = "ready" | "muted" | "blocked";
 export type KdsNewTicketAlertTone = "standard" | "urgent";
-export type KdsConnectionState = "connected" | "connecting" | "disconnected" | "stale";
+/**
+ * - `reconnecting`: the link to the server dropped and is being restored.
+ * - `offline`: the device has no network at all.
+ */
+export type KdsConnectionState = "offline" | "reconnecting";
 
 export type KdsTicketItem = {
   allergyNote?: string;
@@ -46,16 +50,14 @@ export type KdsNewTicketAlertProps = {
 };
 
 export type KdsConnectionStatusProps = {
-  canReconnect?: boolean;
-  canRefetch?: boolean;
+  /** Reads the queue again by hand, e.g. "Refresh". */
+  action?: { busy?: boolean; label: string; onAction: () => void };
   className?: string;
-  lastSyncedLabel?: string;
-  message?: string;
-  onReconnect?: (statusId: string) => void;
-  onRefetch?: (statusId: string) => void;
-  pendingCount?: number;
+  /** What it means for the screen, e.g. "Tickets on screen may be out of date." */
+  message: string;
   state: KdsConnectionState;
-  statusId: string;
+  /** What is happening, e.g. "Reconnecting…". */
+  title: string;
 };
 
 /**
@@ -102,32 +104,6 @@ const audioStateContent: Record<
   blocked: { icon: IconVolumeOff, label: "Audio perlu izin perangkat" },
   muted: { icon: IconVolumeOff, label: "Audio dimatikan" },
   ready: { icon: IconVolume, label: "Audio siap" },
-};
-
-const connectionStateContent: Record<
-  KdsConnectionState,
-  { icon: typeof IconCircleCheck; label: string; message: string }
-> = {
-  connected: {
-    icon: IconWifi,
-    label: "Terhubung",
-    message: "Ticket dapur tersinkron otomatis.",
-  },
-  connecting: {
-    icon: IconRefresh,
-    label: "Menghubungkan",
-    message: "Sedang menyambungkan ulang tampilan dapur.",
-  },
-  disconnected: {
-    icon: IconWifiOff,
-    label: "Terputus",
-    message: "Koneksi dapur terputus. Coba sambungkan ulang.",
-  },
-  stale: {
-    icon: IconRefresh,
-    label: "Perlu refresh",
-    message: "Data ticket mungkin tertinggal. Refresh untuk mengambil snapshot terbaru.",
-  },
 };
 
 const kdsSensitiveDataKeyPattern =
@@ -230,25 +206,6 @@ function assertKdsNewTicketAlertContract({
   assertText(message, "Pesan new-ticket alert KDS");
 }
 
-function assertKdsConnectionStatusContract({
-  lastSyncedLabel,
-  message,
-  pendingCount,
-  statusId,
-}: {
-  lastSyncedLabel: string | undefined;
-  message: string | undefined;
-  pendingCount: number | undefined;
-  statusId: string;
-}) {
-  if (!statusId.trim()) throw new TypeError("KDS connection status memerlukan id internal status.");
-  assertText(lastSyncedLabel, "Label sinkronisasi KDS");
-  assertText(message, "Pesan koneksi KDS");
-  if (pendingCount !== undefined && (!Number.isSafeInteger(pendingCount) || pendingCount < 0)) {
-    throw new TypeError("Jumlah pending ticket KDS harus berupa safe integer non-negatif.");
-  }
-}
-
 export function KdsNewTicketAlert(props: KdsNewTicketAlertProps) {
   assertNoKdsSensitiveData(props);
 
@@ -313,73 +270,49 @@ export function KdsNewTicketAlert(props: KdsNewTicketAlertProps) {
   );
 }
 
+/**
+ * A banner across the kitchen screen while it cannot hear about new tickets.
+ * Every word comes from the caller.
+ */
 export function KdsConnectionStatus(props: KdsConnectionStatusProps) {
   assertNoKdsSensitiveData(props);
-
-  const {
-    canReconnect,
-    canRefetch,
-    className,
-    lastSyncedLabel,
-    message,
-    onReconnect,
-    onRefetch,
-    pendingCount,
-    state,
-    statusId,
-  } = props;
-
-  assertKdsConnectionStatusContract({ lastSyncedLabel, message, pendingCount, statusId });
-
-  const content = connectionStateContent[state];
-  const reconnectEnabled = canReconnect ?? state === "disconnected";
-  const refetchEnabled = canRefetch ?? (state === "stale" || state === "connected");
-  const pendingText =
-    pendingCount === undefined
-      ? undefined
-      : pendingCount === 0
-        ? "Tidak ada pending ticket"
-        : `${pendingCount} ticket menunggu sinkron`;
+  const { action, className, message, state, title } = props;
+  assertText(title, "Judul koneksi KDS");
+  assertText(message, "Pesan koneksi KDS");
 
   return (
     <section
-      aria-label="Status koneksi KDS"
       aria-live="polite"
       className={classes(
         "ui-kds-connection-status",
         `ui-kds-connection-status--${state}`,
         className,
       )}
+      role="status"
     >
-      <span className="ui-kds-connection-status__icon" aria-hidden="true">
-        <AppIcon icon={content.icon} size="md" />
+      <span
+        aria-hidden="true"
+        className={classes(
+          "ui-kds-connection-status__icon",
+          state === "reconnecting" && "ui-kds-connection-status__icon--spin",
+        )}
+      >
+        <AppIcon icon={state === "offline" ? IconWifiOff : IconLoader2} size="md" />
       </span>
       <span className="ui-kds-connection-status__content">
-        <strong>{content.label}</strong>
-        <span>{message?.trim() ?? content.message}</span>
+        <strong>{title.trim()}</strong>
+        <span>{message.trim()}</span>
       </span>
-      <span className="ui-kds-connection-status__meta">
-        {lastSyncedLabel ? <span>{lastSyncedLabel.trim()}</span> : null}
-        {pendingText ? <span>{pendingText}</span> : null}
-      </span>
-      <span className="ui-kds-connection-status__actions">
-        <button
-          className="ui-kds-connection-status__button"
-          disabled={!reconnectEnabled || !onReconnect}
-          onClick={() => onReconnect?.(statusId)}
-          type="button"
+      {action ? (
+        <Button
+          loading={action.busy ?? false}
+          onClick={action.onAction}
+          size="md"
+          variant="secondary"
         >
-          Reconnect
-        </button>
-        <button
-          className="ui-kds-connection-status__button ui-kds-connection-status__button--secondary"
-          disabled={!refetchEnabled || !onRefetch}
-          onClick={() => onRefetch?.(statusId)}
-          type="button"
-        >
-          Refresh
-        </button>
-      </span>
+          {action.label}
+        </Button>
+      ) : null}
     </section>
   );
 }

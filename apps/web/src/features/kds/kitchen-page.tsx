@@ -7,7 +7,7 @@ import { IconPlus } from "@tabler/icons-react";
 import { PERMISSIONS, type KitchenTicket } from "@merchant/contracts";
 import { Button } from "@merchant/ui/button";
 import { EmptyState, ErrorState, Skeleton } from "@merchant/ui/feedback";
-import { KdsTicket } from "@merchant/ui/kds-ticket";
+import { KdsConnectionStatus, KdsTicket } from "@merchant/ui/kds-ticket";
 import { ModuleAccessState } from "@merchant/ui/module-access-state";
 import { Tabs } from "@merchant/ui/navigation";
 
@@ -17,6 +17,7 @@ import { RequestErrorState } from "@/shell/request-error-state";
 
 import { useAdvanceTicket, useFinishedTickets, useKitchenQueue } from "./api";
 import { ManualTicketSheet } from "./manual-ticket-sheet";
+import { useQueueLink, type QueueLink } from "./realtime";
 import {
   BOARD_STATUSES,
   componentStatus,
@@ -99,13 +100,14 @@ function LoadingTickets() {
 
 function Queue({
   canManage,
+  live,
   outletId,
   tenantId,
-}: Readonly<{ canManage: boolean; outletId: string; tenantId: string }>) {
+}: Readonly<{ canManage: boolean; live: boolean; outletId: string; tenantId: string }>) {
   const t = useTranslations("kds");
   const now = useNow();
   const wide = useMediaQuery("(min-width: 1024px)");
-  const query = useKitchenQueue(tenantId, outletId);
+  const query = useKitchenQueue(tenantId, outletId, live);
   const advance = useAdvanceTicket(tenantId, outletId);
   const busyId = advance.isPending ? advance.variables?.id : undefined;
   const onAdvance = canManage
@@ -195,12 +197,37 @@ function Finished({ outletId, tenantId }: Readonly<{ outletId: string; tenantId:
   );
 }
 
+/**
+ * Shown while the screen may be missing tickets: the device is offline, the
+ * link to the server dropped, or the last reading failed.
+ */
+function ConnectionBanner({
+  link,
+  outletId,
+  tenantId,
+}: Readonly<{ link: QueueLink; outletId: string; tenantId: string }>) {
+  const t = useTranslations("kds.connection");
+  const query = useKitchenQueue(tenantId, outletId, link === "live");
+  const lost = link === "offline" || link === "reconnecting" || query.isRefetchError;
+  if (!lost) return null;
+  return (
+    <KdsConnectionStatus
+      action={{
+        busy: query.isFetching,
+        label: t("refresh"),
+        onAction: () => void query.refetch(),
+      }}
+      message={t("stale")}
+      state={link === "offline" ? "offline" : "reconnecting"}
+      title={t(link === "offline" ? "offline" : "reconnecting")}
+    />
+  );
+}
+
 /** The kitchen screen of the active outlet: what to prepare, and what was finished today. */
 export function KitchenPage() {
   const t = useTranslations("kds");
   const { can, outlet, workspace } = useWorkspace();
-  const [view, setView] = useState<View>("queue");
-  const [adding, setAdding] = useState(false);
 
   if (!can(PERMISSIONS.kdsTicketView)) {
     return (
@@ -215,11 +242,30 @@ export function KitchenPage() {
     return <ErrorState description={t("noOutlet")} title={t("accessDeniedTitle")} />;
   }
   const tenantId = workspace.tenant.id;
-  const canManage = can(PERMISSIONS.kdsTicketManage);
+  return (
+    <KitchenScreen
+      canManage={can(PERMISSIONS.kdsTicketManage)}
+      key={`${tenantId}:${outlet.id}`}
+      outletId={outlet.id}
+      tenantId={tenantId}
+    />
+  );
+}
+
+function KitchenScreen({
+  canManage,
+  outletId,
+  tenantId,
+}: Readonly<{ canManage: boolean; outletId: string; tenantId: string }>) {
+  const t = useTranslations("kds");
+  const [view, setView] = useState<View>("queue");
+  const [adding, setAdding] = useState(false);
+  const link = useQueueLink(tenantId, outletId);
 
   return (
-    <div className="grid gap-4" key={`${tenantId}:${outlet.id}`}>
+    <div className="grid gap-4">
       <h1 className="sr-only">{t("title")}</h1>
+      <ConnectionBanner link={link} outletId={outletId} tenantId={tenantId} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Tabs
           items={[
@@ -237,14 +283,19 @@ export function KitchenPage() {
         ) : null}
       </div>
       {view === "queue" ? (
-        <Queue canManage={canManage} outletId={outlet.id} tenantId={tenantId} />
+        <Queue
+          canManage={canManage}
+          live={link === "live"}
+          outletId={outletId}
+          tenantId={tenantId}
+        />
       ) : (
-        <Finished outletId={outlet.id} tenantId={tenantId} />
+        <Finished outletId={outletId} tenantId={tenantId} />
       )}
       {adding ? (
         <ManualTicketSheet
           onClose={() => setAdding(false)}
-          outletId={outlet.id}
+          outletId={outletId}
           tenantId={tenantId}
         />
       ) : null}

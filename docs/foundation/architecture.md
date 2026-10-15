@@ -81,7 +81,7 @@ Stack sudah terpasang dan tidak diganti. Versi dikunci di `pnpm-lock.yaml`.
 | Font             | Geist                                                  | Terpasang                                                            |
 | Chart            | ApexCharts + `react-apexcharts`                        | Terpasang di `packages/ui`                                           |
 | Drag-and-drop    | `@dnd-kit/react` + `@dnd-kit/dom`                      | Terpasang                                                            |
-| Realtime         | Socket.IO (server dan klien)                           | Paket terpasang; gateway belum dibuat                                |
+| Realtime         | Socket.IO (server dan klien)                           | Gateway KDS (`/kds` di `/api/realtime`) sejak 15 Oktober 2026        |
 | Component bank   | Storybook 10 + Playwright smoke                        | Terpasang                                                            |
 | Test             | Vitest + Testing Library + axe (UI); `node:test` (API) | Terpasang                                                            |
 | Ikon             | Tabler Icons (`@tabler/icons-react`)                   | Terpasang                                                            |
@@ -290,6 +290,14 @@ Yang sudah dihasilkan kode pada 12 Oktober 2026: `order.submitted.v1`, `order.ca
 ## 10. Realtime
 
 WebSocket memakai cakupan workspace, lokasi, dan station. Setelah tersambung ulang: pulihkan konteks, berlangganan ulang, **ambil ulang dari REST**, selaraskan tampilan, dan tampilkan status data usang bila belum sehat. Event realtime tidak pernah menjadi sumber kebenaran.
+
+Yang berjalan sejak 15 Oktober 2026 (antrean dapur):
+
+- **Jalur:** Socket.IO di `/api/realtime` (tanpa garis miring di akhir), namespace per modul: `/kds`. Browser tersambung lewat origin web seperti REST, jadi cookie yang sama terkirim.
+- **Sumber perubahan:** trigger `kds_tickets_notify_queue` memanggil `pg_notify('kds_queue', {tenantId, outletId})` setiap ticket dibuat atau statusnya berubah. Karena datang dari database, perubahan dari worker (ticket dari pesanan) dan dari API (ticket manual, langkah) sama-sama terdengar, dan setiap instance API menerima notifikasi tanpa Redis. Notifikasi dikirim saat transaksi selesai.
+- **Isi pesan:** `queue.changed` dengan `{ outletId }` saja. Layar membaca ulang antrean lewat REST; isi ticket tidak pernah lewat realtime.
+- **Siapa yang boleh:** lihat `security.md` 12 (sesi layar dapur).
+- **Pesan yang terlewat:** saat koneksi listener ke database pulih, setiap layar diminta membaca ulang. Layar yang tersambung tetap membaca ulang tiap 30 detik; layar tanpa realtime tiap 4 detik.
 
 ## 11. Frontend
 

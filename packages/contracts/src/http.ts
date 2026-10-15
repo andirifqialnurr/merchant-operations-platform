@@ -9,6 +9,12 @@ export const API_HEADERS = {
   tenantId: "x-tenant-id",
 } as const;
 
+/**
+ * Where browsers reach the realtime server. Under /api so the web app passes
+ * it on like REST; without a trailing slash, which the web app would redirect.
+ */
+export const REALTIME_PATH = "/api/realtime";
+
 export const requestIdSchema = z.string().trim().min(1).max(100).meta({
   description: "Request correlation identifier",
   example: "req_01JZ8X4VYAT7Y0G4E5JD2Y6D9M",

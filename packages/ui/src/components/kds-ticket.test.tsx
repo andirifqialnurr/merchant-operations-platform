@@ -81,48 +81,32 @@ describe("KdsTicket", () => {
     expect(screen.queryByText("alert-internal-02")).not.toBeInTheDocument();
   });
 
-  it("renders reconnect and refetch state without exposing connection internals", () => {
-    render(
-      <KdsConnectionStatus
-        lastSyncedLabel="Sinkron 20:15"
-        pendingCount={2}
-        state="stale"
-        statusId="connection-internal-01"
-      />,
-    );
-
-    expect(screen.getByRole("region", { name: "Status koneksi KDS" })).toBeVisible();
-    expect(screen.getByText("Perlu refresh")).toBeVisible();
-    expect(screen.getByText("Sinkron 20:15")).toBeVisible();
-    expect(screen.getByText("2 ticket menunggu sinkron")).toBeVisible();
-    expect(screen.getByRole("button", { name: "Reconnect" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Refresh" })).toBeDisabled();
-    expect(
-      screen.queryByText(/connection-internal|namespace|socket|event|token|payment|hpp/i),
-    ).not.toBeInTheDocument();
-  });
-
-  it("calls reconnect and refetch actions with hidden status id", async () => {
-    const onReconnect = vi.fn();
-    const onRefetch = vi.fn();
+  it("shows the connection banner in the caller's words, with an optional refresh", async () => {
+    const onAction = vi.fn();
     const user = userEvent.setup();
-
-    render(
+    const { rerender } = render(
       <KdsConnectionStatus
-        canReconnect
-        canRefetch
-        onReconnect={onReconnect}
-        onRefetch={onRefetch}
-        state="disconnected"
-        statusId="connection-internal-02"
+        message="Ticket di layar mungkin belum terbaru."
+        state="reconnecting"
+        title="Menyambung ulang…"
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Reconnect" }));
-    await user.click(screen.getByRole("button", { name: "Refresh" }));
-    expect(onReconnect).toHaveBeenCalledWith("connection-internal-02");
-    expect(onRefetch).toHaveBeenCalledWith("connection-internal-02");
-    expect(screen.queryByText("connection-internal-02")).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Menyambung ulang…");
+    expect(screen.getByText("Ticket di layar mungkin belum terbaru.")).toBeVisible();
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+
+    rerender(
+      <KdsConnectionStatus
+        action={{ label: "Muat ulang", onAction }}
+        message="Data may be out of date."
+        state="offline"
+        title="Offline"
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "Muat ulang" }));
+    expect(onAction).toHaveBeenCalledOnce();
+    expect(screen.getByRole("status")).toHaveClass("ui-kds-connection-status--offline");
   });
 
   it("rejects payment, HPP, customer, and token data before KDS render", () => {
@@ -164,9 +148,10 @@ describe("KdsTicket", () => {
       render(
         <KdsConnectionStatus
           {...({
+            message: "Data mungkin usang.",
             retryToken: "retry-secret",
-            state: "connected",
-            statusId: "connection-sensitive",
+            state: "reconnecting",
+            title: "Menyambung ulang…",
           } as Parameters<typeof KdsConnectionStatus>[0] & { retryToken: string })}
         />,
       ),

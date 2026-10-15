@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
 
-import { activateDeviceSchema } from "@merchant/contracts";
+import { activateDeviceSchema, type DeviceMode } from "@merchant/contracts";
 import { Button } from "@merchant/ui/button";
 import { Alert, Skeleton } from "@merchant/ui/feedback";
 import { FormField, Input } from "@merchant/ui/form-field";
@@ -13,11 +13,11 @@ import { useErrorMessage } from "@/lib/i18n";
 import { useActivateDevice, useCurrentDevice } from "./api";
 
 /**
- * What a cashier tablet shows before anyone signs in: a field for the
- * one-time code, and once the device is active, which device it is and the
- * way into the cashier screen.
+ * What a cashier tablet or kitchen screen shows before anyone signs in: a
+ * field for the one-time code, and once the device is active, which device it
+ * is and the way into its screen.
  */
-export function ActivateForm({ onOpenPos }: Readonly<{ onOpenPos: () => void }>) {
+export function ActivateForm({ onOpen }: Readonly<{ onOpen: (mode: DeviceMode) => void }>) {
   const t = useTranslations("activate");
   const errorMessage = useErrorMessage();
   const current = useCurrentDevice();
@@ -42,13 +42,9 @@ export function ActivateForm({ onOpenPos }: Readonly<{ onOpenPos: () => void }>)
         <p className="m-0 text-label text-foreground-secondary">
           {t("activeDescription", { label: device.label, mode: t(`modeName.${device.mode}`) })}
         </p>
-        {device.mode === "POS" ? (
-          <Button fullWidth onClick={onOpenPos} size="lg">
-            {t("openPos")}
-          </Button>
-        ) : (
-          <p className="m-0 text-label text-foreground-secondary">{t("kdsNotReady")}</p>
-        )}
+        <Button fullWidth onClick={() => onOpen(device.mode)} size="lg">
+          {t(device.mode === "KDS" ? "openKds" : "openPos")}
+        </Button>
       </div>
     );
   }

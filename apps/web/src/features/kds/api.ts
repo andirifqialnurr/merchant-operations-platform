@@ -22,12 +22,18 @@ export const kitchenKeys = {
  */
 export const QUEUE_REFRESH_MS = 4000;
 
+/**
+ * While the server pushes changes, the queue is still read now and then, in
+ * case a message was lost: REST stays the truth (architecture.md 10).
+ */
+export const LIVE_QUEUE_REFRESH_MS = 30_000;
+
 /** The outlet's tickets still being worked on, oldest first. */
-export function useKitchenQueue(tenantId: string, outletId: string) {
+export function useKitchenQueue(tenantId: string, outletId: string, live = false) {
   return useQuery({
     queryFn: () => merchantApi.kitchenTickets(tenantId, outletId),
     queryKey: kitchenKeys.queue(tenantId, outletId),
-    refetchInterval: QUEUE_REFRESH_MS,
+    refetchInterval: live ? LIVE_QUEUE_REFRESH_MS : QUEUE_REFRESH_MS,
   });
 }
 

@@ -7,6 +7,10 @@
     ".": {
       "types": "./src/client.d.ts",
       "default": "./src/client.ts"
+    },
+    "./listen": {
+      "types": "./src/listen.ts",
+      "default": "./src/listen.ts"
     }
   },
   "scripts": {
@@ -34,6 +38,7 @@
   "devDependencies": {
     "@merchant/eslint-config": "workspace:*",
     "@merchant/typescript-config": "workspace:*",
+    "@types/pg": "8.20.0",
     "dotenv": "^17.4.2",
     "prisma": "^7.8.0"
   }

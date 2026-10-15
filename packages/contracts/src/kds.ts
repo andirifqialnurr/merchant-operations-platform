@@ -110,6 +110,28 @@ export const advanceKitchenTicketSchema = z
 /** The outlet's tickets still being worked on, longest waiting first. */
 export const kitchenTicketListSchema = z.object({ tickets: z.array(kitchenTicketSchema) }).strict();
 
+/**
+ * Realtime for the kitchen screen. The server only says that an outlet's
+ * queue changed; the screen reads it again over REST, so nothing a ticket
+ * holds travels this way (security.md 10.1, architecture.md 10).
+ */
+export const KDS_REALTIME = { namespace: "/kds", queueChanged: "queue.changed" } as const;
+
+/** What a kitchen screen says when it connects: the queue it wants to follow. */
+export const kitchenRealtimeScopeSchema = z
+  .object({ outletId: z.uuid(), tenantId: z.uuid() })
+  .strict();
+
+/** The whole message for a changed queue. */
+export const kitchenQueueChangedSchema = z.object({ outletId: z.uuid() }).strict();
+
+/** Why the server would not let a screen follow a queue. */
+export const kitchenRealtimeRefusalSchema = z.enum([
+  "KDS_DEVICE_REQUIRED",
+  "ORIGIN_NOT_ALLOWED",
+  "REALTIME_ACCESS_DENIED",
+]);
+
 export type AdvanceKitchenTicket = z.infer<typeof advanceKitchenTicketSchema>;
 
 export type CreateKitchenTicket = z.infer<typeof createKitchenTicketSchema>;
@@ -119,6 +141,12 @@ export type CreateKitchenTicketInput = z.input<typeof createKitchenTicketSchema>
 export type CreateManualKitchenTicket = z.infer<typeof createManualKitchenTicketSchema>;
 
 export type KitchenTicket = z.infer<typeof kitchenTicketSchema>;
+
+export type KitchenQueueChanged = z.infer<typeof kitchenQueueChangedSchema>;
+
+export type KitchenRealtimeRefusal = z.infer<typeof kitchenRealtimeRefusalSchema>;
+
+export type KitchenRealtimeScope = z.infer<typeof kitchenRealtimeScopeSchema>;
 
 export type KitchenTicketItem = z.infer<typeof kitchenTicketItemSchema>;
 

@@ -681,11 +681,11 @@
     "codeHint": "8 karakter dari halaman Perangkat di pengaturan bisnis.",
     "codeInvalid": "Kode terdiri dari 8 huruf dan angka.",
     "failed": "Tidak dapat mengaktifkan",
-    "kdsNotReady": "Layar dapur belum tersedia di versi ini.",
     "modeName": {
       "KDS": "layar dapur",
       "POS": "kasir"
     },
+    "openKds": "Buka layar dapur",
     "openPos": "Buka kasir",
     "title": "Aktifkan perangkat"
   },
@@ -1052,6 +1052,12 @@
     "addingTicket": "Menambahkan",
     "allergy": "Alergi",
     "closeSheet": "Tutup",
+    "connection": {
+      "offline": "Perangkat offline",
+      "reconnecting": "Menyambung ulang…",
+      "refresh": "Muat ulang",
+      "stale": "Ticket di layar mungkin belum terbaru."
+    },
     "decrease": "Kurangi",
     "finishedEmpty": "Belum ada yang selesai hari ini",
     "finishedEmptyDescription": "Ticket yang sudah disajikan atau dibatalkan hari ini muncul di sini.",

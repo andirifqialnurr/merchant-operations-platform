@@ -19,7 +19,7 @@ export default function ActivatePage() {
       <div className="grid w-full max-w-sm justify-items-center gap-4">
         <Brand name={t("brand")} size="lg" />
         <div className="w-full rounded-lg border border-line-default bg-surface p-6">
-          <ActivateForm onOpenPos={() => router.replace("/pos")} />
+          <ActivateForm onOpen={(mode) => router.replace(mode === "KDS" ? "/kds" : "/pos")} />
         </div>
         <SegmentedControl
           items={localeOptions}

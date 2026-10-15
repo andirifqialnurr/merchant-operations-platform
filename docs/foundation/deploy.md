@@ -122,7 +122,7 @@ Produksi memakai VPS yang sudah tersedia, dengan Docker dan Nginx sebagai revers
 
 PostgreSQL boleh berjalan sebagai kontainer di VPS yang sama untuk pilot, dengan syarat: volume data terpisah dari kontainer, backup harian dikirim **ke luar VPS**, dan uji restore dijalankan. Pindah ke PostgreSQL terkelola dipertimbangkan bila pilot membutuhkan pemulihan titik-waktu.
 
-Catatan Nginx: teruskan header `Upgrade`/`Connection` untuk jalur WebSocket, kirim `X-Forwarded-For` dan `X-Forwarded-Proto`, dan set `trust proxy` di API untuk satu hop proxy (temuan `SEC-F4`).
+Catatan Nginx: teruskan `/api/realtime` langsung ke API dengan header `Upgrade`/`Connection` (jalur WebSocket), kirim `X-Forwarded-For` dan `X-Forwarded-Proto`, dan set `trust proxy` di API untuk satu hop proxy (temuan `SEC-F4`).
 
 Topologi opsi A:
 
@@ -131,7 +131,7 @@ flowchart LR
     U[Pengguna] -->|HTTPS| RP[Nginx + TLS]
     RP --> WEB[web :3000]
     WEB -->|/api/* internal| API[api :4001]
-    RP -->|/socket.io| API
+    RP -->|/api/realtime| API
     API --> PG[(PostgreSQL)]
     WK[worker] --> PG
     API --> S3[(Object storage)]
@@ -311,7 +311,7 @@ Log terstruktur (JSON) dikirim ke satu tempat dengan request ID, workspace, dan 
 
 ### 9.3 Skala
 
-- API tanpa state di memori selain rate limit bawaan; sebelum menambah instance, setel `RATE_LIMIT_STORE=redis` (sudah tersedia) dan pasang adapter Redis untuk Socket.IO.
+- API tanpa state di memori selain rate limit bawaan; sebelum menambah instance, setel `RATE_LIMIT_STORE=redis` (sudah tersedia) dan pasang adapter Redis untuk Socket.IO bila suatu saat realtime mengirim pesan dari memori satu instance. Antrean dapur tidak membutuhkannya: setiap instance mendengarkan `pg_notify` sendiri. Long-polling Socket.IO dengan beberapa instance butuh sticky session di proxy.
 - Worker dapat diperbanyak karena klaim event memakai kunci baris (`SKIP LOCKED`).
 - Web dapat diperbanyak bebas.
 

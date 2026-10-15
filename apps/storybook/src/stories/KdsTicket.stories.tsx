@@ -99,46 +99,21 @@ function NewTicketAlertDemo() {
   );
 }
 
-function ReconnectRefetchDemo() {
-  const [state, setState] = useState<KdsConnectionState>("disconnected");
-  const [lastAction, setLastAction] = useState("Menunggu koneksi dapur.");
-
-  return (
-    <div className="story-kds-ticket-stack">
-      <KdsConnectionStatus
-        canReconnect={state === "disconnected"}
-        canRefetch={state === "connected" || state === "stale"}
-        lastSyncedLabel={state === "connected" ? "Sinkron 20:15" : "Sinkron terakhir 20:02"}
-        message={lastAction}
-        onReconnect={() => {
-          setState("connected");
-          setLastAction("Koneksi berhasil dipulihkan.");
-        }}
-        onRefetch={() => {
-          setState("connected");
-          setLastAction("Snapshot ticket terbaru sudah diambil.");
-        }}
-        pendingCount={state === "connected" ? 0 : 2}
-        state={state}
-        statusId="connection-internal-01"
-      />
-      <div className="story-kds-ticket-row">
-        <button
-          className="story-kds-ticket-control"
-          onClick={() => setState("stale")}
-          type="button"
-        >
-          Simulasikan stale
-        </button>
-        <button
-          className="story-kds-ticket-control"
-          onClick={() => setState("disconnected")}
-          type="button"
-        >
-          Simulasikan terputus
-        </button>
-      </div>
-    </div>
+/** The banner while the screen cannot hear about new tickets. */
+function ConnectionBanner({ state = "reconnecting" }: { state?: KdsConnectionState }) {
+  return state === "offline" ? (
+    <KdsConnectionStatus
+      action={{ label: "Muat ulang", onAction: noop }}
+      message="Ticket di layar mungkin belum terbaru."
+      state="offline"
+      title="Perangkat offline"
+    />
+  ) : (
+    <KdsConnectionStatus
+      message="Ticket di layar mungkin belum terbaru."
+      state="reconnecting"
+      title="Menyambung ulang…"
+    />
   );
 }
 
@@ -260,22 +235,11 @@ export const NewTicketAlert: Story = {
   ),
 };
 
-export const ReconnectRefetch: Story = {
+export const Connection: Story = {
   render: () => (
     <div className="story-kds-ticket-stack">
-      <ReconnectRefetchDemo />
-      <KdsConnectionStatus
-        lastSyncedLabel="Sinkron 20:18"
-        pendingCount={0}
-        state="connected"
-        statusId="connection-ready-01"
-      />
-      <KdsConnectionStatus
-        lastSyncedLabel="Sinkron terakhir 20:00"
-        pendingCount={4}
-        state="stale"
-        statusId="connection-stale-01"
-      />
+      <ConnectionBanner />
+      <ConnectionBanner state="offline" />
     </div>
   ),
 };
@@ -302,7 +266,7 @@ export const ThemeComparison: Story = {
       <section data-theme-preview="light">
         <h2 className="text-heading-sm">Light</h2>
         <div className="story-kds-ticket-stack">
-          <ReconnectRefetchDemo />
+          <ConnectionBanner />
           <NewTicketAlertDemo />
           <StatefulKdsTicket />
         </div>
@@ -310,7 +274,7 @@ export const ThemeComparison: Story = {
       <section data-theme-preview="dark">
         <h2 className="text-heading-sm">Dark</h2>
         <div className="story-kds-ticket-stack">
-          <ReconnectRefetchDemo />
+          <ConnectionBanner />
           <NewTicketAlertDemo />
           <StatefulKdsTicket />
         </div>
@@ -323,7 +287,7 @@ export const Mobile: Story = {
   parameters: { viewport: { defaultViewport: "mobile" } },
   render: () => (
     <div className="story-kds-ticket-stack">
-      <ReconnectRefetchDemo />
+      <ConnectionBanner />
       <NewTicketAlertDemo />
       <StatefulKdsTicket />
     </div>

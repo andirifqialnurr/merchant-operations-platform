@@ -11,5 +11,6 @@ export {
   RequireModule,
   RequirePermission,
   SessionPermissionGuard,
+  type AccessRequirement,
 } from "./session-permission.guard.js";
 export { identityManifest } from "./manifest.js";
