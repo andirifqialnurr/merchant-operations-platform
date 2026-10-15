@@ -482,7 +482,8 @@
     "TABLE_SESSION_NOT_FOUND": "This visit was not found. The view is refreshed.",
     "TABLE_SESSION_UNPAID": "Some orders of this visit are not paid yet.",
     "BILL_CURRENCY_MIXED": "The orders of this visit use different currencies.",
-    "TABLE_SESSION_NOTHING_TO_PAY": "Every order of this visit is already paid."
+    "TABLE_SESSION_NOTHING_TO_PAY": "Every order of this visit is already paid.",
+    "TABLE_QR_NOT_ACTIVE": "This table has no working QR. Make one first."
   },
   "subscription": {
     "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",
@@ -1337,6 +1338,39 @@
     "moveTo": "Move to {label}",
     "noFreeTable": "No table is free right now.",
     "seatsShort": "{count, plural, one {# seat} other {# seats}}",
-    "visitMoved": "The guests of {from} moved to {to}."
+    "visitMoved": "The guests of {from} moved to {to}.",
+    "qrCard": "Card to print",
+    "qrCardAlt": "QR card of {label}",
+    "qrCardFormat": "Paper",
+    "qrDownloadPdf": "Download PDF",
+    "qrDownloadPng": "Download PNG",
+    "qrFormat": {
+      "a6": "A6 card",
+      "sticker": "Small sticker"
+    },
+    "qrGenerate": "Make QR",
+    "qrGenerated": "QR made.",
+    "qrInstructions": "Scan to order · Pindai untuk memesan",
+    "qrLoadFailed": "The QR of this table could not be loaded",
+    "qrOpen": "Table QR",
+    "qrPreview": "QR of {label}",
+    "qrPrint": "Print",
+    "qrPrintBlocked": "The print window was blocked. Allow pop-ups for this site and try again.",
+    "qrPrintCard": "Print card",
+    "qrRevoke": "Stop QR",
+    "qrRevokeDescription": "Guests can no longer order with any printed copy. Make a new QR to start again.",
+    "qrRevokeTitle": "Stop the QR of {label}?",
+    "qrRevoked": "QR stopped.",
+    "qrRotate": "New QR",
+    "qrRotateDescription": "Every printed copy of the current QR stops working now. Print the new one.",
+    "qrRotateTitle": "Replace the QR of {label}?",
+    "qrRotated": "New QR made. Print it to replace the old one.",
+    "qrStatus": {
+      "ACTIVE": "Working",
+      "NOT_GENERATED": "Not made",
+      "REVOKED": "Stopped"
+    },
+    "qrTitle": "QR of {label}",
+    "qrVersion": "Version {version}"
   }
 }

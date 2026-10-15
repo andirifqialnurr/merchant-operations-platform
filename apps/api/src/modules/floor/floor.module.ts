@@ -10,14 +10,31 @@ import { FloorStructureController } from "./adapters/floor-structure.controller.
 import { FloorTableController } from "./adapters/floor-table.controller.js";
 import { PrismaFloorStructureRepository } from "./adapters/prisma-floor-structure.repository.js";
 import { PrismaFloorTableRepository } from "./adapters/prisma-floor-table.repository.js";
+import { PrismaTableQrRepository } from "./adapters/prisma-table-qr.repository.js";
 import { PrismaTableSessionRepository } from "./adapters/prisma-table-session.repository.js";
+import { PublicTableQrController, TableQrController } from "./adapters/table-qr.controller.js";
 import { TableSessionController } from "./adapters/table-session.controller.js";
 import { FloorStructure } from "./application/floor-structure.js";
 import { FLOOR_STRUCTURE_REPOSITORY } from "./application/floor-structure.repository.js";
 import { FLOOR_TABLE_REPOSITORY } from "./application/floor-table.repository.js";
 import { FloorTables } from "./application/floor-tables.js";
+import { TableQrCodes } from "./application/table-qr-codes.js";
+import { TABLE_QR_REPOSITORY, TABLE_QR_SECRET } from "./application/table-qr.repository.js";
 import { TABLE_SESSION_REPOSITORY } from "./application/table-session.repository.js";
 import { TableSessions } from "./application/table-sessions.js";
+
+/**
+ * The secret table QR tokens are worked out with. Production must set it;
+ * changing it makes every printed QR stop working.
+ */
+export function tableQrSecret(environment: NodeJS.ProcessEnv = process.env) {
+  const secret = environment.TABLE_QR_SECRET;
+  if (secret && secret.length >= 32) return secret;
+  if (environment.NODE_ENV === "production") {
+    throw new Error("TABLE_QR_SECRET must be set to at least 32 characters in production.");
+  }
+  return "local-development-table-qr-secret-not-for-production";
+}
 
 /**
  * Tables and self-order. Owns the floor_* tables. Uses the order and billing
@@ -27,7 +44,13 @@ import { TableSessions } from "./application/table-sessions.js";
  * needs to know about this module.
  */
 @Module({
-  controllers: [FloorStructureController, FloorTableController, TableSessionController],
+  controllers: [
+    FloorStructureController,
+    FloorTableController,
+    PublicTableQrController,
+    TableQrController,
+    TableSessionController,
+  ],
   // The kitchen's tickets name the table a visit sits at.
   exports: [TableSessions],
   imports: [
@@ -48,6 +71,10 @@ import { TableSessions } from "./application/table-sessions.js";
     TableSessions,
     PrismaTableSessionRepository,
     { provide: TABLE_SESSION_REPOSITORY, useExisting: PrismaTableSessionRepository },
+    TableQrCodes,
+    PrismaTableQrRepository,
+    { provide: TABLE_QR_REPOSITORY, useExisting: PrismaTableQrRepository },
+    { provide: TABLE_QR_SECRET, useFactory: tableQrSecret },
   ],
 })
 export class FloorModule {}

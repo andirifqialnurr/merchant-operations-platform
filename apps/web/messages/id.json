@@ -482,7 +482,8 @@
     "TABLE_SESSION_NOT_FOUND": "Kunjungan tidak ditemukan. Tampilan diperbarui.",
     "TABLE_SESSION_UNPAID": "Masih ada pesanan kunjungan ini yang belum dibayar.",
     "BILL_CURRENCY_MIXED": "Pesanan kunjungan ini memakai mata uang berbeda.",
-    "TABLE_SESSION_NOTHING_TO_PAY": "Semua pesanan kunjungan ini sudah dibayar."
+    "TABLE_SESSION_NOTHING_TO_PAY": "Semua pesanan kunjungan ini sudah dibayar.",
+    "TABLE_QR_NOT_ACTIVE": "Meja ini belum punya QR yang berlaku. Buat dulu."
   },
   "subscription": {
     "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat langganan.",
@@ -1337,6 +1338,39 @@
     "moveTo": "Pindahkan ke {label}",
     "noFreeTable": "Tidak ada meja kosong sekarang.",
     "seatsShort": "{count, plural, other {# kursi}}",
-    "visitMoved": "Tamu {from} pindah ke {to}."
+    "visitMoved": "Tamu {from} pindah ke {to}.",
+    "qrCard": "Kartu untuk dicetak",
+    "qrCardAlt": "Kartu QR {label}",
+    "qrCardFormat": "Kertas",
+    "qrDownloadPdf": "Unduh PDF",
+    "qrDownloadPng": "Unduh PNG",
+    "qrFormat": {
+      "a6": "Kartu A6",
+      "sticker": "Stiker kecil"
+    },
+    "qrGenerate": "Buat QR",
+    "qrGenerated": "QR dibuat.",
+    "qrInstructions": "Pindai untuk memesan · Scan to order",
+    "qrLoadFailed": "QR meja ini tidak bisa dimuat",
+    "qrOpen": "QR meja",
+    "qrPreview": "QR {label}",
+    "qrPrint": "Cetak",
+    "qrPrintBlocked": "Jendela cetak diblokir. Izinkan pop-up untuk situs ini lalu coba lagi.",
+    "qrPrintCard": "Cetak kartu",
+    "qrRevoke": "Hentikan QR",
+    "qrRevokeDescription": "Tamu tidak bisa lagi memesan dengan salinan cetak mana pun. Buat QR baru untuk memulai lagi.",
+    "qrRevokeTitle": "Hentikan QR {label}?",
+    "qrRevoked": "QR dihentikan.",
+    "qrRotate": "QR baru",
+    "qrRotateDescription": "Semua salinan cetak QR sekarang langsung tidak berlaku. Cetak QR yang baru.",
+    "qrRotateTitle": "Ganti QR {label}?",
+    "qrRotated": "QR baru dibuat. Cetak untuk mengganti yang lama.",
+    "qrStatus": {
+      "ACTIVE": "Berlaku",
+      "NOT_GENERATED": "Belum dibuat",
+      "REVOKED": "Dihentikan"
+    },
+    "qrTitle": "QR {label}",
+    "qrVersion": "Versi {version}"
   }
 }

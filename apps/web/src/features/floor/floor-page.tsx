@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
-import { IconPlus, IconStack2 } from "@tabler/icons-react";
+import { IconPlus, IconQrcode, IconStack2 } from "@tabler/icons-react";
 
 import { PERMISSIONS, type Floor, type FloorTable } from "@merchant/contracts";
 import { Button } from "@merchant/ui/button";
@@ -34,6 +34,7 @@ import {
   withDraft,
 } from "./layout-draft";
 import { NewTableSheet } from "./new-table-sheet";
+import { QrSheet } from "./qr-sheet";
 import { StructureSheet } from "./structure-sheet";
 import { TableForm } from "./table-form";
 import { useCellSize } from "@/lib/use-cell-size";
@@ -60,13 +61,26 @@ export function FloorPage() {
     return <ErrorState description={t("noOutlet")} title={t("accessDeniedTitle")} />;
   }
   const tenantId = workspace.tenant.id;
-  return <OutletFloors key={`${tenantId}:${outlet.id}`} outletId={outlet.id} tenantId={tenantId} />;
+  return (
+    <OutletFloors
+      canQr={can(PERMISSIONS.tableQrManage)}
+      key={`${tenantId}:${outlet.id}`}
+      outletId={outlet.id}
+      outletName={outlet.name}
+      tenantId={tenantId}
+    />
+  );
 }
 
 const canvasShape = (shape: FloorTable["shape"]) =>
   shape === "RECTANGLE" ? "rectangle" : shape === "ROUND" ? "round" : "square";
 
-function OutletFloors({ outletId, tenantId }: Readonly<{ outletId: string; tenantId: string }>) {
+function OutletFloors({
+  canQr,
+  outletId,
+  outletName,
+  tenantId,
+}: Readonly<{ canQr: boolean; outletId: string; outletName: string; tenantId: string }>) {
   const t = useTranslations("floor");
   const notify = useToast();
   const wide = useMediaQuery("(min-width: 1280px)");
@@ -76,7 +90,7 @@ function OutletFloors({ outletId, tenantId }: Readonly<{ outletId: string; tenan
   const [chosen, setChosen] = useState<string>();
   const [selectedId, setSelectedId] = useState<string>();
   const [draft, setDraft] = useState<LayoutDraft>(new Map());
-  const [sheet, setSheet] = useState<"new-table" | "structure">();
+  const [sheet, setSheet] = useState<"new-table" | "qr" | "structure">();
 
   const floors = useMemo(() => floorsQuery.data?.floors ?? [], [floorsQuery.data]);
   const active = floors.filter((floor) => floor.status === "ACTIVE");
@@ -171,6 +185,12 @@ function OutletFloors({ outletId, tenantId }: Readonly<{ outletId: string; tenan
         table={selected}
       />
     ) : null;
+
+  const qrButton = (
+    <Button iconLeft={IconQrcode} onClick={() => setSheet("qr")} size="sm" variant="secondary">
+      {t("qrOpen")}
+    </Button>
+  );
 
   const tray = (
     <UnplacedTableTray
@@ -322,6 +342,7 @@ function OutletFloors({ outletId, tenantId }: Readonly<{ outletId: string; tenan
                       </Button>
                     </div>
                     {form}
+                    {canQr ? qrButton : null}
                   </section>
                 ) : null}
                 {tray}
@@ -343,6 +364,7 @@ function OutletFloors({ outletId, tenantId }: Readonly<{ outletId: string; tenan
           title={t("tableTitle", { label: selected.label })}
         >
           {form}
+          {canQr ? <div className="mt-4">{qrButton}</div> : null}
         </Sheet>
       ) : null}
       {sheet === "structure" && floorsQuery.data ? (
@@ -351,6 +373,15 @@ function OutletFloors({ outletId, tenantId }: Readonly<{ outletId: string; tenan
           mutation={mutation}
           onClose={() => setSheet(undefined)}
           outletId={outletId}
+          tenantId={tenantId}
+        />
+      ) : null}
+      {sheet === "qr" && selected ? (
+        <QrSheet
+          onClose={() => setSheet(undefined)}
+          outletId={outletId}
+          outletName={outletName}
+          table={{ id: selected.id, label: selected.label }}
           tenantId={tenantId}
         />
       ) : null}

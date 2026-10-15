@@ -26,6 +26,7 @@
 @import "@merchant/ui/styles/brand.css";
 @import "@merchant/ui/styles/table-layout-canvas.css";
 @import "@merchant/ui/styles/table-layout-tray.css";
+@import "@merchant/ui/styles/table-qr.css";
 @import "@merchant/ui/styles/table-tile.css";
 @import "@merchant/ui/styles/kds-ticket.css";
 @import "@merchant/ui/styles/quick-item-entry.css";

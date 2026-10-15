@@ -1746,6 +1746,7 @@ model FloorServiceTable {
   tenant     Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   area       FloorArea           @relation(fields: [tenantId, outletId, areaId], references: [tenantId, outletId, id], onDelete: Restrict, map: "floor_service_tables_area_fkey")
   sessions   FloorSessionTable[]
+  qrTokens   FloorQrToken[]
 
   @@unique([tenantId, id])
   @@unique([tenantId, outletId, id], map: "floor_service_tables_tenant_outlet_id_key")
@@ -1822,4 +1823,32 @@ model FloorOutletPolicy {
 
   @@id([tenantId, outletId])
   @@map("floor_outlet_policies")
+}
+
+enum FloorQrTokenStatus {
+  ACTIVE
+  ROTATED
+  REVOKED
+  EXPIRED
+}
+
+/// A table's QR code. The token itself is never stored: the hash finds it,
+/// the salt lets the server work it out again with its secret.
+model FloorQrToken {
+  id        String             @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId  String             @map("tenant_id") @db.Uuid
+  outletId  String             @map("outlet_id") @db.Uuid
+  tableId   String             @map("table_id") @db.Uuid
+  version   Int
+  salt      String             @db.Char(32)
+  tokenHash String             @unique @map("token_hash") @db.Char(64)
+  status    FloorQrTokenStatus @default(ACTIVE)
+  createdBy String?            @map("created_by") @db.Uuid
+  createdAt DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  rotatedAt DateTime?          @map("rotated_at") @db.Timestamptz(6)
+  revokedAt DateTime?          @map("revoked_at") @db.Timestamptz(6)
+  table     FloorServiceTable  @relation(fields: [tenantId, outletId, tableId], references: [tenantId, outletId, id], onDelete: Restrict, map: "floor_qr_tokens_table_fkey")
+
+  @@unique([tenantId, tableId, version], map: "floor_qr_tokens_table_version_key")
+  @@map("floor_qr_tokens")
 }

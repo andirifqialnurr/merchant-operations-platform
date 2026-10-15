@@ -106,6 +106,7 @@ import {
   floorTableListSchema,
   floorPolicySchema,
   liveFloorSchema,
+  tableQrSchema,
   moveTableSessionSchema,
   type MoveTableSession,
   openTableSessionSchema,
@@ -854,6 +855,37 @@ export const merchantApi = {
       openTableSessionSchema,
       tableSessionSchema,
       outletHeaders(tenantId, outletId),
+    ),
+  /** A table's QR and, while it works, the address to print. */
+  tableQr: (tenantId: string, outletId: string, tableId: string) =>
+    apiRequest(
+      `/floor/tables/${entityIdParamsSchema.parse({ id: tableId }).id}/qr`,
+      tableQrSchema,
+      {
+        headers: outletHeaders(tenantId, outletId),
+      },
+    ),
+  generateTableQr: (tenantId: string, outletId: string, tableId: string) =>
+    apiRequest(
+      `/floor/tables/${entityIdParamsSchema.parse({ id: tableId }).id}/qr`,
+      tableQrSchema,
+      {
+        headers: outletHeaders(tenantId, outletId),
+        method: "POST",
+      },
+    ),
+  /** A new QR; every printed copy of the old one stops working. */
+  rotateTableQr: (tenantId: string, outletId: string, tableId: string) =>
+    apiRequest(
+      `/floor/tables/${entityIdParamsSchema.parse({ id: tableId }).id}/qr/rotate`,
+      tableQrSchema,
+      { headers: outletHeaders(tenantId, outletId), method: "POST" },
+    ),
+  revokeTableQr: (tenantId: string, outletId: string, tableId: string) =>
+    apiRequest(
+      `/floor/tables/${entityIdParamsSchema.parse({ id: tableId }).id}/qr/revoke`,
+      tableQrSchema,
+      { headers: outletHeaders(tenantId, outletId), method: "POST" },
     ),
   /** Moves a visit to a free table; its orders and bill stay with it. */
   moveTableSession: (tenantId: string, outletId: string, id: string, input: MoveTableSession) =>

@@ -319,3 +319,23 @@ export const tableSessionDetailSchema = z
 export type TableSessionDetail = z.infer<typeof tableSessionDetailSchema>;
 
 export type TableSessionOrder = z.infer<typeof tableSessionOrderSchema>;
+
+export const tableQrStatusSchema = z.enum(["NOT_GENERATED", "ACTIVE", "REVOKED"]);
+
+/**
+ * A table's QR as staff manage it. The address in it is only given to those
+ * who may print it; it is never shown to guests any other way.
+ */
+export const tableQrSchema = z
+  .object({
+    status: tableQrStatusSchema,
+    /** The address the QR opens, while it works. */
+    url: z.url().nullable(),
+    /** Goes up with every rotation; printed QR of an older version no longer work. */
+    version: z.number().int().min(1).nullable(),
+  })
+  .strict();
+
+export type TableQr = z.infer<typeof tableQrSchema>;
+
+export type TableQrStatus = z.infer<typeof tableQrStatusSchema>;

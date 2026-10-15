@@ -34,13 +34,17 @@ export const publicQrResolutionStatusSchema = z.enum(["CLOSED", "INVALID", "READ
 
 export const publicQrResolutionSchema = z
   .object({
-    merchantName: organizationNameSchema,
+    /** Empty for a QR that leads nowhere: nothing is said about whose it was. */
+    merchantName: organizationNameSchema.nullable(),
     message: z.string().trim().min(1).max(300).nullable(),
     outletName: organizationNameSchema.nullable(),
     status: publicQrResolutionStatusSchema,
     tableLabel: z.string().trim().min(1).max(80).nullable(),
   })
   .strict();
+
+/** The token as it arrives in the address; anything longer is not looked at. */
+export const publicQrTokenParamsSchema = z.object({ token: z.string().min(1).max(100) }).strict();
 
 export type PublicQrResolution = z.infer<typeof publicQrResolutionSchema>;
 

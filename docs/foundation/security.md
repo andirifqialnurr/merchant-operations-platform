@@ -283,6 +283,13 @@ Yang berjalan sejak 4 Oktober 2026 (`core/devices`):
 - Permintaan tanpa cookie, jadi tidak terkena CSRF; isi ticket tetap tanpa harga (skema yang sama dengan pintu lain).
 - **Rate limit (M3-SC-03):** 60 permintaan/menit per sumber pada KDS Basic, 600 bila paket memuat `kds.intake.api`; kunci salah 30/menit per alamat jaringan. Setiap permintaan sumber dihitung, berhasil atau tidak. Lewat batas: `429 RATE_LIMIT_EXCEEDED`. Memakai penyimpanan rate limit yang sama dengan login (Redis bila `RATE_LIMIT_STORE=redis`).
 
+**QR meja (sejak 16 Oktober 2026, M4-BE-04, M4-SC-04)**
+
+- Token QR = HMAC-SHA256(`TABLE_QR_SECRET`, garam acak per versi), base64url 43 karakter. Database menyimpan hash SHA-256 token (untuk mencari) dan garamnya, tidak pernah tokennya; audit hanya mencatat nomor versi.
+- Satu QR berlaku per meja (indeks unik parsial). Rotasi menaikkan versi dan QR lama langsung `INVALID`; cabut membuat tidak ada QR yang berlaku sampai dibuat lagi.
+- Alamat QR hanya diberikan ke pemegang `table.qr.manage` (Owner, Manager).
+- `GET /api/v1/public/table-qr/:token` tanpa sesi hanya menjawab status (`READY`/`CLOSED`/`INVALID`) dan nama bisnis, outlet, serta label meja; tidak ada id, posisi, atau token. Token yang bentuknya salah tidak dicari; yang lebih dari 100 karakter ditolak 400. Rate limit surface publik: M4-SC-02.
+
 **Integrasi eksternal (nanti)**
 
 - Kredensial dibatasi per workspace dan capability.

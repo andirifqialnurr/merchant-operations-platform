@@ -20,7 +20,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 - [x] Editor menempatkan meja tiga bentuk; tumpang tindih dan keluar batas ditolak; tersedia alternatif form untuk layar kecil dan keyboard. _M4-FT-02, M4-UX-01 (TODO 13.12)._
 - [x] Sesi meja dibuka, ditambah pesanan, dipindah meja dengan pesanan dan tagihan tetap, dibayar, lalu ditutup. _Integration `floor-dine-in` dan `floor-move`; browser (TODO 13.14, 13.15)._
 - [x] Status meja adalah projection dari sesi, tidak bisa diisi bebas. _M4-BE-03 (TODO 13.13): tidak ada kolom status meja; `tableStatus()` dari sesi yang memegang meja._
-- [ ] QR mentah tidak disimpan; rotasi dan cabut membuat QR lama tidak berlaku.
+- [x] QR mentah tidak disimpan; rotasi dan cabut membuat QR lama tidak berlaku. _Integration `floor-qr` dan browser (TODO 13.16)._
 - [ ] Tamu memesan dari QR tanpa akun; pesanan masuk ke KDS yang sama dengan pesanan POS.
 - [ ] Klaim "sudah bayar" tamu berstatus `VERIFYING` sampai kasir mengonfirmasi.
 - [ ] Surface tamu tidak menerima ID internal meja/sesi, koordinat tata letak, atau token mentah.
@@ -36,7 +36,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 - [x] **M4-FT-04 Panel sesi** `2125a06` — tamu, durasi, pesanan, tagihan; tambah pesanan; bayar; tutup sesi; kebijakan bersih-bersih. Selesai 16 Oktober 2026 (TODO 13.14). Panel kunjungan di POS > Meja: tamu, duduk sejak, lama, **belum dibayar**, daftar pesanan (nomor, isi, total, Lunas/Belum dibayar/Batal). Satu tindakan utama: **Bayar** selama ada yang belum dibayar, **Tutup kunjungan** bila sudah tidak ada; **Tambah pesanan** selalu ada. Bayar memakai layar pembayaran POS yang sama (tunai/QRIS/transfer/EDC) dengan total dari server; hasilnya menampilkan nomor penjualan tiap pesanan dan kembalian. Kebijakan bersih-bersih: M4-FT-03.
 - [x] **M4-FT-05 Pindah meja** `8d623d7` — aksi tersendiri dengan asal dan tujuan. Selesai 16 Oktober 2026 (TODO 13.15). Panel kunjungan > **Pindah meja** → daftar meja kosong (lantai yang sedang dilihat dulu) → **Pindahkan ke T4**. `POST /floor/sessions/:id/move` (izin `order.move_table`): keterikatan lama dilepas, keterikatan `PRIMARY` baru dibuat dalam satu transaksi; indeks unik parsial membuat dua kunjungan yang pindah ke meja yang sama bersamaan tidak bisa berhasil keduanya. Event `table_session.moved.v1` (`fromTableId`, `toTableId`). Tiket dapur memakai label meja saat dapur menerima pesanan.
 - [x] **M4-FT-06 Makan di tempat** `2125a06` — `orderType: DINE_IN` di layar jual, terikat sesi meja. Selesai 16 Oktober 2026 (TODO 13.14). "Tambah pesanan" membuka layar jual dengan `?table=<kunjungan>`: penanda "Pesanan untuk T5 · Kunjungan 7", tombol keranjang **Kirim pesanan** menggantikan Bayar, lalu kembali ke meja. Pesanan `DINE_IN` dibuat lewat `POST /floor/sessions/:id/orders` (izin `order.create`, kunci idempotensi), tidak butuh shift karena tidak menerima uang (pelayan bisa memakainya). Tiket dapur membawa label meja (`kds_tickets.table_label`).
-- [ ] **M4-FT-07 QR meja** — buat, cetak, unduh, rotasi, cabut.
+- [x] **M4-FT-07 QR meja** — buat, cetak, unduh, rotasi, cabut. Selesai 16 Oktober 2026 (TODO 13.16). Backoffice > Meja > pilih meja > **QR meja**: status (Belum dibuat/Berlaku/Dihentikan, versi), Buat QR, Cetak, QR baru dan Hentikan QR dengan konfirmasi, pilihan kertas, pratinjau kartu, Unduh PNG/PDF.
 - [ ] **M4-FT-08 Self-order tamu** — menu, keranjang, kirim pesanan, status, pesan lagi.
 - [ ] **M4-FT-09 Panggil pelayan dan minta bill** — muncul di POS sebagai permintaan layanan.
 - [ ] **M4-FT-10 Bayar dari meja** — instruksi bayar manual; "saya sudah bayar" → kasir konfirmasi.
@@ -47,7 +47,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 - [x] **M4-BE-01 Tabel floor** `993dbb1` — `floor_floors`, `floor_areas`, `floor_service_tables` dengan unik label per outlet dan validasi grid. Selesai 16 Oktober 2026 (TODO 13.10). Migrasi `20261017010000_floor_layout`; modul API `modules/floor` (manifest `TABLE_SELF_ORDER` menggantikan namespace rencana). Grid lantai 24×16 sel logis bawaan; ukuran meja diturunkan dari bentuk + ukuran (domain `layout.ts`, tumpang tindih/keluar batas dideteksi). Limit `floor.floors.active_per_location` dan `floor.areas.active_per_floor` diperiksa per outlet/lantai (limit kini bisa punya cakupan).
 - [x] **M4-BE-02 Sesi meja** `589d514` — `floor_table_sessions`, `floor_session_tables` (indeks unik parsial satu sesi aktif per meja); event `table_session.opened/moved/closed.v1`. Selesai 16 Oktober 2026 (TODO 13.13). Migrasi `20261017020000_floor_table_sessions`. Indeks unik parsial `(tenant_id, table_id) WHERE detached_at IS NULL`: dua kasir membuka meja yang sama bersamaan → satu berhasil, satu `TABLE_NOT_AVAILABLE`. Event `table_session.opened.v1` dan `table_session.closed.v1` lewat outbox (id sesi di `aggregate_id`, karena kata "session" dilarang di payload); `table_session.moved.v1` datang bersama M4-FT-05. Kunjungan ditutup hanya bila semua pesanannya dibayar atau dibatalkan (`TABLE_SESSION_UNPAID`). Kebijakan per outlet `floor_outlet_policies.cleaning_after_close`. Izin `table.manage` ditambahkan ke peran Kasir dan Pelayan.
 - [x] **M4-BE-03 Projection status meja.** `589d514` Selesai 16 Oktober 2026 (TODO 13.13). `AVAILABLE` (tidak dipegang), `OCCUPIED` (sesi OPEN), `CLOSING` (sesi CLOSING), `CLEANING` (sesi CLOSED yang menunggu dibersihkan), `INACTIVE` (meja nonaktif tanpa tamu). Meja yang masih dipegang tamu tidak bisa dinonaktifkan di editor (`FLOOR_TABLE_IN_USE`).
-- [ ] **M4-BE-04 Token QR** — `floor_qr_tokens` dengan hash, versi, rotasi, cabut; resolusi token → konteks meja tanpa membocorkan ID.
+- [x] **M4-BE-04 Token QR** — `floor_qr_tokens` dengan hash, versi, rotasi, cabut; resolusi token → konteks meja tanpa membocorkan ID. Selesai 16 Oktober 2026 (TODO 13.16). Migrasi `20261017030000_floor_qr_tokens`. Token diturunkan dari garam acak dengan rahasia server (`TABLE_QR_SECRET`), sehingga QR bisa dicetak ulang tanpa menyimpan token. `GET/POST /floor/tables/:id/qr`, `.../qr/rotate`, `.../qr/revoke` (izin `table.qr.manage`); `GET /public/table-qr/:token` menjawab nama bisnis, outlet, dan label meja saja, berstatus `READY`, `CLOSED` (meja/area/lantai/outlet nonaktif, meja tidak menerima pesanan QR, atau modul tidak terpasang), atau `INVALID`.
 - [ ] **M4-BE-05 Intake self-order** — pintu masuk pesanan sumber `SELF_ORDER` ke kernel order intake yang sama; rate limit per token.
 - [ ] **M4-BE-06 Permintaan layanan** — `floor_service_requests`.
 - [ ] **M4-BE-07 Pembayaran `VERIFYING`** — klaim tamu dan konfirmasi kasir di kernel billing.
@@ -71,7 +71,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 ### AS — Aset
 
 - [x] **M4-AS-01 Bentuk meja** `995a56f` — SVG persegi, persegi panjang, bulat dalam tiga ukuran, mengikuti token. Selesai 16 Oktober 2026 (TODO 13.11). Komponen SVG `TableShape` (`@merchant/ui/table-shape`): meja dari atas dengan kursi diturunkan dari kapasitas (maks. 16 digambar), mengikuti token warna lewat CSS, tersembunyi dari pembaca layar. Ukuran mengikuti jejak grid: persegi/bulat 2×2, 3×3, 4×4; persegi panjang 3×2, 4×2, 6×3. `TableTile` dengan `shape` menggambar meja ini.
-- [ ] **M4-AS-02 Kartu QR cetak** — template A6 dan stiker kecil: nama outlet, label meja, QR, instruksi singkat dua bahasa; unduh PNG/PDF.
+- [x] **M4-AS-02 Kartu QR cetak** — template A6 dan stiker kecil: nama outlet, label meja, QR, instruksi singkat dua bahasa; unduh PNG/PDF. Selesai 16 Oktober 2026 (TODO 13.16). Kartu A6 (nama outlet, label meja, QR, "Pindai untuk memesan · Scan to order") dan stiker 50×50 mm (QR dan label) digambar hitam-putih di canvas; unduh PNG, unduh PDF (PDF satu halaman ukuran kertas, dibuat sendiri tanpa pustaka), atau cetak di jendela sendiri dengan ukuran halaman yang tepat. Pustaka baru: `qrcode@1.5.4`.
 - [ ] **M4-AS-03 Metadata publik** — judul, deskripsi, dan gambar pratinjau untuk tautan menu publik.
 
 ### SC — Keamanan dan privasi
@@ -79,7 +79,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 - [ ] **M4-SC-01 Data guard surface tamu** — test tidak ada ID internal, koordinat, atau token mentah.
 - [ ] **M4-SC-02 Rate limit surface publik** — pesanan per token dan per IP.
 - [ ] **M4-SC-03 Privasi pelanggan** — telepon hanya untuk peran berizin; tidak dikirim ke KDS.
-- [ ] **M4-SC-04 Rotasi QR** — QR lama ditolak segera setelah rotasi.
+- [x] **M4-SC-04 Rotasi QR** — QR lama ditolak segera setelah rotasi. Selesai 16 Oktober 2026 (TODO 13.16). Rotasi dalam satu transaksi: QR lama `ROTATED`, versi baru `ACTIVE`; resolusi hanya mencari `ACTIVE`, jadi QR lama `INVALID` di permintaan berikutnya. Diperiksa lewat integration dan browser.
 
 ### QA — Kualitas kode dan test
 
