@@ -41,7 +41,8 @@
       "users": "Users",
       "roles": "Roles",
       "organization": "Business and outlets",
-      "integrations": "Integrations"
+      "integrations": "Integrations",
+      "kitchenIntake": "Kitchen outside systems"
     },
     "settingsLoadFailed": "The settings could not be loaded",
     "settingsNavigation": "Settings",
@@ -450,7 +451,9 @@
     "KITCHEN_TICKET_REFERENCE_USED": "This reference already made a ticket at another outlet.",
     "KITCHEN_TICKET_FINISHED": "This ticket is already finished.",
     "KITCHEN_TICKET_NOT_FOUND": "This ticket was not found at this outlet.",
-    "KITCHEN_TICKET_STATUS_CHANGED": "This ticket was changed on another screen. The queue was reloaded."
+    "KITCHEN_TICKET_STATUS_CHANGED": "This ticket was changed on another screen. The queue was reloaded.",
+    "KDS_INTAKE_KEY_INVALID": "The intake key is wrong, missing, or revoked.",
+    "KDS_INTAKE_SOURCE_NOT_FOUND": "This intake source was not found or is already revoked."
   },
   "subscription": {
     "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",
@@ -862,6 +865,9 @@
         "stocktake": "Do a stock count"
       },
       "kds": {
+        "intake": {
+          "manage": "Manage keys for outside systems that send kitchen tickets"
+        },
         "ticket": {
           "manage": "Add tickets and change their status",
           "view": "See the kitchen queue"
@@ -1110,5 +1116,50 @@
     "viewQueue": "Queue",
     "views": "Kitchen views",
     "waiting": "Waiting"
+  },
+  "kdsIntake": {
+    "accessDenied": "Only an owner or a manager of every outlet can manage outside systems.",
+    "accessDeniedTitle": "You do not have access",
+    "add": "Add",
+    "addSource": "Add system",
+    "cancel": "Cancel",
+    "closeSheet": "Close panel",
+    "copied": "Key copied.",
+    "copy": "Copy key",
+    "copyFailed": "The key could not be copied. Select and copy it by hand.",
+    "created": "Outside system added.",
+    "createdAt": "Added {date}.",
+    "done": "Done",
+    "empty": "Add an outside system, such as a delivery app, so its orders go straight to the kitchen screen.",
+    "emptyTitle": "No outside systems yet",
+    "howToSend": "How to send a ticket",
+    "keyInstruction": "Give this key to the outside system. It opens the kitchen screen of the chosen outlet.",
+    "keyLabel": "Key",
+    "keyShownOnce": "This key will not be shown again.",
+    "keyStart": "Key starts with",
+    "label": "System name",
+    "labelHint": "For example GrabFood or Website.",
+    "labelRequired": "Enter the system name, at least 2 characters.",
+    "lastUsed": "Last used",
+    "loadFailed": "Outside systems could not be loaded",
+    "neverUsed": "Never",
+    "newSource": "New outside system",
+    "noOutlet": "No active outlet yet.",
+    "outlet": "Outlet",
+    "outletRequired": "Choose an outlet.",
+    "revoke": "Revoke",
+    "revokeDescription": "The key stops working at once; that system can no longer send tickets. This cannot be undone.",
+    "revokeTitle": "Revoke {label}?",
+    "revoked": "Key revoked.",
+    "revokedAt": "Revoked {date}.",
+    "saving": "Saving…",
+    "selectOutlet": "Choose an outlet",
+    "source": "System",
+    "status": "Status",
+    "statusName": {
+      "ACTIVE": "Active",
+      "REVOKED": "Revoked"
+    },
+    "title": "Kitchen outside systems"
   }
 }

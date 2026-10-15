@@ -7,6 +7,7 @@ import type { KitchenTicket, KitchenTicketList, KitchenTicketStatus } from "@mer
 import { ApiClientError, merchantApi } from "@/lib/api-client";
 import { useErrorMessage } from "@/lib/i18n";
 import { useToast } from "@/providers/toast-provider";
+import { isLimitReached } from "@/shell/limit-reached-state";
 
 /** Keys carry the workspace and outlet so one kitchen never reads another's queue. */
 export const kitchenKeys = {
@@ -83,3 +84,40 @@ export function useAdvanceTicket(tenantId: string, outletId: string) {
     },
   });
 }
+
+export const intakeSourcesKey = (tenantId: string) => ["kds", tenantId, "intake-sources"] as const;
+
+/** The outside systems allowed to send this business's kitchen tickets. */
+export function useIntakeSources(tenantId: string, enabled: boolean) {
+  return useQuery({
+    enabled,
+    queryFn: () => merchantApi.kdsIntakeSources(tenantId),
+    queryKey: intakeSourcesKey(tenantId),
+  });
+}
+
+/**
+ * Runs one write on the sources, then reads the list and the usage it
+ * counts against again. A full limit is explained in the form instead.
+ */
+export function useIntakeSourceMutation(tenantId: string) {
+  const queryClient = useQueryClient();
+  const notify = useToast();
+  const errorMessage = useErrorMessage();
+  return useMutation({
+    mutationFn: ({ action }: { action: () => Promise<unknown>; success: string }) => action(),
+    onError: (error) => {
+      if (isLimitReached(error)) return;
+      notify({ message: errorMessage(error), tone: "danger" });
+    },
+    onSuccess: async (_result, { success }) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: intakeSourcesKey(tenantId) }),
+        queryClient.invalidateQueries({ queryKey: ["subscription", tenantId] }),
+      ]);
+      notify({ message: success, tone: "success" });
+    },
+  });
+}
+
+export type IntakeSourceMutation = ReturnType<typeof useIntakeSourceMutation>;

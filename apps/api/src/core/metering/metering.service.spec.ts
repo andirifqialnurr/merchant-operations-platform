@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 import { BadRequestException, HttpException } from "@nestjs/common";
@@ -136,22 +136,24 @@ const sale = (index: number, quantity = 1n, occurredAt = NOW): NewUsageEvent => 
   sourceType: "sales_sale",
 });
 
-test("the code and the database list the same 25 dimensions", () => {
-  const migration = readFileSync(
-    new URL(
-      "../../../../../packages/database/prisma/migrations/20261004080000_core_metering/migration.sql",
-      import.meta.url,
-    ),
-    "utf8",
+test("the code and the database list the same 26 dimensions", () => {
+  // Every migration that adds dimensions, in the order they run.
+  const migrations = new URL(
+    "../../../../../packages/database/prisma/migrations/",
+    import.meta.url,
   );
-  const seeded = [...migration.matchAll(/\('([a-z_.]+)', '([A-Za-z]+)', '([A-Z_]+)'\)/g)].map(
-    (match) => ({ enforcement: match[3], key: match[1], unit: match[2] }),
-  );
-  assert.equal(USAGE_DIMENSIONS.length, 25);
-  assert.deepEqual(
-    seeded,
-    USAGE_DIMENSIONS.map((item) => ({ ...item })),
-  );
+  const seeded = readdirSync(migrations)
+    .sort()
+    .map((name) => new URL(`${name}/migration.sql`, migrations))
+    .filter((file) => existsSync(file))
+    .map((file) => readFileSync(file, "utf8"))
+    .filter((sql) => sql.includes('INSERT INTO "core_usage_dimensions"'))
+    .flatMap((sql) => [...sql.matchAll(/\('([a-z_.]+)', '([A-Za-z]+)', '([A-Z_]+)'\)/g)])
+    .map((match) => ({ enforcement: match[3] ?? "", key: match[1] ?? "", unit: match[2] ?? "" }));
+  const byKey = (left: { key: string }, right: { key: string }) =>
+    left.key.localeCompare(right.key);
+  assert.equal(USAGE_DIMENSIONS.length, 26);
+  assert.deepEqual(seeded.sort(byKey), USAGE_DIMENSIONS.map((item) => ({ ...item })).sort(byKey));
 });
 
 test("a period is the billing cycle when it covers the moment, otherwise the UTC month", () => {

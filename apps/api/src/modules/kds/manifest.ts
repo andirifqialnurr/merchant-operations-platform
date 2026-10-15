@@ -51,13 +51,28 @@ export const kdsManifest: ModuleManifest = {
   key: MODULES.kds,
   limitDimensions: [
     "kds.devices.active",
+    "kds.intake_sources.active",
     "kds.stations.active_per_location",
     "kds.tickets.created.cycle",
   ],
   namespaces: ["kds"],
-  navigation: [{ label: "Kitchen", path: "/kds", permissionKey: PERMISSIONS.kdsTicketView }],
-  permissions: [PERMISSIONS.kdsTicketView, PERMISSIONS.kdsTicketManage],
-  routes: [{ path: "/kds", permissionKey: PERMISSIONS.kdsTicketView }],
+  navigation: [
+    { label: "Kitchen", path: "/kds", permissionKey: PERMISSIONS.kdsTicketView },
+    {
+      label: "Kitchen outside systems",
+      path: "/settings/kitchen-intake",
+      permissionKey: PERMISSIONS.kdsIntakeManage,
+    },
+  ],
+  permissions: [
+    PERMISSIONS.kdsTicketView,
+    PERMISSIONS.kdsTicketManage,
+    PERMISSIONS.kdsIntakeManage,
+  ],
+  routes: [
+    { path: "/kds", permissionKey: PERMISSIONS.kdsTicketView },
+    { path: "/settings/kitchen-intake", permissionKey: PERMISSIONS.kdsIntakeManage },
+  ],
   configSchemaVersion: 1,
   eventHandlers: [
     { eventType: "order.submitted.v1", handlerKey: "kds.create_ticket" },

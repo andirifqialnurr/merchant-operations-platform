@@ -7,6 +7,7 @@ import {
   IconBuildingStore,
   IconDeviceTablet,
   IconPlugConnected,
+  IconApi,
   IconPackage,
   IconReceipt2,
   IconSettings,
@@ -66,6 +67,7 @@ export function isNavigableModule(moduleKey: ModuleKey): moduleKey is NavigableM
 export const PAGE_NAVIGATION: Record<string, { icon: AppIconComponent; labelKey: string }> = {
   "/settings/devices": { icon: IconDeviceTablet, labelKey: "pageNav.devices" },
   "/settings/integrations": { icon: IconPlugConnected, labelKey: "pageNav.integrations" },
+  "/settings/kitchen-intake": { icon: IconApi, labelKey: "pageNav.kitchenIntake" },
   "/settings/organization": { icon: IconBuildingStore, labelKey: "pageNav.organization" },
   "/settings/roles": { icon: IconShieldCheck, labelKey: "pageNav.roles" },
   "/settings/users": { icon: IconUsers, labelKey: "pageNav.users" },

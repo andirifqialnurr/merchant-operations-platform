@@ -376,6 +376,7 @@ model Tenant {
   approvalPins                 CoreApprovalPin[]
   kdsStations                  KdsStation[]
   kdsTickets                   KdsTicket[]
+  kdsIntakeSources             KdsIntakeSource[]
 
   @@map("tenants")
 }
@@ -429,6 +430,7 @@ model Outlet {
   heldCarts           PosHeldCart[]
   kdsStations         KdsStation[]
   kdsTickets          KdsTicket[]
+  kdsIntakeSources    KdsIntakeSource[]
   saleNumberCounter   SaleNumberCounter?
   orderNumberCounter  OrderNumberCounter?
 
@@ -1551,6 +1553,34 @@ model KdsStation {
   @@unique([tenantId, outletId, id])
   @@unique([tenantId, outletId, name])
   @@map("kds_stations")
+}
+
+enum KdsIntakeSourceStatus {
+  ACTIVE
+  REVOKED
+}
+
+/// An external system allowed to send tickets to one outlet's kitchen. Only
+/// a hash of its secret key is kept.
+model KdsIntakeSource {
+  id         String                @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId   String                @map("tenant_id") @db.Uuid
+  outletId   String                @map("outlet_id") @db.Uuid
+  label      String                @db.VarChar(80)
+  keyPrefix  String                @unique @map("key_prefix") @db.VarChar(16)
+  secretHash String                @map("secret_hash") @db.Char(64)
+  status     KdsIntakeSourceStatus @default(ACTIVE)
+  createdBy  String?               @map("created_by") @db.Uuid
+  lastUsedAt DateTime?             @map("last_used_at") @db.Timestamptz(6)
+  revokedAt  DateTime?             @map("revoked_at") @db.Timestamptz(6)
+  createdAt  DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime              @default(now()) @map("updated_at") @db.Timestamptz(6)
+  tenant     Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet     Outlet                @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict)
+
+  @@unique([tenantId, id])
+  @@index([tenantId, status], map: "kds_intake_sources_tenant_status_idx")
+  @@map("kds_intake_sources")
 }
 
 /// One request to the kitchen. It names its origin by source and reference

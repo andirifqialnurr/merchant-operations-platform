@@ -41,7 +41,8 @@
       "users": "Pengguna",
       "roles": "Peran",
       "organization": "Bisnis dan outlet",
-      "integrations": "Integrasi"
+      "integrations": "Integrasi",
+      "kitchenIntake": "Sistem luar dapur"
     },
     "settingsLoadFailed": "Pengaturan tidak bisa dimuat",
     "settingsNavigation": "Pengaturan",
@@ -450,7 +451,9 @@
     "KITCHEN_TICKET_REFERENCE_USED": "Referensi ini sudah dipakai ticket di outlet lain.",
     "KITCHEN_TICKET_FINISHED": "Ticket ini sudah selesai.",
     "KITCHEN_TICKET_NOT_FOUND": "Ticket tidak ditemukan di outlet ini.",
-    "KITCHEN_TICKET_STATUS_CHANGED": "Ticket ini sudah diubah dari layar lain. Antrean dimuat ulang."
+    "KITCHEN_TICKET_STATUS_CHANGED": "Ticket ini sudah diubah dari layar lain. Antrean dimuat ulang.",
+    "KDS_INTAKE_KEY_INVALID": "Kunci intake salah, tidak ada, atau sudah dicabut.",
+    "KDS_INTAKE_SOURCE_NOT_FOUND": "Sumber intake tidak ditemukan atau sudah dicabut."
   },
   "subscription": {
     "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat langganan.",
@@ -862,6 +865,9 @@
         "stocktake": "Melakukan stok opname"
       },
       "kds": {
+        "intake": {
+          "manage": "Kelola kunci sistem luar yang mengirim ticket dapur"
+        },
         "ticket": {
           "manage": "Menambah ticket dan mengubah statusnya",
           "view": "Melihat antrean dapur"
@@ -1110,5 +1116,50 @@
     "viewQueue": "Antrean",
     "views": "Tampilan dapur",
     "waiting": "Menunggu"
+  },
+  "kdsIntake": {
+    "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat mengelola sistem luar.",
+    "accessDeniedTitle": "Anda tidak punya akses",
+    "add": "Tambah",
+    "addSource": "Tambah sistem",
+    "cancel": "Batal",
+    "closeSheet": "Tutup panel",
+    "copied": "Kunci disalin.",
+    "copy": "Salin kunci",
+    "copyFailed": "Kunci tidak dapat disalin. Pilih dan salin manual.",
+    "created": "Sistem luar ditambahkan.",
+    "createdAt": "Ditambahkan {date}.",
+    "done": "Selesai",
+    "empty": "Tambahkan sistem luar, misalnya aplikasi pesan antar, agar pesanannya langsung masuk ke layar dapur.",
+    "emptyTitle": "Belum ada sistem luar",
+    "howToSend": "Cara mengirim ticket",
+    "keyInstruction": "Berikan kunci ini kepada sistem luar. Kunci ini membuka layar dapur outlet yang dipilih.",
+    "keyLabel": "Kunci",
+    "keyShownOnce": "Kunci ini tidak akan ditampilkan lagi.",
+    "keyStart": "Awal kunci",
+    "label": "Nama sistem",
+    "labelHint": "Misalnya GrabFood atau Website.",
+    "labelRequired": "Isi nama sistem, minimal 2 karakter.",
+    "lastUsed": "Terakhir dipakai",
+    "loadFailed": "Sistem luar tidak dapat dimuat",
+    "neverUsed": "Belum pernah",
+    "newSource": "Sistem luar baru",
+    "noOutlet": "Belum ada outlet aktif.",
+    "outlet": "Outlet",
+    "outletRequired": "Pilih outlet.",
+    "revoke": "Cabut",
+    "revokeDescription": "Kunci langsung berhenti bekerja; sistem itu tidak bisa mengirim ticket lagi. Ini tidak dapat dibatalkan.",
+    "revokeTitle": "Cabut {label}?",
+    "revoked": "Kunci dicabut.",
+    "revokedAt": "Dicabut {date}.",
+    "saving": "Menyimpan…",
+    "selectOutlet": "Pilih outlet",
+    "source": "Sistem",
+    "status": "Status",
+    "statusName": {
+      "ACTIVE": "Aktif",
+      "REVOKED": "Dicabut"
+    },
+    "title": "Sistem luar dapur"
   }
 }

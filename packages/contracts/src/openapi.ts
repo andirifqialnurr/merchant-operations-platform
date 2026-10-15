@@ -144,7 +144,13 @@ import {
 } from "./billing.ts";
 import {
   advanceKitchenTicketSchema,
+  createKdsIntakeSourceSchema,
   createManualKitchenTicketSchema,
+  intakeKitchenTicketResultSchema,
+  intakeKitchenTicketSchema,
+  kdsIntakeSourceCreatedSchema,
+  kdsIntakeSourceListSchema,
+  kdsIntakeSourceSchema,
   kitchenTicketListSchema,
   kitchenTicketSchema,
 } from "./kds.ts";
@@ -336,4 +342,10 @@ export const kdsOpenApiSchemas = {
   CreateManualKitchenTicket: toOpenApiSchema(createManualKitchenTicketSchema),
   KitchenTicket: toOpenApiSchema(kitchenTicketSchema),
   KitchenTicketList: toOpenApiSchema(kitchenTicketListSchema),
+  CreateKdsIntakeSource: toOpenApiSchema(createKdsIntakeSourceSchema),
+  IntakeKitchenTicket: toOpenApiSchema(intakeKitchenTicketSchema),
+  IntakeKitchenTicketResult: toOpenApiSchema(intakeKitchenTicketResultSchema),
+  KdsIntakeSource: toOpenApiSchema(kdsIntakeSourceSchema),
+  KdsIntakeSourceCreated: toOpenApiSchema(kdsIntakeSourceCreatedSchema),
+  KdsIntakeSourceList: toOpenApiSchema(kdsIntakeSourceListSchema),
 } as const;

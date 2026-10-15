@@ -111,6 +111,60 @@ export const advanceKitchenTicketSchema = z
 export const kitchenTicketListSchema = z.object({ tickets: z.array(kitchenTicketSchema) }).strict();
 
 /**
+ * What an external system sends to put a ticket in a kitchen (M3-BE-08). Its
+ * key says which workspace and outlet; `reference` is its own name for the
+ * request, so sending it again never makes a second ticket.
+ */
+export const intakeKitchenTicketSchema = z
+  .object({
+    items: z.array(kitchenTicketItemInputSchema).min(1).max(100),
+    orderLabel: orderLabelSchema,
+    reference: z
+      .string()
+      .trim()
+      .min(1)
+      .max(120)
+      .regex(/^[A-Za-z0-9._:-]+$/),
+    tableLabel: tableLabelSchema.optional(),
+  })
+  .strict();
+
+/** The answer to an intake request: the ticket, and whether this request made it. */
+export const intakeKitchenTicketResultSchema = z
+  .object({ created: z.boolean(), ticket: kitchenTicketSchema })
+  .strict();
+
+export const kdsIntakeSourceStatusSchema = z.enum(["ACTIVE", "REVOKED"]);
+
+/** An external system allowed to send tickets to one outlet. Never its secret. */
+export const kdsIntakeSourceSchema = z
+  .object({
+    createdAt: z.iso.datetime(),
+    id: z.uuid(),
+    /** The public start of the key, to tell keys apart. */
+    keyPrefix: z.string().min(1).max(16),
+    label: z.string().min(1).max(80),
+    lastUsedAt: z.iso.datetime().nullable(),
+    outletId: z.uuid(),
+    revokedAt: z.iso.datetime().nullable(),
+    status: kdsIntakeSourceStatusSchema,
+  })
+  .strict();
+
+export const kdsIntakeSourceListSchema = z
+  .object({ sources: z.array(kdsIntakeSourceSchema) })
+  .strict();
+
+export const createKdsIntakeSourceSchema = z
+  .object({ label: z.string().trim().min(2).max(80), outletId: z.uuid() })
+  .strict();
+
+/** A new source with its key. The key is shown this once and never again. */
+export const kdsIntakeSourceCreatedSchema = z
+  .object({ key: z.string().min(1), source: kdsIntakeSourceSchema })
+  .strict();
+
+/**
  * Realtime for the kitchen screen. The server only says that an outlet's
  * queue changed; the screen reads it again over REST, so nothing a ticket
  * holds travels this way (security.md 10.1, architecture.md 10).
@@ -141,6 +195,18 @@ export type CreateKitchenTicketInput = z.input<typeof createKitchenTicketSchema>
 export type CreateManualKitchenTicket = z.infer<typeof createManualKitchenTicketSchema>;
 
 export type KitchenTicket = z.infer<typeof kitchenTicketSchema>;
+
+export type CreateKdsIntakeSource = z.infer<typeof createKdsIntakeSourceSchema>;
+
+export type IntakeKitchenTicket = z.infer<typeof intakeKitchenTicketSchema>;
+
+export type IntakeKitchenTicketResult = z.infer<typeof intakeKitchenTicketResultSchema>;
+
+export type KdsIntakeSource = z.infer<typeof kdsIntakeSourceSchema>;
+
+export type KdsIntakeSourceCreated = z.infer<typeof kdsIntakeSourceCreatedSchema>;
+
+export type KdsIntakeSourceList = z.infer<typeof kdsIntakeSourceListSchema>;
 
 export type KitchenQueueChanged = z.infer<typeof kitchenQueueChangedSchema>;
 

@@ -95,6 +95,11 @@ import {
   type CreateInvitation,
   type UpdateMembership,
   activateDeviceSchema,
+  createKdsIntakeSourceSchema,
+  kdsIntakeSourceCreatedSchema,
+  kdsIntakeSourceListSchema,
+  kdsIntakeSourceSchema,
+  type CreateKdsIntakeSource,
   invitationAcceptedSchema,
   invitationPreviewSchema,
   invitationTokenRequestSchema,
@@ -730,6 +735,27 @@ export const merchantApi = {
       headers: outletHeaders(tenantId, outletId),
       method: "DELETE",
     }),
+  /** The outside systems allowed to send kitchen tickets. Never their keys. */
+  kdsIntakeSources: (tenantId: string) =>
+    apiRequest("/kds/intake-sources", kdsIntakeSourceListSchema, {
+      headers: tenantHeaders(tenantId),
+    }),
+  /** Adds a source; the answer holds its key, which is never shown again. */
+  createKdsIntakeSource: (tenantId: string, input: CreateKdsIntakeSource) =>
+    jsonMutation(
+      "/kds/intake-sources",
+      "POST",
+      input,
+      createKdsIntakeSourceSchema,
+      kdsIntakeSourceCreatedSchema,
+      tenantHeaders(tenantId),
+    ),
+  revokeKdsIntakeSource: (tenantId: string, id: string) =>
+    apiRequest(
+      `/kds/intake-sources/${entityIdParamsSchema.parse({ id }).id}/revoke`,
+      kdsIntakeSourceSchema,
+      { headers: tenantHeaders(tenantId), method: "POST" },
+    ),
   /** The outlet's kitchen tickets still being worked on, oldest first. */
   kitchenTickets: (tenantId: string, outletId: string) =>
     apiRequest("/kds/tickets", kitchenTicketListSchema, {

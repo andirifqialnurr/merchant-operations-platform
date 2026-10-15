@@ -19,7 +19,14 @@ export const PERMISSION_GROUPS = [
       PERMISSIONS.cashVarianceApprove,
     ],
   },
-  { key: "kitchen", permissions: [PERMISSIONS.kdsTicketView, PERMISSIONS.kdsTicketManage] },
+  {
+    key: "kitchen",
+    permissions: [
+      PERMISSIONS.kdsTicketView,
+      PERMISSIONS.kdsTicketManage,
+      PERMISSIONS.kdsIntakeManage,
+    ],
+  },
   { key: "catalog", permissions: [PERMISSIONS.catalogRead, PERMISSIONS.catalogManage] },
   {
     key: "tables",

@@ -272,6 +272,16 @@ Yang berjalan sejak 4 Oktober 2026 (`core/devices`):
 - **Sesi layar dapur (sejak 15 Oktober 2026, M3-SC-02):** pembaruan realtime antrean dapur hanya diterima sesi yang dibuka di perangkat KDS aktif untuk outlet itu, oleh orang dengan `kds.ticket.view` di outlet itu dan modul KDS aktif. Pemeriksaannya sama dengan guard REST (`SessionPermissionGuard.authorize`). Ditolak: browser tanpa perangkat atau perangkat kasir (`KDS_DEVICE_REQUIRED`), outlet lain, tanpa izin, tanpa sesi, atau perangkat yang dicabut (`REALTIME_ACCESS_DENIED`), dan origin selain `WEB_URL` (`ORIGIN_NOT_ALLOWED`). Izin diperiksa ulang tiap 60 detik; yang gagal diputus. Pesan realtime hanya memuat `outletId`.
 - **Belum:** POS masih bisa dipakai dari browser tanpa perangkat aktif (dengan sesi Backoffice). Mewajibkan perangkat untuk POS adalah keputusan produk yang belum diambil. Hal yang sama untuk REST antrean dapur: akun berizin tetap bisa membaca antrean dari browser biasa, hanya tanpa realtime.
 
+**Sumber intake dapur (sejak 16 Oktober 2026, M3-BE-08)**
+
+- Kunci `kds_<prefix>_<rahasia>`: prefix 10 karakter acak untuk mencari sumber, rahasia 32 byte acak. Hanya SHA-256 rahasia yang disimpan; pembandingan memakai `timingSafeEqual`.
+- Kunci tampil sekali saat dibuat (Pengaturan > Sistem luar dapur). Daftar, audit (`kds.intake_source.create`/`revoke`), dan log tidak pernah memuatnya.
+- Satu sumber terikat satu workspace dan satu outlet; permintaan tidak bisa memilih workspace atau outlet lain (skema intake strict, `outletId` di body ditolak).
+- Kunci salah, tidak ada, berformat salah, atau sudah dicabut mendapat satu jawaban: `401 KDS_INTAKE_KEY_INVALID`. Pencabutan berlaku seketika.
+- Setiap permintaan memeriksa ulang langganan, modul KDS, capability `kds.intake.api_lite`, dan outlet aktif.
+- Hanya pemegang `kds.intake.manage` yang bertindak untuk semua outlet dapat membuat atau mencabut kunci; tidak dari perangkat.
+- Permintaan tanpa cookie, jadi tidak terkena CSRF; isi ticket tetap tanpa harga (skema yang sama dengan pintu lain).
+
 **Integrasi eksternal (nanti)**
 
 - Kredensial dibatasi per workspace dan capability.

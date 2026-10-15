@@ -37,6 +37,7 @@ export const USAGE_DIMENSIONS: readonly UsageDimension[] = [
   hard("floor.areas.active_per_floor"),
   soft("self_order.orders.submitted.cycle"),
   hard("kds.devices.active", "device"),
+  hard("kds.intake_sources.active"),
   hard("kds.stations.active_per_location"),
   soft("kds.tickets.created.cycle"),
   hard("inventory.items.active"),

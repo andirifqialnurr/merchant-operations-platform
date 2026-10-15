@@ -329,15 +329,15 @@ Aplikasi mobile HC dan antrean absensi offline; Personal Finance; pembayaran ter
 
 ## 14. Keputusan terbuka
 
-| ID    | Pertanyaan                                                                      | Batas waktu                  |
-| ----- | ------------------------------------------------------------------------------- | ---------------------------- |
-| OD-01 | Nama produk tetap Cafe Companion Pro atau lebih generik?                        | Sebelum peluncuran publik    |
-| OD-02 | HC Basic dijual pada R1 atau beta sesudahnya?                                   | Sebelum roadmap dikunci      |
-| OD-04 | KDS Only bawaan memakai input manual atau API?                                  | Sebelum paket dipublikasikan |
-| OD-05 | Titik potong stok bawaan per template?                                          | Sebelum pilot integrasi      |
-| OD-06 | Pengakuan pendapatan Basic saat penjualan selesai atau pembayaran dikonfirmasi? | Sebelum integrasi Finance    |
-| OD-08 | Masa simpan audit, bukti absensi, data pelanggan, lampiran?                     | Sebelum produksi             |
-| OD-12 | Harga paket dan add-on?                                                         | Setelah pilot                |
+| ID    | Pertanyaan                                                                                                     | Batas waktu               |
+| ----- | -------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| OD-01 | Nama produk tetap Cafe Companion Pro atau lebih generik?                                                       | Sebelum peluncuran publik |
+| OD-02 | HC Basic dijual pada R1 atau beta sesudahnya?                                                                  | Sebelum roadmap dikunci   |
+| OD-04 | KDS Only bawaan memakai input manual atau API? **Diputuskan 16 Oktober 2026: keduanya** (manual + API intake). | —                         |
+| OD-05 | Titik potong stok bawaan per template?                                                                         | Sebelum pilot integrasi   |
+| OD-06 | Pengakuan pendapatan Basic saat penjualan selesai atau pembayaran dikonfirmasi?                                | Sebelum integrasi Finance |
+| OD-08 | Masa simpan audit, bukti absensi, data pelanggan, lampiran?                                                    | Sebelum produksi          |
+| OD-12 | Harga paket dan add-on?                                                                                        | Setelah pilot             |
 
 ## 15. Peta dokumen
 
