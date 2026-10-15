@@ -67,12 +67,15 @@ export interface TableSessionRepository {
     toTableId: string,
     origin: ActorCommandOrigin,
   ): Promise<{ fromTableId: string | null; session: TableSessionRecord } | null>;
+  /** Staff open a visit as themselves; guests from the QR open it with no user. */
   open(
     tenantId: string,
     outletId: string,
     seat: { guestCount: number; tableId: string },
-    origin: ActorCommandOrigin,
+    origin: CommandOrigin,
   ): Promise<TableSessionRecord>;
+  /** The visit holding the table now, open, closing, or waiting to be cleaned. */
+  holderOf(tenantId: string, outletId: string, tableId: string): Promise<TableSessionRecord | null>;
   policy(tenantId: string, outletId: string): Promise<{ cleaningAfterClose: boolean }>;
   /** The label of the visit's primary table, the last one it had once closed. */
   primaryTableLabel(tenantId: string, outletId: string, sessionId: string): Promise<string | null>;

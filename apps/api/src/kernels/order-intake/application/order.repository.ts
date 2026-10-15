@@ -1,9 +1,15 @@
 import type { OrderSource, OrderStatus, OrderType } from "@merchant/contracts";
 
 import type { PricedLine } from "../domain/price-order.js";
-import { type ActorCommandOrigin } from "../../../shared/command/command-origin.js";
+import {
+  type ActorCommandOrigin,
+  type CommandOrigin,
+} from "../../../shared/command/command-origin.js";
 
 export type OrderMutationContext = ActorCommandOrigin;
+
+/** Who places an order: staff, or a guest at a table, who has no account. */
+export type OrderSubmitContext = CommandOrigin;
 
 export type OrderItemRecord = {
   id: string;
@@ -54,7 +60,7 @@ export interface OrderRepository {
    * Stores a submitted order with the outlet's next order number. When the
    * idempotency key was already used, the order it created is returned.
    */
-  createSubmitted(order: NewSubmittedOrder, context: OrderMutationContext): Promise<OrderRecord>;
+  createSubmitted(order: NewSubmittedOrder, context: OrderSubmitContext): Promise<OrderRecord>;
   /**
    * Locks the order, runs `ensureCancellable` (which throws to refuse), then
    * marks it canceled. Returns null when the order is not found; an order

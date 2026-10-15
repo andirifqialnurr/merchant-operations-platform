@@ -13,6 +13,7 @@ import { priceOrderLines } from "../domain/price-order.js";
 import {
   ORDER_REPOSITORY,
   type OrderMutationContext,
+  type OrderSubmitContext,
   type OrderRecord,
   type OrderRepository,
 } from "./order.repository.js";
@@ -79,7 +80,7 @@ export class OrderIntakeService {
     idempotencyKey: string,
     context: OrderMutationContext,
   ) {
-    return this.submit(tenantId, outletId, input, null, idempotencyKey, context);
+    return this.submit(tenantId, outletId, input, null, "POS", idempotencyKey, context);
   }
 
   /**
@@ -92,13 +93,16 @@ export class OrderIntakeService {
     tableSessionId: string,
     input: CreateTableOrder,
     idempotencyKey: string,
-    context: OrderMutationContext,
+    context: OrderSubmitContext,
+    /** Staff at the POS, or guests from the table's QR. */
+    source: "POS" | "SELF_ORDER" = "POS",
   ) {
     return this.submit(
       tenantId,
       outletId,
       { ...input, orderType: "DINE_IN" },
       tableSessionId,
+      source,
       idempotencyKey,
       context,
     );
@@ -109,8 +113,9 @@ export class OrderIntakeService {
     outletId: string,
     input: { items: CreatePosOrder["items"]; note?: string | undefined; orderType: OrderType },
     tableSessionId: string | null,
+    source: "POS" | "SELF_ORDER",
     idempotencyKey: string,
-    context: OrderMutationContext,
+    context: OrderSubmitContext,
   ) {
     // A retry returns the order already taken, priced as it was then.
     const existing = await this.orders.findByIdempotencyKey(tenantId, outletId, idempotencyKey);
@@ -135,7 +140,7 @@ export class OrderIntakeService {
           note: input.note ?? null,
           orderType: input.orderType,
           outletId,
-          source: "POS",
+          source,
           tableSessionId,
           tenantId,
         },

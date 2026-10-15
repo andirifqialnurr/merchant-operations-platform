@@ -5,14 +5,33 @@ import {
   PERMISSIONS,
   publicQrResolutionSchema,
   publicQrTokenParamsSchema,
+  guestMenuSchema,
+  guestOrderSchema,
+  guestVisitSchema,
+  idempotencyKeySchema,
+  placeGuestOrderSchema,
+  type PlaceGuestOrder,
   requestContextHeadersSchema,
   tableQrSchema,
   type AuthorizationContext,
   type RequestContextHeaders,
 } from "@merchant/contracts";
-import { Controller, Get, HttpCode, Inject, Param, Post, UseGuards } from "@nestjs/common";
 import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpCode,
+  Inject,
+  Ip,
+  Param,
+  Post,
+  UseGuards,
+} from "@nestjs/common";
+import {
+  ApiBody,
   ApiCookieAuth,
+  ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiHeader,
   ApiNotFoundResponse,
@@ -34,6 +53,7 @@ import {
   RequestHeaders,
   ZodValidationPipe,
 } from "../../../shared/validation/zod-validation.pipe.js";
+import { GuestOrdering } from "../application/guest-ordering.js";
 import { TableQrCodes } from "../application/table-qr-codes.js";
 
 /** Staff manage the QR of each table at the outlet named in the request. */
@@ -140,7 +160,10 @@ export class TableQrController {
 @ApiTags("public")
 @Controller("public/table-qr")
 export class PublicTableQrController {
-  constructor(@Inject(TableQrCodes) private readonly codes: TableQrCodes) {}
+  constructor(
+    @Inject(TableQrCodes) private readonly codes: TableQrCodes,
+    @Inject(GuestOrdering) private readonly guests: GuestOrdering,
+  ) {}
 
   @ApiOperation({ summary: "Resolve a table QR to the business, outlet, and table it belongs to" })
   @ApiOkResponse({ schema: { $ref: "#/components/schemas/PublicQrResolution" } })
@@ -149,5 +172,37 @@ export class PublicTableQrController {
     @Param(new ZodValidationPipe(publicQrTokenParamsSchema)) params: { token: string },
   ) {
     return publicQrResolutionSchema.parse(await this.codes.resolve(params.token));
+  }
+
+  @ApiOperation({ summary: "The menu a guest at the table can order from" })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/GuestMenu" } })
+  @Get(":token/menu")
+  async menu(@Param(new ZodValidationPipe(publicQrTokenParamsSchema)) params: { token: string }) {
+    return guestMenuSchema.parse(await this.guests.menu(params.token));
+  }
+
+  @ApiOperation({ summary: "The orders of the visit at the table now" })
+  @ApiOkResponse({ schema: { $ref: "#/components/schemas/GuestVisit" } })
+  @Get(":token/visit")
+  async visit(@Param(new ZodValidationPipe(publicQrTokenParamsSchema)) params: { token: string }) {
+    return guestVisitSchema.parse(await this.guests.visit(params.token));
+  }
+
+  @ApiOperation({ summary: "Place a guest's order; it goes to the kitchen like any order" })
+  @ApiHeader({ name: API_HEADERS.idempotencyKey, required: true })
+  @ApiBody({ schema: { $ref: "#/components/schemas/PlaceGuestOrder" } })
+  @ApiCreatedResponse({ schema: { $ref: "#/components/schemas/GuestOrder" } })
+  @Post(":token/orders")
+  async order(
+    @Param(new ZodValidationPipe(publicQrTokenParamsSchema)) params: { token: string },
+    @Headers(API_HEADERS.idempotencyKey) key: string | undefined,
+    @Body(new ZodValidationPipe(placeGuestOrderSchema)) input: PlaceGuestOrder,
+    @Ip() address: string | undefined,
+  ) {
+    // A missing or malformed key is refused like any invalid input.
+    const idempotencyKey = new ZodValidationPipe(idempotencyKeySchema).transform(key) as string;
+    return guestOrderSchema.parse(
+      await this.guests.placeOrder(params.token, input, idempotencyKey, address),
+    );
   }
 }

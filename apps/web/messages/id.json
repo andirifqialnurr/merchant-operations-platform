@@ -483,7 +483,9 @@
     "TABLE_SESSION_UNPAID": "Masih ada pesanan kunjungan ini yang belum dibayar.",
     "BILL_CURRENCY_MIXED": "Pesanan kunjungan ini memakai mata uang berbeda.",
     "TABLE_SESSION_NOTHING_TO_PAY": "Semua pesanan kunjungan ini sudah dibayar.",
-    "TABLE_QR_NOT_ACTIVE": "Meja ini belum punya QR yang berlaku. Buat dulu."
+    "TABLE_QR_NOT_ACTIVE": "Meja ini belum punya QR yang berlaku. Buat dulu.",
+    "SELF_ORDER_CLOSED": "Meja ini sedang tidak menerima pesanan dari QR. Silakan hubungi staf kami.",
+    "TABLE_QR_INVALID": "QR ini sudah tidak mengarah ke meja. Silakan hubungi staf kami."
   },
   "subscription": {
     "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat langganan.",

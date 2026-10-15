@@ -87,9 +87,14 @@ export class TableQrCodes {
    * INVALID; a table or outlet that does not take orders now is CLOSED.
    */
   async resolve(token: string): Promise<PublicQrResolution> {
-    if (!isQrToken(token)) return invalid();
+    return (await this.target(token)).resolution;
+  }
+
+  /** The resolution, and for the server only, the table it leads to. */
+  async target(token: string) {
+    if (!isQrToken(token)) return { resolution: invalid(), target: null };
     const target = await this.codes.resolve(hashQrToken(token));
-    if (!target) return invalid();
+    if (!target) return { resolution: invalid(), target: null };
     const access = await this.entitlements.describeAccess(target.tenantId, MODULES.tableSelfOrder);
     const open =
       access.subscriptionUsable &&
@@ -98,13 +103,14 @@ export class TableQrCodes {
       target.outletActive &&
       target.tableActive &&
       target.qrOrdering;
-    return publicQrResolutionSchema.parse({
+    const resolution = publicQrResolutionSchema.parse({
       merchantName: target.brandName,
       message: null,
       outletName: target.outletName,
       status: open ? "READY" : "CLOSED",
       tableLabel: target.tableLabel,
     });
+    return { resolution, target };
   }
 
   private fresh() {

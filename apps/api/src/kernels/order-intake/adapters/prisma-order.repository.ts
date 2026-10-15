@@ -6,6 +6,7 @@ import { buildAuditMetadata } from "../../../core/audit/public.js";
 import type {
   NewSubmittedOrder,
   OrderMutationContext,
+  OrderSubmitContext,
   OrderRecord,
   OrderRepository,
 } from "../application/order.repository.js";
@@ -172,7 +173,7 @@ export class PrismaOrderRepository implements OrderRepository {
 
   async createSubmitted(
     order: NewSubmittedOrder,
-    context: OrderMutationContext,
+    context: OrderSubmitContext,
   ): Promise<OrderRecord> {
     const { outletId, tenantId } = order;
     try {
@@ -189,7 +190,7 @@ export class PrismaOrderRepository implements OrderRepository {
         // composite (tenant_id, id) foreign key.
         const header = await transaction.order.create({
           data: {
-            actorId: context.actorId,
+            ...(context.actorId ? { actorId: context.actorId } : {}),
             currency: order.currency,
             idempotencyKey: order.idempotencyKey,
             note: order.note,
@@ -248,7 +249,7 @@ export class PrismaOrderRepository implements OrderRepository {
         await transaction.auditLog.create({
           data: {
             action: "order.submit",
-            actorId: context.actorId,
+            ...(context.actorId ? { actorId: context.actorId } : {}),
             entityId: created.id,
             entityType: "order_order",
             metadata: buildAuditMetadata("order.submit", payload),

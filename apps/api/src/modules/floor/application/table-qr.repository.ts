@@ -13,6 +13,9 @@ export type NewQrToken = { salt: string; tokenHash: string };
 /** What a guest's QR leads to; ids stay on this side. */
 export type QrTarget = {
   brandName: string;
+  /** Kept on the server; never part of an answer to a guest. */
+  outletId: string;
+  tableId: string;
   outletActive: boolean;
   outletName: string;
   qrOrdering: boolean;

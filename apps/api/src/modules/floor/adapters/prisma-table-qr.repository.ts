@@ -191,7 +191,9 @@ export class PrismaTableQrRepository implements TableQrRepository {
                 status: true,
               },
             },
+            id: true,
             label: true,
+            outletId: true,
             qrOrdering: true,
             status: true,
           },
@@ -201,13 +203,15 @@ export class PrismaTableQrRepository implements TableQrRepository {
       where: { status: "ACTIVE", tokenHash },
     });
     if (!token) return null;
-    const { area, label, qrOrdering, status } = token.table;
+    const { area, id, label, outletId, qrOrdering, status } = token.table;
     const outlet = area.floor.outlet;
     return {
       brandName: outlet.brand.name,
       outletActive: outlet.status === "ACTIVE",
+      outletId,
       outletName: outlet.name,
       qrOrdering,
+      tableId: id,
       tableActive:
         status === "ACTIVE" && area.status === "ACTIVE" && area.floor.status === "ACTIVE",
       tableLabel: label,

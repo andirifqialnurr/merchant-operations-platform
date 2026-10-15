@@ -178,6 +178,12 @@ import {
   updateFloorSchema,
 } from "./floor.ts";
 import {
+  guestMenuSchema,
+  guestOrderSchema,
+  guestVisitSchema,
+  placeGuestOrderSchema,
+} from "./self-order.ts";
+import {
   heldCartListSchema,
   heldCartSchema,
   holdCartSchema,
@@ -395,4 +401,11 @@ export const floorOpenApiSchemas = {
   SaveFloorLayout: toOpenApiSchema(saveFloorLayoutSchema),
   UpdateFloor: toOpenApiSchema(updateFloorSchema),
   UpdateFloorArea: toOpenApiSchema(updateFloorAreaSchema),
+} as const;
+
+export const selfOrderOpenApiSchemas = {
+  GuestMenu: toOpenApiSchema(guestMenuSchema),
+  GuestOrder: toOpenApiSchema(guestOrderSchema),
+  GuestVisit: toOpenApiSchema(guestVisitSchema),
+  PlaceGuestOrder: toOpenApiSchema(placeGuestOrderSchema),
 } as const;

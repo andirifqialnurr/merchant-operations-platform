@@ -2,6 +2,7 @@ import {
   API_HEADERS,
   commonOpenApiSchemas,
   floorOpenApiSchemas,
+  selfOrderOpenApiSchemas,
   kdsOpenApiSchemas,
   posOpenApiSchemas,
   PLATFORM_PERMISSIONS,
@@ -119,6 +120,7 @@ export function createOpenApiDocument(app: INestApplication) {
       ...(posOpenApiSchemas as OpenApiSchemas),
       ...(kdsOpenApiSchemas as OpenApiSchemas),
       ...(floorOpenApiSchemas as OpenApiSchemas),
+      ...(selfOrderOpenApiSchemas as OpenApiSchemas),
     },
   };
 

@@ -150,6 +150,14 @@ export class PrismaTableSessionRepository implements TableSessionRepository {
     };
   }
 
+  async holderOf(tenantId: string, outletId: string, tableId: string) {
+    const held = await getPrismaClient().floorSessionTable.findFirst({
+      select: { session: { select: sessionSelect } },
+      where: { detachedAt: null, outletId, tableId, tenantId },
+    });
+    return held ? toSession(held.session) : null;
+  }
+
   async findSession(tenantId: string, outletId: string, sessionId: string) {
     const row = await getPrismaClient().floorTableSession.findFirst({
       select: sessionSelect,
@@ -162,7 +170,7 @@ export class PrismaTableSessionRepository implements TableSessionRepository {
     tenantId: string,
     outletId: string,
     seat: { guestCount: number; tableId: string },
-    origin: ActorCommandOrigin,
+    origin: CommandOrigin,
   ) {
     try {
       return await getPrismaClient().$transaction(async (transaction) => {
@@ -174,7 +182,7 @@ export class PrismaTableSessionRepository implements TableSessionRepository {
           data: {
             displayNumber: (last._max.displayNumber ?? 0) + 1,
             guestCount: seat.guestCount,
-            openedBy: origin.actorId,
+            ...(origin.actorId ? { openedBy: origin.actorId } : {}),
             outletId,
             tables: { create: { role: "PRIMARY", tableId: seat.tableId } },
             tenantId,

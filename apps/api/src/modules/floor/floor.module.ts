@@ -4,6 +4,7 @@ import { AuthModule } from "../../core/auth/public.js";
 import { AccessModule } from "../../core/memberships/public.js";
 import { MeteringModule } from "../../core/metering/public.js";
 import { BillingPaymentLedgerModule } from "../../kernels/billing-payment-ledger/public.js";
+import { CatalogModule } from "../../kernels/catalog/public.js";
 import { OrderIntakeModule } from "../../kernels/order-intake/public.js";
 import { OrganizationModule } from "../../core/workspaces/public.js";
 import { FloorStructureController } from "./adapters/floor-structure.controller.js";
@@ -18,6 +19,7 @@ import { FloorStructure } from "./application/floor-structure.js";
 import { FLOOR_STRUCTURE_REPOSITORY } from "./application/floor-structure.repository.js";
 import { FLOOR_TABLE_REPOSITORY } from "./application/floor-table.repository.js";
 import { FloorTables } from "./application/floor-tables.js";
+import { GuestOrdering } from "./application/guest-ordering.js";
 import { TableQrCodes } from "./application/table-qr-codes.js";
 import { TABLE_QR_REPOSITORY, TABLE_QR_SECRET } from "./application/table-qr.repository.js";
 import { TABLE_SESSION_REPOSITORY } from "./application/table-session.repository.js";
@@ -57,6 +59,7 @@ export function tableQrSecret(environment: NodeJS.ProcessEnv = process.env) {
     AccessModule,
     AuthModule,
     BillingPaymentLedgerModule,
+    CatalogModule,
     MeteringModule,
     OrderIntakeModule,
     OrganizationModule,
@@ -72,6 +75,7 @@ export function tableQrSecret(environment: NodeJS.ProcessEnv = process.env) {
     PrismaTableSessionRepository,
     { provide: TABLE_SESSION_REPOSITORY, useExisting: PrismaTableSessionRepository },
     TableQrCodes,
+    GuestOrdering,
     PrismaTableQrRepository,
     { provide: TABLE_QR_REPOSITORY, useExisting: PrismaTableQrRepository },
     { provide: TABLE_QR_SECRET, useFactory: tableQrSecret },

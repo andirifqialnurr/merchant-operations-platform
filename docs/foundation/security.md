@@ -290,6 +290,12 @@ Yang berjalan sejak 4 Oktober 2026 (`core/devices`):
 - Alamat QR hanya diberikan ke pemegang `table.qr.manage` (Owner, Manager).
 - `GET /api/v1/public/table-qr/:token` tanpa sesi hanya menjawab status (`READY`/`CLOSED`/`INVALID`) dan nama bisnis, outlet, serta label meja; tidak ada id, posisi, atau token. Token yang bentuknya salah tidak dicari; yang lebih dari 100 karakter ditolak 400. Rate limit surface publik: M4-SC-02.
 
+**Pesan dari meja (sejak 16 Oktober 2026, M4-BE-05, M4-SC-01, M4-SC-02)**
+
+- `GET .../menu`, `GET .../visit`, `POST .../orders` di bawah `/api/v1/public/table-qr/:token`, tanpa sesi dan tanpa cookie. Jawaban hanya nama, nomor pesanan, status, uang, dan id produk/kategori untuk memesan.
+- Kirim pesanan: kunci idempotensi wajib; 20 pesanan per QR dan 60 per alamat jaringan per 10 menit; dihitung sebelum pemeriksaan lain sehingga permintaan yang ditolak pun memakai jatah.
+- Kunjungan yang dibuka tamu tidak punya pengguna pembuka; pesanan tamu tanpa `actor_id`.
+
 **Integrasi eksternal (nanti)**
 
 - Kredensial dibatasi per workspace dan capability.

@@ -483,7 +483,9 @@
     "TABLE_SESSION_UNPAID": "Some orders of this visit are not paid yet.",
     "BILL_CURRENCY_MIXED": "The orders of this visit use different currencies.",
     "TABLE_SESSION_NOTHING_TO_PAY": "Every order of this visit is already paid.",
-    "TABLE_QR_NOT_ACTIVE": "This table has no working QR. Make one first."
+    "TABLE_QR_NOT_ACTIVE": "This table has no working QR. Make one first.",
+    "SELF_ORDER_CLOSED": "This table is not taking orders from its QR right now. Please ask our staff.",
+    "TABLE_QR_INVALID": "This QR code no longer leads to a table. Please ask our staff."
   },
   "subscription": {
     "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",
