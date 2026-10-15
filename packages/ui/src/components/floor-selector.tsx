@@ -14,13 +14,24 @@ export type FloorSelectorItem = {
   tableCount?: number;
 };
 
+/** Every text the selector shows or announces; it has none of its own. */
+export type FloorSelectorLabels = {
+  /** Shown when there is no floor. */
+  empty: string;
+  /** The placeholder of the select variants. */
+  placeholder: string;
+  /** The name of the whole control. */
+  selector: string;
+  /** How a floor's table count is announced and described, e.g. "8 tables". */
+  tableCount?: (count: number) => string;
+};
+
 export type FloorSelectorProps = {
   activeId: string;
-  ariaLabel?: string;
   className?: string;
   disabled?: boolean;
-  emptyLabel?: string;
   floors: readonly FloorSelectorItem[];
+  labels: FloorSelectorLabels;
   onValueChange: (floorId: string) => void;
   size?: FloorSelectorSize;
   variant?: FloorSelectorVariant;
@@ -49,22 +60,26 @@ function assertFloorContract(floors: readonly FloorSelectorItem[]) {
 
 export function FloorSelector({
   activeId,
-  ariaLabel = "Pilih lantai",
   className,
   disabled = false,
-  emptyLabel = "Belum ada lantai.",
   floors,
+  labels,
   onValueChange,
   size = "md",
   variant = "tabs",
 }: FloorSelectorProps) {
   const tabRefs = useRef(new Map<string, HTMLButtonElement>());
   assertFloorContract(floors);
+  const ariaLabel = labels.selector;
+  const countText = (floor: FloorSelectorItem) =>
+    floor.tableCount !== undefined && labels.tableCount
+      ? labels.tableCount(floor.tableCount)
+      : undefined;
 
   if (floors.length === 0) {
     return (
       <p className={classes("ui-floor-selector__empty", className)} role="status">
-        {emptyLabel}
+        {labels.empty}
       </p>
     );
   }
@@ -79,21 +94,21 @@ export function FloorSelector({
           className,
         )}
         disabled={disabled}
-        emptyLabel="Belum ada lantai."
+        emptyLabel={labels.empty}
         label={ariaLabel}
         onValueChange={onValueChange}
-        options={floors.map((floor) => ({
-          ...(floor.disabled === undefined ? {} : { disabled: floor.disabled }),
-          label: floor.label,
-          value: floor.id,
-          ...(floor.tableCount === undefined
-            ? {}
-            : {
-                ariaLabel: `${floor.label}, ${floor.tableCount} meja`,
-                description: `${floor.tableCount} meja`,
-              }),
-        }))}
-        placeholder="Pilih lantai"
+        options={floors.map((floor) => {
+          const count = countText(floor);
+          return {
+            ...(floor.disabled === undefined ? {} : { disabled: floor.disabled }),
+            label: floor.label,
+            value: floor.id,
+            ...(count === undefined
+              ? {}
+              : { ariaLabel: `${floor.label}, ${count}`, description: count }),
+          };
+        })}
+        placeholder={labels.placeholder}
         size={size}
         value={activeId}
       />
@@ -148,9 +163,7 @@ export function FloorSelector({
         return (
           <button
             aria-label={
-              floor.tableCount === undefined
-                ? floor.label
-                : `${floor.label}, ${floor.tableCount} meja`
+              countText(floor) === undefined ? floor.label : `${floor.label}, ${countText(floor)}`
             }
             aria-selected={active}
             disabled={disabled || floor.disabled}
@@ -166,8 +179,8 @@ export function FloorSelector({
             type="button"
           >
             <span>{floor.label}</span>
-            {floor.tableCount !== undefined ? (
-              <span aria-label={`${floor.tableCount} meja`} className="ui-floor-selector__count">
+            {countText(floor) !== undefined ? (
+              <span aria-label={countText(floor)} className="ui-floor-selector__count">
                 {floor.tableCount}
               </span>
             ) : null}

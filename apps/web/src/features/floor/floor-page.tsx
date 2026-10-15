@@ -80,9 +80,12 @@ function OutletFloors({ outletId, tenantId }: Readonly<{ outletId: string; tenan
         <div className="grid gap-4">
           <FloorSelector
             activeId={current.id}
-            ariaLabel={t("chooseFloor")}
-            emptyLabel={t("noFloor")}
             floors={active.map((floor) => ({ id: floor.id, label: floor.name }))}
+            labels={{
+              empty: t("noFloor"),
+              placeholder: t("chooseFloor"),
+              selector: t("chooseFloor"),
+            }}
             onValueChange={setChosen}
           />
           <Panel title={t("areas")}>

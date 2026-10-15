@@ -8,15 +8,25 @@ export type UnplacedTableTrayItem = {
   disabled?: boolean;
   id: string;
   label: string;
+  /** Why the table cannot be placed, when it cannot. */
   reason?: string;
 };
 
+/** Every text the tray shows or announces; it has none of its own. */
+export type UnplacedTableTrayLabels = {
+  /** How many tables wait, e.g. "3 tables". */
+  count: (count: number) => string;
+  empty: string;
+  /** The action on one table, e.g. "Place T4". */
+  place: (label: string) => string;
+  title: string;
+};
+
 export type UnplacedTableTrayProps = {
-  ariaLabel?: string;
   className?: string;
   disabled?: boolean;
-  emptyLabel?: string;
   items: readonly UnplacedTableTrayItem[];
+  labels: UnplacedTableTrayLabels;
   onPlaceItem?: (itemId: string) => void;
   selectedId?: string;
 };
@@ -41,34 +51,30 @@ function assertTrayContract(items: readonly UnplacedTableTrayItem[]) {
   }
 }
 
+/** Tables that exist but have no place on the floor yet. */
 export function UnplacedTableTray({
-  ariaLabel = "Meja belum ditempatkan",
   className,
   disabled = false,
-  emptyLabel = "Tidak ada meja yang menunggu ditempatkan.",
   items,
+  labels,
   onPlaceItem,
   selectedId,
 }: UnplacedTableTrayProps) {
   assertTrayContract(items);
 
-  const availableCount = items.filter((item) => !item.disabled).length;
-
   return (
-    <section aria-label={ariaLabel} className={classes("ui-unplaced-table-tray", className)}>
+    <section aria-label={labels.title} className={classes("ui-unplaced-table-tray", className)}>
       <header className="ui-unplaced-table-tray__header">
         <span className="ui-unplaced-table-tray__title">
           <AppIcon icon={IconLayoutRows} size="sm" />
-          <span>{ariaLabel}</span>
+          <span>{labels.title}</span>
         </span>
-        <span aria-label={`${items.length} meja`} className="ui-unplaced-table-tray__count">
-          {items.length} meja
-        </span>
+        <span className="ui-unplaced-table-tray__count">{labels.count(items.length)}</span>
       </header>
 
       {items.length === 0 ? (
         <p className="ui-unplaced-table-tray__empty" role="status">
-          {emptyLabel}
+          {labels.empty}
         </p>
       ) : (
         <ul className="ui-unplaced-table-tray__list">
@@ -81,7 +87,7 @@ export function UnplacedTableTray({
                   aria-label={
                     item.reason
                       ? `${visibleLabel}, ${item.reason.trim()}`
-                      : `Tempatkan ${visibleLabel}`
+                      : labels.place(visibleLabel)
                   }
                   aria-pressed={item.id === selectedId}
                   className="ui-unplaced-table-tray__item"
@@ -102,10 +108,6 @@ export function UnplacedTableTray({
           })}
         </ul>
       )}
-
-      {items.length > 0 ? (
-        <span className="ui-unplaced-table-tray__summary">{availableCount} siap ditempatkan</span>
-      ) : null}
     </section>
   );
 }

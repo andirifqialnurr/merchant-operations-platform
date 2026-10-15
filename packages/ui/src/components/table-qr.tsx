@@ -20,20 +20,28 @@ export type TableQrRecord = {
   status: TableQrStatus;
 };
 
+/** Every text the manager shows or announces; it has none of its own. */
+export type TableQrManagerLabels = {
+  generate: string;
+  /** The preview's name, e.g. "QR code of T4". */
+  preview: (label: string) => string;
+  print: string;
+  /** The section's name, e.g. "QR of T4". */
+  region: (label: string) => string;
+  revoke: string;
+  rotate: string;
+  status: Record<TableQrStatus, string>;
+};
+
 export type TableQrManagerProps = {
   className?: string;
   disabled?: boolean;
+  labels: TableQrManagerLabels;
   onGenerate?: (tableId: string) => void;
   onPrint?: (tableId: string) => void;
   onRevoke?: (tableId: string) => void;
   onRotate?: (tableId: string) => void;
   table: TableQrRecord;
-};
-
-const statusLabel: Record<TableQrStatus, string> = {
-  active: "Aktif",
-  "not-generated": "Belum dibuat",
-  revoked: "Dicabut",
 };
 
 function classes(...values: Array<string | false | null | undefined>) {
@@ -54,6 +62,7 @@ function assertTableQrContract(table: TableQrRecord) {
 export function TableQrManager({
   className,
   disabled = false,
+  labels,
   onGenerate,
   onPrint,
   onRevoke,
@@ -69,7 +78,7 @@ export function TableQrManager({
 
   return (
     <section
-      aria-label={`QR meja ${visibleLabel}`}
+      aria-label={labels.region(visibleLabel)}
       className={classes("ui-table-qr", `ui-table-qr--${table.status}`, className)}
     >
       <header className="ui-table-qr__header">
@@ -77,10 +86,10 @@ export function TableQrManager({
           <AppIcon icon={IconQrcode} size="sm" />
           <span>{visibleLabel}</span>
         </span>
-        <span className="ui-table-qr__status">{statusLabel[table.status]}</span>
+        <span className="ui-table-qr__status">{labels.status[table.status]}</span>
       </header>
 
-      <div className="ui-table-qr__preview" role="img" aria-label={`Preview QR ${visibleLabel}`}>
+      <div aria-label={labels.preview(visibleLabel)} className="ui-table-qr__preview" role="img">
         {isActive && table.qrImageSrc ? (
           <img alt="" src={table.qrImageSrc} />
         ) : (
@@ -93,19 +102,19 @@ export function TableQrManager({
       <div className="ui-table-qr__actions">
         <button disabled={!canGenerate} onClick={() => onGenerate?.(table.id)} type="button">
           <AppIcon icon={IconRefresh} size="sm" />
-          <span>Buat QR</span>
+          <span>{labels.generate}</span>
         </button>
         <button disabled={!canUseActiveQr} onClick={() => onPrint?.(table.id)} type="button">
           <AppIcon icon={IconPrinter} size="sm" />
-          <span>Cetak QR</span>
+          <span>{labels.print}</span>
         </button>
         <button disabled={!canUseActiveQr} onClick={() => onRotate?.(table.id)} type="button">
           <AppIcon icon={IconRotateClockwise} size="sm" />
-          <span>Rotasi QR</span>
+          <span>{labels.rotate}</span>
         </button>
         <button disabled={!canUseActiveQr} onClick={() => onRevoke?.(table.id)} type="button">
           <AppIcon icon={IconShieldOff} size="sm" />
-          <span>Cabut QR</span>
+          <span>{labels.revoke}</span>
         </button>
       </div>
     </section>

@@ -4,6 +4,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { TableQrManager, type TableQrRecord } from "@merchant/ui/table-qr";
 
 import { storyContractParameters } from "./story-contract";
+import { qrLabels } from "./table-labels";
 
 const qrImage =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' fill='white'/%3E%3Cpath d='M8 8h24v24H8zM16 16v8h8v-8zM64 8h24v24H64zM72 16v8h8v-8zM8 64h24v24H8zM16 72v8h8v-8zM40 12h8v8h-8zM52 20h8v8h-8zM40 36h16v8H40zM64 40h8v8h-8zM80 48h8v8h-8zM40 56h8v8h-8zM52 64h16v8H52zM72 72h8v16h-8zM40 80h16v8H40z' fill='black'/%3E%3C/svg%3E";
@@ -21,6 +22,7 @@ function StatefulQrManager() {
 
   return (
     <TableQrManager
+      labels={qrLabels}
       onGenerate={() =>
         setTable({
           ...initialTable,
@@ -55,6 +57,7 @@ const meta = {
   title: "Domain/Table Layout/Table QR",
   component: TableQrManager,
   args: {
+    labels: qrLabels,
     table: initialTable,
   },
   parameters: {
@@ -74,6 +77,7 @@ export const Active: Story = {
 export const Missing: Story = {
   render: () => (
     <TableQrManager
+      labels={qrLabels}
       table={{
         id: "table-02",
         label: "Meja Patio",
@@ -87,6 +91,7 @@ export const Missing: Story = {
 export const Revoked: Story = {
   render: () => (
     <TableQrManager
+      labels={qrLabels}
       table={{
         id: "table-03",
         label: "Meja Bar 01",

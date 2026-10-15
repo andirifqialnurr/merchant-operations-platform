@@ -68,6 +68,7 @@
     "./table-layout-tray": "./src/components/table-layout-tray.tsx",
     "./table-layout-tools": "./src/components/table-layout-tools.tsx",
     "./table-qr": "./src/components/table-qr.tsx",
+    "./table-shape": "./src/components/table-shape.tsx",
     "./table-tile": "./src/components/table-tile.tsx",
     "./styles/foundation.css": "./src/styles/foundation.css",
     "./styles/merchant-presets.css": "./src/styles/merchant-presets.css",

@@ -678,6 +678,8 @@ Komponen domain dibangun dari primitive `packages/ui` dan tidak menggandakan But
 
 Aturan tetap: canvas memakai grid logis; menggeser tile di mode edit hanya mengubah posisi visual, sedangkan pindah meja adalah aksi domain terpisah; status meja tidak hanya dibedakan warna.
 
+**Sejak 16 Oktober 2026 (M4-DS-01, M4-AS-01):** `FloorSelector`, `TableTile`, `TableLayoutCanvas`, `UnplacedTableTray`, `TableLayoutToolbar`, `TableLayoutPropertyPanel`, dan `TableQrManager` tidak punya teks sendiri; semuanya menerima `labels`. `TableTile` menulis status lewat `stateLabel` (tampil di mode lihat, dan di mode ubah hanya untuk meja nonaktif) dan angka layanan lewat `metrics` yang sudah ditulis pemanggil. Status: `available`, `occupied`, `closing`, `cleaning`, `waiting-order`, `waiting-payment`, `needs-service`, `reserved`, `disabled`. Bentuk meja: `TableShape` menggambar persegi, persegi panjang, atau bulat dari atas dengan kursi sejumlah kapasitas, mengikuti token; ukuran mengikuti jejak grid (persegi/bulat 2×2, 3×3, 4×4; persegi panjang 3×2, 4×2, 6×3; diputar 90° menukar lebar dan tinggi). Pada meja yang digambar, label dan status satu baris dengan elipsis; nama lengkap tetap di nama aksesibel.
+
 ### 19.4 KDS
 
 `KdsTicket` (ukuran sm/md/lg/kiosk; variant compact/default/touch/history) dan `KdsConnectionStatus` sudah ada. Ticket memakai garis status di tepi dan badge, bukan latar berwarna penuh. KDS tidak pernah menerima harga, HPP, pembayaran, atau kontak pelanggan; komponen menolak props dengan kunci semacam itu.

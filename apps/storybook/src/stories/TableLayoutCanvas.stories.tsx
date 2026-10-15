@@ -8,57 +8,104 @@ import {
 } from "@merchant/ui/table-layout-canvas";
 
 import { storyContractParameters } from "./story-contract";
+import { canvasLabels, serviceMetrics, stateLabels } from "./table-labels";
 
 const initialTables: readonly TableLayoutCanvasItem[] = [
-  { gridH: 2, gridW: 2, gridX: 0, gridY: 0, id: "table-01", label: "Meja 01" },
   {
-    durationMinutes: 42,
-    gridH: 2,
-    gridW: 3,
-    gridX: 4,
-    gridY: 1,
-    guestCount: 4,
-    id: "table-02",
-    label: "Meja 02",
-    orderCount: 1,
-    state: "occupied",
-  },
-  {
-    durationMinutes: 8,
-    gridH: 2,
-    gridW: 3,
-    gridX: 8,
-    gridY: 2,
-    guestCount: 2,
-    id: "table-03",
-    label: "Meja 03",
-    orderCount: 1,
-    state: "waiting-order",
-  },
-  {
+    capacity: 2,
     gridH: 2,
     gridW: 2,
-    gridX: 2,
+    gridX: 1,
+    gridY: 1,
+    id: "table-01",
+    label: "T1",
+    shape: "square",
+    state: "available",
+    stateLabel: stateLabels.available,
+  },
+  {
+    capacity: 6,
+    gridH: 2,
+    gridW: 4,
+    gridX: 5,
+    gridY: 1,
+    id: "table-02",
+    label: "T2",
+    metrics: serviceMetrics(4, 1, 42),
+    shape: "rectangle",
+    state: "occupied",
+    stateLabel: stateLabels.occupied,
+  },
+  {
+    capacity: 4,
+    gridH: 3,
+    gridW: 3,
+    gridX: 10,
+    gridY: 1,
+    id: "table-03",
+    label: "T3",
+    metrics: serviceMetrics(2, 1, 8),
+    shape: "round",
+    state: "waiting-order",
+    stateLabel: stateLabels["waiting-order"],
+  },
+  {
+    capacity: 8,
+    gridH: 4,
+    gridW: 4,
+    gridX: 1,
     gridY: 5,
     id: "table-04",
-    label: "Meja Patio",
+    label: "Meja Keluarga",
+    shape: "round",
     state: "reserved",
+    stateLabel: stateLabels.reserved,
   },
   {
+    capacity: 2,
     gridH: 2,
     gridW: 2,
-    gridX: 9,
+    gridX: 10,
     gridY: 6,
     id: "table-05",
     label: "Meja servis",
+    shape: "square",
     state: "disabled",
+    stateLabel: stateLabels.disabled,
   },
 ];
 
 const overlappingTables: readonly TableLayoutCanvasItem[] = [
-  { gridH: 2, gridW: 2, gridX: 0, gridY: 0, id: "table-a", label: "Meja A" },
-  { gridH: 2, gridW: 2, gridX: 1, gridY: 1, id: "table-b", label: "Meja B" },
-  { gridH: 2, gridW: 3, gridX: 5, gridY: 2, id: "table-c", label: "Meja C" },
+  {
+    capacity: 2,
+    gridH: 2,
+    gridW: 2,
+    gridX: 0,
+    gridY: 0,
+    id: "table-a",
+    label: "A",
+    shape: "square",
+  },
+  {
+    capacity: 2,
+    gridH: 2,
+    gridW: 2,
+    gridX: 1,
+    gridY: 1,
+    id: "table-b",
+    label: "B",
+    shape: "round",
+  },
+  {
+    capacity: 4,
+    gridH: 2,
+    gridW: 3,
+    gridX: 5,
+    gridY: 2,
+    id: "table-c",
+    label: "C",
+    shape: "rectangle",
+  },
 ];
 
 function StatefulCanvas({ mode = "view" }: { mode?: "view" | "edit" | "preview" }) {
@@ -73,9 +120,10 @@ function StatefulCanvas({ mode = "view" }: { mode?: "view" | "edit" | "preview" 
 
   return (
     <TableLayoutCanvas
-      cellSize={48}
+      cellSize={40}
       columns={14}
       items={tables}
+      labels={canvasLabels}
       mode={mode}
       onItemMove={moveTable}
       onSelectItem={setSelectedId}
@@ -98,9 +146,10 @@ function ValidationCanvas() {
 
   return (
     <TableLayoutCanvas
-      cellSize={48}
+      cellSize={40}
       columns={10}
       items={tables}
+      labels={canvasLabels}
       mode="edit"
       onItemMove={moveTable}
       onSelectItem={setSelectedId}
@@ -117,6 +166,7 @@ const meta = {
   args: {
     columns: 14,
     items: initialTables,
+    labels: canvasLabels,
     rows: 10,
   },
   parameters: {

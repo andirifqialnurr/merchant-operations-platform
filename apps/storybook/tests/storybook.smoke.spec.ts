@@ -238,12 +238,12 @@ test("validates table layout tools interaction and mobile reflow", async ({ page
     "/iframe.html?id=domain-table-layout-table-layout-tools--toolbar-and-property-panel&viewMode=story",
   );
 
-  await expect(page.getByRole("complementary", { name: "Properti meja terpilih" })).toBeVisible();
+  await expect(page.getByRole("complementary", { name: "Meja terpilih" })).toBeVisible();
   await expect(page.getByText("Meja 02")).toBeVisible();
   await expect(page.getByText("table-02")).toHaveCount(0);
 
-  await page.getByRole("radio", { name: /Preview/ }).click();
-  await expect(page.getByRole("radio", { name: /Preview/ })).toHaveAttribute(
+  await page.getByRole("radio", { name: /Pratinjau/ }).click();
+  await expect(page.getByRole("radio", { name: /Pratinjau/ })).toHaveAttribute(
     "aria-checked",
     "true",
   );
@@ -252,8 +252,8 @@ test("validates table layout tools interaction and mobile reflow", async ({ page
     "aria-pressed",
     "true",
   );
-  await page.getByRole("checkbox", { name: /Snap grid/ }).press("Space");
-  await expect(page.getByRole("checkbox", { name: /Snap grid/ })).not.toBeChecked();
+  await page.getByRole("checkbox", { name: /Tempel ke grid/ }).press("Space");
+  await expect(page.getByRole("checkbox", { name: /Tempel ke grid/ })).not.toBeChecked();
   await page.getByLabel("Kolom").fill("6");
   await expect(page.getByLabel("Kolom")).toHaveValue("6");
 
@@ -271,9 +271,8 @@ test("validates unplaced table tray interaction and mobile reflow", async ({ pag
     "/iframe.html?id=domain-table-layout-unplaced-table-tray--default&viewMode=story",
   );
 
-  await expect(page.getByRole("region", { name: "Meja belum ditempatkan" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Belum ditempatkan" })).toBeVisible();
   await expect(page.getByText("4 meja")).toBeVisible();
-  await expect(page.getByText("3 siap ditempatkan")).toBeVisible();
   await expect(page.getByText("table-12")).toHaveCount(0);
   await page.getByRole("button", { name: "Tempatkan Meja 11" }).click();
   await expect(page.getByRole("button", { name: "Tempatkan Meja 11" })).toHaveAttribute(
@@ -284,7 +283,7 @@ test("validates unplaced table tray interaction and mobile reflow", async ({ pag
 
   await page.setViewportSize({ height: 844, width: 390 });
   await page.goto("/iframe.html?id=domain-table-layout-unplaced-table-tray--mobile&viewMode=story");
-  await expect(page.getByRole("region", { name: "Meja belum ditempatkan" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Belum ditempatkan" })).toBeVisible();
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
@@ -296,20 +295,18 @@ test("validates table layout bounds, overlap, and keyboard movement", async ({ p
     "/iframe.html?id=domain-table-layout-table-layout-canvas--bounds-overlap-and-keyboard&viewMode=story",
   );
 
-  await expect(page.getByRole("status", { name: "Validasi layout meja" })).toContainText(
-    "Meja A bertumpuk dengan Meja B.",
-  );
+  await expect(page.getByRole("status")).toContainText("A menimpa B.");
   await expect(page.getByText("table-a")).toHaveCount(0);
-  await page.getByRole("button", { name: "Pindahkan meja ke kanan" }).click();
-  await expect(page.getByRole("button", { name: /Meja B, posisi kolom 3, baris 2/ })).toBeVisible();
-  await page.getByRole("button", { name: /Meja B, posisi kolom 3, baris 2/ }).press("ArrowDown");
-  await expect(page.getByRole("button", { name: /Meja B, posisi kolom 3, baris 3/ })).toBeVisible();
+  await page.getByRole("button", { name: "Geser meja ke kanan" }).click();
+  await expect(page.getByRole("button", { name: /^B, kolom 3, baris 2/ })).toBeVisible();
+  await page.getByRole("button", { name: /^B, kolom 3, baris 2/ }).press("ArrowDown");
+  await expect(page.getByRole("button", { name: /^B, kolom 3, baris 3/ })).toBeVisible();
 
   await page.setViewportSize({ height: 844, width: 390 });
   await page.goto(
     "/iframe.html?id=domain-table-layout-table-layout-canvas--bounds-overlap-and-keyboard&viewMode=story",
   );
-  await expect(page.getByRole("group", { name: "Canvas layout meja" })).toBeVisible();
+  await expect(page.getByRole("group", { name: "Denah meja" })).toBeVisible();
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);

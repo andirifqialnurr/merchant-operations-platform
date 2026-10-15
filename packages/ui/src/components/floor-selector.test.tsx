@@ -3,7 +3,14 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
-import { FloorSelector } from "./floor-selector";
+import { FloorSelector, type FloorSelectorLabels } from "./floor-selector";
+
+const labels: FloorSelectorLabels = {
+  empty: "Belum ada lantai.",
+  placeholder: "Pilih lantai",
+  selector: "Pilih lantai",
+  tableCount: (count) => `${count} meja`,
+};
 
 const floors = [
   { id: "floor-internal-1", label: "Lantai 1", tableCount: 8 },
@@ -16,7 +23,12 @@ describe("FloorSelector", () => {
     const onValueChange = vi.fn();
     const user = userEvent.setup();
     render(
-      <FloorSelector activeId="floor-internal-1" floors={floors} onValueChange={onValueChange} />,
+      <FloorSelector
+        labels={labels}
+        activeId="floor-internal-1"
+        floors={floors}
+        onValueChange={onValueChange}
+      />,
     );
 
     expect(screen.getByRole("tab", { name: "Lantai 1, 8 meja" })).toHaveAttribute(
@@ -35,7 +47,12 @@ describe("FloorSelector", () => {
     const onValueChange = vi.fn();
     const user = userEvent.setup();
     render(
-      <FloorSelector activeId="floor-internal-1" floors={floors} onValueChange={onValueChange} />,
+      <FloorSelector
+        labels={labels}
+        activeId="floor-internal-1"
+        floors={floors}
+        onValueChange={onValueChange}
+      />,
     );
 
     const activeTab = screen.getByRole("tab", { name: "Lantai 1, 8 meja" });
@@ -48,7 +65,12 @@ describe("FloorSelector", () => {
 
   it("keeps one enabled tab reachable while the active id is stale", () => {
     render(
-      <FloorSelector activeId="floor-stale" floors={floors} onValueChange={() => undefined} />,
+      <FloorSelector
+        labels={labels}
+        activeId="floor-stale"
+        floors={floors}
+        onValueChange={() => undefined}
+      />,
     );
 
     expect(screen.getByRole("tab", { name: "Lantai 1, 8 meja" })).toHaveAttribute("tabindex", "0");
@@ -60,6 +82,7 @@ describe("FloorSelector", () => {
     const user = userEvent.setup();
     render(
       <FloorSelector
+        labels={labels}
         activeId="floor-internal-1"
         floors={floors}
         onValueChange={onValueChange}
@@ -76,6 +99,7 @@ describe("FloorSelector", () => {
   it("omits unavailable count metadata and handles an empty source", () => {
     const { rerender } = render(
       <FloorSelector
+        labels={labels}
         activeId="floor-a"
         floors={[{ id: "floor-a", label: "Lantai Utama" }]}
         onValueChange={() => undefined}
@@ -85,7 +109,9 @@ describe("FloorSelector", () => {
     expect(screen.getByRole("tab", { name: "Lantai Utama" })).toBeVisible();
     expect(screen.queryByText(/meja/)).not.toBeInTheDocument();
 
-    rerender(<FloorSelector activeId="" floors={[]} onValueChange={() => undefined} />);
+    rerender(
+      <FloorSelector labels={labels} activeId="" floors={[]} onValueChange={() => undefined} />,
+    );
     expect(screen.getByText("Belum ada lantai.")).toBeVisible();
   });
 
@@ -93,6 +119,7 @@ describe("FloorSelector", () => {
     expect(() =>
       render(
         <FloorSelector
+          labels={labels}
           activeId="floor-a"
           floors={[
             { id: "floor-a", label: "Lantai 1" },
@@ -106,7 +133,12 @@ describe("FloorSelector", () => {
 
   it("passes an axe smoke test", async () => {
     const { container } = render(
-      <FloorSelector activeId="floor-internal-1" floors={floors} onValueChange={() => undefined} />,
+      <FloorSelector
+        labels={labels}
+        activeId="floor-internal-1"
+        floors={floors}
+        onValueChange={() => undefined}
+      />,
     );
 
     expect((await axe(container)).violations).toEqual([]);

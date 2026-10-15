@@ -7,7 +7,27 @@ import {
   TableLayoutPropertyPanel,
   type TableLayoutPropertyPanelItem,
   TableLayoutToolbar,
+  type TableLayoutPropertyPanelLabels,
+  type TableLayoutToolbarLabels,
 } from "./table-layout-tools";
+
+const toolbarLabels: TableLayoutToolbarLabels = {
+  modeGroup: "Mode layout meja",
+  modes: { edit: "Edit", preview: "Preview", view: "View" },
+  snap: "Snap grid",
+  toolGroup: "Tool layout meja",
+  tools: { move: "Geser meja", select: "Pilih meja" },
+};
+
+const panelLabels: TableLayoutPropertyPanelLabels = {
+  column: "Kolom",
+  empty: "Pilih meja pada canvas untuk mengubah posisi.",
+  height: "Tinggi",
+  panel: "Properti meja terpilih",
+  row: "Baris",
+  selected: "Meja terpilih",
+  width: "Lebar",
+};
 
 const selectedItem: TableLayoutPropertyPanelItem = {
   gridH: 2,
@@ -27,6 +47,7 @@ describe("TableLayoutToolbar", () => {
 
     render(
       <TableLayoutToolbar
+        labels={toolbarLabels}
         mode="view"
         onModeChange={onModeChange}
         onSnapToGridChange={onSnapToGridChange}
@@ -47,14 +68,16 @@ describe("TableLayoutToolbar", () => {
   });
 
   it("passes an axe smoke test", async () => {
-    const { container } = render(<TableLayoutToolbar mode="edit" tool="move" />);
+    const { container } = render(
+      <TableLayoutToolbar labels={toolbarLabels} mode="edit" tool="move" />,
+    );
     expect((await axe(container)).violations).toEqual([]);
   });
 });
 
 describe("TableLayoutPropertyPanel", () => {
   it("renders an empty state when no table is selected", () => {
-    render(<TableLayoutPropertyPanel columns={14} rows={10} />);
+    render(<TableLayoutPropertyPanel labels={panelLabels} columns={14} rows={10} />);
     expect(screen.getByRole("status")).toHaveTextContent(
       "Pilih meja pada canvas untuk mengubah posisi.",
     );
@@ -65,6 +88,7 @@ describe("TableLayoutPropertyPanel", () => {
 
     render(
       <TableLayoutPropertyPanel
+        labels={panelLabels}
         columns={14}
         item={selectedItem}
         onItemChange={onItemChange}
@@ -92,6 +116,7 @@ describe("TableLayoutPropertyPanel", () => {
 
     render(
       <TableLayoutPropertyPanel
+        labels={panelLabels}
         columns={6}
         item={{ ...selectedItem, gridW: 2, gridX: 3 }}
         onItemChange={onItemChange}
@@ -112,7 +137,7 @@ describe("TableLayoutPropertyPanel", () => {
 
   it("passes an axe smoke test", async () => {
     const { container } = render(
-      <TableLayoutPropertyPanel columns={14} item={selectedItem} rows={10} />,
+      <TableLayoutPropertyPanel labels={panelLabels} columns={14} item={selectedItem} rows={10} />,
     );
     expect((await axe(container)).violations).toEqual([]);
   });

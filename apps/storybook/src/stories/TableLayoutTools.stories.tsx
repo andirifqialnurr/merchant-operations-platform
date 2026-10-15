@@ -13,6 +13,7 @@ import type {
 } from "@merchant/ui/table-layout-canvas";
 
 import { storyContractParameters } from "./story-contract";
+import { propertyPanelLabels, toolbarLabels } from "./table-labels";
 
 const selectedTable: TableLayoutPropertyPanelItem = {
   gridH: 2,
@@ -36,6 +37,7 @@ function TableLayoutToolsExample({ disabled = false }: { disabled?: boolean }) {
   return (
     <div className="story-table-layout-tools">
       <TableLayoutToolbar
+        labels={toolbarLabels}
         disabled={disabled}
         mode={mode}
         onModeChange={setMode}
@@ -45,6 +47,7 @@ function TableLayoutToolsExample({ disabled = false }: { disabled?: boolean }) {
         tool={tool}
       />
       <TableLayoutPropertyPanel
+        labels={propertyPanelLabels}
         columns={14}
         disabled={disabled}
         item={table}
@@ -59,6 +62,7 @@ const meta = {
   title: "Domain/Table Layout/Table Layout Tools",
   component: TableLayoutToolbar,
   args: {
+    labels: toolbarLabels,
     mode: "edit",
     tool: "select",
   },
@@ -79,8 +83,8 @@ export const ToolbarAndPropertyPanel: Story = {
 export const EmptySelection: Story = {
   render: () => (
     <div className="story-table-layout-tools">
-      <TableLayoutToolbar mode="view" tool="select" />
-      <TableLayoutPropertyPanel columns={14} rows={10} />
+      <TableLayoutToolbar labels={toolbarLabels} mode="view" tool="select" />
+      <TableLayoutPropertyPanel labels={propertyPanelLabels} columns={14} rows={10} />
     </div>
   ),
 };

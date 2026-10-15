@@ -4,133 +4,126 @@ import { forwardRef, type ButtonHTMLAttributes } from "react";
 import { IconClock, IconReceipt, IconUsers } from "@tabler/icons-react";
 
 import { AppIcon } from "./app-icon";
+import { TableShape, type TableShapeKind } from "./table-shape";
 
 export type TableTileMode = "view" | "edit";
 export type TableTileSize = "sm" | "md" | "lg";
 export type TableTileState =
   | "available"
   | "occupied"
+  | "closing"
+  | "cleaning"
   | "waiting-order"
   | "waiting-payment"
   | "needs-service"
   | "reserved"
   | "disabled";
 
+export type TableTileMetricKind = "duration" | "guests" | "orders";
+
+/** A number about the service at the table, written by the caller: "4" read as "4 guests". */
+export type TableTileMetric = { kind: TableTileMetricKind; label: string; text: string };
+
 export type TableTileProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
-  durationMinutes?: number;
-  guestCount?: number;
+  /** The table's capacity; draws the chairs when `shape` is given. */
+  capacity?: number;
+  /** The footprint in grid cells, for the drawn table. Defaults to a single square. */
+  footprint?: { height: number; width: number };
   label: string;
+  /** Shown only in view mode while a table is being served. */
+  metrics?: readonly TableTileMetric[];
   mode?: TableTileMode;
-  orderCount?: number;
   selected?: boolean;
+  /** Draws the table from above instead of a card. */
+  shape?: TableShapeKind;
   size?: TableTileSize;
   state?: TableTileState;
-};
-
-const tableTileStateLabels: Record<TableTileState, string> = {
-  available: "Tersedia",
-  occupied: "Terisi",
-  "waiting-order": "Menunggu konfirmasi",
-  "waiting-payment": "Menunggu pembayaran",
-  "needs-service": "Butuh layanan",
-  reserved: "Reservasi",
-  disabled: "Nonaktif",
+  /**
+   * The status in words, so it is never told by color alone. Shown in view
+   * mode, and in edit mode only for a table that is set aside.
+   */
+  stateLabel?: string;
 };
 
 const activeServiceStates = new Set<TableTileState>([
   "occupied",
+  "closing",
   "waiting-order",
   "waiting-payment",
   "needs-service",
 ]);
 
+const metricIcons = { duration: IconClock, guests: IconUsers, orders: IconReceipt } as const;
+
 function classes(...values: Array<string | false | null | undefined>) {
   return values.filter(Boolean).join(" ");
 }
 
-function assertOptionalNonNegativeInteger(value: number | undefined, fieldName: string) {
-  if (value === undefined) return;
-  if (!Number.isSafeInteger(value) || value < 0) {
-    throw new TypeError(`${fieldName} harus berupa safe integer non-negatif.`);
-  }
-}
-
 function assertTableTileContract({
-  durationMinutes,
-  guestCount,
+  capacity,
   label,
-  orderCount,
+  metrics,
 }: {
-  durationMinutes: number | undefined;
-  guestCount: number | undefined;
+  capacity: number | undefined;
   label: string;
-  orderCount: number | undefined;
+  metrics: readonly TableTileMetric[] | undefined;
 }) {
   if (!label.trim()) throw new TypeError("Table Tile memerlukan label meja yang terlihat.");
-  assertOptionalNonNegativeInteger(guestCount, "Jumlah tamu");
-  assertOptionalNonNegativeInteger(orderCount, "Jumlah order");
-  assertOptionalNonNegativeInteger(durationMinutes, "Durasi meja");
-}
-
-function formatDuration(minutes: number) {
-  if (minutes < 60) {
-    return { ariaLabel: `${minutes} menit`, label: `${minutes} mnt` };
+  if (capacity !== undefined && (!Number.isSafeInteger(capacity) || capacity < 0)) {
+    throw new TypeError("Kapasitas meja harus berupa safe integer non-negatif.");
   }
-
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-
-  if (remainingMinutes === 0) {
-    return { ariaLabel: `${hours} jam`, label: `${hours}j` };
+  for (const metric of metrics ?? []) {
+    if (!metric.text.trim() || !metric.label.trim()) {
+      throw new TypeError("Metrik meja memerlukan teks dan label.");
+    }
   }
-
-  return {
-    ariaLabel: `${hours} jam ${remainingMinutes} menit`,
-    label: `${hours}j ${remainingMinutes}m`,
-  };
 }
 
 export const TableTile = forwardRef<HTMLButtonElement, TableTileProps>(function TableTile(
   {
+    capacity,
     className,
     disabled,
-    durationMinutes,
-    guestCount,
+    footprint = { height: 1, width: 1 },
     label,
+    metrics,
     mode = "view",
-    orderCount,
     selected = false,
+    shape,
     size = "md",
     state = "available",
+    stateLabel,
     ...props
   },
   ref,
 ) {
-  assertTableTileContract({ durationMinutes, guestCount, label, orderCount });
+  assertTableTileContract({ capacity, label, metrics });
 
   const visibleLabel = label.trim();
-  const stateLabel = tableTileStateLabels[state];
-  const showsOperationalMeta = mode === "view" && activeServiceStates.has(state);
-  const duration = durationMinutes === undefined ? undefined : formatDuration(durationMinutes);
+  const showsState =
+    stateLabel !== undefined && (mode === "view" || state === "disabled") && !!stateLabel.trim();
+  const shownMetrics =
+    mode === "view" && activeServiceStates.has(state) ? (metrics ?? []) : ([] as const);
   const isDisabled = disabled || (mode === "view" && state === "disabled");
-  const accessibleParts = [
+  const accessibleName = [
     visibleLabel,
-    stateLabel,
-    showsOperationalMeta && guestCount !== undefined ? `${guestCount} tamu` : undefined,
-    showsOperationalMeta && orderCount !== undefined ? `${orderCount} order` : undefined,
-    showsOperationalMeta && duration ? duration.ariaLabel : undefined,
-  ].filter(Boolean);
+    showsState ? stateLabel?.trim() : undefined,
+    ...shownMetrics.map((metric) => metric.label.trim()),
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <button
       {...props}
-      aria-label={props["aria-label"] ?? accessibleParts.join(", ")}
+      aria-label={props["aria-label"] ?? accessibleName}
       aria-pressed={selected}
       className={classes(
         "ui-table-tile",
         `ui-table-tile--${size}`,
         `ui-table-tile--${mode}`,
         `ui-table-tile--${state}`,
+        shape && "ui-table-tile--shaped",
         selected && "is-selected",
         className,
       )}
@@ -138,31 +131,31 @@ export const TableTile = forwardRef<HTMLButtonElement, TableTileProps>(function 
       ref={ref}
       type={props.type ?? "button"}
     >
+      {shape ? (
+        <TableShape
+          capacity={capacity ?? 0}
+          className="ui-table-tile__shape"
+          footprint={footprint}
+          shape={shape}
+        />
+      ) : null}
       <span className="ui-table-tile__header">
         <strong className="ui-table-tile__label">{visibleLabel}</strong>
-        <span className="ui-table-tile__status">{stateLabel}</span>
+        {showsState ? <span className="ui-table-tile__status">{stateLabel?.trim()}</span> : null}
       </span>
 
-      {showsOperationalMeta ? (
+      {shownMetrics.length > 0 ? (
         <span className="ui-table-tile__meta">
-          {guestCount !== undefined ? (
-            <span aria-label={`${guestCount} tamu`} className="ui-table-tile__meta-item">
-              <AppIcon icon={IconUsers} size="xs" />
-              <span>{guestCount}</span>
+          {shownMetrics.map((metric) => (
+            <span
+              aria-label={metric.label.trim()}
+              className="ui-table-tile__meta-item"
+              key={metric.kind}
+            >
+              <AppIcon icon={metricIcons[metric.kind]} size="xs" />
+              <span>{metric.text.trim()}</span>
             </span>
-          ) : null}
-          {orderCount !== undefined ? (
-            <span aria-label={`${orderCount} order`} className="ui-table-tile__meta-item">
-              <AppIcon icon={IconReceipt} size="xs" />
-              <span>{orderCount}</span>
-            </span>
-          ) : null}
-          {duration ? (
-            <span aria-label={duration.ariaLabel} className="ui-table-tile__meta-item">
-              <AppIcon icon={IconClock} size="xs" />
-              <span>{duration.label}</span>
-            </span>
-          ) : null}
+          ))}
         </span>
       ) : null}
     </button>

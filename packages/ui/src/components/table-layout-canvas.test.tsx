@@ -10,21 +10,35 @@ import {
   snapTableLayoutPosition,
   TableLayoutCanvas,
   type TableLayoutCanvasItem,
+  type TableLayoutCanvasLabels,
 } from "./table-layout-canvas";
+
+const labels: TableLayoutCanvasLabels = {
+  canvas: "Canvas layout meja",
+  moveDown: "Pindahkan meja ke bawah",
+  moveGroup: "Pindahkan meja terpilih",
+  moveLeft: "Pindahkan meja ke kiri",
+  moveRight: "Pindahkan meja ke kanan",
+  moveUp: "Pindahkan meja ke atas",
+  overlap: (first, second) => `${first} bertumpuk dengan ${second}.`,
+  position: (label, column, row, overlapping) =>
+    `${label}, posisi kolom ${column}, baris ${row}${overlapping ? ", bertumpuk" : ""}`,
+  validationTitle: "Layout perlu diperiksa",
+};
 
 const items: readonly TableLayoutCanvasItem[] = [
   { gridH: 2, gridW: 2, gridX: 0, gridY: 0, id: "table-internal-1", label: "Meja 01" },
   {
-    durationMinutes: 37,
     gridH: 2,
     gridW: 3,
     gridX: 4,
     gridY: 2,
-    guestCount: 4,
     id: "table-internal-2",
     label: "Meja 02",
-    orderCount: 1,
+    metrics: [{ kind: "guests", label: "4 tamu", text: "4" }],
+    shape: "rectangle",
     state: "occupied",
+    stateLabel: "Terisi",
   },
   {
     gridH: 2,
@@ -44,6 +58,7 @@ describe("TableLayoutCanvas", () => {
 
     render(
       <TableLayoutCanvas
+        labels={labels}
         columns={12}
         items={items}
         onSelectItem={onSelectItem}
@@ -69,7 +84,13 @@ describe("TableLayoutCanvas", () => {
     const onSelectItem = vi.fn();
     const user = userEvent.setup();
     const { rerender } = render(
-      <TableLayoutCanvas columns={12} items={items} onSelectItem={onSelectItem} rows={8} />,
+      <TableLayoutCanvas
+        labels={labels}
+        columns={12}
+        items={items}
+        onSelectItem={onSelectItem}
+        rows={8}
+      />,
     );
 
     await user.click(screen.getByRole("button", { name: "Meja servis, posisi kolom 9, baris 5" }));
@@ -80,6 +101,7 @@ describe("TableLayoutCanvas", () => {
 
     rerender(
       <TableLayoutCanvas
+        labels={labels}
         columns={12}
         items={items}
         mode="edit"
@@ -131,6 +153,7 @@ describe("TableLayoutCanvas", () => {
 
     render(
       <TableLayoutCanvas
+        labels={labels}
         columns={12}
         items={[
           { gridH: 2, gridW: 2, gridX: 0, gridY: 0, id: "table-a", label: "Meja A" },
@@ -141,9 +164,7 @@ describe("TableLayoutCanvas", () => {
       />,
     );
 
-    expect(screen.getByRole("status", { name: "Validasi layout meja" })).toHaveTextContent(
-      "Meja A bertumpuk dengan Meja B.",
-    );
+    expect(screen.getByRole("status")).toHaveTextContent("Meja A bertumpuk dengan Meja B.");
     expect(screen.queryByText(/table-a|table-b/)).not.toBeInTheDocument();
   });
 
@@ -153,6 +174,7 @@ describe("TableLayoutCanvas", () => {
 
     render(
       <TableLayoutCanvas
+        labels={labels}
         columns={12}
         items={items}
         mode="edit"
@@ -182,10 +204,13 @@ describe("TableLayoutCanvas", () => {
   });
 
   it("rejects malformed or out-of-bounds layout data", () => {
-    expect(() => render(<TableLayoutCanvas columns={0} items={[]} rows={8} />)).toThrow(/kolom/);
+    expect(() =>
+      render(<TableLayoutCanvas labels={labels} columns={0} items={[]} rows={8} />),
+    ).toThrow(/kolom/);
     expect(() =>
       render(
         <TableLayoutCanvas
+          labels={labels}
           columns={12}
           items={[{ gridH: 2, gridW: 2, gridX: 11, gridY: 0, id: "table-a", label: "Meja A" }]}
           rows={8}
@@ -195,6 +220,7 @@ describe("TableLayoutCanvas", () => {
     expect(() =>
       render(
         <TableLayoutCanvas
+          labels={labels}
           columns={12}
           items={[
             { gridH: 2, gridW: 2, gridX: 0, gridY: 0, id: "table-a", label: "Meja A" },
@@ -209,6 +235,7 @@ describe("TableLayoutCanvas", () => {
   it("passes an axe smoke test", async () => {
     const { container } = render(
       <TableLayoutCanvas
+        labels={labels}
         columns={12}
         items={items}
         mode="edit"

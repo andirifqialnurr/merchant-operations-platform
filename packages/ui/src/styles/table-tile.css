@@ -104,6 +104,18 @@
   --ui-table-tile-status-text: var(--color-status-danger-text);
 }
 
+.ui-table-tile--closing {
+  --ui-table-tile-accent: var(--color-status-warning-text);
+  --ui-table-tile-status-bg: var(--color-status-warning-bg);
+  --ui-table-tile-status-text: var(--color-status-warning-text);
+}
+
+.ui-table-tile--cleaning {
+  --ui-table-tile-accent: var(--color-text-muted);
+  --ui-table-tile-status-bg: var(--color-bg-surface-subtle);
+  --ui-table-tile-status-text: var(--color-text-secondary);
+}
+
 .ui-table-tile--reserved {
   --ui-table-tile-accent: var(--color-status-info-text);
   --ui-table-tile-status-bg: var(--color-status-info-bg);
@@ -177,6 +189,110 @@
 
 .ui-table-tile__meta-item svg {
   flex: 0 0 auto;
+}
+
+/* A table drawn from above: the drawing is the tile, the label sits on the table. */
+.ui-table-tile--shaped {
+  align-content: center;
+  background: transparent;
+  border: 0;
+  justify-items: center;
+  min-height: 0;
+  min-width: 0;
+  padding: var(--space-1);
+  text-align: center;
+}
+
+.ui-table-tile--shaped::before {
+  content: none;
+}
+
+.ui-table-tile--shaped:hover:not(:disabled) {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.ui-table-tile--shaped.is-selected {
+  background: transparent;
+  box-shadow: none;
+  outline: 2px solid var(--color-action-primary);
+  outline-offset: 0;
+}
+
+.ui-table-tile--shaped:disabled {
+  background: transparent;
+}
+
+.ui-table-tile--shaped .ui-table-tile__header {
+  justify-items: center;
+  padding-inline-start: 0;
+  position: relative;
+}
+
+.ui-table-tile--shaped .ui-table-tile__header {
+  max-inline-size: 100%;
+  min-inline-size: 0;
+}
+
+/* On a drawn table the words sit on the table top: one line each, never wrapped mid-word. */
+.ui-table-tile--shaped .ui-table-tile__label,
+.ui-table-tile--shaped .ui-table-tile__status {
+  max-inline-size: 100%;
+  overflow: hidden;
+  overflow-wrap: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ui-table-tile--shaped .ui-table-tile__label {
+  font-size: var(--text-body-sm);
+}
+
+.ui-table-tile--shaped .ui-table-tile__status {
+  background: transparent;
+  font-size: var(--text-caption);
+  padding: 0;
+}
+
+.ui-table-tile--shaped .ui-table-tile__meta {
+  justify-content: center;
+  padding-inline-start: 0;
+  position: relative;
+}
+
+.ui-table-tile__shape {
+  block-size: 100%;
+  inline-size: 100%;
+  inset: 0;
+  position: absolute;
+}
+
+.ui-table-shape__table {
+  fill: var(--ui-table-tile-status-bg, var(--color-bg-surface));
+  stroke: var(--ui-table-tile-accent, var(--color-border-strong));
+  stroke-width: 1.5;
+}
+
+.ui-table-shape__chair {
+  fill: var(--color-border-default);
+}
+
+.ui-table-tile--edit .ui-table-shape__table {
+  fill: var(--color-bg-surface);
+  stroke: var(--color-border-strong);
+}
+
+.ui-table-tile--disabled .ui-table-shape__table {
+  fill: var(--color-bg-surface-subtle);
+  stroke-dasharray: 4 3;
+}
+
+.ui-table-tile--disabled .ui-table-shape__chair {
+  opacity: 0.5;
+}
+
+.ui-table-tile--shaped:hover:not(:disabled) .ui-table-shape__table {
+  stroke: var(--color-action-primary);
 }
 
 @media (prefers-reduced-motion: reduce) {

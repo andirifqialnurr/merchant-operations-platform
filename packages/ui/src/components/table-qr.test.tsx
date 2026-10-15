@@ -3,7 +3,17 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
-import { TableQrManager, type TableQrRecord } from "./table-qr";
+import { TableQrManager, type TableQrManagerLabels, type TableQrRecord } from "./table-qr";
+
+const labels: TableQrManagerLabels = {
+  generate: "Buat QR",
+  preview: (label) => `Preview QR ${label}`,
+  print: "Cetak QR",
+  region: (label) => `QR meja ${label}`,
+  revoke: "Cabut QR",
+  rotate: "Rotasi QR",
+  status: { active: "Aktif", "not-generated": "Belum dibuat", revoked: "Dicabut" },
+};
 
 const activeTable: TableQrRecord = {
   id: "table-internal-01",
@@ -15,7 +25,7 @@ const activeTable: TableQrRecord = {
 
 describe("TableQrManager", () => {
   it("renders table label, QR status, and actions without exposing internal ids", () => {
-    render(<TableQrManager table={activeTable} />);
+    render(<TableQrManager labels={labels} table={activeTable} />);
 
     expect(screen.getByRole("region", { name: "QR meja Meja 01" })).toBeVisible();
     expect(screen.getByText("Aktif")).toBeVisible();
@@ -35,6 +45,7 @@ describe("TableQrManager", () => {
 
     render(
       <TableQrManager
+        labels={labels}
         onPrint={onPrint}
         onRevoke={onRevoke}
         onRotate={onRotate}
@@ -57,6 +68,7 @@ describe("TableQrManager", () => {
 
     render(
       <TableQrManager
+        labels={labels}
         onGenerate={onGenerate}
         table={{ id: "table-internal-02", label: "Meja 02", status: "not-generated" }}
       />,
@@ -70,14 +82,19 @@ describe("TableQrManager", () => {
 
   it("rejects malformed QR data", () => {
     expect(() =>
-      render(<TableQrManager table={{ id: "", label: "Meja 01", status: "active" }} />),
+      render(
+        <TableQrManager labels={labels} table={{ id: "", label: "Meja 01", status: "active" }} />,
+      ),
     ).toThrow(/id internal/);
     expect(() =>
-      render(<TableQrManager table={{ id: "table-a", label: "", status: "active" }} />),
+      render(
+        <TableQrManager labels={labels} table={{ id: "table-a", label: "", status: "active" }} />,
+      ),
     ).toThrow(/label meja/);
     expect(() =>
       render(
         <TableQrManager
+          labels={labels}
           table={{ id: "table-a", label: "Meja A", message: "", status: "active" }}
         />,
       ),
@@ -85,7 +102,7 @@ describe("TableQrManager", () => {
   });
 
   it("passes an axe smoke test", async () => {
-    const { container } = render(<TableQrManager table={activeTable} />);
+    const { container } = render(<TableQrManager labels={labels} table={activeTable} />);
     expect((await axe(container)).violations).toEqual([]);
   });
 });

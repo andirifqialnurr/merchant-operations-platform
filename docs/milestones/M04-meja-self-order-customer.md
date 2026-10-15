@@ -63,14 +63,14 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 
 ### DS — Design system dan komponen
 
-- [ ] **M4-DS-01 Rapikan komponen meja** — `TableTile`, `TableLayoutCanvas`, `TableLayoutTray`, `TableLayoutTools`, `TableQr`, `FloorSelector`: label lewat props, tanpa deskripsi.
+- [x] **M4-DS-01 Rapikan komponen meja** — `TableTile`, `TableLayoutCanvas`, `TableLayoutTray`, `TableLayoutTools`, `TableQr`, `FloorSelector`: label lewat props, tanpa deskripsi. Selesai 16 Oktober 2026 (TODO 13.11). Keenam komponen menerima `labels` dan tidak punya teks sendiri (pesan `TypeError` untuk developer tetap). `TableTile` menerima `stateLabel` (status tertulis, tidak hanya warna) dan `metrics` siap tulis; status baru `closing` dan `cleaning`. Ringkasan "N siap ditempatkan" di baki dihapus karena mengulang jumlah di judul.
 - [ ] **M4-DS-02 Komponen baru Floor** — `AreaSelector`, `LiveTableView`, `TableSessionPanel`.
 - [ ] **M4-DS-03 Komponen tamu** — `StickyCartBar`, `OrderProgress`; rapikan `CustomerOrderSurface`, `CustomerQrContext`, `CustomerBasicProfile`.
 - [ ] **M4-DS-04 Pemilih modifier untuk tamu** — memakai hasil M1-DS-06.
 
 ### AS — Aset
 
-- [ ] **M4-AS-01 Bentuk meja** — SVG persegi, persegi panjang, bulat dalam tiga ukuran, mengikuti token.
+- [x] **M4-AS-01 Bentuk meja** — SVG persegi, persegi panjang, bulat dalam tiga ukuran, mengikuti token. Selesai 16 Oktober 2026 (TODO 13.11). Komponen SVG `TableShape` (`@merchant/ui/table-shape`): meja dari atas dengan kursi diturunkan dari kapasitas (maks. 16 digambar), mengikuti token warna lewat CSS, tersembunyi dari pembaca layar. Ukuran mengikuti jejak grid: persegi/bulat 2×2, 3×3, 4×4; persegi panjang 3×2, 4×2, 6×3. `TableTile` dengan `shape` menggambar meja ini.
 - [ ] **M4-AS-02 Kartu QR cetak** — template A6 dan stiker kecil: nama outlet, label meja, QR, instruksi singkat dua bahasa; unduh PNG/PDF.
 - [ ] **M4-AS-03 Metadata publik** — judul, deskripsi, dan gambar pratinjau untuk tautan menu publik.
 

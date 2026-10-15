@@ -4,6 +4,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { UnplacedTableTray, type UnplacedTableTrayItem } from "@merchant/ui/table-layout-tray";
 
 import { storyContractParameters } from "./story-contract";
+import { trayLabels } from "./table-labels";
 
 const initialTables: readonly UnplacedTableTrayItem[] = [
   { id: "table-11", label: "Meja 11" },
@@ -16,6 +17,7 @@ function TrayExample({ disabled = false }: { disabled?: boolean }) {
   const [selectedId, setSelectedId] = useState("table-12");
   return (
     <UnplacedTableTray
+      labels={trayLabels}
       disabled={disabled}
       items={initialTables}
       onPlaceItem={setSelectedId}
@@ -28,6 +30,7 @@ const meta = {
   title: "Domain/Table Layout/Unplaced Table Tray",
   component: UnplacedTableTray,
   args: {
+    labels: trayLabels,
     items: initialTables,
   },
   parameters: {
@@ -45,7 +48,7 @@ export const Default: Story = {
 };
 
 export const Empty: Story = {
-  render: () => <UnplacedTableTray items={[]} />,
+  render: () => <UnplacedTableTray labels={trayLabels} items={[]} />,
 };
 
 export const Disabled: Story = {

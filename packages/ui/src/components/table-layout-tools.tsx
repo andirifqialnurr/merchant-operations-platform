@@ -19,9 +19,19 @@ export type TableLayoutPropertyPanelItem = TableLayoutGridPosition & {
   label: string;
 };
 
+/** Every text the toolbar shows or announces; it has none of its own. */
+export type TableLayoutToolbarLabels = {
+  modeGroup: string;
+  modes: Record<TableLayoutCanvasMode, string>;
+  snap: string;
+  toolGroup: string;
+  tools: Record<TableLayoutToolbarTool, string>;
+};
+
 export type TableLayoutToolbarProps = {
   className?: string;
   disabled?: boolean;
+  labels: TableLayoutToolbarLabels;
   mode: TableLayoutCanvasMode;
   onModeChange?: (mode: TableLayoutCanvasMode) => void;
   onSnapToGridChange?: (enabled: boolean) => void;
@@ -30,32 +40,37 @@ export type TableLayoutToolbarProps = {
   tool?: TableLayoutToolbarTool;
 };
 
+/** Every text the panel shows or announces; it has none of its own. */
+export type TableLayoutPropertyPanelLabels = {
+  column: string;
+  /** Shown while no table is selected. */
+  empty: string;
+  height: string;
+  panel: string;
+  row: string;
+  selected: string;
+  width: string;
+};
+
 export type TableLayoutPropertyPanelProps = {
   className?: string;
   columns: number;
   disabled?: boolean;
   item?: TableLayoutPropertyPanelItem | null;
+  labels: TableLayoutPropertyPanelLabels;
   onItemChange?: (itemId: string, position: TableLayoutGridPosition) => void;
   rows: number;
 };
 
-const modeOptions: Array<{
-  icon: typeof IconEye;
-  label: string;
-  value: TableLayoutCanvasMode;
-}> = [
-  { icon: IconEye, label: "View", value: "view" },
-  { icon: IconPencil, label: "Edit", value: "edit" },
-  { icon: IconScan, label: "Preview", value: "preview" },
+const modeOptions: Array<{ icon: typeof IconEye; value: TableLayoutCanvasMode }> = [
+  { icon: IconEye, value: "view" },
+  { icon: IconPencil, value: "edit" },
+  { icon: IconScan, value: "preview" },
 ];
 
-const toolOptions: Array<{
-  icon: typeof IconPointer;
-  label: string;
-  value: TableLayoutToolbarTool;
-}> = [
-  { icon: IconPointer, label: "Pilih meja", value: "select" },
-  { icon: IconHandStop, label: "Geser meja", value: "move" },
+const toolOptions: Array<{ icon: typeof IconPointer; value: TableLayoutToolbarTool }> = [
+  { icon: IconPointer, value: "select" },
+  { icon: IconHandStop, value: "move" },
 ];
 
 function classes(...values: Array<string | false | null | undefined>) {
@@ -109,6 +124,7 @@ function assertPropertyPanelContract({
 export function TableLayoutToolbar({
   className,
   disabled = false,
+  labels,
   mode,
   onModeChange,
   onSnapToGridChange,
@@ -119,7 +135,7 @@ export function TableLayoutToolbar({
   return (
     <div className={classes("ui-table-layout-toolbar", className)} role="toolbar">
       <div
-        aria-label="Mode layout meja"
+        aria-label={labels.modeGroup}
         className="ui-table-layout-toolbar__segment"
         role="radiogroup"
       >
@@ -135,12 +151,12 @@ export function TableLayoutToolbar({
             type="button"
           >
             <AppIcon icon={option.icon} size="sm" />
-            <span>{option.label}</span>
+            <span>{labels.modes[option.value]}</span>
           </button>
         ))}
       </div>
 
-      <div aria-label="Tool layout meja" className="ui-table-layout-toolbar__tools">
+      <div aria-label={labels.toolGroup} className="ui-table-layout-toolbar__tools">
         {toolOptions.map((option) => (
           <button
             aria-pressed={tool === option.value}
@@ -148,11 +164,11 @@ export function TableLayoutToolbar({
             disabled={disabled}
             key={option.value}
             onClick={() => onToolChange?.(option.value)}
-            title={option.label}
+            title={labels.tools[option.value]}
             type="button"
           >
             <AppIcon icon={option.icon} size="sm" />
-            <span className="ui-table-layout-toolbar__sr">{option.label}</span>
+            <span className="ui-table-layout-toolbar__sr">{labels.tools[option.value]}</span>
           </button>
         ))}
       </div>
@@ -169,7 +185,7 @@ export function TableLayoutToolbar({
         </span>
         <span>
           <AppIcon icon={IconGridDots} size="sm" />
-          Snap grid
+          {labels.snap}
         </span>
       </label>
     </div>
@@ -218,6 +234,7 @@ export function TableLayoutPropertyPanel({
   columns,
   disabled = false,
   item,
+  labels,
   onItemChange,
   rows,
 }: TableLayoutPropertyPanelProps) {
@@ -227,7 +244,7 @@ export function TableLayoutPropertyPanel({
     return (
       <aside className={classes("ui-table-layout-property-panel", className)} role="complementary">
         <p className="ui-table-layout-property-panel__empty" role="status">
-          Pilih meja pada canvas untuk mengubah posisi.
+          {labels.empty}
         </p>
       </aside>
     );
@@ -250,19 +267,19 @@ export function TableLayoutPropertyPanel({
 
   return (
     <aside
-      aria-label="Properti meja terpilih"
+      aria-label={labels.panel}
       className={classes("ui-table-layout-property-panel", className)}
       role="complementary"
     >
       <header className="ui-table-layout-property-panel__header">
-        <span>Meja terpilih</span>
+        <span>{labels.selected}</span>
         <strong>{item.label.trim()}</strong>
       </header>
 
       <div className="ui-table-layout-property-panel__grid">
         <PropertyNumberField
           disabled={disabled}
-          label="Kolom"
+          label={labels.column}
           max={maxColumn}
           onValueChange={(value) =>
             update({ ...item, gridX: clamp(value - 1, 0, columns - item.gridW) })
@@ -271,7 +288,7 @@ export function TableLayoutPropertyPanel({
         />
         <PropertyNumberField
           disabled={disabled}
-          label="Baris"
+          label={labels.row}
           max={maxRow}
           onValueChange={(value) =>
             update({ ...item, gridY: clamp(value - 1, 0, rows - item.gridH) })
@@ -280,14 +297,14 @@ export function TableLayoutPropertyPanel({
         />
         <PropertyNumberField
           disabled={disabled}
-          label="Lebar"
+          label={labels.width}
           max={maxWidth}
           onValueChange={(value) => update({ ...item, gridW: clamp(value, 1, maxWidth) })}
           value={item.gridW}
         />
         <PropertyNumberField
           disabled={disabled}
-          label="Tinggi"
+          label={labels.height}
           max={maxHeight}
           onValueChange={(value) => update({ ...item, gridH: clamp(value, 1, maxHeight) })}
           value={item.gridH}

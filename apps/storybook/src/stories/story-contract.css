@@ -457,3 +457,16 @@
 .story-shift-panel-body {
   padding: var(--space-4);
 }
+
+.story-table-shape-grid {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.story-table-shape-cell .ui-table-tile {
+  block-size: 100%;
+  inline-size: 100%;
+}
