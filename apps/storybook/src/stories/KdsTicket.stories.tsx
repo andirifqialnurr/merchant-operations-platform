@@ -165,6 +165,30 @@ export const Sizes: Story = {
   ),
 };
 
+/** For a kitchen monitor read from one to two meters away. */
+export const Kiosk: Story = {
+  parameters: { layout: "fullscreen" },
+  render: () => (
+    <div className="story-kds-ticket-row">
+      <KdsTicket
+        {...base}
+        action={{ label: "Terima", onAction: noop }}
+        size="kiosk"
+        variant="touch"
+      />
+      <KdsTicket
+        {...base}
+        {...withStatus("preparing")}
+        action={{ label: "Tandai siap", onAction: noop }}
+        elapsedLabel="12:40"
+        size="kiosk"
+        timerTone="warning"
+        variant="touch"
+      />
+    </div>
+  ),
+};
+
 export const WaitingTime: Story = {
   render: () => (
     <div className="story-kds-ticket-row">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { type ReactNode, useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { IconArrowsMaximize, IconArrowsMinimize, IconLayoutSidebar } from "@tabler/icons-react";
 
@@ -10,25 +10,9 @@ import { AppIcon } from "@merchant/ui/app-icon";
 import { IconButton } from "@merchant/ui/button";
 
 import { useWorkspace } from "@/features/workspace";
+import { useFullscreen } from "@/lib/use-fullscreen";
 
 import { ShellAccount, ShellContext, type ShellUser } from "./shell-controls";
-
-/** Whether the page fills the screen, and a way to switch that. */
-function useFullscreen() {
-  const [active, setActive] = useState(false);
-  useEffect(() => {
-    const sync = () => setActive(document.fullscreenElement !== null);
-    sync();
-    document.addEventListener("fullscreenchange", sync);
-    return () => document.removeEventListener("fullscreenchange", sync);
-  }, []);
-  const toggle = () => {
-    // A browser may refuse (e.g. inside a frame); the screen then stays as it is.
-    if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
-    else void document.documentElement.requestFullscreen?.().catch(() => undefined);
-  };
-  return { active, toggle };
-}
 
 /**
  * Full-screen kitchen shell: a 56px top bar with the outlet and the account,

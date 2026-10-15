@@ -18,7 +18,8 @@ import { Button } from "./button";
 
 export type KdsTicketStatus = "new" | "accepted" | "preparing" | "ready" | "served" | "canceled";
 
-export type KdsTicketSize = "sm" | "md" | "lg";
+/** `kiosk`: a kitchen monitor read from one to two meters away. */
+export type KdsTicketSize = "sm" | "md" | "lg" | "kiosk";
 export type KdsTicketVariant = "compact" | "default" | "touch" | "history";
 /** How the waiting time reads: fine, close to the limit, or past it. */
 export type KdsTicketTimerTone = "normal" | "warning" | "late";

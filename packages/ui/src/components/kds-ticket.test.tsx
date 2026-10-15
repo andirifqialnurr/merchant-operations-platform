@@ -228,6 +228,19 @@ describe("KdsTicket", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
+  it("has a kiosk size for a kitchen monitor, keeping its one action", () => {
+    render(
+      <KdsTicket
+        {...ticket}
+        action={{ label: "Terima", onAction: () => undefined }}
+        size="kiosk"
+        variant="touch"
+      />,
+    );
+    expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--kiosk");
+    expect(screen.getAllByRole("button")).toHaveLength(1);
+  });
+
   it("marks a long wait while the ticket is open, and not once it is finished", () => {
     const { rerender } = render(<KdsTicket {...ticket} timerTone="warning" />);
     expect(screen.getByRole("article")).toHaveClass("ui-kds-ticket--sla-warning");

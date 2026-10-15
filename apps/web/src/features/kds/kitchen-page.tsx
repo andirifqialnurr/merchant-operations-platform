@@ -12,6 +12,7 @@ import { ModuleAccessState } from "@merchant/ui/module-access-state";
 import { Tabs } from "@merchant/ui/navigation";
 
 import { useWorkspace } from "@/features/workspace";
+import { useFullscreen } from "@/lib/use-fullscreen";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { RequestErrorState } from "@/shell/request-error-state";
 
@@ -43,11 +44,14 @@ function useNow() {
 /** One ticket as the kitchen reads it, with the one next step when the viewer may take it. */
 function Ticket({
   busy,
+  kiosk = false,
   now,
   onAdvance,
   ticket,
 }: Readonly<{
   busy?: boolean;
+  /** Larger, for a kitchen monitor in kiosk mode. */
+  kiosk?: boolean;
   now: number;
   /** Left out for a viewer who may only look, and for finished tickets. */
   onAdvance?: (ticket: KitchenTicket) => void;
@@ -80,7 +84,7 @@ function Ticket({
       }))}
       label={t("ticketLabel", { label: ticket.orderLabel })}
       orderLabel={ticket.orderLabel}
-      size="lg"
+      size={kiosk ? "kiosk" : "lg"}
       sourceLabel={t(`source.${ticket.source}`)}
       status={componentStatus(ticket.status)}
       statusLabel={t(`status.${ticket.status}`)}
@@ -111,6 +115,7 @@ function Queue({
   const t = useTranslations("kds");
   const now = useNow();
   const wide = useMediaQuery("(min-width: 1024px)");
+  const kiosk = useFullscreen().active;
   const query = useKitchenQueue(tenantId, outletId, live);
   const advance = useAdvanceTicket(tenantId, outletId);
   const busyId = advance.isPending ? advance.variables?.id : undefined;
@@ -136,6 +141,7 @@ function Queue({
     <li key={ticket.id}>
       <Ticket
         busy={busyId === ticket.id}
+        kiosk={kiosk}
         now={now}
         ticket={ticket}
         {...(onAdvance ? { onAdvance } : {})}
