@@ -66,11 +66,11 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 
 - [x] **M3-SC-01 Data guard KDS** `39d3fc9` — test respons dan payload realtime tanpa harga, pembayaran, atau telepon. Selesai 15 Oktober 2026 (TODO 14.19). Respons: skema strict di controller dan kontrak, nama properti OpenAPI KDS, kolom tabel `kds_*`, port pesanan tanpa harga. Realtime: pesan hanya `{ outletId }` (integration `kds-realtime` dan test kontrak `kitchenQueueChangedSchema`).
 - [x] **M3-SC-02 Sesi perangkat KDS** `f6aceef` — hanya perangkat terdaftar outlet itu yang menerima antrean outlet. Selesai 15 Oktober 2026 (TODO 14.14). Berlaku untuk **realtime**: hanya sesi yang dibuka di layar dapur aktif outlet itu, oleh orang yang boleh melihat antrean, yang menerima pembaruan; izin diperiksa ulang tiap 60 detik. Akun berizin di browser biasa tetap membaca antrean lewat REST (dibaca ulang tiap 4 detik), seperti sebelumnya.
-- [x] **M3-SC-03 Rate limit API intake.** Selesai 16 Oktober 2026 (TODO 14.22). Per sumber 60 permintaan/menit (KDS Basic) atau 600/menit bila paket memuat `kds.intake.api` (Pro), sesuai `CAFE-COMPANION-PACKAGES-LIMITS-V1.md` 5.4; kunci salah 30/menit per alamat jaringan. Lewat batas: `429 RATE_LIMIT_EXCEEDED`.
+- [x] **M3-SC-03 Rate limit API intake.** `579fe82` Selesai 16 Oktober 2026 (TODO 14.22). Per sumber 60 permintaan/menit (KDS Basic) atau 600/menit bila paket memuat `kds.intake.api` (Pro), sesuai `CAFE-COMPANION-PACKAGES-LIMITS-V1.md` 5.4; kunci salah 30/menit per alamat jaringan. Lewat batas: `429 RATE_LIMIT_EXCEEDED`.
 
 ### QA — Kualitas kode dan test
 
-- [x] **M3-QA-01 Test satu use case banyak pintu** — manual, event, dan API menghasilkan ticket identik. Selesai 16 Oktober 2026 (TODO 14.6, 14.11, 14.21): pintu manual dan event lewat use case yang sama (`kds-tickets`, `kds-order-flow`); pintu API lewat HTTP menghasilkan ticket yang isinya sama dengan pintu manual (`kds-intake`).
+- [x] **M3-QA-01 Test satu use case banyak pintu** `579fe82` — manual, event, dan API menghasilkan ticket identik. Selesai 16 Oktober 2026 (TODO 14.6, 14.11, 14.21): pintu manual dan event lewat use case yang sama (`kds-tickets`, `kds-order-flow`); pintu API lewat HTTP menghasilkan ticket yang isinya sama dengan pintu manual (`kds-intake`).
 - [x] **M3-QA-02 Test event ganda** `0a08380` — event yang sama dua kali menghasilkan satu ticket. Selesai 13 Oktober 2026 (TODO 14.11).
 - [x] **M3-QA-03 Test kombinasi** `0a08380` — KDS-only, POS-only, POS + KDS. Selesai 13 Oktober 2026 (TODO 14.11): `kds-order-flow.integration.test.mjs`.
 
