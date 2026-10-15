@@ -60,7 +60,7 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 
 ### AS — Aset
 
-- [ ] **M3-AS-01 Suara notifikasi** — satu suara ticket baru dan satu suara gagal sambung, pendek, berlisensi bebas, ukuran kecil.
+- [x] **M3-AS-01 Suara notifikasi** — satu suara ticket baru dan satu suara gagal sambung, pendek, berlisensi bebas, ukuran kecil. Selesai 15 Oktober 2026 (TODO 14.17). `apps/web/public/sounds/kds-new-ticket.wav` (0,6 detik, 26 KB, dua nada naik) dan `kds-connection-lost.wav` (0,65 detik, 29 KB, dua nada turun). Dibuat oleh `apps/web/scripts/generate-kds-sounds.mjs`, jadi tanpa lisensi pihak ketiga.
 
 ### SC — Keamanan dan privasi
 
