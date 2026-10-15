@@ -1468,5 +1468,33 @@
     "paidAll": "Everything is paid. Thank you!",
     "payMethod": "Paid with",
     "payTitle": "Pay from your table"
+  },
+  "customers": {
+    "add": "Add and link",
+    "addNew": "New customer",
+    "cancel": "Cancel",
+    "customer": "Customer",
+    "history": "History",
+    "hideHistory": "Hide history",
+    "historyEmpty": "No visits yet.",
+    "historyRegion": "Visits of {name}",
+    "link": "Link a customer",
+    "linked": "Order linked to {name}.",
+    "name": "Name",
+    "nameOrPhoneRequired": "Enter a name or a phone number.",
+    "note": "Note",
+    "optional": "optional",
+    "phone": "Phone",
+    "phoneEnding": "•••• {digits}",
+    "phoneInvalid": "A phone number has 6–15 digits.",
+    "results": "Customer search results",
+    "search": "Search by name or phone",
+    "searchEmpty": "No customer matches yet.",
+    "select": "Choose",
+    "selected": "Chosen",
+    "unnamed": "No name",
+    "unpaid": "Not paid yet",
+    "visitLine": "Order {order} · {date}",
+    "visits": "{count, plural, one {# visit} other {# visits}}"
   }
 }

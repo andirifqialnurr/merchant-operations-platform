@@ -294,7 +294,7 @@ flowchart TD
 
 Menggeser meja di editor tidak memindahkan tamu. Pindah meja adalah aksi tersendiri dengan pemilihan asal dan tujuan.
 
-**Berjalan sejak 16 Oktober 2026 (`/pos/tables`):** buka meja, tutup kunjungan, dan tandai bersih. Kunjungan hanya bisa ditutup bila semua pesanannya dibayar atau dibatalkan. Kebijakan bersih-bersih diatur di Backoffice > Meja > Lantai dan area. Bila dua kasir membuka meja yang sama bersamaan, yang kedua mendapat pesan bahwa meja tidak tersedia. **Pesanan dan bayar (16 Oktober 2026):** Tambah pesanan membuka layar jual untuk kunjungan itu (Kirim pesanan → dapur → kembali ke meja). Bayar mengambil satu pembayaran untuk semua pesanan yang belum dibayar; setelah lunas, tindakan utama menjadi Tutup kunjungan. **Pindah meja (16 Oktober 2026):** Pindah meja → pilih meja kosong → Pindahkan; kunjungan, pesanan, dan tagihan ikut. Gabung/pisah meja tampil terkunci dengan keterangan Meja Pro pada paket Basic.
+**Berjalan sejak 16 Oktober 2026 (`/pos/tables`):** buka meja, tutup kunjungan, dan tandai bersih. Kunjungan hanya bisa ditutup bila semua pesanannya dibayar atau dibatalkan. Kebijakan bersih-bersih diatur di Backoffice > Meja > Lantai dan area. Bila dua kasir membuka meja yang sama bersamaan, yang kedua mendapat pesan bahwa meja tidak tersedia. **Pesanan dan bayar (16 Oktober 2026):** Tambah pesanan membuka layar jual untuk kunjungan itu (Kirim pesanan → dapur → kembali ke meja). Bayar mengambil satu pembayaran untuk semua pesanan yang belum dibayar; setelah lunas, tindakan utama menjadi Tutup kunjungan. **Pindah meja (16 Oktober 2026):** Pindah meja → pilih meja kosong → Pindahkan; kunjungan, pesanan, dan tagihan ikut. Gabung/pisah meja tampil terkunci dengan keterangan Meja Pro pada paket Basic. **Permintaan tamu (16 Oktober 2026):** panggilan pelayan, minta bill, dan klaim "sudah bayar" muncul di bagian Permintaan tamu di atas denah; baris membuka mejanya. Panggilan ditandai Selesai; klaim bayar diputuskan di panel kunjungan dengan Konfirmasi bayar (klaim menjadi pembayaran di shift kasir) atau Tolak, dan selama klaim menunggu tombol Bayar tidak tampil. **Pelanggan (16 Oktober 2026):** POS > Pesanan > buka pesanan > Tautkan pelanggan → cari nama atau 4 digit telepon → Pilih, atau Pelanggan baru → tersimpan dan tertaut; Riwayat menampilkan kunjungan dan totalnya.
 
 ---
 
@@ -324,6 +324,8 @@ flowchart TD
 ```
 
 Tamu tidak perlu membuat akun. Pemilih bahasa ada di header. Layar tamu tidak pernah menampilkan meja lain, ID internal, atau status internal yang tidak relevan.
+
+**Berjalan sejak 16 Oktober 2026 (`/t/[token]`):** tab Menu dan Pesanan; produk polos langsung ke keranjang, produk bervarian lewat pemilih opsi; jumlah tamu ditanya pada pesanan pertama kunjungan; status Diterima → Disiapkan → Siap diperbarui tiap 15 detik; Panggil pelayan dan Minta bill di tab Pesanan; bila outlet menulis cara bayar, tamu memilih Transfer/QRIS lalu Saya sudah bayar → Menunggu konfirmasi kasir → setelah kasir mengonfirmasi, Semua pesanan sudah dibayar. Tanpa catatan cara bayar tamu membayar di kasir. QR palsu/dicabut: "QR ini tidak berlaku"; meja tidak menerima QR: "belum menerima pesanan dari QR".
 
 ---
 

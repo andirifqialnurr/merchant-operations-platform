@@ -342,34 +342,25 @@ test("validates table QR actions and mobile reflow", async ({ page }) => {
     .toBe(true);
 });
 
-test("validates Customer Basic profile selection and privacy guard", async ({ page }) => {
+test("validates Customer Basic list selection and privacy guard", async ({ page }) => {
   await page.setViewportSize({ height: 900, width: 1440 });
   await page.goto("/iframe.html?id=domain-customer-basic-profile--default&viewMode=story");
 
-  const customerBasic = page.locator(".ui-customer-basic").first();
-  await expect(page.getByRole("region", { name: "Customer Basic" })).toBeVisible();
-  await expect(page.getByRole("listitem", { name: "Customer Ayu Prameswari" })).toBeVisible();
-  await expect(page.getByText("WA **** 1890")).toBeVisible();
-  await expect(page.getByText("Kontak boleh dipakai untuk struk")).toBeVisible();
-  await expect(page.getByText("Regular")).toBeVisible();
-  await expect(page.getByText("120 poin")).toBeVisible();
+  const list = page.getByRole("region", { name: "Hasil pencarian pelanggan" });
+  await expect(list).toBeVisible();
+  await expect(page.getByText("•••• 1890 · 4 kunjungan")).toBeVisible();
   await expect
-    .poll(() =>
-      customerBasic.evaluate((element) =>
-        /cust-safe|phone|telepon|email asli|address|alamat|order-|payment|token|audit|internal|session|cart-/i.test(
-          element.textContent ?? "",
-        ),
-      ),
-    )
+    .poll(() => list.evaluate((element) => /cust-safe/.test(element.textContent ?? "")))
     .toBe(false);
-  await page.getByRole("button", { name: "Bersihkan" }).click();
-  await expect(page.getByText("Belum ada customer dipilih")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Terpilih" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
   await page.getByRole("button", { name: "Pilih" }).first().click();
-  await expect(page.getByText("1 customer dipilih")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Terpilih" })).toHaveCount(1);
 
   await page.goto("/iframe.html?id=domain-customer-basic-profile--empty&viewMode=story");
-  await expect(page.getByText("Customer belum tersedia.")).toBeVisible();
-  await expect(page.getByRole("textbox")).toHaveCount(0);
+  await expect(page.getByText("Belum ada pelanggan yang cocok.")).toBeVisible();
 
   await page.goto("/iframe.html?id=domain-customer-basic-profile--theme-comparison&viewMode=story");
   await expect(
@@ -379,12 +370,11 @@ test("validates Customer Basic profile selection and privacy guard", async ({ pa
 
   await page.setViewportSize({ height: 844, width: 390 });
   await page.goto("/iframe.html?id=domain-customer-basic-profile--mobile&viewMode=story");
-  await expect(page.getByRole("region", { name: "Customer Basic" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Hasil pencarian pelanggan" })).toBeVisible();
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
 });
-
 test("validates platform tenant subscription master actions and data guard", async ({ page }) => {
   await page.setViewportSize({ height: 900, width: 1440 });
   await page.goto(

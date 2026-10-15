@@ -1468,5 +1468,33 @@
     "paidAll": "Semua pesanan sudah dibayar. Terima kasih!",
     "payMethod": "Dibayar lewat",
     "payTitle": "Bayar dari meja"
+  },
+  "customers": {
+    "add": "Tambah dan tautkan",
+    "addNew": "Pelanggan baru",
+    "cancel": "Batal",
+    "customer": "Pelanggan",
+    "history": "Riwayat",
+    "hideHistory": "Tutup riwayat",
+    "historyEmpty": "Belum ada kunjungan.",
+    "historyRegion": "Riwayat kunjungan {name}",
+    "link": "Tautkan pelanggan",
+    "linked": "Pesanan ditautkan ke {name}.",
+    "name": "Nama",
+    "nameOrPhoneRequired": "Isi nama atau nomor telepon.",
+    "note": "Catatan",
+    "optional": "opsional",
+    "phone": "Telepon",
+    "phoneEnding": "•••• {digits}",
+    "phoneInvalid": "Nomor telepon 6–15 angka.",
+    "results": "Hasil pencarian pelanggan",
+    "search": "Cari nama atau nomor telepon",
+    "searchEmpty": "Belum ada pelanggan yang cocok.",
+    "select": "Pilih",
+    "selected": "Terpilih",
+    "unnamed": "Tanpa nama",
+    "unpaid": "Belum dibayar",
+    "visitLine": "Pesanan {order} · {date}",
+    "visits": "{count, plural, other {# kunjungan}}"
   }
 }

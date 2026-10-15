@@ -1,5 +1,12 @@
 import {
   API_HEADERS,
+  createCustomerSchema,
+  customerDetailSchema,
+  customerListSchema,
+  customerSchema,
+  linkCustomerOrderSchema,
+  orderCustomerSchema,
+  type CreateCustomer,
   guestMenuSchema,
   guestOrderSchema,
   guestVisitSchema,
@@ -893,6 +900,42 @@ export const merchantApi = {
       `/pos/table-sessions/${entityIdParamsSchema.parse({ id: sessionId }).id}/claims/${entityIdParamsSchema.parse({ id: claimId }).id}/reject`,
       paymentClaimSchema,
       { headers: outletHeaders(tenantId, outletId), method: "POST" },
+    ),
+  /** Customers by name, or by phone with four or more digits; the latest ones without a search. */
+  searchCustomers: (tenantId: string, q: string) =>
+    apiRequest(
+      `/customers${q.trim() ? `?q=${encodeURIComponent(q.trim())}` : ""}`,
+      customerListSchema,
+      { headers: tenantHeaders(tenantId) },
+    ),
+  createCustomer: (tenantId: string, input: CreateCustomer) =>
+    jsonMutation(
+      "/customers",
+      "POST",
+      input,
+      createCustomerSchema,
+      customerSchema,
+      tenantHeaders(tenantId),
+    ),
+  customerDetail: (tenantId: string, id: string) =>
+    apiRequest(`/customers/${entityIdParamsSchema.parse({ id }).id}`, customerDetailSchema, {
+      headers: tenantHeaders(tenantId),
+    }),
+  /** The customer an order is linked to, if any. */
+  orderCustomer: (tenantId: string, orderId: string) =>
+    apiRequest(
+      `/customers/orders/${entityIdParamsSchema.parse({ id: orderId }).id}`,
+      orderCustomerSchema,
+      { headers: tenantHeaders(tenantId) },
+    ),
+  linkCustomerOrder: (tenantId: string, outletId: string, customerId: string, orderId: string) =>
+    jsonMutation(
+      `/customers/${entityIdParamsSchema.parse({ id: customerId }).id}/orders`,
+      "POST",
+      { orderId },
+      linkCustomerOrderSchema,
+      customerDetailSchema,
+      outletHeaders(tenantId, outletId),
     ),
   /** Staff came to the table or brought the bill. */
   finishServiceRequest: (tenantId: string, outletId: string, id: string) =>

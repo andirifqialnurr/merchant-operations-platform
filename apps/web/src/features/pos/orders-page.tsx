@@ -14,6 +14,7 @@ import { MoneyDisplay } from "@merchant/ui/money-display";
 import { PageHeader } from "@merchant/ui/page";
 import { Sheet } from "@merchant/ui/sheet";
 
+import { OrderCustomer } from "@/features/customers";
 import { useWorkspace } from "@/features/workspace";
 import { RequestErrorState } from "@/shell/request-error-state";
 import { merchantApi } from "@/lib/api-client";
@@ -212,6 +213,13 @@ function OrderSheet({
             <span className="text-label font-semibold">{t("total")}</span>
             <MoneyDisplay amountMinor={summary.totalMinor} locale={locale} variant="summary" />
           </div>
+
+          <OrderCustomer
+            canLink={summary.status !== "CANCELED"}
+            orderId={orderId}
+            outletId={outletId}
+            tenantId={tenantId}
+          />
 
           {order.cancelReason ? (
             <div className="grid gap-1">
