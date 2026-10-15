@@ -1,5 +1,12 @@
 import {
   API_HEADERS,
+  guestMenuSchema,
+  guestOrderSchema,
+  guestVisitSchema,
+  placeGuestOrderSchema,
+  publicQrResolutionSchema,
+  publicQrTokenParamsSchema,
+  type PlaceGuestOrder,
   apiErrorSchema,
   authLoginRequestSchema,
   authLogoutResponseSchema,
@@ -1060,6 +1067,31 @@ export const merchantApi = {
       payOrderSchema,
       checkoutSchema,
       { ...outletHeaders(tenantId, outletId), [API_HEADERS.idempotencyKey]: idempotencyKey },
+    ),
+};
+
+/** The token as part of an address, checked for shape first. */
+function guestPath(token: string, rest = "") {
+  return `/public/table-qr/${encodeURIComponent(publicQrTokenParamsSchema.parse({ token }).token)}${rest}`;
+}
+
+/**
+ * What a guest who scanned a table's QR may ask for. No session and no
+ * workspace headers: the token in the address is the only key.
+ */
+export const guestApi = {
+  resolve: (token: string) => apiRequest(guestPath(token), publicQrResolutionSchema),
+  menu: (token: string) => apiRequest(guestPath(token, "/menu"), guestMenuSchema),
+  visit: (token: string) => apiRequest(guestPath(token, "/visit"), guestVisitSchema),
+  /** The same key for the same cart, so a repeated tap places one order. */
+  placeOrder: (token: string, input: PlaceGuestOrder, idempotencyKey: string) =>
+    jsonMutation(
+      guestPath(token, "/orders"),
+      "POST",
+      input,
+      placeGuestOrderSchema,
+      guestOrderSchema,
+      { [API_HEADERS.idempotencyKey]: idempotencyKey },
     ),
 };
 

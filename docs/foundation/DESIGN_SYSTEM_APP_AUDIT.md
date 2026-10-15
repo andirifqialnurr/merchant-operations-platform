@@ -69,9 +69,9 @@ Komponen berikut sudah pernah tercatat tersedia/siap secara design/component ban
 | POS       | `PosCatalog`, `PosCart`, `PosShift`, `Receipt`                                                                            | S/M/L + hold/resume + module/limit states                                          |
 | KDS       | `KdsTicket` + timer/SLA/reconnect/history                                                                                 | Standalone intake + 1/2–3/multi-column behavior                                    |
 | Inventory | `InventoryItemUnit`, `InventoryStock`, `InventoryOperations`, `InventoryOrderFlow`, `RecipeBom`                           | Standalone + correction/limit states                                               |
-| Floor/QR  | `FloorSelector`, `TableTile`, `TableLayoutCanvas`, `TableLayoutTools`, `TableLayoutTray`, `TableQr`, `CustomerQrContext`  | AreaSelector, 3 shapes, chairs, session/move, live view/list fallback, tier gating |
+| Floor/QR  | `FloorSelector`, `TableTile`, `TableLayoutCanvas`, `TableLayoutTools`, `TableLayoutTray`, `TableQr`                       | AreaSelector, 3 shapes, chairs, session/move, live view/list fallback, tier gating |
 | Finance   | `FinanceMetric`, `FinanceBasicSummary`, `FinanceProfitEstimate`, `FinanceReconciliationSummary`, `FinanceValidatedReport` | Finance-only, tier states, S/M/L, estimate labeling                                |
-| Customer  | `CustomerBasicProfile`, `CustomerOrderSurface`, `CustomerQrContext`                                                       | safe public DTO + mobile flow + waiter/bill actions                                |
+| Customer  | `CustomerBasicProfile`, `StickyCartBar`, `OrderProgress`                                                                  | safe public DTO + mobile flow + waiter/bill actions                                |
 | Platform  | `PlatformTenantSubscriptionMaster`, `PlatformEntitlementMatrix`, `PlatformSupportAudit`                                   | workspace terminology + package version/installation/binding/usage state           |
 | HC        | Belum tercatat pada audit lama                                                                                            | Component bank baru wajib dibuat untuk Employee/Schedule/Attendance/Leave          |
 

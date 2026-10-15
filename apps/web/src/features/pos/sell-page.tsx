@@ -16,6 +16,7 @@ import { Button } from "@merchant/ui/button";
 import { Panel } from "@merchant/ui/data-display";
 import { EmptyState, ErrorState, Skeleton } from "@merchant/ui/feedback";
 import { ModuleAccessState } from "@merchant/ui/module-access-state";
+import { StickyCartBar } from "@merchant/ui/customer-order";
 import { CategoryRail, ProductTile } from "@merchant/ui/pos-catalog";
 import { Sheet } from "@merchant/ui/sheet";
 
@@ -26,7 +27,7 @@ import { useErrorMessage, useFormat } from "@/lib/i18n";
 import { useToast } from "@/providers/toast-provider";
 
 import { useCurrentShift, useHeldCarts, useMenu, useOutletCharges } from "./api";
-import { payable } from "./charges";
+import { payable } from "@/lib/charges";
 import {
   addLine,
   removeLine,
@@ -35,7 +36,7 @@ import {
   toOrderItems,
   viewCart,
   type CartLine,
-} from "./cart";
+} from "@/lib/menu-cart";
 import { CartPanel } from "./cart-panel";
 import { HeldCartsSheet, HoldCartSheet } from "./held-carts";
 import { PaidView } from "./paid-view";
@@ -270,11 +271,12 @@ function SellScreen({
 
       {/* Small screens: products stay in view; the cart opens from a summary bar. */}
       {view.itemCount > 0 ? (
-        <div className="fixed inset-x-0 bottom-0 z-10 border-t border-line-default bg-surface p-3 lg:hidden">
-          <Button fullWidth onClick={() => setCartOpen(true)} size="lg">
-            {t("cartSummary", { count: view.itemCount })} · {money(payableMinor.toString())}
-          </Button>
-        </div>
+        <StickyCartBar
+          className="lg:hidden"
+          countLabel={t("cartSummary", { count: view.itemCount })}
+          onOpen={() => setCartOpen(true)}
+          totalLabel={money(payableMinor.toString())}
+        />
       ) : null}
       <Sheet
         closeLabel={t("closeSheet")}

@@ -19,7 +19,7 @@ import { useErrorMessage, useFormat } from "@/lib/i18n";
 import { useToast } from "@/providers/toast-provider";
 
 import { chargesKeys, menuKeys, orderKeys, shiftKeys, useOutletCharges } from "./api";
-import { payable, ratePercent } from "./charges";
+import { payable, ratePercent } from "@/lib/charges";
 
 type Method = "CASH" | "EDC" | "MERCHANT_QRIS" | "TRANSFER";
 

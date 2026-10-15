@@ -11,7 +11,7 @@ import { QuantityStepper } from "@merchant/ui/selection-control";
 
 import { useFormat } from "@/lib/i18n";
 
-import { MAX_LINE_QUANTITY, MAX_NOTE_LENGTH, type CartLineView } from "./cart";
+import { MAX_LINE_QUANTITY, MAX_NOTE_LENGTH, type CartLineView } from "@/lib/menu-cart";
 
 /**
  * The cart: what was chosen, how many, and the total. The total appears here
@@ -29,7 +29,8 @@ export function CartPanel({
   totalNote,
 }: Readonly<{
   lines: readonly CartLineView[];
-  onHold: () => void;
+  /** Omitted where a cart cannot be put aside, e.g. for a guest ordering from a table. */
+  onHold?: (() => void) | undefined;
   onNoteChange: (key: string, note: string) => void;
   /** Omitted when the cashier may not take payments. */
   onPay?: (() => void) | undefined;
@@ -130,9 +131,11 @@ export function CartPanel({
           <p className="m-0 text-caption text-foreground-secondary">{totalNote}</p>
         ) : null}
         <div className="flex gap-2">
-          <Button onClick={onHold} size="lg" variant="secondary">
-            {t("hold")}
-          </Button>
+          {onHold ? (
+            <Button onClick={onHold} size="lg" variant="secondary">
+              {t("hold")}
+            </Button>
+          ) : null}
           {send ? (
             <div className="min-w-0 flex-1">
               <Button

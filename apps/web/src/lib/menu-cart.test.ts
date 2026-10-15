@@ -14,7 +14,7 @@ import {
   unitPrice,
   viewCart,
   type CartLine,
-} from "./cart";
+} from "./menu-cart";
 
 const latte: SellableMenuProduct = {
   categoryId: "c1",

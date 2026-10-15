@@ -8,7 +8,7 @@ import { Button } from "@merchant/ui/button";
 import { ErrorState, Skeleton } from "@merchant/ui/feedback";
 import { Receipt, type ReceiptPaper, type ReceiptRow } from "@merchant/ui/receipt";
 
-import { ratePercent } from "./charges";
+import { ratePercent } from "@/lib/charges";
 import { SegmentedControl } from "@merchant/ui/selection-control";
 import { Sheet } from "@merchant/ui/sheet";
 

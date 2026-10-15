@@ -1,5 +1,11 @@
 import type { CreateOrderItem, SellableMenuProduct } from "@merchant/contracts";
 
+/** What a cart needs to know of a menu item; the cashier's and the guest's menus both have it. */
+export type MenuItem = Pick<
+  SellableMenuProduct,
+  "id" | "modifierGroups" | "name" | "priceMinor" | "variants"
+>;
+
 /**
  * The cashier's cart before it becomes an order. A line only records what was
  * chosen; names and prices are looked up in the menu for display, and the
@@ -35,7 +41,7 @@ export function lineKey(line: CartLine) {
   ].join("|");
 }
 
-export function unitPrice(product: SellableMenuProduct, line: CartLine) {
+export function unitPrice(product: MenuItem, line: CartLine) {
   const chosen = new Set(line.modifierOptionIds);
   const variant = product.variants.find((item) => item.id === line.variantId);
   let price = BigInt(product.priceMinor) + BigInt(variant?.priceDeltaMinor ?? "0");
@@ -48,7 +54,7 @@ export function unitPrice(product: SellableMenuProduct, line: CartLine) {
 }
 
 /** True when the line satisfies the product's variant and modifier rules. */
-export function isLineComplete(product: SellableMenuProduct, line: CartLine) {
+export function isLineComplete(product: MenuItem, line: CartLine) {
   if (product.variants.length > 0 && !product.variants.some((item) => item.id === line.variantId)) {
     return false;
   }
@@ -115,7 +121,7 @@ export function removeLine(cart: readonly CartLine[], key: string) {
  * Resolves the cart against the current menu. Lines whose product is no longer
  * on the menu are left out, so the cart never shows something unsellable.
  */
-export function viewCart(cart: readonly CartLine[], products: readonly SellableMenuProduct[]) {
+export function viewCart(cart: readonly CartLine[], products: readonly MenuItem[]) {
   const menu = new Map(products.map((product) => [product.id, product]));
   const lines: CartLineView[] = [];
   let totalMinor = 0n;

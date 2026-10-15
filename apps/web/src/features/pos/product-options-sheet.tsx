@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 
-import type { SellableMenuModifierGroup, SellableMenuProduct } from "@merchant/contracts";
+import type { SellableMenuModifierGroup } from "@merchant/contracts";
 import { Button } from "@merchant/ui/button";
 import { Checkbox, QuantityStepper, Radio } from "@merchant/ui/selection-control";
 import { FormField, Input } from "@merchant/ui/input";
@@ -13,11 +13,12 @@ import { useFormat } from "@/lib/i18n";
 
 import {
   isLineComplete,
+  type MenuItem,
   MAX_LINE_QUANTITY,
   MAX_NOTE_LENGTH,
   unitPrice,
   type CartLine,
-} from "./cart";
+} from "@/lib/menu-cart";
 
 /** Stretches the option label so its surcharge sits at the end of the row. */
 const OPTION_ROW = "flex w-full [&>span:last-child]:flex-1";
@@ -48,7 +49,7 @@ export function ProductOptionsSheet({
 }: Readonly<{
   onAdd: (line: CartLine) => void;
   onClose: () => void;
-  product: SellableMenuProduct;
+  product: MenuItem;
 }>) {
   const t = useTranslations("pos");
   const { money } = useFormat();
