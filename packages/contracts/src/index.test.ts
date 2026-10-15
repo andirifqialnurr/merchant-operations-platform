@@ -5,6 +5,7 @@ import * as z from "zod";
 import {
   createManualKitchenTicketSchema,
   kdsOpenApiSchemas,
+  kitchenQueueChangedSchema,
   kitchenTicketSchema,
   posOpenApiSchemas,
   API_HEADERS,
@@ -1029,6 +1030,19 @@ test("a kitchen ticket response refuses a field the kitchen must not see", () =>
     }).success,
     false,
   );
+});
+
+test("a kitchen realtime message names the outlet and carries nothing else", () => {
+  const outletId = "019f738d-e61f-7d46-92de-17b35f974101";
+  assert.equal(kitchenQueueChangedSchema.safeParse({ outletId }).success, true);
+  for (const extra of [
+    { totalMinor: "50000" },
+    { paymentStatus: "PAID" },
+    { customerPhone: "081234567890" },
+    { tickets: [] },
+  ]) {
+    assert.equal(kitchenQueueChangedSchema.safeParse({ outletId, ...extra }).success, false);
+  }
 });
 
 test("a manual kitchen ticket takes a label and free items, nothing else", () => {
