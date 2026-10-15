@@ -489,7 +489,12 @@
     "TABLE_VISIT_NOT_OPEN": "Pesan dulu, atau hubungi staf kami langsung.",
     "SERVICE_REQUEST_NOT_FOUND": "Permintaan ini sudah ditangani.",
     "PAYMENT_CLAIM_CHANGED": "Klaim bayar ini sudah diputuskan atau totalnya berubah. Tampilan diperbarui.",
-    "SELF_ORDER_PAYMENT_UNAVAILABLE": "Silakan bayar di kasir."
+    "SELF_ORDER_PAYMENT_UNAVAILABLE": "Silakan bayar di kasir.",
+    "CUSTOMER_CONTACT_HIDDEN": "Hanya peran yang boleh melihat nomor telepon yang dapat mengubahnya.",
+    "CUSTOMER_IDENTITY_REQUIRED": "Pelanggan perlu nama atau nomor telepon.",
+    "CUSTOMER_NOT_FOUND": "Pelanggan tidak ditemukan.",
+    "CUSTOMER_ORDER_LINKED": "Pesanan ini sudah ditautkan ke pelanggan lain.",
+    "CUSTOMER_PHONE_TAKEN": "Nomor telepon ini sudah dipakai pelanggan lain."
   },
   "subscription": {
     "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat langganan.",
@@ -853,7 +858,8 @@
       "kitchen": "Dapur",
       "people": "Pengguna dan peran",
       "selling": "Penjualan dan kasir",
-      "tables": "Meja"
+      "tables": "Meja",
+      "customers": "Pelanggan"
     },
     "kind": "Jenis",
     "kindCustom": "Buatan sendiri",
@@ -936,6 +942,13 @@
           "manage": "Membuat dan mengganti QR meja"
         },
         "view": "Melihat meja"
+      },
+      "customer": {
+        "view": "Mencari pelanggan dan menautkannya ke pesanan",
+        "manage": "Menambah dan mengubah pelanggan",
+        "contact": {
+          "view": "Melihat nomor telepon pelanggan"
+        }
       }
     },
     "permissionCount": "{count} izin",

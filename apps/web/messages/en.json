@@ -489,7 +489,12 @@
     "TABLE_VISIT_NOT_OPEN": "Order first, or speak to our staff directly.",
     "SERVICE_REQUEST_NOT_FOUND": "This request was already handled.",
     "PAYMENT_CLAIM_CHANGED": "This payment claim was decided already or its total changed. The view is refreshed.",
-    "SELF_ORDER_PAYMENT_UNAVAILABLE": "Please pay at the cashier."
+    "SELF_ORDER_PAYMENT_UNAVAILABLE": "Please pay at the cashier.",
+    "CUSTOMER_CONTACT_HIDDEN": "Only roles that see phone numbers can change them.",
+    "CUSTOMER_IDENTITY_REQUIRED": "A customer needs a name or a phone number.",
+    "CUSTOMER_NOT_FOUND": "This customer was not found.",
+    "CUSTOMER_ORDER_LINKED": "This order is already linked to another customer.",
+    "CUSTOMER_PHONE_TAKEN": "Another customer already has this phone number."
   },
   "subscription": {
     "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",
@@ -853,7 +858,8 @@
       "kitchen": "Kitchen",
       "people": "Users and roles",
       "selling": "Selling and the cashier",
-      "tables": "Tables"
+      "tables": "Tables",
+      "customers": "Customers"
     },
     "kind": "Type",
     "kindCustom": "Custom",
@@ -936,6 +942,13 @@
           "manage": "Create and replace table QR codes"
         },
         "view": "See tables"
+      },
+      "customer": {
+        "view": "Find customers and link them to orders",
+        "manage": "Add and edit customers",
+        "contact": {
+          "view": "See customers’ phone numbers"
+        }
       }
     },
     "permissionCount": "{count} permissions",

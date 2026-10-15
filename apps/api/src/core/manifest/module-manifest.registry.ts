@@ -18,7 +18,6 @@ const KNOWN_PERMISSIONS = new Set<string>(Object.values(PERMISSIONS));
  */
 const PLANNED_MODULE_NAMESPACES: Partial<Record<ModuleKey, readonly string[]>> = {
   CAFE_PROFILE: ["profile"],
-  CUSTOMER_BASIC: ["customer"],
   FINANCE_BASIC: ["finance"],
   INVENTORY_BASIC: ["inventory"],
 };

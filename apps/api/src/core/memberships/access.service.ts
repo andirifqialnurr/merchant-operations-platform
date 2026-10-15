@@ -55,6 +55,9 @@ export const DEFAULT_ROLE_DEFINITIONS: SystemRoleDefinition[] = [
       PERMISSIONS.paymentConfirm,
       PERMISSIONS.shiftOpen,
       PERMISSIONS.shiftClose,
+      // Cashiers find and add customers; only the last digits of a phone show (M4-SC-03).
+      PERMISSIONS.customerView,
+      PERMISSIONS.customerManage,
     ],
   },
   {

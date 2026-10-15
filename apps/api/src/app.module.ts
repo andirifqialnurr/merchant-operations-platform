@@ -13,6 +13,7 @@ import { MeteringModule } from "./core/metering/public.js";
 import { KernelWiringModule } from "./kernel-wiring.module.js";
 import { HealthController } from "./health.controller.js";
 import { MODULE_MANIFESTS } from "./module-manifests.js";
+import { CustomerModule } from "./modules/customer/public.js";
 import { FloorModule } from "./modules/floor/public.js";
 import { KdsModule } from "./modules/kds/public.js";
 import { PosSalesModule } from "./modules/pos-sales/public.js";
@@ -33,6 +34,7 @@ import { PlatformModule } from "./core/platform/public.js";
     InstallationModule,
     KdsModule,
     FloorModule,
+    CustomerModule,
     KernelWiringModule,
     MeteringModule,
     OrganizationModule,

@@ -2,6 +2,7 @@ import {
   API_HEADERS,
   commonOpenApiSchemas,
   floorOpenApiSchemas,
+  customerOpenApiSchemas,
   selfOrderOpenApiSchemas,
   kdsOpenApiSchemas,
   posOpenApiSchemas,
@@ -121,6 +122,7 @@ export function createOpenApiDocument(app: INestApplication) {
       ...(kdsOpenApiSchemas as OpenApiSchemas),
       ...(floorOpenApiSchemas as OpenApiSchemas),
       ...(selfOrderOpenApiSchemas as OpenApiSchemas),
+      ...(customerOpenApiSchemas as OpenApiSchemas),
     },
   };
 

@@ -298,6 +298,11 @@ Yang berjalan sejak 4 Oktober 2026 (`core/devices`):
 - Panggil pelayan/minta bill (`POST .../requests`, M4-BE-06): hanya untuk kunjungan terbuka di meja QR itu, 10 per QR per 10 menit; meminta lagi saat masih menunggu tidak membuat permintaan baru.
 - Klaim sudah bayar (`POST .../payment-claims`, M4-BE-07): hanya bila outlet menulis cara bayar dan ada kunjungan terbuka; jumlah dihitung server dari pesanan yang belum dibayar, tamu hanya memilih metode. Klaim tidak pernah menandai lunas: hanya kasir dengan `payment.confirm` dan shift terbuka yang mengubahnya menjadi pembayaran.
 
+**Privasi pelanggan (sejak 16 Oktober 2026, M4-SC-03)**
+
+- Nomor telepon pelanggan hanya dikirim API ke peran dengan `customer.contact.view` (bawaan Owner dan Manager). Peran lain mendapat 4 digit terakhir untuk membedakan pelanggan, boleh mencari dengan digit, tetapi tidak dapat mengubah nomor.
+- Audit pelanggan tidak menyimpan nomor telepon. Tiket dan layar KDS tidak pernah menerima data pelanggan.
+
 **Integrasi eksternal (nanti)**
 
 - Kredensial dibatasi per workspace dan capability.

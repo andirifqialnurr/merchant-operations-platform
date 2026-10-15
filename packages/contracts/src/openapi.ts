@@ -1,6 +1,15 @@
 import * as z from "zod";
 
 import {
+  createCustomerSchema,
+  customerDetailSchema,
+  customerListSchema,
+  customerSchema,
+  linkCustomerOrderSchema,
+  orderCustomerSchema,
+  updateCustomerSchema,
+} from "./customer.ts";
+import {
   apiErrorSchema,
   cursorPageInfoSchema,
   healthResponseSchema,
@@ -409,6 +418,16 @@ export const floorOpenApiSchemas = {
   SaveFloorLayout: toOpenApiSchema(saveFloorLayoutSchema),
   UpdateFloor: toOpenApiSchema(updateFloorSchema),
   UpdateFloorArea: toOpenApiSchema(updateFloorAreaSchema),
+} as const;
+
+export const customerOpenApiSchemas = {
+  CreateCustomer: toOpenApiSchema(createCustomerSchema),
+  Customer: toOpenApiSchema(customerSchema),
+  CustomerDetail: toOpenApiSchema(customerDetailSchema),
+  CustomerList: toOpenApiSchema(customerListSchema),
+  LinkCustomerOrder: toOpenApiSchema(linkCustomerOrderSchema),
+  OrderCustomer: toOpenApiSchema(orderCustomerSchema),
+  UpdateCustomer: toOpenApiSchema(updateCustomerSchema),
 } as const;
 
 export const selfOrderOpenApiSchemas = {

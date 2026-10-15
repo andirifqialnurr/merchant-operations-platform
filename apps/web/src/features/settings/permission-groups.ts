@@ -29,6 +29,14 @@ export const PERMISSION_GROUPS = [
   },
   { key: "catalog", permissions: [PERMISSIONS.catalogRead, PERMISSIONS.catalogManage] },
   {
+    key: "customers",
+    permissions: [
+      PERMISSIONS.customerView,
+      PERMISSIONS.customerManage,
+      PERMISSIONS.customerContactView,
+    ],
+  },
+  {
     key: "tables",
     permissions: [
       PERMISSIONS.tableView,
