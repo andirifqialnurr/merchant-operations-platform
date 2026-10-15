@@ -288,6 +288,8 @@ erDiagram
 
 Status meja (`AVAILABLE`, `OCCUPIED`, `CLOSING`, `CLEANING`, `INACTIVE`) adalah **projection** dari sesi aktif dan konfigurasi, bukan kolom yang dapat diisi bebas.
 
+**Berjalan sejak 16 Oktober 2026** (migrasi `20261017010000_floor_layout`): `floor_floors`, `floor_areas`, `floor_service_tables`. Status ketiganya `ACTIVE`/`INACTIVE` (enum `FloorRecordStatus`). Grid lantai bawaan 24×16 (CHECK 8–60). FK komposit menjaga area berada di lantai outlet yang sama dan meja di area outlet yang sama. Unik: nama lantai per outlet, nama area per lantai, label meja per outlet. CHECK meja: `grid_x`/`grid_y` keduanya kosong (baki) atau keduanya terisi dan ≥0; `grid_w`/`grid_h` 1–12; `rotation` 0 atau 90; kapasitas 1–50. Trigger `outlets_add_default_floor` membuat `Main Floor` + `Main Area` untuk setiap outlet baru; migrasi yang sama mengisi outlet yang sudah ada. Tumpang tindih antarmeja diperiksa di aplikasi, bukan di database.
+
 ## B.5 KDS
 
 | Tabel                       | Kolom                                                                                                                                                                                                                                                                                    | Aturan                                                                                                                                                                                             |

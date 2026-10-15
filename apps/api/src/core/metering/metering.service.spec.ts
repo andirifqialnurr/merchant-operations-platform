@@ -418,3 +418,18 @@ test("a throttled dimension counts while there is room and refuses safely after"
   assert.equal(repository.events.length, 2);
   await assert.rejects(service.consumeThrottled(TENANT, sale(1)), /not throttled/);
 });
+
+test("a limit counted per place is checked against the place being added to", async () => {
+  const FLOORS = "floor.floors.active_per_location";
+  const perOutlet: Record<string, bigint> = { busy: 3n, quiet: 1n };
+  const { gauges, service } = setup([{ dimensionKey: FLOORS, unlimited: false, value: 3n }]);
+  gauges.register(FLOORS, async (_tenantId, scopeId) =>
+    scopeId ? (perOutlet[scopeId] ?? 0n) : 3n,
+  );
+
+  assert.equal(await codeOf(() => service.assertCanAdd(TENANT, FLOORS, 1n, "quiet")), "OK");
+  assert.equal(
+    await codeOf(() => service.assertCanAdd(TENANT, FLOORS, 1n, "busy")),
+    "409 LIMIT_REACHED 3/3",
+  );
+});

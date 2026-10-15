@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   IconCashRegister,
   IconChefHat,
+  IconArmchair,
   IconBuildingStore,
   IconDeviceTablet,
   IconPlugConnected,
@@ -50,6 +51,7 @@ export const MODULE_NAVIGATION = {
   CORE_TENANCY: { icon: IconSettings, labelKey: "moduleNav.CORE_TENANCY", wholeBusiness: true },
   KDS: { icon: IconChefHat, labelKey: "moduleNav.KDS" },
   POS: { icon: IconCashRegister, labelKey: "moduleNav.POS" },
+  TABLE_SELF_ORDER: { icon: IconArmchair, labelKey: "moduleNav.TABLE_SELF_ORDER" },
 } as const satisfies Partial<
   Record<ModuleKey, { icon: AppIconComponent; labelKey: string; wholeBusiness?: boolean }>
 >;

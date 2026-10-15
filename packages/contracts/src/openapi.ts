@@ -155,6 +155,16 @@ import {
   kitchenTicketSchema,
 } from "./kds.ts";
 import {
+  createFloorAreaSchema,
+  createFloorSchema,
+  floorAreaSchema,
+  floorListSchema,
+  floorSchema,
+  reorderFloorItemsSchema,
+  updateFloorAreaSchema,
+  updateFloorSchema,
+} from "./floor.ts";
+import {
   heldCartListSchema,
   heldCartSchema,
   holdCartSchema,
@@ -348,4 +358,15 @@ export const kdsOpenApiSchemas = {
   KdsIntakeSource: toOpenApiSchema(kdsIntakeSourceSchema),
   KdsIntakeSourceCreated: toOpenApiSchema(kdsIntakeSourceCreatedSchema),
   KdsIntakeSourceList: toOpenApiSchema(kdsIntakeSourceListSchema),
+} as const;
+
+export const floorOpenApiSchemas = {
+  CreateFloor: toOpenApiSchema(createFloorSchema),
+  CreateFloorArea: toOpenApiSchema(createFloorAreaSchema),
+  Floor: toOpenApiSchema(floorSchema),
+  FloorArea: toOpenApiSchema(floorAreaSchema),
+  FloorList: toOpenApiSchema(floorListSchema),
+  ReorderFloorItems: toOpenApiSchema(reorderFloorItemsSchema),
+  UpdateFloor: toOpenApiSchema(updateFloorSchema),
+  UpdateFloorArea: toOpenApiSchema(updateFloorAreaSchema),
 } as const;

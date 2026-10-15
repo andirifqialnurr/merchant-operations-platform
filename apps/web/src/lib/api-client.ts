@@ -96,6 +96,18 @@ import {
   type UpdateMembership,
   activateDeviceSchema,
   createKdsIntakeSourceSchema,
+  createFloorAreaSchema,
+  createFloorSchema,
+  floorAreaSchema,
+  floorListSchema,
+  floorSchema,
+  reorderFloorItemsSchema,
+  updateFloorAreaSchema,
+  updateFloorSchema,
+  type CreateFloor,
+  type CreateFloorArea,
+  type UpdateFloor,
+  type UpdateFloorArea,
   kdsIntakeSourceCreatedSchema,
   kdsIntakeSourceListSchema,
   kdsIntakeSourceSchema,
@@ -755,6 +767,63 @@ export const merchantApi = {
       `/kds/intake-sources/${entityIdParamsSchema.parse({ id }).id}/revoke`,
       kdsIntakeSourceSchema,
       { headers: tenantHeaders(tenantId), method: "POST" },
+    ),
+  /** The outlet's floors with their areas, active or not, in display order. */
+  floors: (tenantId: string, outletId: string) =>
+    apiRequest("/floor/floors", floorListSchema, { headers: outletHeaders(tenantId, outletId) }),
+  createFloor: (tenantId: string, outletId: string, input: CreateFloor) =>
+    jsonMutation(
+      "/floor/floors",
+      "POST",
+      input,
+      createFloorSchema,
+      floorSchema,
+      outletHeaders(tenantId, outletId),
+    ),
+  updateFloor: (tenantId: string, outletId: string, id: string, input: UpdateFloor) =>
+    jsonMutation(
+      `/floor/floors/${entityIdParamsSchema.parse({ id }).id}`,
+      "PATCH",
+      input,
+      updateFloorSchema,
+      floorSchema,
+      outletHeaders(tenantId, outletId),
+    ),
+  reorderFloors: (tenantId: string, outletId: string, ids: string[]) =>
+    jsonMutation(
+      "/floor/floors/order",
+      "POST",
+      { ids },
+      reorderFloorItemsSchema,
+      floorListSchema,
+      outletHeaders(tenantId, outletId),
+    ),
+  createFloorArea: (tenantId: string, outletId: string, floorId: string, input: CreateFloorArea) =>
+    jsonMutation(
+      `/floor/floors/${entityIdParamsSchema.parse({ id: floorId }).id}/areas`,
+      "POST",
+      input,
+      createFloorAreaSchema,
+      floorAreaSchema,
+      outletHeaders(tenantId, outletId),
+    ),
+  updateFloorArea: (tenantId: string, outletId: string, id: string, input: UpdateFloorArea) =>
+    jsonMutation(
+      `/floor/areas/${entityIdParamsSchema.parse({ id }).id}`,
+      "PATCH",
+      input,
+      updateFloorAreaSchema,
+      floorAreaSchema,
+      outletHeaders(tenantId, outletId),
+    ),
+  reorderFloorAreas: (tenantId: string, outletId: string, floorId: string, ids: string[]) =>
+    jsonMutation(
+      `/floor/floors/${entityIdParamsSchema.parse({ id: floorId }).id}/areas/order`,
+      "POST",
+      { ids },
+      reorderFloorItemsSchema,
+      floorListSchema,
+      outletHeaders(tenantId, outletId),
     ),
   /** The outlet's kitchen tickets still being worked on, oldest first. */
   kitchenTickets: (tenantId: string, outletId: string) =>

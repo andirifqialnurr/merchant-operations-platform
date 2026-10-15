@@ -1,6 +1,6 @@
 # M3 — Kitchen Display System
 
-**Status:** Berjalan — semua 29 task selesai 16 Oktober 2026; menunggu review pengguna
+**Status:** Menunggu review — semua 29 task selesai 16 Oktober 2026. Pengguna meminta lanjut ke M4 pada 16 Oktober 2026 sebelum review; keterbacaan dari jarak 1–2 meter masih perlu dicek di monitor dapur sungguhan
 **Tahap PRD:** D (KDS)
 **Bergantung pada:** M2 (event, inbox, binding, perangkat)
 

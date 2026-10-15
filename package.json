@@ -16,6 +16,7 @@
     "db:migrate": "pnpm --filter @merchant/database db:migrate",
     "db:push": "pnpm --filter @merchant/database db:push",
     "db:seed:menu": "pnpm --filter @merchant/database db:seed:menu",
+    "db:seed:floor": "pnpm --filter @merchant/database db:seed:floor",
     "db:setup": "pnpm run db:generate && pnpm run db:deploy",
     "db:status": "pnpm --filter @merchant/database db:status",
     "db:studio": "pnpm --filter @merchant/database db:studio",

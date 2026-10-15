@@ -1,6 +1,6 @@
 # M4 — Meja, Self-Order, dan Customer
 
-**Status:** Belum mulai
+**Status:** Berjalan (dimulai 16 Oktober 2026 atas permintaan pengguna, sementara M3 menunggu review)
 **Tahap PRD:** E (Floor + Self-Order + Customer)
 **Bergantung pada:** M3
 
@@ -16,7 +16,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 
 ## 3. Kriteria selesai
 
-- [ ] Lokasi baru langsung memiliki `Main Floor` dan `Main Area`.
+- [x] Lokasi baru langsung memiliki `Main Floor` dan `Main Area`. _Trigger database pada `outlets`; integration `floor-layout` (TODO 13.10)._
 - [ ] Editor menempatkan meja tiga bentuk; tumpang tindih dan keluar batas ditolak; tersedia alternatif form untuk layar kecil dan keyboard.
 - [ ] Sesi meja dibuka, ditambah pesanan, dipindah meja dengan pesanan dan tagihan tetap, dibayar, lalu ditutup.
 - [ ] Status meja adalah projection dari sesi, tidak bisa diisi bebas.
@@ -30,7 +30,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 
 ### FT — Fitur produk
 
-- [ ] **M4-FT-01 Lantai dan area** — tambah, ubah nama, urutkan, nonaktifkan.
+- [x] **M4-FT-01 Lantai dan area** — tambah, ubah nama, urutkan, nonaktifkan. Selesai 16 Oktober 2026 (TODO 13.10). Halaman **Meja** (`/floor`, izin `table.layout.manage`): tab lantai aktif dan daftar area lantai terpilih; panel **Lantai dan area** untuk tambah, ubah nama, naik/turun, nonaktifkan/aktifkan lagi. Lantai/area terakhir yang aktif atau yang masih berisi meja aktif tidak bisa dinonaktifkan. Tidak ada hapus.
 - [ ] **M4-FT-02 Editor meja** — label, kapasitas, bentuk, ukuran, rotasi, aktif, pesan lewat QR; baki "belum ditempatkan"; simpan tata letak.
 - [ ] **M4-FT-03 Tampilan meja di POS** — filter lantai, area, status; buka meja dengan jumlah tamu.
 - [ ] **M4-FT-04 Panel sesi** — tamu, durasi, pesanan, tagihan; tambah pesanan; bayar; tutup sesi; kebijakan bersih-bersih.
@@ -44,7 +44,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 
 ### BE — Backend dan data
 
-- [ ] **M4-BE-01 Tabel floor** — `floor_floors`, `floor_areas`, `floor_service_tables` dengan unik label per outlet dan validasi grid.
+- [x] **M4-BE-01 Tabel floor** — `floor_floors`, `floor_areas`, `floor_service_tables` dengan unik label per outlet dan validasi grid. Selesai 16 Oktober 2026 (TODO 13.10). Migrasi `20261017010000_floor_layout`; modul API `modules/floor` (manifest `TABLE_SELF_ORDER` menggantikan namespace rencana). Grid lantai 24×16 sel logis bawaan; ukuran meja diturunkan dari bentuk + ukuran (domain `layout.ts`, tumpang tindih/keluar batas dideteksi). Limit `floor.floors.active_per_location` dan `floor.areas.active_per_floor` diperiksa per outlet/lantai (limit kini bisa punya cakupan).
 - [ ] **M4-BE-02 Sesi meja** — `floor_table_sessions`, `floor_session_tables` (indeks unik parsial satu sesi aktif per meja); event `table_session.opened/moved/closed.v1`.
 - [ ] **M4-BE-03 Projection status meja.**
 - [ ] **M4-BE-04 Token QR** — `floor_qr_tokens` dengan hash, versi, rotasi, cabut; resolusi token → konteks meja tanpa membocorkan ID.
@@ -89,7 +89,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 
 ### OP — Operasional dan dokumentasi
 
-- [ ] **M4-OP-01 Seed denah** — dua lantai, beberapa area, meja tiga bentuk di outlet lokal.
+- [x] **M4-OP-01 Seed denah** — dua lantai, beberapa area, meja tiga bentuk di outlet lokal. Selesai 16 Oktober 2026 (TODO 13.10). `pnpm db:seed:floor [tenant-slug]`: tiap outlet aktif mendapat Main Floor (Main Area, Teras) dan Lantai 2 (Main Area, Ruang Rapat) dengan 14 meja tiga bentuk, satu di baki belum ditempatkan. Aman diulang.
 - [ ] **M4-OP-02 Perbarui dokumen** — `schema.md` B.4 dan B.9, `flowchart.md` 6–7.
 
 ## 5. Urutan checkpoint yang disarankan

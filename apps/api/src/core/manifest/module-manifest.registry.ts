@@ -21,7 +21,6 @@ const PLANNED_MODULE_NAMESPACES: Partial<Record<ModuleKey, readonly string[]>> =
   CUSTOMER_BASIC: ["customer"],
   FINANCE_BASIC: ["finance"],
   INVENTORY_BASIC: ["inventory"],
-  TABLE_SELF_ORDER: ["floor", "self_order"],
 };
 
 export type NavigationEntry = { label: string; moduleKey: ModuleKey; path: string };

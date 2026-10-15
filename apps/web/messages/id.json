@@ -12,7 +12,8 @@
       "CORE_SUBSCRIPTION": "Langganan",
       "CORE_TENANCY": "Pengaturan",
       "CORE_IDENTITY": "Pengguna",
-      "KDS": "Dapur"
+      "KDS": "Dapur",
+      "TABLE_SELF_ORDER": "Meja"
     },
     "navOrders": "Pesanan",
     "navSell": "Jual",
@@ -453,7 +454,16 @@
     "KITCHEN_TICKET_NOT_FOUND": "Ticket tidak ditemukan di outlet ini.",
     "KITCHEN_TICKET_STATUS_CHANGED": "Ticket ini sudah diubah dari layar lain. Antrean dimuat ulang.",
     "KDS_INTAKE_KEY_INVALID": "Kunci intake salah, tidak ada, atau sudah dicabut.",
-    "KDS_INTAKE_SOURCE_NOT_FOUND": "Sumber intake tidak ditemukan atau sudah dicabut."
+    "KDS_INTAKE_SOURCE_NOT_FOUND": "Sumber intake tidak ditemukan atau sudah dicabut.",
+    "FLOOR_NAME_TAKEN": "Nama lantai ini sudah dipakai di outlet ini.",
+    "FLOOR_AREA_NAME_TAKEN": "Nama area ini sudah dipakai di lantai ini.",
+    "FLOOR_NOT_FOUND": "Lantai tidak ditemukan.",
+    "FLOOR_AREA_NOT_FOUND": "Area tidak ditemukan.",
+    "FLOOR_LAST_ACTIVE": "Outlet harus punya minimal satu lantai aktif.",
+    "FLOOR_AREA_LAST_ACTIVE": "Lantai harus punya minimal satu area aktif.",
+    "FLOOR_HAS_TABLES": "Masih ada meja aktif di lantai ini. Nonaktifkan atau pindahkan mejanya dulu.",
+    "FLOOR_AREA_HAS_TABLES": "Masih ada meja aktif di area ini. Nonaktifkan atau pindahkan mejanya dulu.",
+    "FLOOR_ORDER_INCOMPLETE": "Urutan berubah di tempat lain. Muat ulang lalu coba lagi."
   },
   "subscription": {
     "accessDenied": "Hanya pemilik atau pengelola seluruh outlet yang dapat melihat langganan.",
@@ -1161,5 +1171,40 @@
       "REVOKED": "Dicabut"
     },
     "title": "Sistem luar dapur"
+  },
+  "floor": {
+    "title": "Tata letak meja",
+    "structureTitle": "Lantai dan area",
+    "chooseFloor": "Pilih lantai",
+    "noFloor": "Belum ada lantai aktif.",
+    "areas": "Area",
+    "loadFailed": "Lantai tidak bisa dimuat",
+    "accessDeniedTitle": "Anda tidak punya akses ke tata letak meja",
+    "accessDenied": "Minta pemilik atau manajer jika Anda perlu mengatur meja.",
+    "noOutlet": "Pilih outlet dulu untuk mengatur mejanya.",
+    "close": "Tutup",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "add": "Tambah",
+    "saving": "Menyimpan…",
+    "saved": "Tersimpan.",
+    "nameRequired": "Isi nama dulu.",
+    "floorName": "Nama lantai",
+    "areaName": "Nama area",
+    "addFloor": "Tambah lantai",
+    "addArea": "Tambah area",
+    "floorAdded": "Lantai ditambahkan.",
+    "areaAdded": "Area ditambahkan.",
+    "inactive": "Nonaktif",
+    "deactivate": "Nonaktifkan",
+    "activate": "Aktifkan",
+    "floorDeactivated": "Lantai dinonaktifkan.",
+    "floorActivated": "Lantai diaktifkan lagi.",
+    "areaDeactivated": "Area dinonaktifkan.",
+    "areaActivated": "Area diaktifkan lagi.",
+    "moveUp": "Naikkan {name}",
+    "moveDown": "Turunkan {name}",
+    "editFloor": "Ubah lantai {name}",
+    "editArea": "Ubah area {name}"
   }
 }

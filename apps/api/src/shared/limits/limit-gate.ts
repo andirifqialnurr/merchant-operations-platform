@@ -8,9 +8,16 @@
 export interface LimitGate {
   /**
    * Throws `LIMIT_REACHED` when adding would go over the limit of the
-   * workspace's package. What already exists keeps working.
+   * workspace's package. What already exists keeps working. A dimension
+   * counted per place (`..._per_location`, `..._per_floor`) names the
+   * place in `scopeId`.
    */
-  assertCanAdd(tenantId: string, dimensionKey: string, adding?: bigint): Promise<void>;
+  assertCanAdd(
+    tenantId: string,
+    dimensionKey: string,
+    adding?: bigint,
+    scopeId?: string,
+  ): Promise<void>;
 }
 
 export const LIMIT_GATE = Symbol("LIMIT_GATE");
@@ -18,8 +25,12 @@ export const LIMIT_GATE = Symbol("LIMIT_GATE");
 /** For code that runs without the application, such as unit tests of a single service. */
 export const NO_LIMITS: LimitGate = { assertCanAdd: async () => undefined };
 
-/** Counts how many of something a workspace has right now, e.g. active products. */
-export type UsageGauge = (tenantId: string) => Promise<bigint>;
+/**
+ * Counts how many of something a workspace has right now, e.g. active
+ * products. For a dimension counted per place, `scopeId` names the place;
+ * without it the gauge answers for the fullest place.
+ */
+export type UsageGauge = (tenantId: string, scopeId?: string) => Promise<bigint>;
 
 /**
  * Hard-count dimensions are not added up from events: the owner of the data

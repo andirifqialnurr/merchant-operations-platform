@@ -52,17 +52,17 @@ Alur kerja:
 
 ## 3. Daftar milestone
 
-| #   | Milestone                                                           | Tahap PRD | Tujuan                                                                                                           | Bergantung pada          | Status      |
-| --- | ------------------------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------ | ----------- |
-| M1  | [Fondasi UI dan POS inti](./M01-fondasi-ui-dan-pos-inti.md)         | A, C      | Backoffice Catalog dan POS-only menyelesaikan transaksi dari buka shift sampai tutup shift dengan UI baru        | —                        | Selesai     |
-| M2  | [Core modular dan pengaturan](./M02-core-modular-dan-pengaturan.md) | B         | Paket berversi, instalasi modul, entitlement efektif, limit, event antarmodul, perangkat, dan halaman Pengaturan | M1                       | Selesai     |
-| M3  | [Kitchen Display System](./M03-kds.md)                              | D         | KDS-only dan POS + KDS memakai use case yang sama                                                                | M2                       | Berjalan    |
-| M4  | [Meja, Self-Order, dan Customer](./M04-meja-self-order-customer.md) | E         | Tata letak meja, sesi meja, QR, pesan dari meja, makan di tempat di POS, data pelanggan                          | M3                       | Belum mulai |
-| M5  | [Inventory](./M05-inventory.md)                                     | F         | Buku stok, opname, penerimaan, resep, konsumsi otomatis dari penjualan                                           | M2                       | Belum mulai |
-| M6  | [Keuangan bisnis](./M06-keuangan-bisnis.md)                         | G         | Buku kas, pemasukan/pengeluaran, rekonsiliasi, penjualan tercatat otomatis tanpa pendapatan ganda                | M2                       | Belum mulai |
-| M7  | [Human Capital](./M07-human-capital.md)                             | H         | Karyawan, jadwal, absensi web, cuti; HC-only tanpa istilah F&B                                                   | M2                       | Belum mulai |
-| M8  | [Platform Admin dan laporan](./M08-platform-admin-dan-laporan.md)   | I         | Package Builder, kelola langganan dan override, akses support, laporan dasar per modul                           | M2 (laporan butuh M3–M7) | Belum mulai |
-| M9  | [Hardening, deploy, dan pilot](./M09-hardening-deploy-pilot.md)     | J, D-10   | Uji isolasi dan beban, aksesibilitas, backup, VPS Docker + Nginx, pilot 2–3 merchant                             | M1–M8                    | Belum mulai |
+| #   | Milestone                                                           | Tahap PRD | Tujuan                                                                                                           | Bergantung pada          | Status          |
+| --- | ------------------------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------ | --------------- |
+| M1  | [Fondasi UI dan POS inti](./M01-fondasi-ui-dan-pos-inti.md)         | A, C      | Backoffice Catalog dan POS-only menyelesaikan transaksi dari buka shift sampai tutup shift dengan UI baru        | —                        | Selesai         |
+| M2  | [Core modular dan pengaturan](./M02-core-modular-dan-pengaturan.md) | B         | Paket berversi, instalasi modul, entitlement efektif, limit, event antarmodul, perangkat, dan halaman Pengaturan | M1                       | Selesai         |
+| M3  | [Kitchen Display System](./M03-kds.md)                              | D         | KDS-only dan POS + KDS memakai use case yang sama                                                                | M2                       | Menunggu review |
+| M4  | [Meja, Self-Order, dan Customer](./M04-meja-self-order-customer.md) | E         | Tata letak meja, sesi meja, QR, pesan dari meja, makan di tempat di POS, data pelanggan                          | M3                       | Berjalan        |
+| M5  | [Inventory](./M05-inventory.md)                                     | F         | Buku stok, opname, penerimaan, resep, konsumsi otomatis dari penjualan                                           | M2                       | Belum mulai     |
+| M6  | [Keuangan bisnis](./M06-keuangan-bisnis.md)                         | G         | Buku kas, pemasukan/pengeluaran, rekonsiliasi, penjualan tercatat otomatis tanpa pendapatan ganda                | M2                       | Belum mulai     |
+| M7  | [Human Capital](./M07-human-capital.md)                             | H         | Karyawan, jadwal, absensi web, cuti; HC-only tanpa istilah F&B                                                   | M2                       | Belum mulai     |
+| M8  | [Platform Admin dan laporan](./M08-platform-admin-dan-laporan.md)   | I         | Package Builder, kelola langganan dan override, akses support, laporan dasar per modul                           | M2 (laporan butuh M3–M7) | Belum mulai     |
+| M9  | [Hardening, deploy, dan pilot](./M09-hardening-deploy-pilot.md)     | J, D-10   | Uji isolasi dan beban, aksesibilitas, backup, VPS Docker + Nginx, pilot 2–3 merchant                             | M1–M8                    | Belum mulai     |
 
 M5, M6, dan M7 hanya bergantung pada M2, sehingga urutannya boleh ditukar bila prioritas bisnis berubah. Urutan di atas mengikuti `prd.md` bagian 11.2.
 

@@ -69,7 +69,13 @@ export class MeteringService implements LimitGate, OnApplicationBootstrap {
    * full. No limit, an unlimited one, or a count nobody reports yet lets it
    * through; what already exists is never touched.
    */
-  async assertCanAdd(tenantId: string, dimensionKey: string, adding = 1n, now = new Date()) {
+  async assertCanAdd(
+    tenantId: string,
+    dimensionKey: string,
+    adding = 1n,
+    scopeId?: string,
+    now = new Date(),
+  ) {
     const dimension = knownDimension(dimensionKey);
     if (dimension.enforcement !== "HARD_COUNT") {
       throw new Error(`${dimensionKey} is not a hard count.`);
@@ -78,7 +84,7 @@ export class MeteringService implements LimitGate, OnApplicationBootstrap {
     if (!limit || limit.unlimited || limit.value === null) return;
     const gauge = this.gauges.get(dimensionKey);
     if (!gauge) return;
-    const used = await gauge(tenantId);
+    const used = await gauge(tenantId, scopeId);
     if (used + adding > limit.value) {
       throw accessDenied("LIMIT_REACHED", {
         dimensionKey,

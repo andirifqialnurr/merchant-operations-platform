@@ -12,7 +12,8 @@
       "CORE_SUBSCRIPTION": "Subscription",
       "CORE_TENANCY": "Settings",
       "CORE_IDENTITY": "Users",
-      "KDS": "Kitchen"
+      "KDS": "Kitchen",
+      "TABLE_SELF_ORDER": "Tables"
     },
     "navOrders": "Orders",
     "navSell": "Sell",
@@ -453,7 +454,16 @@
     "KITCHEN_TICKET_NOT_FOUND": "This ticket was not found at this outlet.",
     "KITCHEN_TICKET_STATUS_CHANGED": "This ticket was changed on another screen. The queue was reloaded.",
     "KDS_INTAKE_KEY_INVALID": "The intake key is wrong, missing, or revoked.",
-    "KDS_INTAKE_SOURCE_NOT_FOUND": "This intake source was not found or is already revoked."
+    "KDS_INTAKE_SOURCE_NOT_FOUND": "This intake source was not found or is already revoked.",
+    "FLOOR_NAME_TAKEN": "This floor name is already used at this outlet.",
+    "FLOOR_AREA_NAME_TAKEN": "This area name is already used on this floor.",
+    "FLOOR_NOT_FOUND": "Floor was not found.",
+    "FLOOR_AREA_NOT_FOUND": "Area was not found.",
+    "FLOOR_LAST_ACTIVE": "An outlet needs at least one active floor.",
+    "FLOOR_AREA_LAST_ACTIVE": "A floor needs at least one active area.",
+    "FLOOR_HAS_TABLES": "This floor still has active tables. Deactivate or move them first.",
+    "FLOOR_AREA_HAS_TABLES": "This area still has active tables. Deactivate or move them first.",
+    "FLOOR_ORDER_INCOMPLETE": "The order changed elsewhere. Reload and try again."
   },
   "subscription": {
     "accessDenied": "Only the owner or a manager of all outlets can see the subscription.",
@@ -1161,5 +1171,40 @@
       "REVOKED": "Revoked"
     },
     "title": "Kitchen outside systems"
+  },
+  "floor": {
+    "title": "Table layout",
+    "structureTitle": "Floors and areas",
+    "chooseFloor": "Choose a floor",
+    "noFloor": "No active floor yet.",
+    "areas": "Areas",
+    "loadFailed": "Floors could not be loaded",
+    "accessDeniedTitle": "You cannot open the table layout",
+    "accessDenied": "Ask the owner or a manager if you need to set up tables.",
+    "noOutlet": "Choose an outlet first to set up its tables.",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "add": "Add",
+    "saving": "Saving…",
+    "saved": "Saved.",
+    "nameRequired": "Enter a name first.",
+    "floorName": "Floor name",
+    "areaName": "Area name",
+    "addFloor": "Add floor",
+    "addArea": "Add area",
+    "floorAdded": "Floor added.",
+    "areaAdded": "Area added.",
+    "inactive": "Inactive",
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "floorDeactivated": "Floor deactivated.",
+    "floorActivated": "Floor activated again.",
+    "areaDeactivated": "Area deactivated.",
+    "areaActivated": "Area activated again.",
+    "moveUp": "Move {name} up",
+    "moveDown": "Move {name} down",
+    "editFloor": "Edit floor {name}",
+    "editArea": "Edit area {name}"
   }
 }
