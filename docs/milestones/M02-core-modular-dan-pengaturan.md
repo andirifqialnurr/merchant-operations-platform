@@ -69,6 +69,7 @@ Setelah M2, setiap modul berikutnya cukup "dipasang" ke core tanpa menambah logi
 - [x] **M2-UX-03 Halaman Pengaturan** `80b3536` — Organisasi, Pengguna, Peran, Perangkat, Langganan, Integrasi sesuai `flowchart.md` 12, satu halaman per bagian. Selesai 11 Oktober 2026 (TODO 13.50).
 - [x] **M2-UX-04 Alur undangan** `c387133` — email undangan → halaman terima undangan → set kata sandi → masuk.
 - [x] **M2-UX-05 Aktivasi perangkat POS** `cb10fc4` — layar aktivasi di perangkat dengan kode; sesudahnya POS terbuka di outlet perangkat.
+- [x] **M2-UX-06 Audit ulang visual atas instruksi pengguna** — setelah koreksi KDS `44f6619`: label form, padding baris multiline, fakta sekunder pada Small, nama/email panjang, hubungan/state/action Integrasi dan dialog PIN. Tidak membuka milestone baru atau mengubah API/grant/capability. Inventaris dan bukti: [`REVIEW-M02-VISUAL.md`](./REVIEW-M02-VISUAL.md). Dua belas browser test lulus, 232 capture, sampel area utama direview; root gates/build web dan empat regresi browser KDS lulus. Hash dicatat sesudah commit implementasi; hasil teknis bukan persetujuan visual baru.
 
 ### DS — Design system dan komponen
 

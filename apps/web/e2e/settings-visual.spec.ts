@@ -11,6 +11,13 @@ async function capture(page: Page, info: TestInfo, name: string) {
   await expect(page.locator(".ui-skeleton")).toHaveCount(0);
   await expect(main.locator(".ui-panel").first()).toBeVisible();
   await expect(main.locator(".ui-panel .ui-panel")).toHaveCount(0);
+  const rowPadding = await main
+    .locator(".ui-table tbody tr:not(.ui-table__empty) td")
+    .evaluateAll((cells) =>
+      cells.map((cell) => Number.parseFloat(getComputedStyle(cell).paddingTop)),
+    );
+  for (const padding of rowPadding)
+    expect(padding, `${name}: multiline rows need inner spacing`).toBeGreaterThanOrEqual(8);
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
@@ -30,7 +37,7 @@ async function capture(page: Page, info: TestInfo, name: string) {
   await info.attach(name, { contentType: "image/png", path });
 }
 
-for (const width of [320, 767, 768, 1279, 1280, 1440]) {
+for (const width of [320, 390, 767, 768, 1279, 1280, 1440]) {
   for (const theme of ["light", "dark"] as const) {
     for (const locale of ["id", "en"] as const) {
       test(`settings visual ${width}px ${theme} ${locale}`, async ({ page }, info) => {
@@ -93,7 +100,72 @@ for (const width of [320, 767, 768, 1279, 1280, 1440]) {
         for (const section of ["users", "roles", "devices", "subscription", "integrations"]) {
           await page.goto(`/settings/${section}`);
           await capture(page, info, section);
+          const main = page.getByRole("main");
+          const dialog = page.getByRole("dialog");
+          if (section === "users" || section === "roles" || section === "devices") {
+            await main.locator("tbody tr").first().click();
+            await expect(dialog).toBeVisible();
+            if (section !== "roles") {
+              if (width < 768) await expect(dialog.locator(".ui-description-list")).toBeVisible();
+              else await expect(dialog.locator(".ui-description-list")).toBeHidden();
+            }
+            await capture(page, info, `${section}-detail`);
+            await page.keyboard.press("Escape");
+            await expect(dialog).toBeHidden();
+            await main.locator(".ui-page-header__actions button").click();
+            await expect(dialog).toBeVisible();
+            if (section === "users") {
+              await expect(
+                dialog.getByText(locale === "id" ? "Peran" : "Role", { exact: true }),
+              ).toBeVisible();
+            }
+            if (section === "devices") {
+              for (const label of locale === "id" ? ["Jenis", "Outlet"] : ["Type", "Outlet"]) {
+                await expect(dialog.getByText(label, { exact: true })).toBeVisible();
+              }
+            }
+            await capture(page, info, `${section}-form`);
+            await page.keyboard.press("Escape");
+            await expect(dialog).toBeHidden();
+          }
+          if (section === "users") {
+            await main
+              .getByRole("tab", { name: locale === "id" ? "Undangan" : "Invitations" })
+              .click();
+            await capture(page, info, "users-invitations");
+          }
+          if (section === "roles") {
+            await main
+              .getByRole("tab", { name: locale === "id" ? "Perbandingan" : "Comparison" })
+              .click();
+            await expect(main.locator(".ui-permission-matrix")).toBeVisible();
+            await capture(page, info, "roles-comparison");
+            // Scrolling must not take the permission names out of view.
+            const matrix = main.locator(".ui-permission-matrix");
+            await matrix.focus();
+            await matrix.evaluate((element) => {
+              element.scrollLeft = element.scrollWidth;
+            });
+            await capture(page, info, "roles-comparison-scrolled");
+          }
         }
+        await page
+          .getByRole("button", {
+            name: locale === "id" ? "Menu akun" : "Account menu",
+            exact: true,
+          })
+          .click();
+        await capture(page, info, "account-preferences");
+        await page.getByRole("button", { name: /PIN/ }).click();
+        await expect(
+          page.getByRole("dialog", {
+            name: locale === "id" ? "Menu akun" : "Account menu",
+            exact: true,
+          }),
+        ).toBeHidden();
+        await expect(page.getByRole("dialog")).toBeVisible();
+        await capture(page, info, "approval-pin");
+        await page.keyboard.press("Escape");
       });
     }
   }

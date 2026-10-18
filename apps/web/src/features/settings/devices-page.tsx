@@ -11,7 +11,7 @@ import {
   type DeviceMode,
 } from "@merchant/contracts";
 import { Button } from "@merchant/ui/button";
-import { DataTable, Panel } from "@merchant/ui/data-display";
+import { DataTable, DescriptionList, Panel } from "@merchant/ui/data-display";
 import { DeviceStatusBadge } from "@merchant/ui/device-status";
 import { EmptyState, Skeleton } from "@merchant/ui/feedback";
 import { FormField, Input } from "@merchant/ui/form-field";
@@ -127,23 +127,29 @@ function RegisterSheet({
               value={label}
             />
           </FormField>
-          <Select
-            emptyLabel={t("mode")}
-            label={t("mode")}
-            onValueChange={(value) => setMode(value as DeviceMode)}
-            options={MODES.map((item) => ({ label: t(`modeName.${item}`), value: item }))}
-            placeholder={t("mode")}
-            value={mode}
-          />
-          <Select
-            {...(errors.outlet ? { error: errors.outlet } : {})}
-            {...(outletId ? { value: outletId } : {})}
-            emptyLabel={t("noOutlet")}
-            label={t("outlet")}
-            onValueChange={setOutletId}
-            options={outlets.map((item) => ({ label: item.name, value: item.id }))}
-            placeholder={t("selectOutlet")}
-          />
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-1.5">
+            <span className="text-label">{t("mode")}</span>
+            <Select
+              emptyLabel={t("mode")}
+              label={t("mode")}
+              onValueChange={(value) => setMode(value as DeviceMode)}
+              options={MODES.map((item) => ({ label: t(`modeName.${item}`), value: item }))}
+              placeholder={t("mode")}
+              value={mode}
+            />
+          </div>
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-1.5">
+            <span className="text-label">{t("outlet")}</span>
+            <Select
+              {...(errors.outlet ? { error: errors.outlet } : {})}
+              {...(outletId ? { value: outletId } : {})}
+              emptyLabel={t("noOutlet")}
+              label={t("outlet")}
+              onValueChange={setOutletId}
+              options={outlets.map((item) => ({ label: item.name, value: item.id }))}
+              placeholder={t("selectOutlet")}
+            />
+          </div>
         </form>
       )}
     </Sheet>
@@ -151,13 +157,22 @@ function RegisterSheet({
 }
 
 function DeviceSheet({
+  canManage,
   device,
   mutation,
   onClose,
   tenantId,
-}: Readonly<{ device: Device; mutation: DeviceMutation; onClose: () => void; tenantId: string }>) {
+}: Readonly<{
+  canManage: boolean;
+  device: Device;
+  mutation: DeviceMutation;
+  onClose: () => void;
+  tenantId: string;
+}>) {
   const t = useTranslations("devices");
   const { dateTime, time } = useFormat();
+  const { workspace } = useWorkspace();
+  const outlet = workspace.outlets.find((item) => item.id === device.outletId);
   const [ticket, setTicket] = useState<DeviceActivationTicket>();
   const [confirming, setConfirming] = useState(false);
   const busy = mutation.isPending;
@@ -181,7 +196,7 @@ function DeviceSheet({
         footer={
           ticket ? (
             <Button onClick={onClose}>{t("done")}</Button>
-          ) : device.status === "REVOKED" ? undefined : (
+          ) : !canManage || device.status === "REVOKED" ? undefined : (
             <>
               {device.status === "PENDING" ? (
                 <Button
@@ -216,7 +231,21 @@ function DeviceSheet({
         {ticket ? (
           <ActivationCode ticket={ticket} />
         ) : (
-          <p className="m-0 text-label text-foreground-secondary">{detail}</p>
+          <div className="grid gap-5">
+            <div className="wrap-anywhere md:hidden">
+              <DescriptionList
+                items={[
+                  { label: t("mode"), value: t(`modeName.${device.mode}`) },
+                  ...(outlet ? [{ label: t("outlet"), value: outlet.name }] : []),
+                  {
+                    label: t("lastSeen"),
+                    value: device.lastSeenAt ? dateTime(device.lastSeenAt) : t("neverSeen"),
+                  },
+                ]}
+              />
+            </div>
+            {detail ? <p className="m-0 text-label text-foreground-secondary">{detail}</p> : null}
+          </div>
         )}
       </Sheet>
       <AlertDialog
@@ -306,7 +335,7 @@ export function DevicesPage() {
               { label: t("lastSeen"), priority: 3 },
             ]}
             empty={<EmptyState description={t("empty")} title={t("emptyTitle")} />}
-            {...(canManage ? { onRowSelect: (index: number) => setOpen(devices[index]?.id) } : {})}
+            onRowSelect={(index: number) => setOpen(devices[index]?.id)}
             rows={devices.map((item) => [
               item.label,
               t(`modeName.${item.mode}`),
@@ -324,8 +353,9 @@ export function DevicesPage() {
       {canManage && open === "new" ? (
         <RegisterSheet mutation={mutation} onClose={() => setOpen(undefined)} tenantId={tenantId} />
       ) : null}
-      {canManage && selected ? (
+      {selected ? (
         <DeviceSheet
+          canManage={canManage}
           device={selected}
           key={selected.id}
           mutation={mutation}

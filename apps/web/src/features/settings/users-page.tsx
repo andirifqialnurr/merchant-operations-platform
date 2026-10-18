@@ -12,7 +12,7 @@ import {
   type Role,
 } from "@merchant/contracts";
 import { Button } from "@merchant/ui/button";
-import { DataTable, Panel } from "@merchant/ui/data-display";
+import { DataTable, DescriptionList, Panel } from "@merchant/ui/data-display";
 import { Badge, EmptyState, type FeedbackTone, Skeleton } from "@merchant/ui/feedback";
 import { FormField, Input } from "@merchant/ui/form-field";
 import { ModuleAccessState } from "@merchant/ui/module-access-state";
@@ -71,6 +71,33 @@ function useGrantLabels(roles: readonly Role[]) {
         .map(roleName)
         .join(", "),
   };
+}
+
+/** P2/P3 cells are hidden in the Small table, so their facts live here instead. */
+function GrantDetails({
+  email,
+  grant,
+  roles,
+}: Readonly<{
+  email?: string;
+  grant: { allOutlets: boolean; outletIds: readonly string[]; roleIds: readonly string[] };
+  roles: readonly Role[];
+}>) {
+  const t = useTranslations("users");
+  const labels = useGrantLabels(roles);
+  const role = labels.roles(grant.roleIds);
+  const outlets = labels.outlets(grant);
+  return (
+    <div className="wrap-anywhere md:hidden">
+      <DescriptionList
+        items={[
+          ...(email ? [{ label: t("email"), value: email }] : []),
+          ...(role ? [{ label: t("role"), value: role }] : []),
+          ...(outlets ? [{ label: t("outlets"), value: outlets }] : []),
+        ]}
+      />
+    </div>
+  );
 }
 
 function InviteSheet({
@@ -176,20 +203,23 @@ function InviteSheet({
               value={email}
             />
           </FormField>
-          <Select
-            {...(errors.role ? { error: errors.role } : {})}
-            {...(roleId ? { value: roleId } : {})}
-            emptyLabel={t("noRoles")}
-            label={t("role")}
-            onValueChange={(value) => {
-              setRoleId(value);
-              clear("role");
-            }}
-            options={roles
-              .filter((role) => role.status === "ACTIVE")
-              .map((role) => ({ label: roleName(role), value: role.id }))}
-            placeholder={t("selectRole")}
-          />
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-1.5">
+            <span className="text-label">{t("role")}</span>
+            <Select
+              {...(errors.role ? { error: errors.role } : {})}
+              {...(roleId ? { value: roleId } : {})}
+              emptyLabel={t("noRoles")}
+              label={t("role")}
+              onValueChange={(value) => {
+                setRoleId(value);
+                clear("role");
+              }}
+              options={roles
+                .filter((role) => role.status === "ACTIVE")
+                .map((role) => ({ label: roleName(role), value: role.id }))}
+              placeholder={t("selectRole")}
+            />
+          </div>
           <fieldset className="m-0 grid gap-2 border-0 p-0">
             <legend className="mb-1.5 p-0 text-label">{t("outlets")}</legend>
             <Checkbox
@@ -232,12 +262,14 @@ function MemberSheet({
   member,
   mutation,
   onClose,
+  roles,
   tenantId,
 }: Readonly<{
   isSelf: boolean;
   member: Member;
   mutation: PeopleMutation;
   onClose: () => void;
+  roles: readonly Role[];
   tenantId: string;
 }>) {
   const t = useTranslations("users");
@@ -299,6 +331,7 @@ function MemberSheet({
         title={member.displayName}
       >
         <div className="grid gap-5">
+          <GrantDetails email={member.email} grant={member} roles={roles} />
           <p className="m-0 text-label text-foreground-secondary">
             {isSelf ? t("selfNote") : active ? t("activeNote") : t("inactiveNote")}
           </p>
@@ -372,11 +405,13 @@ function InvitationSheet({
   invitation,
   mutation,
   onClose,
+  roles,
   tenantId,
 }: Readonly<{
   invitation: Invitation;
   mutation: PeopleMutation;
   onClose: () => void;
+  roles: readonly Role[];
   tenantId: string;
 }>) {
   const t = useTranslations("users");
@@ -430,11 +465,14 @@ function InvitationSheet({
       size="sm"
       title={invitation.email}
     >
-      <p className="m-0 text-label text-foreground-secondary">
-        {open
-          ? t("pendingNote", { date: dateTime(invitation.expiresAt) })
-          : t(invitation.status === "REVOKED" ? "closedNote.REVOKED" : "closedNote.EXPIRED")}
-      </p>
+      <div className="grid gap-5">
+        <GrantDetails grant={invitation} roles={roles} />
+        <p className="m-0 text-label text-foreground-secondary">
+          {open
+            ? t("pendingNote", { date: dateTime(invitation.expiresAt) })
+            : t(invitation.status === "REVOKED" ? "closedNote.REVOKED" : "closedNote.EXPIRED")}
+        </p>
+      </div>
     </Sheet>
   );
 }
@@ -520,19 +558,29 @@ export function UsersPage() {
               { label: t("email"), priority: 2 },
               { label: t("role"), priority: 2 },
               { label: t("outlets"), priority: 3 },
-              t("status"),
+              { label: t("status"), priority: 2 },
             ]}
             empty={<EmptyState description={t("emptyMembers")} title={t("members")} />}
             onRowSelect={(index: number) => setOpen(memberRows[index]?.membershipId)}
-            rows={memberRows.map((item) => [
-              item.displayName,
-              item.email,
-              labels.roles(item.roleIds),
-              labels.outlets(item),
-              <Badge key="status" tone={item.status === "ACTIVE" ? "success" : "neutral"}>
-                {t(`memberStatus.${item.status}`)}
-              </Badge>,
-            ])}
+            rows={memberRows.map((item) => {
+              const status = (
+                <Badge tone={item.status === "ACTIVE" ? "success" : "neutral"}>
+                  {t(`memberStatus.${item.status}`)}
+                </Badge>
+              );
+              return [
+                <div className="grid gap-2" key="identity">
+                  <span className="wrap-anywhere">{item.displayName}</span>
+                  <div className="md:hidden">{status}</div>
+                </div>,
+                <span className="wrap-anywhere" key="email">
+                  {item.email}
+                </span>,
+                labels.roles(item.roleIds),
+                labels.outlets(item),
+                status,
+              ];
+            })}
           />
         </Panel>
       ) : (
@@ -543,22 +591,30 @@ export function UsersPage() {
               t("email"),
               { label: t("role"), priority: 2 },
               { label: t("outlets"), priority: 3 },
-              t("status"),
+              { label: t("status"), priority: 2 },
               { label: t("validUntil"), priority: 2 },
             ]}
             empty={
               <EmptyState description={t("emptyInvitations")} title={t("emptyInvitationsTitle")} />
             }
             onRowSelect={(index: number) => setOpen(invitationRows[index]?.id)}
-            rows={invitationRows.map((item) => [
-              item.email,
-              labels.roles(item.roleIds),
-              labels.outlets(item),
-              <Badge key="status" tone={invitationTone[item.status]}>
-                {t(`invitationStatus.${item.status}`)}
-              </Badge>,
-              dateTime(item.expiresAt),
-            ])}
+            rows={invitationRows.map((item) => {
+              const status = (
+                <Badge tone={invitationTone[item.status]}>
+                  {t(`invitationStatus.${item.status}`)}
+                </Badge>
+              );
+              return [
+                <div className="grid gap-2" key="identity">
+                  <span className="wrap-anywhere">{item.email}</span>
+                  <div className="md:hidden">{status}</div>
+                </div>,
+                labels.roles(item.roleIds),
+                labels.outlets(item),
+                status,
+                dateTime(item.expiresAt),
+              ];
+            })}
           />
         </Panel>
       )}
@@ -577,6 +633,7 @@ export function UsersPage() {
           member={selectedMember}
           mutation={mutation}
           onClose={() => setOpen(undefined)}
+          roles={roles.data ?? []}
           tenantId={tenantId}
         />
       ) : null}
@@ -586,6 +643,7 @@ export function UsersPage() {
           key={selectedInvitation.id}
           mutation={mutation}
           onClose={() => setOpen(undefined)}
+          roles={roles.data ?? []}
           tenantId={tenantId}
         />
       ) : null}

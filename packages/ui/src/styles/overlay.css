@@ -62,6 +62,8 @@
   font-size: var(--text-heading-sm);
   font-weight: 600;
   line-height: var(--control-height-xs);
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
 }
 .ui-dialog header > div {
   display: grid;

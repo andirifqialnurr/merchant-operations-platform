@@ -1068,6 +1068,15 @@
       "PROCESSING": "Held data is being sent again.",
       "SETUP_REQUIRED": "{target} needs to be set up before it can receive data."
     },
+    "eventName": {
+      "orderCanceled": "Order cancellation",
+      "orderSubmitted": "New order",
+      "saleCompleted": "Completed sale"
+    },
+    "moduleName": {
+      "CORE_BILL": "Bills",
+      "CORE_ORDER": "Orders"
+    },
     "integration": "Integration",
     "loadFailed": "The integrations could not be loaded",
     "note": "Note",

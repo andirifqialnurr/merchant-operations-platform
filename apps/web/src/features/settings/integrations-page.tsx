@@ -17,6 +17,12 @@ import { RequestErrorState } from "@/shell/request-error-state";
 import { useIntegrationMutation, useIntegrations } from "./api";
 import { canRetryIntegration, integrationState, type IntegrationState } from "./integration-status";
 
+const eventLabels = {
+  "order.canceled.v1": "orderCanceled",
+  "order.submitted.v1": "orderSubmitted",
+  "sale.completed.v1": "saleCompleted",
+} as const;
+
 const stateTone: Record<IntegrationState, FeedbackTone> = {
   ACTIVE: "success",
   FAILED: "danger",
@@ -49,7 +55,15 @@ export function IntegrationsPage() {
   }
 
   const moduleName = (key: string) =>
-    moduleNames.has(`moduleName.${key}` as never) ? moduleNames(`moduleName.${key}` as never) : key;
+    t.has(`moduleName.${key}` as never)
+      ? t(`moduleName.${key}` as never)
+      : moduleNames.has(`moduleName.${key}` as never)
+        ? moduleNames(`moduleName.${key}` as never)
+        : key;
+  const sourceName = (binding: IntegrationBinding) => {
+    const event = eventLabels[binding.eventType as keyof typeof eventLabels];
+    return event ? t(`eventName.${event}`) : moduleName(binding.sourceModuleKey);
+  };
 
   function retry(binding: IntegrationBinding) {
     const key = retryKeys.current.get(binding.id) ?? crypto.randomUUID();
@@ -74,6 +88,7 @@ export function IntegrationsPage() {
     return state ? [{ binding, state }] : [];
   });
   const hasActions = canManage && rows.some((row) => canRetryIntegration(row.state));
+  const hasNotes = rows.some((row) => row.state !== "ACTIVE");
 
   return (
     <>
@@ -96,38 +111,51 @@ export function IntegrationsPage() {
             columns={[
               t("integration"),
               t("status"),
-              { label: t("note"), priority: 2 },
-              ...(hasActions ? [{ align: "end" as const, label: t("action") }] : []),
+              ...(hasNotes ? [{ label: t("note"), priority: 2 as const }] : []),
+              ...(hasActions
+                ? [{ align: "end" as const, label: t("action"), priority: 2 as const }]
+                : []),
             ]}
             empty={<EmptyState description={t("empty")} title={t("emptyTitle")} />}
-            rows={rows.map(({ binding, state }) => [
-              t("connection", {
-                source: moduleName(binding.sourceModuleKey),
-                target: moduleName(binding.targetModuleKey),
-              }),
-              <Badge key="state" tone={stateTone[state]}>
-                {t(`state.${state}`)}
-              </Badge>,
-              t(`hint.${state}`, {
-                source: moduleName(binding.sourceModuleKey),
-                target: moduleName(binding.targetModuleKey),
-              }),
-              ...(hasActions
-                ? [
-                    canRetryIntegration(state) ? (
-                      <Button
-                        disabled={mutation.isPending}
-                        key="retry"
-                        onClick={() => retry(binding)}
-                        size="sm"
-                        variant="secondary"
-                      >
-                        {t("retry")}
-                      </Button>
-                    ) : null,
-                  ]
-                : []),
-            ])}
+            rows={rows.map(({ binding, state }) => {
+              const note =
+                state === "ACTIVE"
+                  ? undefined
+                  : t(`hint.${state}`, {
+                      source: moduleName(binding.sourceModuleKey),
+                      target: moduleName(binding.targetModuleKey),
+                    });
+              const action =
+                canManage && canRetryIntegration(state) ? (
+                  <Button
+                    disabled={mutation.isPending}
+                    onClick={() => retry(binding)}
+                    size="sm"
+                    variant="secondary"
+                  >
+                    {t("retry")}
+                  </Button>
+                ) : null;
+              return [
+                <div className="grid gap-2 wrap-anywhere" key="connection">
+                  <span>
+                    {t("connection", {
+                      source: sourceName(binding),
+                      target: moduleName(binding.targetModuleKey),
+                    })}
+                  </span>
+                  {note ? (
+                    <span className="text-caption text-foreground-secondary md:hidden">{note}</span>
+                  ) : null}
+                  {action ? <div className="md:hidden">{action}</div> : null}
+                </div>,
+                <Badge key="state" tone={stateTone[state]}>
+                  {t(`state.${state}`)}
+                </Badge>,
+                ...(hasNotes ? [note] : []),
+                ...(hasActions ? [action] : []),
+              ];
+            })}
           />
         </Panel>
       )}

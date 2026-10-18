@@ -132,6 +132,29 @@ describe("app shell", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
+  it("closes the account menu before opening an account action", async () => {
+    const user = userEvent.setup();
+    const select = vi.fn();
+    render(
+      <UserMenu
+        actions={[{ label: "Atur PIN", onSelect: select }]}
+        email="andi@example.com"
+        label="Menu akun"
+        name="Andi Rifqi"
+        onSignOut={vi.fn()}
+        signOutLabel="Keluar"
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "Menu akun" }));
+    await user.click(screen.getByRole("button", { name: "Atur PIN" }));
+    expect(select).toHaveBeenCalledOnce();
+    expect(screen.queryByRole("dialog", { name: "Menu akun" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Menu akun" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+  });
+
   it("changes language and theme and signs out from the user menu", async () => {
     const user = userEvent.setup();
     const language = vi.fn();
@@ -173,5 +196,6 @@ describe("app shell", () => {
     expect(theme).toHaveBeenCalledWith("dark");
     await user.click(screen.getByRole("button", { name: "Keluar" }));
     expect(signOut).toHaveBeenCalled();
+    expect(screen.queryByRole("dialog", { name: "Menu akun" })).not.toBeInTheDocument();
   });
 });

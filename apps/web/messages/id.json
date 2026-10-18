@@ -1068,6 +1068,15 @@
       "PROCESSING": "Data yang tertahan sedang dikirim ulang.",
       "SETUP_REQUIRED": "{target} perlu diatur dulu sebelum menerima data."
     },
+    "eventName": {
+      "orderCanceled": "Pembatalan pesanan",
+      "orderSubmitted": "Pesanan baru",
+      "saleCompleted": "Penjualan selesai"
+    },
+    "moduleName": {
+      "CORE_BILL": "Tagihan",
+      "CORE_ORDER": "Pesanan"
+    },
     "integration": "Integrasi",
     "loadFailed": "Daftar integrasi tidak bisa dimuat",
     "note": "Keterangan",

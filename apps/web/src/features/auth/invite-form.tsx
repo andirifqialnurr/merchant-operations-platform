@@ -129,7 +129,7 @@ export function InviteForm({
   }
 
   return (
-    <form className="grid gap-4" noValidate onSubmit={submit}>
+    <form className="grid min-w-0 gap-4 wrap-anywhere" noValidate onSubmit={submit}>
       <h1 className="text-heading-lg">{t("title")}</h1>
       {accept.error ? (
         <Alert title={t("failed")} tone="danger">

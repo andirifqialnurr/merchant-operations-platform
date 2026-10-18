@@ -278,9 +278,12 @@ export function UserMenu({
   signOutLabel,
   theme,
 }: UserMenuProps) {
+  const [open, setOpen] = useState(false);
   return (
     <Popover
       align="end"
+      onOpenChange={setOpen}
+      open={open}
       content={
         <div className="ui-user-menu">
           <div className="ui-user-menu__identity">
@@ -305,13 +308,23 @@ export function UserMenu({
             <button
               className="ui-user-menu__action"
               key={action.label}
-              onClick={action.onSelect}
+              onClick={() => {
+                setOpen(false);
+                action.onSelect();
+              }}
               type="button"
             >
               {action.label}
             </button>
           ))}
-          <button className="ui-user-menu__sign-out" onClick={onSignOut} type="button">
+          <button
+            className="ui-user-menu__sign-out"
+            onClick={() => {
+              setOpen(false);
+              onSignOut();
+            }}
+            type="button"
+          >
             <AppIcon icon={IconLogout} size="sm" />
             <span>{signOutLabel}</span>
           </button>
