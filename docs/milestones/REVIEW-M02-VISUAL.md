@@ -1,6 +1,6 @@
 # Review ulang visual M2
 
-Atas instruksi pengguna setelah koreksi KDS `44f6619`. Ini checkpoint audit/koreksi Pengaturan, bukan pembukaan M4/M5 atau pembatalan riwayat persetujuan M2 pada 12 Oktober. Screenshot adalah bukti untuk review, bukan persetujuan otomatis.
+Implementasi `6d19c45`, atas instruksi pengguna setelah koreksi KDS `44f6619`. Ini checkpoint audit/koreksi Pengaturan, bukan pembukaan M4/M5 atau pembatalan riwayat persetujuan M2 pada 12 Oktober. Screenshot adalah bukti untuk review, bukan persetujuan otomatis.
 
 ## Kontrak dan inventaris sebelum JSX
 
