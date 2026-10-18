@@ -45,7 +45,7 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 - [x] **M3-BE-07 Realtime** `f6aceef` — Socket.IO per outlet dengan autentikasi sesi perangkat; klien mengambil ulang saat tersambung kembali. Selesai 15 Oktober 2026 (TODO 14.14). Namespace `/kds` di jalur `/api/realtime`. Trigger `kds_tickets_notify_queue` mengirim `pg_notify` setiap ticket dibuat atau berubah status, dari API maupun worker; API meneruskannya ke ruang `workspace:outlet`. Pesan hanya `{ outletId }`; layar mengambil ulang lewat REST saat menerima pesan dan setiap tersambung (ulang).
 - [x] **M3-BE-08 API intake eksternal** `19eca86` — endpoint dengan kredensial integrasi dan rate limit (bila `OD-04` memilih API). Selesai 16 Oktober 2026 (TODO 14.21). `OD-04` diputuskan pengguna 16 Oktober 2026: manual + API. Sumber intake (`kds_intake_sources`) = satu kunci rahasia per sistem luar, terikat satu outlet, hanya hash yang disimpan; dikelola di Pengaturan > Sistem luar dapur (izin `kds.intake.manage`, Owner/Manager). `POST /api/v1/kds/intake/tickets` dengan `Authorization: Bearer kds_…`; referensi yang sama mengembalikan ticket yang sama (201 lalu 200). Jumlah sumber aktif dihitung dimensi `kds.intake_sources.active`. Rate limit: M3-SC-03.
 
-- [~] **M3-BE-09 Paket dan limit sumber intake (GAP-08)** — paket KDS-only Basic dengan satu sumber, versi penerus paket F&B standar dengan nol sumber eksternal, tanpa mutasi snapshot lama atau upgrade langganan otomatis. Kapasitas diperiksa ulang dalam transaksi create/audit dengan advisory lock per workspace; override dan downgrade mempertahankan sumber/tiket lama. Regresi PostgreSQL termasuk race dua pembuat, pencabutan, dan isolasi. Menunggu commit checkpoint; bukti di TODO checkpoint aktif M3.
+- [x] **M3-BE-09 Paket dan limit sumber intake (GAP-08)** `e7ac7e3` — paket KDS-only Basic dengan satu sumber, versi penerus paket F&B standar dengan nol sumber eksternal, tanpa mutasi snapshot lama atau upgrade langganan otomatis. Kapasitas diperiksa ulang dalam transaksi create/audit dengan advisory lock per workspace; override dan downgrade mempertahankan sumber/tiket lama. Regresi PostgreSQL termasuk race dua pembuat, pencabutan, dan isolasi. Checkpoint sudah dipush; bukti di TODO checkpoint aktif M3.
 
 ### UX — Alur dan interaksi
 
@@ -76,12 +76,12 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 - [x] **M3-QA-02 Test event ganda** `0a08380` — event yang sama dua kali menghasilkan satu ticket. Selesai 13 Oktober 2026 (TODO 14.11).
 - [x] **M3-QA-03 Test kombinasi** `0a08380` — KDS-only, POS-only, POS + KDS. Selesai 13 Oktober 2026 (TODO 14.11): `kds-order-flow.integration.test.mjs`.
 
-- [ ] **M3-QA-04 Regresi penutupan teknis** — suite integrasi KDS dan test browser tersimpan untuk alur manual, status, S/M/L, tema/bahasa, kios, offline/recovery; bukti baru tidak menggantikan uji monitor fisik.
+- [~] **M3-QA-04 Regresi penutupan teknis** — suite integrasi KDS dan test browser tersimpan (`pnpm --filter @merchant/web test:e2e:kds`). Tiga test browser lulus: manual/status/riwayat; 32 kombinasi 320/390/767/768/1024/1279/1280/1440 × light/dark × id/en, timer, kios, suara/keyboard, offline/recovery; sumber API, limit nyata dan pencabutan. API/DB fixture sementara ditutup sesudah test; tidak menyentuh data development. Nama limit diterjemahkan dari kamus id/en. Screenshot sampel direview; bukti browser tidak menggantikan uji monitor fisik. Menunggu commit checkpoint.
 
 ### OP — Operasional dan dokumentasi
 
 - [x] **M3-OP-01 Seed dan akun dapur** `dc96233` — akun Kitchen dan satu perangkat KDS lokal. Selesai 13 Oktober 2026 (TODO 14.13): `pnpm --filter @merchant/api local:users:provision`.
-- [x] **M3-OP-02 Perbarui dokumen** `b50e4c6` — `schema.md` B.5, `flowchart.md` 8, `architecture.md` 7.2. Selesai 15 Oktober 2026 (TODO 14.20). `schema.md` B.5 (tabel, migrasi, trigger), `flowchart.md` 8 (layar, ticket baru, timer, koneksi, kios), `architecture.md` 7.2 (event dan konsumen dapur) dan 10 (realtime). Pintu API eksternal belum didokumentasikan karena menunggu `OD-04`.
+- [x] **M3-OP-02 Perbarui dokumen** `b50e4c6` — `schema.md` B.5, `flowchart.md` 8, `architecture.md` 7.2. Selesai 15 Oktober 2026 (TODO 14.20). `schema.md` B.5 (tabel, migrasi, trigger), `flowchart.md` 8 (layar, ticket baru, timer, koneksi, kios), `architecture.md` 7.2 (event dan konsumen dapur) dan 10 (realtime). Catatan itu historis: OD-04 sudah diputuskan manual + API, dan jalur intake kini didokumentasikan di schema/security serta runbook. Paket/limit ditambahkan di M3-BE-09.
 
 ## 5. Urutan checkpoint yang disarankan
 

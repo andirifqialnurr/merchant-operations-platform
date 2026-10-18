@@ -40,6 +40,13 @@ test("both dictionaries define exactly the same keys", async () => {
   assert.deepEqual(keysOf(english).sort(), keysOf(indonesian).sort());
 });
 
+test("the kitchen intake capacity has a translated name instead of its internal dimension key", async () => {
+  for (const locale of ["id", "en"]) {
+    const dictionary = await load(locale);
+    assert.ok(keysOf(dictionary).includes("usage.dimensions.kds.intake_sources.active"));
+  }
+});
+
 test("no dictionary entry is empty and placeholders match across languages", async () => {
   const [indonesian, english] = await Promise.all([load("id"), load("en")]);
   const flatten = (dictionary: Dictionary, prefix = ""): [string, string][] =>

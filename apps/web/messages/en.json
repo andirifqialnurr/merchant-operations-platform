@@ -633,6 +633,9 @@
         "devices": {
           "active": "Kitchen devices"
         },
+        "intake_sources": {
+          "active": "Active kitchen intake sources"
+        },
         "stations": {
           "active_per_location": "Kitchen stations per outlet"
         },

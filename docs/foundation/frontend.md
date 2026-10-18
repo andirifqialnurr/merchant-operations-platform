@@ -418,7 +418,9 @@ export default function ProductsPage() {
 | Story smoke                     | Playwright                   | `apps/storybook/tests`               |
 | Unit fitur (pemeta, hook, util) | Vitest                       | `apps/web/src/features/**`           |
 | Kesamaan kunci kamus            | Vitest                       | `apps/web/messages`                  |
-| E2E alur kritis                 | Playwright                   | `apps/web/e2e`: login, katalog, POS/shift, navigasi, Pengaturan; bukti browser KDS/tamu ada di checkpoint M3/M4, belum seluruhnya menjadi suite E2E tersimpan |
+| E2E alur kritis                 | Playwright                   | `apps/web/e2e`: login, katalog, POS/shift, navigasi, Pengaturan; KDS memakai runner disposable tersendiri; bukti browser tamu di checkpoint M4 belum seluruhnya menjadi suite E2E tersimpan |
+
+**Regresi KDS tersimpan (M3-QA-04):** `pnpm --filter @merchant/web test:e2e:kds` memakai `playwright.kds.config.ts` dan fixture `apps/api/test/kds-browser-fixture.mjs`. Port 4001 harus kosong; runner memulai API sendiri dan membuat/menghapus database PostgreSQL sementara melalui kredensial admin dari `.env`. Hanya web yang boleh dipakai ulang pada port 4000; tidak perlu menyalakan API development, worker, atau Redis. Spec KDS dilewati oleh runner E2E biasa agar tidak mengambil port API development. Cakupan: manual/status/riwayat, 32 kombinasi viewport × tema × bahasa, kios, suara/keyboard, offline/recovery, sumber eksternal/API/idempotency/limit/cabut. Screenshot di `apps/web/test-results/kds` (Git-ignored) adalah bukti untuk review, bukan baseline visual yang disetujui otomatis atau pengganti uji monitor fisik.
 
 Gerbang tiap halaman: lint, typecheck, test terkait, smoke rute HTTP, smoke klik di browser, S/M/L + batas 320/767/768/1279/1280, terang dan gelap, `id` dan `en`, keyboard dan fokus, serta data guard.
 

@@ -17,7 +17,7 @@
 
 - [ ] Pengguna meninjau antrean, manual intake, POS → KDS, API intake, status kembali ke pesanan, suara, dan putus/sambung koneksi.
 - [ ] Keterbacaan jarak 1–2 meter diperiksa pada monitor dapur sungguhan. Ini kriteria M3 yang masih terbuka, bukan sesuatu yang dapat ditutup dari screenshot.
-- [ ] Gap limit sumber intake pada bagian 3 mempunyai checkpoint penyelesaian sebelum paket terkait dirilis.
+- [x] Gap limit sumber intake pada bagian 3 ditutup secara teknis oleh `e7ac7e3` (M3-BE-09); upgrade subscription lama tetap eksplisit.
 
 Bukti implementasi terdahulu: [M3](./M03-kds.md) dan TODO 14.6–14.23. Angka p99 sekitar 1,29 detik adalah hasil uji lokal terdahulu, bukan SLA atau hasil beban produksi.
 
@@ -61,7 +61,7 @@ Migrasi `20261018010000_kds_intake_package_limits` menyediakan `KDS_ONLY` v1 den
 
 Pada pengenalan kembali baseline, pemeriksaan batas modul dan warna, test contracts/web/worker, serta test API (396 lulus pada invocation test sumber API, di luar test skrip boundary) berhasil. Tidak ada perubahan kode setelah pemeriksaan itu dalam checkpoint dokumentasi ini.
 
-Browser/visual, integration PostgreSQL, build penuh, dan kondisi layanan lokal **belum diuji ulang** pada checkpoint ini. Screenshot dan hasil browser M3/M4 adalah bukti historis di TODO, bukan pemeriksaan visual baru. Arsip sesi menyatakan web/API/worker/Storybook dihentikan karena tekanan memori; jangan menyimpulkan layanan sekarang hidup atau gagal dari catatan itu.
+**Pembaruan penutupan teknis M3:** lint/typecheck/test/format root serta tujuh suite integrasi KDS/downgrade sudah dijalankan ulang; p99 1.117 ms untuk 200 pesanan adalah hasil mesin lokal. Test browser KDS tersimpan kini memakai database/API disposable (M3-QA-04): tiga test dengan 32 kombinasi layar/tema/bahasa, manual/status/riwayat, suara/keyboard, kios, offline/recovery, serta API intake/limit/cabut lulus; screenshot sampel desktop/mobile/tablet/kios/limit dibaca. Pengujian itu bukan uji monitor fisik. Bukti M4 tetap historis dan tidak diverifikasi ulang oleh batch khusus M3. API fixture berhenti dan database sementaranya dihapus setelah suite; API/worker development tidak dinyalakan.
 
 Verifikasi khusus perubahan dokumentasi dicatat di [TODO](../../TODO.md): diff whitespace, tautan lokal, dan rujukan sumber/kondisi kode. Tidak ada migrasi, perubahan data lokal, atau klaim siap produksi.
 

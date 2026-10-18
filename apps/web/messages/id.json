@@ -633,6 +633,9 @@
         "devices": {
           "active": "Perangkat dapur"
         },
+        "intake_sources": {
+          "active": "Sistem luar dapur aktif"
+        },
         "stations": {
           "active_per_location": "Station dapur per outlet"
         },
