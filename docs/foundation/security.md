@@ -283,6 +283,7 @@ Yang berjalan sejak 4 Oktober 2026 (`core/devices`):
 - Setiap permintaan memeriksa ulang langganan, modul KDS, capability `kds.intake.api_lite`, dan outlet aktif.
 - Hanya pemegang `kds.intake.manage` yang bertindak untuk semua outlet dapat membuat atau mencabut kunci; tidak dari perangkat.
 - Permintaan tanpa cookie, jadi tidak terkena CSRF; isi ticket tetap tanpa harga (skema yang sama dengan pintu lain).
+- **Kapasitas sumber (M3-BE-09):** `KDS_ONLY` v1 membatasi satu sumber eksternal aktif; versi penerus paket F&B standar membatasi nol, terpisah dari rate limit permintaan. Snapshot lama tidak ditulis ulang dan tidak ada upgrade otomatis. Kapasitas efektif mengikuti paket/override; create dan audit berada dalam satu transaksi dengan advisory lock per workspace sehingga dua pembuat tidak dapat mengambil tempat terakhir bersamaan. Penurunan kuota tidak mencabut sumber atau menghapus tiket lama; pencabutan eksplisit membebaskan tempat.
 - **Rate limit (M3-SC-03):** 60 permintaan/menit per sumber pada KDS Basic, 600 bila paket memuat `kds.intake.api`; kunci salah 30/menit per alamat jaringan. Setiap permintaan sumber dihitung, berhasil atau tidak. Lewat batas: `429 RATE_LIMIT_EXCEEDED`. Memakai penyimpanan rate limit yang sama dengan login (Redis bila `RATE_LIMIT_STORE=redis`).
 
 **QR meja (sejak 16 Oktober 2026, M4-BE-04, M4-SC-04)**

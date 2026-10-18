@@ -41,7 +41,7 @@ test("an external system sends tickets with its key, through the same use case a
       await platform.replaceSubscription(
         tenant.id,
         {
-          planCode: PLAN_CODES.cafeOperations,
+          planCode: PLAN_CODES.kdsOnly,
           startsAt: new Date(Date.now() - 60_000).toISOString(),
           status: "ACTIVE",
         },
@@ -107,6 +107,18 @@ test("an external system sends tickets with its key, through the same use case a
       });
       assert.equal(made.status, 201);
       const { key, source } = made.body;
+      // This is the published KDS-only package, not a mock LimitGate.
+      const overLimit = await ownerApi("POST", "/kds/intake-sources", {
+        label: "Website",
+        outletId: pusat.id,
+      });
+      assert.equal(overLimit.status, 409);
+      assert.equal(overLimit.body.code, "LIMIT_REACHED");
+      assert.deepEqual(overLimit.body.details, {
+        dimensionKey: "kds.intake_sources.active",
+        limit: "1",
+        usage: "1",
+      });
       assert.match(key, /^kds_[a-z2-9]{10}_/);
       const listed = await ownerApi("GET", "/kds/intake-sources");
       assert.equal(listed.status, 200);
@@ -204,6 +216,15 @@ test("an external system sends tickets with its key, through the same use case a
       assert.equal(revoked.status, 200);
       assert.equal(revoked.body.status, "REVOKED");
       assert.equal((await send(key, { ...order, reference: "order-after" })).status, 401);
+      // Revoking a source frees its place without deleting its history.
+      const replacement = await ownerApi("POST", "/kds/intake-sources", {
+        label: "Website",
+        outletId: pusat.id,
+      });
+      assert.equal(replacement.status, 201);
+      const history = await ownerApi("GET", "/kds/intake-sources");
+      assert.equal(history.body.sources.length, 2);
+      assert.equal(history.body.sources.filter((item) => item.status === "ACTIVE").length, 1);
       const lastUsed = (
         await database.query(`SELECT last_used_at FROM kds_intake_sources WHERE id = $1`, [
           source.id,

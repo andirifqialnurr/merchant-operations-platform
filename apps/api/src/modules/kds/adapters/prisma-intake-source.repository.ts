@@ -3,10 +3,11 @@ import { Injectable } from "@nestjs/common";
 
 import { buildAuditMetadata, buildAuditPayload } from "../../../core/audit/public.js";
 import type { CommandOrigin } from "../../../shared/command/command-origin.js";
-import type {
-  IntakeSourceRecord,
-  IntakeSourceRepository,
-  NewIntakeSource,
+import {
+  IntakeSourceLimitReached,
+  type IntakeSourceRecord,
+  type IntakeSourceRepository,
+  type NewIntakeSource,
 } from "../application/intake-source.repository.js";
 
 const select = {
@@ -56,8 +57,28 @@ export class PrismaIntakeSourceRepository implements IntakeSourceRepository {
     return getPrismaClient().kdsIntakeSource.count({ where: { status: "ACTIVE", tenantId } });
   }
 
-  async create(tenantId: string, source: NewIntakeSource, origin: CommandOrigin) {
+  async create(
+    tenantId: string,
+    source: NewIntakeSource,
+    origin: CommandOrigin,
+    maxActive?: bigint,
+  ) {
     return getPrismaClient().$transaction(async (transaction) => {
+      // Serialize source creation in this workspace, not globally. The
+      // preflight gauge alone cannot stop two owners taking the last place.
+      await transaction.$queryRaw`
+        SELECT 1 AS locked FROM pg_advisory_xact_lock(
+          hashtextextended(${tenantId} || ':kds-intake-source', 0)
+        )
+      `;
+      if (maxActive !== undefined) {
+        const used = BigInt(
+          await transaction.kdsIntakeSource.count({
+            where: { status: "ACTIVE", tenantId },
+          }),
+        );
+        if (used >= maxActive) throw new IntakeSourceLimitReached(maxActive, used);
+      }
       const created = await transaction.kdsIntakeSource.create({
         data: {
           ...source,

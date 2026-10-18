@@ -257,6 +257,12 @@ function serializeOverride(record: EntitlementOverrideRecord) {
 function serializeSubscription(record: SubscriptionRecord) {
   return {
     ...record,
+    // Published packages with limits carry bigint values. Audit/event JSON
+    // keeps their exact decimal form, like the entitlement projection.
+    limits: record.limits.map((limit) => ({
+      ...limit,
+      value: limit.value?.toString() ?? null,
+    })),
     createdAt: record.createdAt.toISOString(),
     endsAt: record.endsAt?.toISOString() ?? null,
     graceEndsAt: record.graceEndsAt?.toISOString() ?? null,

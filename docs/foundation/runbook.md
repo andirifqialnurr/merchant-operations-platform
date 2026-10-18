@@ -38,6 +38,12 @@ Memasang paket sekaligus memasang modul yang termasuk di dalamnya (`provisionEnt
 
 Menghidupkan atau mematikan satu modul di luar paket: `PUT /platform/tenants/:id/entitlements/:moduleKey` dengan `enabled`, `reason` (wajib, minimal 3 huruf, masuk audit), dan opsional `endsAt`.
 
+### 1.3a Paket KDS dan versi lama
+
+`planCode: KDS_ONLY` memasang KDS Basic tanpa POS/Catalog komersial. Versi 1 membatasi satu sumber eksternal aktif (Packages & Limits 5.4). Versi penerus paket F&B standar membatasi nol sumber eksternal; pesanan POS/self-order internal tetap berjalan.
+
+Migrasi `20261018010000_kds_intake_package_limits` tidak memindahkan langganan lama atau mengubah isi snapshot terbit. `GET /platform/tenants/:id` menampilkan `packageVersion`; mengganti paket melalui langkah 1.2 memilih versi terbit terbaru dan merupakan perubahan eksplisit yang diaudit. Sebelum mengganti, review dampak kapasitas bersama pemilik. Sumber di atas kuota tetap aktif; pembuatan berikutnya ditolak `LIMIT_REACHED`. Jangan mengedit versi PUBLISHED lewat SQL atau mencabut sumber hanya untuk memaksa angka pemakaian turun.
+
 ### 1.3 Mata uang
 
 Workspace baru memakai IDR. Pemilik bisa memilih USD di Pengaturan → Bisnis dan outlet → Bisnis **sebelum** ada harga atau transaksi pertama; sesudah itu mata uang terkunci dan tidak ada cara membukanya, termasuk lewat SQL (nominal lama akan berubah arti).

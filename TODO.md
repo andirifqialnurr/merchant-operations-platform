@@ -67,9 +67,21 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: review M3/M4 dan rekonsiliasi gap Release 1.** M1/M2 sudah disetujui; M3/M4 masih **Menunggu review**, belum ada milestone berikutnya yang Berjalan. Mulai dari [`docs/milestones/REVIEW-M03-M04.md`](docs/milestones/REVIEW-M03-M04.md). Jangan memulai M5 atau menyatakan seluruh Basic lengkap hanya dari checkbox task.
+> **NEXT: penutupan teknis M3 atas instruksi pengguna.** M1/M2 disetujui; pekerjaan teknis M3 **Berjalan**, M4 tetap Menunggu review. Lihat [`docs/milestones/REVIEW-M03-M04.md`](docs/milestones/REVIEW-M03-M04.md). Fokus hanya M3; tidak memulai M4/M5 atau menganggap instruksi lanjut sebagai bukti uji fisik.
 
-#### Checkpoint aktif — penyelarasan status setelah M4 (baseline `7b61eb1`)
+#### Checkpoint dokumentasi — penyelarasan status setelah M4 (baseline `7b61eb1`, commit `21f2fbc`, dipush)
+
+#### Checkpoint aktif M3 — paket dan limit sumber intake
+
+- [x] GAP-08: tersedia paket KDS-only Basic dengan batas satu sumber eksternal dan versi penerus paket F&B standar dengan batas nol sesuai Packages & Limits 4.5/5.4. Versi PUBLISHED lama dan langganan yang menunjuknya tidak diubah; upgrade paket harus eksplisit. Paket custom tetap mengikuti konfigurasi/override sendiri.
+- [x] Owner data: Core Entitlements memiliki snapshot paket/limit; KDS memiliki sumber dan kredensial. Command pembuatan/pencabutan tetap lewat `IntakeSources`, guard izin `kds.intake.manage`, entitlement/instalasi KDS, serta scope outlet. DTO tidak memuat hash/secret selain kunci sekali tampil. Mutasi audit tetap transaksional; endpoint kredensial tidak menggunakan replay respons generik yang menyimpan secret.
+- [x] Migration `20261018010000_kds_intake_package_limits` hanya menambah snapshot/isi draft lalu menerbitkannya, tanpa mengubah versi lama, langganan, sumber, atau tiket; rollback aplikasi tidak menghapus snapshot, koreksi melalui versi/migrasi maju.
+- [x] Regresi PostgreSQL: satu sumber di KDS Basic, sumber kedua ditolak `LIMIT_REACHED`, override berbeda, pencabutan membebaskan tempat, downgrade tidak menghapus/mematikan sumber lama, versi paket lama tetap immutable, dan isolasi workspace/outlet. Dua pembuat bersamaan menghasilkan tepat satu sumber/audit melalui advisory lock per workspace. Limit bigint pada audit subscription kini diserialisasi sebagai string, sehingga paket berlimit bisa dilanggani tanpa error.
+- [x] Lint/boundary API dan contracts, typecheck API/contracts/web, 39 test contracts dan 396 test sumber API lulus. Tujuh suite integrasi KDS/downgrade lulus (p99 1.117 ms untuk 200 pesanan); setelah penguatan atomic create, dua suite intake/limit diulang dan lulus. Tidak ada mutasi database development untuk checkpoint ini; migrasi diuji pada PostgreSQL disposable.
+- [x] Gerbang root `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm format:check` lulus setelah perubahan atomic create; termasuk lint batas modul dan penjaga warna. Checkpoint paket/limit siap commit/push.
+- [ ] Checkpoint M3 berikutnya: test browser tersimpan dan verifikasi S/M/L terang/gelap/id/en, kios, manual/status, serta offline/recovery. Uji fisik dan persetujuan pengguna tetap belum dicentang; tidak memulai M4/M5.
+
+#### Bukti checkpoint dokumentasi
 
 - [x] Arsip sesi `3cb9d5ff-83ec-4a30-8152-ef42f1491331`, riwayat Git, route, manifest, dan kontrak dibandingkan; tidak ada perubahan kode atau data.
 - [x] Indeks docs, PRD ringkas, kondisi frontend, tabel kontrol keamanan, dan titik NEXT diperbarui agar tidak lagi menyebut POS/KDS/Floor/Pengaturan sebagai belum dibuat.

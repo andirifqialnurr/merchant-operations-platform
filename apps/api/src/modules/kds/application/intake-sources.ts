@@ -14,6 +14,7 @@ import {
   type OnModuleInit,
 } from "@nestjs/common";
 
+import { accessDenied, EntitlementService } from "../../../core/entitlements/public.js";
 import type { ActorCommandOrigin } from "../../../shared/command/command-origin.js";
 import {
   LIMIT_GATE,
@@ -25,6 +26,7 @@ import {
 import { createIntakeKey } from "../domain/intake-key.js";
 import {
   INTAKE_SOURCE_REPOSITORY,
+  IntakeSourceLimitReached,
   type IntakeSourceRecord,
   type IntakeSourceRepository,
 } from "./intake-source.repository.js";
@@ -56,6 +58,7 @@ export class IntakeSources implements OnModuleInit {
     @Inject(INTAKE_SOURCE_REPOSITORY) private readonly sources: IntakeSourceRepository,
     @Optional() @Inject(LIMIT_GATE) private readonly limits: LimitGate = NO_LIMITS,
     @Optional() @Inject(USAGE_GAUGE_REGISTRY) private readonly gauges?: UsageGaugeRegistry,
+    @Optional() @Inject(EntitlementService) private readonly entitlements?: EntitlementService,
   ) {}
 
   onModuleInit() {
@@ -78,13 +81,28 @@ export class IntakeSources implements OnModuleInit {
       throw new ConflictException({ code: "OUTLET_INACTIVE", message: "Outlet is not active." });
     }
     await this.limits.assertCanAdd(tenantId, INTAKE_SOURCES_DIMENSION);
+    const effective = await this.entitlements?.limitsInForce(tenantId);
+    const limit = effective?.limits.find((item) => item.dimensionKey === INTAKE_SOURCES_DIMENSION);
+    const maxActive = limit && !limit.unlimited ? (limit.value ?? undefined) : undefined;
     const { key, prefix, secretHash } = createIntakeKey();
-    const record = await this.sources.create(
-      tenantId,
-      { keyPrefix: prefix, label: command.label, outletId: command.outletId, secretHash },
-      origin,
-    );
-    return kdsIntakeSourceCreatedSchema.parse({ key, source: toIntakeSource(record) });
+    try {
+      const record = await this.sources.create(
+        tenantId,
+        { keyPrefix: prefix, label: command.label, outletId: command.outletId, secretHash },
+        origin,
+        maxActive,
+      );
+      return kdsIntakeSourceCreatedSchema.parse({ key, source: toIntakeSource(record) });
+    } catch (error) {
+      if (error instanceof IntakeSourceLimitReached) {
+        throw accessDenied("LIMIT_REACHED", {
+          dimensionKey: INTAKE_SOURCES_DIMENSION,
+          limit: error.limit.toString(),
+          usage: error.usage.toString(),
+        });
+      }
+      throw error;
+    }
   }
 
   async revoke(tenantId: string, id: string, origin: ActorCommandOrigin, now = new Date()) {

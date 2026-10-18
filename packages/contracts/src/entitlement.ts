@@ -25,6 +25,7 @@ export const PLAN_CODES = {
   cafeDigital: "CAFE_DIGITAL",
   cafeOperations: "CAFE_OPERATIONS",
   customModular: "CUSTOM_MODULAR",
+  kdsOnly: "KDS_ONLY",
   posBasic: "POS_BASIC",
   profile: "PROFILE",
 } as const;

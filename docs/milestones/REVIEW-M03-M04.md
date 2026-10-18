@@ -6,7 +6,7 @@
 
 ## 1. Posisi dan aturan lanjut
 
-- M1/M2 selesai dan disetujui pengguna. M3/M4 berstatus **Menunggu review**; belum ada milestone berikutnya yang Berjalan.
+- M1/M2 selesai dan disetujui pengguna. Setelah checkpoint dokumentasi `21f2fbc`, pengguna meminta penutupan teknis M3 beserta commit/push: pekerjaan M3 dilanjutkan, M4 tetap Menunggu review. Penerimaan pengguna/uji fisik tidak dicentang otomatis.
 - Permintaan untuk melanjutkan penyelarasan dokumentasi tidak dianggap sebagai persetujuan visual, perubahan scope produk, atau izin memulai M5.
 - Checkbox task M3/M4 merekam checkpoint implementasi terdahulu, bukan bukti bahwa seluruh capability Basic sudah lengkap.
 - PRD, tier, dan paket tetap otoritas scope sesuai [urutan sumber](../README.md). Gap wajib tidak menjadi future hanya karena belum masuk checklist milestone.
@@ -43,6 +43,10 @@ Setiap baris di bawah adalah pekerjaan tersisa atau pemeriksaan yang harus dialo
 | GAP-06 Struk kunjungan            | FLOOR-005 membatasi UI Basic ke satu bill per sesi; M4-BE-08 membayar kunjungan dengan satu pembayaran yang dialokasikan ke bill per pesanan. Struk per pesanan masih menampilkan pembayaran gabungan.                       | Review konsistensi representasi bill/struk terhadap FLOOR-005 sebelum menutup gap; butuh struk kunjungan tanpa nominal diterima/kembalian berulang atau menyesatkan. Skema per-order bukan alasan menurunkan kontrak UI.                                                      |
 | GAP-07 Customer mandiri           | PRD 20.1–20.2: contact list sederhana tanpa POS. API pelanggan tersedia, tetapi UI hanya di sheet pesanan POS; `/customers` belum ada.                                                                                       | Alokasikan surface Backoffice sebelum paket Customer-only dirilis. Inventaris field, izin kontak dan nominal, pencarian, serta scope riwayat ditentukan sebelum JSX.                                                                                                          |
 | GAP-08 Limit sumber API KDS       | Packages & Limits 5.4: KDS Basic standalone satu external intake source. Dimensi/gauge tersedia, tetapi TODO 14.21 mencatat angka limit belum diisi pada paket lokal; tanpa angka gerbang tidak membatasi.                   | Periksa snapshot paket dan kebijakan paket berversi sebelum migrasi data. Buktikan sumber kedua ditolak pada paket Basic yang dibatasi, perbedaan paket/override dihormati, dan sumber lama tidak dicabut oleh downgrade. Jangan mengedit isi versi PUBLISHED yang immutable. |
+
+### Pembaruan GAP-08 — implementasi tersedia
+
+Migrasi `20261018010000_kds_intake_package_limits` menyediakan `KDS_ONLY` v1 dengan satu sumber eksternal dan versi penerus paket F&B standar dengan nol sumber eksternal. Tabel di atas merekam temuan baseline, bukan kondisi sesudah perbaikan ini. Snapshot lama dan langganannya tidak diubah; paket custom/override tetap berlaku. Test HTTP memakai paket nyata, bukan gerbang tiruan. Test PostgreSQL membuktikan penolakan sumber kedua, dua pembuat bersamaan hanya menghasilkan satu sumber/audit, override, isolasi, downgrade tanpa pencabutan, dan tempat kembali setelah pencabutan. Bukti commit/gerbang tercatat pada M3-BE-09 dan TODO.
 
 ## 4. Utang dan keputusan di luar acceptance lokal
 

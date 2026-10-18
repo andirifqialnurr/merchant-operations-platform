@@ -1,6 +1,6 @@
 # M3 — Kitchen Display System
 
-**Status:** Menunggu review — semua 29 task selesai 16 Oktober 2026. Pengguna meminta lanjut ke M4 pada 16 Oktober 2026 sebelum review; keterbacaan dari jarak 1–2 meter masih perlu dicek di monitor dapur sungguhan
+**Status:** Berjalan — penutupan teknis M3 dilanjutkan atas permintaan pengguna setelah baseline `21f2fbc`: limit paket intake, regresi integrasi dan browser. Sebanyak 29 task awal sudah dicatat selesai 16 Oktober 2026. Review pengguna dan uji keterbacaan jarak 1–2 meter pada monitor dapur tetap terbuka; instruksi lanjut bukan hasil uji fisik.
 **Tahap PRD:** D (KDS)
 **Bergantung pada:** M2 (event, inbox, binding, perangkat)
 
@@ -45,6 +45,8 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 - [x] **M3-BE-07 Realtime** `f6aceef` — Socket.IO per outlet dengan autentikasi sesi perangkat; klien mengambil ulang saat tersambung kembali. Selesai 15 Oktober 2026 (TODO 14.14). Namespace `/kds` di jalur `/api/realtime`. Trigger `kds_tickets_notify_queue` mengirim `pg_notify` setiap ticket dibuat atau berubah status, dari API maupun worker; API meneruskannya ke ruang `workspace:outlet`. Pesan hanya `{ outletId }`; layar mengambil ulang lewat REST saat menerima pesan dan setiap tersambung (ulang).
 - [x] **M3-BE-08 API intake eksternal** `19eca86` — endpoint dengan kredensial integrasi dan rate limit (bila `OD-04` memilih API). Selesai 16 Oktober 2026 (TODO 14.21). `OD-04` diputuskan pengguna 16 Oktober 2026: manual + API. Sumber intake (`kds_intake_sources`) = satu kunci rahasia per sistem luar, terikat satu outlet, hanya hash yang disimpan; dikelola di Pengaturan > Sistem luar dapur (izin `kds.intake.manage`, Owner/Manager). `POST /api/v1/kds/intake/tickets` dengan `Authorization: Bearer kds_…`; referensi yang sama mengembalikan ticket yang sama (201 lalu 200). Jumlah sumber aktif dihitung dimensi `kds.intake_sources.active`. Rate limit: M3-SC-03.
 
+- [~] **M3-BE-09 Paket dan limit sumber intake (GAP-08)** — paket KDS-only Basic dengan satu sumber, versi penerus paket F&B standar dengan nol sumber eksternal, tanpa mutasi snapshot lama atau upgrade langganan otomatis. Kapasitas diperiksa ulang dalam transaksi create/audit dengan advisory lock per workspace; override dan downgrade mempertahankan sumber/tiket lama. Regresi PostgreSQL termasuk race dua pembuat, pencabutan, dan isolasi. Menunggu commit checkpoint; bukti di TODO checkpoint aktif M3.
+
 ### UX — Alur dan interaksi
 
 - [x] **M3-UX-01 Shell KDS** `f0e9d9b` — rute `(kds)`, layar penuh, mode kios, tanpa sidebar. Selesai 13 Oktober 2026 (TODO 14.9). Mode kios memakai layar penuh browser lewat tombol di bar atas; belum diuji di perangkat dapur sungguhan.
@@ -73,6 +75,8 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 - [x] **M3-QA-01 Test satu use case banyak pintu** `579fe82` — manual, event, dan API menghasilkan ticket identik. Selesai 16 Oktober 2026 (TODO 14.6, 14.11, 14.21): pintu manual dan event lewat use case yang sama (`kds-tickets`, `kds-order-flow`); pintu API lewat HTTP menghasilkan ticket yang isinya sama dengan pintu manual (`kds-intake`).
 - [x] **M3-QA-02 Test event ganda** `0a08380` — event yang sama dua kali menghasilkan satu ticket. Selesai 13 Oktober 2026 (TODO 14.11).
 - [x] **M3-QA-03 Test kombinasi** `0a08380` — KDS-only, POS-only, POS + KDS. Selesai 13 Oktober 2026 (TODO 14.11): `kds-order-flow.integration.test.mjs`.
+
+- [ ] **M3-QA-04 Regresi penutupan teknis** — suite integrasi KDS dan test browser tersimpan untuk alur manual, status, S/M/L, tema/bahasa, kios, offline/recovery; bukti baru tidak menggantikan uji monitor fisik.
 
 ### OP — Operasional dan dokumentasi
 
