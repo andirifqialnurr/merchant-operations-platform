@@ -101,7 +101,7 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 
 - **Paket/limit:** `e7ac7e3`; satu sumber untuk KDS-only Basic, versi penerus F&B standar nol sumber eksternal, snapshot/subscription lama tetap, atomic create, override/downgrade dan isolasi diuji. Migrasi belum diterapkan ke database development dalam batch ini; seluruh pengujian memakai database disposable.
 - **Browser:** `10799b9`; tiga test lulus dengan 32 kombinasi viewport/tema/bahasa, manual/status/riwayat, kios, suara lewat keyboard, offline/recovery, API intake/idempotency/limit/cabut. Screenshot lokal: `apps/web/test-results/kds`; sampel desktop, mobile, tablet, batas 1280px, kios, dan limit dibaca. Kontrol aksi ticket terukur ≥44px, kios ≥64px.
-- **Regresi/build:** lint, typecheck, test, format, dan schema validation lulus; 20 test integrasi PostgreSQL lulus; build API, web, worker lulus. Uji latency terakhir: 200 pesanan, p99 1.162 ms, maksimum 1.171 ms (mesin lokal, bukan SLA produksi). Peringatan deprecation pg tentang query bersamaan masih tercatat, bukan kegagalan suite.
+- **Regresi/build:** lint, typecheck, test, format, dan schema validation lulus; 20 test integrasi PostgreSQL lulus; build API, web, worker lulus. Uji latency penutupan: 200 pesanan, p99 1.162 ms, maksimum 1.171 ms (mesin lokal, bukan SLA produksi). Peringatan deprecation pg tentang query bersamaan masih tercatat, bukan kegagalan suite.
 - **Keamanan data uji:** API fixture memakai port 4001 hanya selama suite lalu ditutup; database sementara dihapus. Tidak ada akun, kunci, atau tiket uji baru pada database development. Spec KDS dilewati runner E2E biasa; gunakan `pnpm --filter @merchant/web test:e2e:kds` saat port 4001 kosong.
 
 Yang masih harus dilakukan pengguna sebelum status **Selesai**:
@@ -109,3 +109,9 @@ Yang masih harus dilakukan pengguna sebelum status **Selesai**:
 - [ ] Buka KDS pada monitor dapur yang akan dipakai, gunakan skala/zoom operasional sebenarnya, lalu baca nomor, jumlah, nama item, modifier/catatan, dan status dari jarak 1–2 meter pada terang dan gelap; coba mode kios.
 - [ ] Pastikan bunyi ticket baru terdengar pada kondisi dapur, kontrol bisu/volume dapat dipakai, dan langkah status cukup mudah disentuh.
 - [ ] Nyatakan hasil review diterima atau catat koreksinya. Ubah status milestone menjadi Selesai hanya setelah gate ini terpenuhi atau ada perubahan gate yang diputuskan pengguna secara eksplisit.
+
+### Verifikasi ulang 18 Oktober 2026 (baseline `21c8773`)
+
+Browser KDS diulang: **3 passed**, 32 kombinasi viewport/tema/bahasa, manual/status/riwayat, suara/keyboard, kios, offline/recovery, API/idempotency/limit/cabut. Screenshot baru desktop 1440 light, HP 320 dark, kios dark, dan state limit paket diperiksa. Tujuh test integrasi KDS/downgrade juga lulus; untuk 200 pesanan p99 **1.179 ms**, maksimum **1.199 ms**. Peringatan deprecation pg masih ada, tanpa kegagalan suite.
+
+Docker tidak diperlukan: PostgreSQL lokal tersedia, web merespons 200, API/database fixture dibuat sementara dan ditutup oleh suite. Tidak ada perubahan kode aplikasi, migrasi development, atau penambahan tiket pada data development. Pemeriksaan cleanup juga menemukan satu database test lama tanpa koneksi aktif (dibuat sebelum uji ulang); tidak dihapus tanpa konfirmasi kepemilikan. Rincian pada TODO bagian verifikasi ulang. Gate fisik dan persetujuan pengguna di atas tetap terbuka.

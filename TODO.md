@@ -85,6 +85,14 @@ Aturan pengerjaan:
 - [x] Verifikasi akhir: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm format:check`, `pnpm db:validate`; 20 test integrasi PostgreSQL lulus (termasuk regresi modul lain, tanpa acceptance visual M4), p99 terbaru 1.162 ms untuk 200 pesanan; build API/web/worker lulus. Runner E2E biasa melewati spec KDS (3 skipped, tidak memulai fixture), runner khusus diulang sesudahnya (3 passed, 32 screenshot antrean). Peringatan deprecation `pg` tentang query bersamaan masih ada, tidak menggagalkan suite.
 - [ ] Uji keterbacaan monitor dapur fisik jarak 1–2 meter dan persetujuan pengguna tetap terbuka. Implementasi/verifikasi otomatis M3 selesai; jangan menyatakan milestone diterima atau memulai M4/M5 tanpa keputusan pengguna.
 
+#### Verifikasi ulang M3 — 18 Oktober 2026, baseline `21c8773`
+
+- [x] Atas permintaan pengguna, browser test KDS dijalankan ulang: 3 passed (51,9 detik), 32 kombinasi viewport/tema/bahasa; manual/status/riwayat, keyboard/suara, kios, offline/recovery, API intake/idempotency/limit/cabut. Screenshot baru desktop 1440 light, HP 320 dark, kios dark, dan limit paket dibaca.
+- [x] Tujuh test integrasi KDS/downgrade lulus (113,6 detik). Latensi 200 pesanan: p50 696 ms, p95 1.098 ms, p99 1.179 ms, maksimum 1.199 ms; di bawah target p99 5 detik. Peringatan deprecation pg tetap ada tanpa kegagalan test.
+- [x] Web lokal awal/akhir merespons 200; API fixture hanya hidup selama browser suite lalu berhenti. PostgreSQL lokal dipakai, Docker/Redis tidak diperlukan dan Docker tidak dinyalakan. Tidak ada migrasi atau data uji baru yang diterapkan ke database development.
+- [x] Pemeriksaan cleanup menemukan satu database `merchant_test_*` lama (dibuat 06:05:47 UTC, sebelum uji ulang ini sekitar 07:16 UTC), tanpa koneksi aktif. Tidak dihapus karena kepemilikan invocation belum terkonfirmasi; bukan dasar untuk menghapus database hanya berdasarkan prefix.
+- [ ] Gate monitor dapur fisik/suara lingkungan dan persetujuan pengguna tetap terbuka. Pengujian browser bukan bukti keterbacaan jarak 1–2 meter atau audibilitas di dapur nyata.
+
 #### Bukti checkpoint dokumentasi
 
 - [x] Arsip sesi `3cb9d5ff-83ec-4a30-8152-ef42f1491331`, riwayat Git, route, manifest, dan kontrak dibandingkan; tidak ada perubahan kode atau data.
