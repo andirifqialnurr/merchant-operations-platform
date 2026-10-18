@@ -67,11 +67,11 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: penutupan teknis M3 atas instruksi pengguna.** M1/M2 disetujui; pekerjaan teknis M3 **Berjalan**, M4 tetap Menunggu review. Lihat [`docs/milestones/REVIEW-M03-M04.md`](docs/milestones/REVIEW-M03-M04.md). Fokus hanya M3; tidak memulai M4/M5 atau menganggap instruksi lanjut sebagai bukti uji fisik.
+> **NEXT: review akhir M3 dan uji monitor dapur fisik.** Implementasi/verifikasi otomatis M3 selesai dan dipush (`e7ac7e3`, `10799b9`). M1/M2 disetujui; M3/M4 **Menunggu review**, belum ada milestone berikutnya yang Berjalan. Lihat [gate pengguna M3 bagian 7](docs/milestones/M03-kds.md) dan [`REVIEW-M03-M04.md`](docs/milestones/REVIEW-M03-M04.md). Tidak memulai M4/M5 atau menganggap instruksi lanjut sebagai hasil uji fisik.
 
 #### Checkpoint dokumentasi — penyelarasan status setelah M4 (baseline `7b61eb1`, commit `21f2fbc`, dipush)
 
-#### Checkpoint aktif M3 — paket dan limit sumber intake
+#### Checkpoint M3 — paket/limit dan regresi penutupan (dipush `e7ac7e3`, `10799b9`)
 
 - [x] GAP-08: tersedia paket KDS-only Basic dengan batas satu sumber eksternal dan versi penerus paket F&B standar dengan batas nol sesuai Packages & Limits 4.5/5.4. Versi PUBLISHED lama dan langganan yang menunjuknya tidak diubah; upgrade paket harus eksplisit. Paket custom tetap mengikuti konfigurasi/override sendiri.
 - [x] Owner data: Core Entitlements memiliki snapshot paket/limit; KDS memiliki sumber dan kredensial. Command pembuatan/pencabutan tetap lewat `IntakeSources`, guard izin `kds.intake.manage`, entitlement/instalasi KDS, serta scope outlet. DTO tidak memuat hash/secret selain kunci sekali tampil. Mutasi audit tetap transaksional; endpoint kredensial tidak menggunakan replay respons generik yang menyimpan secret.
@@ -80,7 +80,7 @@ Aturan pengerjaan:
 - [x] Lint/boundary API dan contracts, typecheck API/contracts/web, 39 test contracts dan 396 test sumber API lulus. Tujuh suite integrasi KDS/downgrade lulus (p99 1.117 ms untuk 200 pesanan); setelah penguatan atomic create, dua suite intake/limit diulang dan lulus. Tidak ada mutasi database development untuk checkpoint ini; migrasi diuji pada PostgreSQL disposable.
 - [x] Gerbang root `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm format:check` lulus setelah perubahan atomic create; termasuk lint batas modul dan penjaga warna. Checkpoint paket/limit siap commit/push.
 - [x] Checkpoint paket/limit selesai dan dipush `e7ac7e3`; M3-BE-09/GAP-08. Langganan lama dan database development tidak diubah.
-- [x] Checkpoint M3-QA-04: `pnpm --filter @merchant/web test:e2e:kds` memakai API terisolasi port 4001 dan PostgreSQL disposable, tanpa akun/worker/data development. Tiga test browser lulus: manual → semua status → riwayat; 32 kombinasi 320/390/767/768/1024/1279/1280/1440 × light/dark × id/en, timer, kios 64px, suara lewat keyboard, offline/recovery; buat sumber/kunci sekali tampil, kirim API idempoten, limit paket nyata, cabut lalu key 401. Screenshot tersimpan di `apps/web/test-results/kds` (Git-ignored); sampel desktop/mobile/tablet/kios/limit direview. Gerbang akhir lulus; commit/push checkpoint browser dilakukan setelah pembaruan bukti ini.
+- [x] Checkpoint M3-QA-04: `pnpm --filter @merchant/web test:e2e:kds` memakai API terisolasi port 4001 dan PostgreSQL disposable, tanpa akun/worker/data development. Tiga test browser lulus: manual → semua status → riwayat; 32 kombinasi 320/390/767/768/1024/1279/1280/1440 × light/dark × id/en, timer, kios 64px, suara lewat keyboard, offline/recovery; buat sumber/kunci sekali tampil, kirim API idempoten, limit paket nyata, cabut lalu key 401. Screenshot tersimpan di `apps/web/test-results/kds` (Git-ignored); sampel desktop/mobile/tablet/kios/limit direview. Gerbang akhir lulus; commit/push checkpoint browser `10799b9` selesai.
 - [x] Label limit `kds.intake_sources.active` yang semula tampil sebagai kode internal diganti nama dari kamus id/en, dengan regresi kamus dan browser. Tidak ada field/JSX/rute bisnis baru; label adalah display kapasitas di semantic area limit yang sudah ada.
 - [x] Verifikasi akhir: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm format:check`, `pnpm db:validate`; 20 test integrasi PostgreSQL lulus (termasuk regresi modul lain, tanpa acceptance visual M4), p99 terbaru 1.162 ms untuk 200 pesanan; build API/web/worker lulus. Runner E2E biasa melewati spec KDS (3 skipped, tidak memulai fixture), runner khusus diulang sesudahnya (3 passed, 32 screenshot antrean). Peringatan deprecation `pg` tentang query bersamaan masih ada, tidak menggagalkan suite.
 - [ ] Uji keterbacaan monitor dapur fisik jarak 1–2 meter dan persetujuan pengguna tetap terbuka. Implementasi/verifikasi otomatis M3 selesai; jangan menyatakan milestone diterima atau memulai M4/M5 tanpa keputusan pengguna.
@@ -1302,8 +1302,8 @@ Catatan alignment 5 Agustus 2026: urutan historis P2 dimulai setelah primitive U
 
 Urutan aktif setelah task M4 menggantikan urutan fondasi lama. Checkpoint 12.x–14.x di atas tetap menjadi riwayat; pernyataan "belum" atau "berikutnya" di dalam checkpoint lama berlaku pada saat itu, bukan otomatis status sekarang.
 
-1. Selesaikan penyelarasan status dan register review M3/M4 (checkpoint aktif bagian 2), lalu review dan commit/push.
-2. Konfirmasi satu checkpoint perbaikan moderasi staf Basic (GAP-01); tentukan owner, command/state, DTO, izin, event, idempotency, audit, dan inventaris field sebelum implementasi. Jangan menggabungkannya dengan reslicing rute.
+1. Review hasil teknis M3 (`e7ac7e3`, `10799b9`) dan selesaikan uji monitor dapur fisik pada M3 bagian 7. Tidak ada pekerjaan teknis M3 yang sedang tertunda pada checkpoint ini; penerimaan pengguna tidak digantikan oleh test otomatis.
+2. Setelah diizinkan melanjutkan M4, konfirmasi checkpoint moderasi staf Basic (GAP-01); tentukan owner, command/state, DTO, izin, event, idempotency, audit, dan inventaris field sebelum implementasi. Jangan menggabungkannya dengan reslicing rute.
 3. Review M3/M4, selesaikan gap penerimaan, dan alokasikan gap Catalog/POS/Customer serta limit KDS terhadap kontrak Release 1. Keterbacaan monitor dapur tetap membutuhkan pengguna/perangkat nyata.
 4. M5 baru dimulai setelah gate diterima atau pengguna memutuskan pengecualian secara eksplisit. OD-05 harus ditetapkan sebelum integrasi stok.
 5. M6–M9 mengikuti roadmap; tidak ada izin batch implementasi atau deploy yang tersirat dari checkpoint dokumentasi ini.
@@ -1312,11 +1312,11 @@ Setiap checkpoint berdiri sendiri: verifikasi → review/commit/push → lanjut 
 
 ## 10. Hal yang belum dikerjakan sekarang
 
-- Review M3/M4 dan delapan gap pada [`REVIEW-M03-M04.md`](docs/milestones/REVIEW-M03-M04.md), termasuk moderasi Basic, profil publik, diskon, pembayaran campuran, gambar tamu, struk kunjungan, Customer mandiri, dan limit sumber API KDS.
+- Review M3/M4 dan register delapan gap pada [`REVIEW-M03-M04.md`](docs/milestones/REVIEW-M03-M04.md). GAP-08 limit sumber API KDS ditutup teknis `e7ac7e3`; tujuh gap lain (moderasi Basic, profil publik, diskon, pembayaran campuran, gambar tamu, struk kunjungan, Customer mandiri) tetap terbuka dan bukan scope batch M3.
 - Inventory, Business Finance, HC, laporan, serta UI Platform Admin belum dibangun; tabel/komponen rencana bukan fitur selesai. API platform dasar sudah ada.
 - Utang M2 dan keputusan layanan email, tujuan upgrade, wajib/tidaknya perangkat POS, provisioning lengkap, serta gap keamanan/operasional tetap dilacak di TODO 13.59 dan register review.
 - Audit lintas seluruh endpoint/surface, CSP web, trust proxy, support access, backup operasional, monitoring, retention, kepatuhan, dan pilot mengikuti M8/M9. Test PostgreSQL disposable, lint batas modul, rate limiter Redis, token QR, dan penjaga payload event sudah tersedia; itu bukan audit keamanan penuh.
 - Workflow CI hanya manual. Sebelum kontributor kedua atau deploy pertama, pulihkan trigger push/PR dan buktikan run hijau GitHub; verifikasi lokal tidak sama dengan bukti runner.
 - Beberapa bagian foundation/inventaris masih merekam snapshot lama; rekonsiliasi lanjutan harus mempertahankan requirement produk dan bukti historis.
-- Browser/visual, integration PostgreSQL, dan build penuh belum diulang pada checkpoint dokumentasi ini. Bukti terdahulu tetap ada di checkpoint implementasi, bukan klaim runtime terkini; jangan menyalakan stack lokal tanpa meninjau memori dan kebutuhan pengujian.
+- Regresi browser KDS, seluruh 20 integration PostgreSQL, serta build API/web/worker sudah diulang pada penutupan teknis M3. Acceptance visual M4 dan uji monitor dapur fisik tetap belum dilakukan; jangan menyalakan stack lokal tanpa meninjau memori/kebutuhan pengujian.
 - Komponen modul berikutnya dan file besar diaudit saat checkpoint terkait; perubahan struktur/reslicing tidak digabung diam-diam dengan fitur baru.

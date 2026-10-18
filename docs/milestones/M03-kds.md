@@ -1,6 +1,6 @@
 # M3 — Kitchen Display System
 
-**Status:** Berjalan — penutupan teknis M3 dilanjutkan atas permintaan pengguna setelah baseline `21f2fbc`: limit paket intake, regresi integrasi dan browser. Sebanyak 29 task awal sudah dicatat selesai 16 Oktober 2026. Review pengguna dan uji keterbacaan jarak 1–2 meter pada monitor dapur tetap terbuka; instruksi lanjut bukan hasil uji fisik.
+**Status:** Menunggu review — implementasi dan verifikasi otomatis M3 selesai, termasuk penutupan limit intake `e7ac7e3` dan regresi browser `10799b9`. Sebanyak 29 task awal dicatat selesai 16 Oktober 2026; dua task penutupan ditambahkan setelah rekonsiliasi. Uji keterbacaan jarak 1–2 meter pada monitor dapur dan persetujuan pengguna masih terbuka; tidak diklaim selesai dari screenshot. Tidak melanjutkan M4/M5.
 **Tahap PRD:** D (KDS)
 **Bergantung pada:** M2 (event, inbox, binding, perangkat)
 
@@ -76,7 +76,7 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 - [x] **M3-QA-02 Test event ganda** `0a08380` — event yang sama dua kali menghasilkan satu ticket. Selesai 13 Oktober 2026 (TODO 14.11).
 - [x] **M3-QA-03 Test kombinasi** `0a08380` — KDS-only, POS-only, POS + KDS. Selesai 13 Oktober 2026 (TODO 14.11): `kds-order-flow.integration.test.mjs`.
 
-- [~] **M3-QA-04 Regresi penutupan teknis** — suite integrasi KDS dan test browser tersimpan (`pnpm --filter @merchant/web test:e2e:kds`). Tiga test browser lulus: manual/status/riwayat; 32 kombinasi 320/390/767/768/1024/1279/1280/1440 × light/dark × id/en, timer, kios, suara/keyboard, offline/recovery; sumber API, limit nyata dan pencabutan. API/DB fixture sementara ditutup sesudah test; tidak menyentuh data development. Nama limit diterjemahkan dari kamus id/en. Screenshot sampel direview; bukti browser tidak menggantikan uji monitor fisik. Menunggu commit checkpoint.
+- [x] **M3-QA-04 Regresi penutupan teknis** `10799b9` — suite integrasi KDS dan test browser tersimpan (`pnpm --filter @merchant/web test:e2e:kds`). Tiga test browser lulus: manual/status/riwayat; 32 kombinasi 320/390/767/768/1024/1279/1280/1440 × light/dark × id/en, timer, kios, suara/keyboard, offline/recovery; sumber API, limit nyata dan pencabutan. API/DB fixture sementara ditutup sesudah test; tidak menyentuh data development. Nama limit diterjemahkan dari kamus id/en. Screenshot sampel direview; bukti browser tidak menggantikan uji monitor fisik. Checkpoint sudah dipush; gerbang root, 20 integrasi PostgreSQL dan build API/web/worker lulus.
 
 ### OP — Operasional dan dokumentasi
 
@@ -96,3 +96,16 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 ## 6. Referensi
 
 `prd.md` 6.3–6.4 · `flowchart.md` 8 · `schema.md` B.5 · `architecture.md` 7 · `design-system.md` 19.4 · `design-system-modules.md` 8 · `security.md` 10.1.
+
+## 7. Bukti penutupan dan gate pengguna
+
+- **Paket/limit:** `e7ac7e3`; satu sumber untuk KDS-only Basic, versi penerus F&B standar nol sumber eksternal, snapshot/subscription lama tetap, atomic create, override/downgrade dan isolasi diuji. Migrasi belum diterapkan ke database development dalam batch ini; seluruh pengujian memakai database disposable.
+- **Browser:** `10799b9`; tiga test lulus dengan 32 kombinasi viewport/tema/bahasa, manual/status/riwayat, kios, suara lewat keyboard, offline/recovery, API intake/idempotency/limit/cabut. Screenshot lokal: `apps/web/test-results/kds`; sampel desktop, mobile, tablet, batas 1280px, kios, dan limit dibaca. Kontrol aksi ticket terukur ≥44px, kios ≥64px.
+- **Regresi/build:** lint, typecheck, test, format, dan schema validation lulus; 20 test integrasi PostgreSQL lulus; build API, web, worker lulus. Uji latency terakhir: 200 pesanan, p99 1.162 ms, maksimum 1.171 ms (mesin lokal, bukan SLA produksi). Peringatan deprecation pg tentang query bersamaan masih tercatat, bukan kegagalan suite.
+- **Keamanan data uji:** API fixture memakai port 4001 hanya selama suite lalu ditutup; database sementara dihapus. Tidak ada akun, kunci, atau tiket uji baru pada database development. Spec KDS dilewati runner E2E biasa; gunakan `pnpm --filter @merchant/web test:e2e:kds` saat port 4001 kosong.
+
+Yang masih harus dilakukan pengguna sebelum status **Selesai**:
+
+- [ ] Buka KDS pada monitor dapur yang akan dipakai, gunakan skala/zoom operasional sebenarnya, lalu baca nomor, jumlah, nama item, modifier/catatan, dan status dari jarak 1–2 meter pada terang dan gelap; coba mode kios.
+- [ ] Pastikan bunyi ticket baru terdengar pada kondisi dapur, kontrol bisu/volume dapat dipakai, dan langkah status cukup mudah disentuh.
+- [ ] Nyatakan hasil review diterima atau catat koreksinya. Ubah status milestone menjadi Selesai hanya setelah gate ini terpenuhi atau ada perubahan gate yang diputuskan pengguna secara eksplisit.

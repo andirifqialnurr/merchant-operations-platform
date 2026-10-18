@@ -6,7 +6,7 @@
 
 ## 1. Posisi dan aturan lanjut
 
-- M1/M2 selesai dan disetujui pengguna. Setelah checkpoint dokumentasi `21f2fbc`, pengguna meminta penutupan teknis M3 beserta commit/push: pekerjaan M3 dilanjutkan, M4 tetap Menunggu review. Penerimaan pengguna/uji fisik tidak dicentang otomatis.
+- M1/M2 selesai dan disetujui pengguna. Atas instruksi setelah `21f2fbc`, penutupan teknis M3 selesai dan dipush sebagai `e7ac7e3` (paket/limit) serta `10799b9` (browser). M3 kembali **Menunggu review**, M4 tetap Menunggu review. Penerimaan pengguna/uji fisik tidak dicentang otomatis.
 - Permintaan untuk melanjutkan penyelarasan dokumentasi tidak dianggap sebagai persetujuan visual, perubahan scope produk, atau izin memulai M5.
 - Checkbox task M3/M4 merekam checkpoint implementasi terdahulu, bukan bukti bahwa seluruh capability Basic sudah lengkap.
 - PRD, tier, dan paket tetap otoritas scope sesuai [urutan sumber](../README.md). Gap wajib tidak menjadi future hanya karena belum masuk checklist milestone.
@@ -46,7 +46,7 @@ Setiap baris di bawah adalah pekerjaan tersisa atau pemeriksaan yang harus dialo
 
 ### Pembaruan GAP-08 — implementasi tersedia
 
-Migrasi `20261018010000_kds_intake_package_limits` menyediakan `KDS_ONLY` v1 dengan satu sumber eksternal dan versi penerus paket F&B standar dengan nol sumber eksternal. Tabel di atas merekam temuan baseline, bukan kondisi sesudah perbaikan ini. Snapshot lama dan langganannya tidak diubah; paket custom/override tetap berlaku. Test HTTP memakai paket nyata, bukan gerbang tiruan. Test PostgreSQL membuktikan penolakan sumber kedua, dua pembuat bersamaan hanya menghasilkan satu sumber/audit, override, isolasi, downgrade tanpa pencabutan, dan tempat kembali setelah pencabutan. Bukti commit/gerbang tercatat pada M3-BE-09 dan TODO.
+Commit `e7ac7e3`, migrasi `20261018010000_kds_intake_package_limits`, menyediakan `KDS_ONLY` v1 dengan satu sumber eksternal dan versi penerus paket F&B standar dengan nol sumber eksternal. Tabel di atas merekam temuan baseline, bukan kondisi sesudah perbaikan ini. Snapshot lama dan langganannya tidak diubah; paket custom/override tetap berlaku. Test HTTP memakai paket nyata, bukan gerbang tiruan. Test PostgreSQL membuktikan penolakan sumber kedua, dua pembuat bersamaan hanya menghasilkan satu sumber/audit, override, isolasi, downgrade tanpa pencabutan, dan tempat kembali setelah pencabutan. Bukti commit/gerbang tercatat pada M3-BE-09 dan TODO.
 
 ## 4. Utang dan keputusan di luar acceptance lokal
 
@@ -61,13 +61,13 @@ Migrasi `20261018010000_kds_intake_package_limits` menyediakan `KDS_ONLY` v1 den
 
 Pada pengenalan kembali baseline, pemeriksaan batas modul dan warna, test contracts/web/worker, serta test API (396 lulus pada invocation test sumber API, di luar test skrip boundary) berhasil. Tidak ada perubahan kode setelah pemeriksaan itu dalam checkpoint dokumentasi ini.
 
-**Pembaruan penutupan teknis M3:** lint/typecheck/test/format root serta tujuh suite integrasi KDS/downgrade sudah dijalankan ulang; p99 1.117 ms untuk 200 pesanan adalah hasil mesin lokal. Test browser KDS tersimpan kini memakai database/API disposable (M3-QA-04): tiga test dengan 32 kombinasi layar/tema/bahasa, manual/status/riwayat, suara/keyboard, kios, offline/recovery, serta API intake/limit/cabut lulus; screenshot sampel desktop/mobile/tablet/kios/limit dibaca. Pengujian itu bukan uji monitor fisik. Bukti M4 tetap historis dan tidak diverifikasi ulang oleh batch khusus M3. API fixture berhenti dan database sementaranya dihapus setelah suite; API/worker development tidak dinyalakan.
+**Pembaruan penutupan teknis M3:** lint/typecheck/test/format root dan validasi skema lulus; seluruh 20 test integrasi PostgreSQL serta build API/web/worker lulus. P99 terakhir 1.162 ms untuk 200 pesanan adalah hasil mesin lokal. Test browser KDS tersimpan kini memakai database/API disposable (M3-QA-04): tiga test dengan 32 kombinasi layar/tema/bahasa, manual/status/riwayat, suara/keyboard, kios, offline/recovery, serta API intake/limit/cabut lulus; screenshot sampel desktop/mobile/tablet/kios/limit dibaca. Pengujian itu bukan uji monitor fisik. Regresi integrasi M4 ikut lulus dalam suite penuh, tetapi tidak ada acceptance visual M4 baru dalam batch khusus M3. API fixture berhenti dan database sementaranya dihapus setelah suite; API/worker development tidak dinyalakan.
 
 Verifikasi khusus perubahan dokumentasi dicatat di [TODO](../../TODO.md): diff whitespace, tautan lokal, dan rujukan sumber/kondisi kode. Tidak ada migrasi, perubahan data lokal, atau klaim siap produksi.
 
 ## 6. Urutan yang disarankan
 
-1. Selesaikan checkpoint dokumentasi ini dan review hasilnya.
-2. Ambil satu checkpoint perbaikan moderasi Basic (GAP-01) setelah scope backend/interaksi dikonfirmasi; persiapkan test integrasi dan visual sesuai risikonya.
-3. Tinjau M3/M4 bersama pengguna, selesaikan gap terkait, dan alokasikan gap Release 1 lintas milestone secara eksplisit.
+1. Review penutupan teknis M3 dan jalankan gate monitor dapur pada [M3 bagian 7](./M03-kds.md); hanya pengguna yang dapat mengonfirmasi hasil fisiknya.
+2. Tandai M3 Selesai setelah penerimaan/gate terpenuhi atau gate diubah secara eksplisit oleh pengguna. Tidak ada implementasi M4/M5 lanjutan pada batch M3.
+3. Setelah diizinkan melanjutkan M4, ambil checkpoint moderasi Basic (GAP-01) dengan scope backend/interaksi yang jelas; gap lain tetap perlu alokasi terhadap kontrak produk.
 4. Mulai M5 hanya setelah gate diterima atau pengguna secara eksplisit memutuskan pengecualian. Satu checkpoint tetap diverifikasi dan dipush sebelum checkpoint berikutnya, kecuali instruksi batch eksplisit.

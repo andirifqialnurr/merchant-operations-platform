@@ -2,7 +2,7 @@
 
 **Status:** Indeks source of truth
 **Kontrak diselaraskan:** 2 Oktober 2026
-**Status implementasi diperiksa:** setelah penutupan task M4, baseline Git `7b61eb1`
+**Status implementasi diperiksa:** penutupan teknis M3 (`e7ac7e3`, `10799b9`) setelah baseline M4 `7b61eb1`
 
 Dokumen produk dan foundation di folder ini menjadi dasar keputusan. Dokumen kemajuan implementasi tidak boleh mengubah cakupan hanya agar sesuai dengan kode yang sudah ada.
 
@@ -61,7 +61,7 @@ Pada penyelarasan 5 Agustus 2026, `docs/00-GLOBAL-PRODUCT-SCOPE.md`, `docs/FEATU
 
 ## Kondisi implementasi
 
-M1 dan M2 selesai dan sudah disetujui pengguna. Seluruh task implementasi M3 (KDS) dan M4 (Meja, Self-Order, Customer) sudah dicatat selesai, tetapi kedua milestone masih **Menunggu review**. Belum ada milestone berikutnya yang berstatus Berjalan.
+M1 dan M2 selesai dan sudah disetujui pengguna. Seluruh task implementasi awal M3 (KDS) dan M4 (Meja, Self-Order, Customer) sudah dicatat selesai. Penutupan teknis M3 juga selesai: limit paket `e7ac7e3`, browser disposable `10799b9`, regresi/build lulus. M3 tetap **Menunggu review** pengguna dan uji monitor dapur fisik; M4 masih **Menunggu review** beserta gap Basic yang dicatat. Belum ada milestone berikutnya yang berstatus Berjalan.
 
 - Catalog, POS, Pengaturan, KDS, editor/operasi meja, halaman tamu `/t/[token]`, dan pelanggan di POS sudah terhubung ke API. Bank warna Calm Neutral, Tabler, dua bahasa, dan tema terang/gelap sudah dipakai surface tersebut.
 - Inventory, Business Finance, HC, laporan, dan UI Platform Admin belum dibangun. API dasar platform sudah ada; itu bukan UI Platform Admin lengkap. `/inventory` hanya pratinjau development.
