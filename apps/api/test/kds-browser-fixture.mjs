@@ -26,7 +26,7 @@ try {
   await withDisposablePostgres(async ({ connectionString }) => {
     process.env.DATABASE_URL = connectionString;
     process.env.RATE_LIMIT_STORE = "memory";
-    process.env.WEB_URL = process.env.E2E_BASE_URL ?? "http://localhost:4000";
+    process.env.WEB_URL = process.env.E2E_BASE_URL ?? "http://localhost:4100";
     const db = getPrismaClient();
     const { AppModule } = await import("../src/app.module.ts");
     const { ApiExceptionFilter } = await import("../src/bootstrap/api-exception.filter.ts");
@@ -47,9 +47,9 @@ try {
     app.setGlobalPrefix("api/v1");
     app.useGlobalFilters(new ApiExceptionFilter());
     try {
-      // The web's normal same-origin rewrite points here. If occupied, fail
-      // rather than replacing a running developer API or testing its data.
-      await app.listen(4001, "127.0.0.1");
+      // The dedicated web's rewrite points here, never at the developer API.
+      const port = Number(process.env.E2E_KDS_API_PORT ?? 4101);
+      await app.listen(port, "127.0.0.1");
       const platform = app.get(PlatformMasterService);
       const access = app.get(AccessService);
       const auth = app.get(AuthService);
@@ -145,10 +145,83 @@ try {
           },
         });
       }
+      // Visual stress scenarios use only this owned disposable database.
+      // Finish previous tickets through the same lifecycle instead of deleting history.
+      process.on("message", async (message) => {
+        if (message?.type !== "scenario") return;
+        try {
+          const pending = await db.kdsTicket.findMany({
+            where: { tenantId: tenant.id, status: { notIn: ["SERVED", "CANCELED"] } },
+          });
+          for (let ticket of pending) {
+            while (ticket.status !== "SERVED") {
+              ticket = await advance.execute(
+                tenant.id,
+                outlet.id,
+                ticket.id,
+                ticket.status,
+                origin,
+              );
+            }
+          }
+          const statuses =
+            message.value === "single"
+              ? Array(9).fill("NEW")
+              : message.value === "empty"
+                ? []
+                : [...Array(7).fill("NEW"), ...Array(3).fill("PREPARING")];
+          for (const [index, status] of statuses.entries()) {
+            let { ticket } = await create.execute(
+              tenant.id,
+              outlet.id,
+              {
+                source: "MANUAL",
+                sourceReference: `${message.id}-${index}`,
+                orderLabel:
+                  index === 6
+                    ? "Pesanan rombongan lantai atas dengan label panjang"
+                    : `Padat ${index + 1}`,
+                ...(index % 2 === 0 ? { tableLabel: "Teras 2" } : {}),
+                items: Array.from({ length: index === 1 ? 6 : (index % 3) + 1 }, (_, item) => ({
+                  name:
+                    item === 0
+                      ? "Kopi susu gula aren ukuran besar dengan susu oat"
+                      : `Menu pendamping ${item}`,
+                  quantity: item + 1,
+                  modifiers: item === 0 ? ["Panas", "Susu oat", "Gula dipisah"] : [],
+                  ...(item === 0
+                    ? {
+                        note: "Sajikan minuman lebih dahulu. Jangan gunakan sendok yang dipakai untuk makanan mengandung kacang.",
+                        allergyNote: "Kacang dan produk susu",
+                      }
+                    : {}),
+                })),
+              },
+              origin,
+            );
+            while (ticket.status !== status) {
+              ticket = await advance.execute(
+                tenant.id,
+                outlet.id,
+                ticket.id,
+                ticket.status,
+                origin,
+              );
+            }
+          }
+          process.send({ type: "scenario-ready", id: message.id, count: statuses.length });
+        } catch (error) {
+          process.send({
+            type: "scenario-failed",
+            id: message.id,
+            message: error instanceof Error ? error.message : "Scenario setup failed.",
+          });
+        }
+      });
       process.send({
         type: "ready",
         data: {
-          apiOrigin: "http://127.0.0.1:4001",
+          apiOrigin: `http://127.0.0.1:${port}`,
           tenantId: tenant.id,
           outletId: outlet.id,
           ownerCookies: [{ name: SESSION_COOKIE_NAME, value: ownerSession.token }],

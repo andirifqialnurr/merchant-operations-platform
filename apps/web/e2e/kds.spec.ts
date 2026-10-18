@@ -4,8 +4,8 @@ import { resolve } from "node:path";
 
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
 
-// The normal E2E suite uses a developer API. This spec must use the separate
-// config so its temporary API can own port 4001 without touching local data.
+// Only the dedicated config starts the isolated web/API pair on 4100/4101.
+// The developer's API and data stay untouched.
 const dedicated = process.env.PLAYWRIGHT_KDS_DISPOSABLE === "1";
 test.skip(!dedicated, "Use pnpm --filter @merchant/web test:e2e:kds (disposable API/database).");
 
@@ -30,7 +30,7 @@ test.beforeAll(async () => {
     api.once("exit", () => {
       clearTimeout(timeout);
       reject(
-        new Error("KDS fixture exited before it was ready; check PostgreSQL and free port 4001."),
+        new Error("KDS fixture exited before it was ready; check PostgreSQL and its test port."),
       );
     });
     api.on("message", (value: unknown) => {
@@ -55,7 +55,7 @@ test.afterAll(async () => {
 });
 
 async function open(page: Page, role: "kitchen" | "owner", path = "/kds") {
-  const base = process.env.E2E_BASE_URL ?? "http://localhost:4000";
+  const base = process.env.E2E_BASE_URL ?? "http://localhost:4100";
   await page.context().addCookies(
     (role === "kitchen" ? fixture.kitchenCookies : fixture.ownerCookies).map((cookie) => ({
       ...cookie,
@@ -239,4 +239,110 @@ test("owner creates one source, sees the real package limit, and revokes its key
     page.getByRole("row", { name: /Website browser/ }).getByText("Dicabut", { exact: true }),
   ).toBeVisible();
   expect((await send()).status()).toBe(401);
+});
+
+async function scenario(value: "dense" | "single" | "empty") {
+  const id = `${value}-${Date.now()}`;
+  await new Promise<void>((accept, reject) => {
+    const finish = (error?: Error) => {
+      clearTimeout(timeout);
+      api.off("message", onMessage);
+      if (error) reject(error);
+      else accept();
+    };
+    const onMessage = (value: unknown) => {
+      const message = value as { id?: string; type?: string; message?: string };
+      if (message.id !== id) return;
+      if (message.type === "scenario-ready") finish();
+      if (message.type === "scenario-failed") finish(new Error(message.message));
+    };
+    const timeout = setTimeout(() => finish(new Error("Visual scenario setup timed out.")), 30_000);
+    api.on("message", onMessage);
+    api.send({ type: "scenario", value, id });
+  });
+}
+
+test("dense and uneven queues use populated lanes with bounded keyboard-accessible scrolling", async ({
+  page,
+}, info) => {
+  await open(page, "kitchen");
+  for (const state of ["dense", "single", "empty"] as const) {
+    await scenario(state);
+    for (const [width, theme, locale, kiosk] of [
+      [1440, "light", "id", false],
+      [1024, "dark", "en", false],
+      [768, "light", "en", false],
+      [390, "dark", "id", false],
+      [320, "light", "id", false],
+      [1440, "dark", "en", true],
+    ] as const) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+      await page
+        .context()
+        .addCookies([{ name: "locale", value: locale, url: new URL(page.url()).origin }]);
+      await page.reload();
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      await expect(page.locator("html")).toHaveAttribute("lang", locale);
+      await expect(page.getByRole("article")).toHaveCount(
+        state === "dense" ? 10 : state === "single" ? 9 : 0,
+      );
+      if (kiosk) await page.getByRole("button", { name: /^(Full screen|Layar penuh)$/ }).click();
+      if (state !== "empty") {
+        const cards = await page.getByRole("article").evaluateAll((cards) =>
+          cards.map((card) => {
+            const header = card.querySelector(".ui-kds-ticket__header")!;
+            const order = card.querySelector(".ui-kds-ticket__order")!;
+            const style = getComputedStyle(card);
+            return {
+              padding: parseFloat(style.paddingTop),
+              gap: parseFloat(style.rowGap),
+              wastedHeader:
+                header.getBoundingClientRect().height - order.getBoundingClientRect().height,
+            };
+          }),
+        );
+        for (const card of cards) {
+          expect(card.padding).toBeGreaterThanOrEqual(16);
+          expect(card.gap).toBeGreaterThanOrEqual(16);
+          expect(card.wastedHeader).toBeLessThanOrEqual(4);
+        }
+        if (width >= 1024) {
+          const lanes = page.locator(".kds-lane");
+          await expect(lanes).toHaveCount(state === "dense" ? 2 : 1);
+          expect(
+            await page.evaluate(() => document.documentElement.scrollHeight),
+          ).toBeLessThanOrEqual(901);
+          const scrollArea = lanes.first().locator(":scope > ul");
+          const heading = lanes.first().getByRole("heading");
+          const before = await heading.boundingBox();
+          const gap = await scrollArea.evaluate((element) =>
+            parseFloat(getComputedStyle(element).gap),
+          );
+          expect(gap).toBeGreaterThanOrEqual(16);
+          const lastAction = scrollArea.locator(":scope > li").last().getByRole("button");
+          await lastAction.scrollIntoViewIfNeeded();
+          await expect(lastAction).toBeInViewport();
+          await scrollArea.focus();
+          await page.keyboard.press("Home");
+          await expect(heading).toBeInViewport();
+          expect((await heading.boundingBox())!.y).toBe(before!.y);
+          await scrollArea.evaluate((element) => {
+            element.scrollTop = 0;
+            (element as HTMLElement).blur();
+          });
+        }
+      } else {
+        await expect(page.locator(".kds-lane")).toHaveCount(0);
+        await expect(
+          page.getByRole("heading", {
+            name: locale === "id" ? "Tidak ada ticket" : "No tickets",
+            exact: true,
+          }),
+        ).toBeVisible();
+      }
+      await capture(page, info, `${state}-${width}-${theme}-${locale}${kiosk ? "-kiosk" : ""}`);
+      if (kiosk) await page.evaluate(() => document.exitFullscreen());
+    }
+  }
 });

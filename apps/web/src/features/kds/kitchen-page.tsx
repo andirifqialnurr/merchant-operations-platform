@@ -1,5 +1,7 @@
 "use client";
 
+import "./kitchen.css";
+
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { IconPlus } from "@tabler/icons-react";
@@ -164,28 +166,26 @@ function Queue({
     </li>
   );
 
-  // A wide screen is a board with a column per status; a narrow one is a
-  // single list, longest waiting first, whatever the status.
+  // Phones/tablets keep chronological reading order. A desktop board only
+  // allocates space to populated statuses; each lane owns its scroll area.
   if (!wide) {
-    return <ul className="m-0 grid list-none gap-4 p-0">{tickets.map(card)}</ul>;
+    return <ul className="kds-ticket-list kds-queue-list">{tickets.map(card)}</ul>;
   }
   const groups = groupByStatus(tickets);
+  const populated = BOARD_STATUSES.filter((status) => (groups.get(status)?.length ?? 0) > 0);
   return (
-    <div className="grid grid-cols-4 items-start gap-4">
-      {BOARD_STATUSES.map((status) => {
+    <div className={populated.length > 1 ? "kds-board kds-board--multi" : "kds-board"}>
+      {populated.map((status) => {
         const column = groups.get(status) ?? [];
         return (
-          <section aria-labelledby={`kds-column-${status}`} className="grid gap-3" key={status}>
-            <h2
-              className="flex items-baseline justify-between border-b border-line-default pb-2 text-heading-sm"
-              id={`kds-column-${status}`}
-            >
+          <section aria-labelledby={`kds-column-${status}`} className="kds-lane" key={status}>
+            <h2 className="kds-lane__heading" id={`kds-column-${status}`}>
               <span>{t(`status.${status}`)}</span>
-              <span className="text-body-sm tabular-nums text-foreground-secondary">
-                {column.length}
-              </span>
+              <span className="kds-lane__count">{column.length}</span>
             </h2>
-            <ul className="m-0 grid list-none gap-4 p-0">{column.map(card)}</ul>
+            <ul aria-labelledby={`kds-column-${status}`} className="kds-ticket-list" tabIndex={0}>
+              {column.map(card)}
+            </ul>
           </section>
         );
       })}
@@ -211,7 +211,7 @@ function Finished({ outletId, tenantId }: Readonly<{ outletId: string; tenantId:
     return <EmptyState description={t("finishedEmptyDescription")} title={t("finishedEmpty")} />;
   }
   return (
-    <ul className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
+    <ul aria-label={t("viewFinished")} className="kds-ticket-list kds-history-list" tabIndex={0}>
       {query.data.tickets.map((ticket) => (
         <li key={ticket.id}>
           {/* A finished ticket's time no longer counts up. */}
@@ -305,7 +305,7 @@ function KitchenScreen({
   }, [link, sounds]);
 
   return (
-    <div className="grid gap-4">
+    <div className="kds-screen">
       <h1 className="sr-only">{t("title")}</h1>
       <p aria-live="polite" className="sr-only">
         {announcement}
@@ -321,7 +321,7 @@ function KitchenScreen({
           </div>
         </Alert>
       ) : null}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="kds-toolbar">
         <Tabs
           items={[
             { label: t("viewQueue"), value: "queue" },
@@ -338,7 +338,7 @@ function KitchenScreen({
             settings={sound.settings}
           />
           {canManage ? (
-            <Button iconLeft={IconPlus} onClick={() => setAdding(true)}>
+            <Button iconLeft={IconPlus} onClick={() => setAdding(true)} size="lg">
               {t("addTicket")}
             </Button>
           ) : null}

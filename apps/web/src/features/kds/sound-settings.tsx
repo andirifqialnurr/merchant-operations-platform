@@ -50,7 +50,7 @@ export function SoundSettings({
       label={t("settings")}
     >
       <span
-        className="ui-button ui-icon-button ui-button--md ui-button--outline"
+        className="ui-button ui-icon-button ui-button--lg ui-button--outline"
         title={t("settings")}
       >
         <AppIcon icon={settings.muted ? IconVolumeOff : IconVolume} />

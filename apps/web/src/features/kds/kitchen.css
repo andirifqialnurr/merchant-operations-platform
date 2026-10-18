@@ -1,0 +1,128 @@
+/* Kitchen work surface: sections, not more cards. Empty statuses do not
+   reserve lanes. On desktop each populated lane scrolls independently so
+   a busy "new" queue cannot push every other status below the viewport. */
+.kds-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.kds-toolbar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  justify-content: space-between;
+}
+
+.kds-ticket-list {
+  align-content: start;
+  display: grid;
+  gap: var(--space-4);
+  list-style: none;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.kds-ticket-list > li {
+  min-width: 0;
+}
+
+.kds-ticket-list:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}
+
+.kds-board {
+  display: grid;
+  gap: var(--space-5);
+  min-height: 0;
+  min-width: 0;
+}
+
+.kds-lane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: 0;
+  min-width: 0;
+}
+
+.kds-lane__heading {
+  align-items: baseline;
+  border-bottom: 1px solid var(--color-border-default);
+  display: flex;
+  flex-shrink: 0;
+  font-size: var(--text-heading);
+  font-weight: 600;
+  gap: var(--space-3);
+  justify-content: space-between;
+  line-height: var(--text-heading--line-height);
+  margin: 0;
+  padding-bottom: var(--space-3);
+}
+
+.kds-lane__count {
+  color: var(--color-text-secondary);
+  font-size: var(--text-body);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+}
+
+@media (min-width: 48rem) {
+  .kds-queue-list,
+  .kds-history-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .kds-shell {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .kds-shell__main {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .kds-screen {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .kds-board {
+    flex: 1;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+  }
+
+  .kds-lane > .kds-ticket-list {
+    flex: 1;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    /* Keep focus rings and new-ticket highlights inside the scroll area. */
+    padding: var(--space-1);
+    scrollbar-gutter: stable;
+  }
+
+  /* When statuses share the screen, keep each lane a clear vertical queue.
+     Mixing several card columns inside it creates holes beside long tickets. */
+  .kds-board--multi .kds-lane > .kds-ticket-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kds-history-list {
+    flex: 1;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    min-height: 0;
+    overflow-y: auto;
+    padding: var(--space-1);
+    scrollbar-gutter: stable;
+  }
+}

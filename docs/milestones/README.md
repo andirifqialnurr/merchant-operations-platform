@@ -56,7 +56,7 @@ Alur kerja:
 | --- | ------------------------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------ | --------------- |
 | M1  | [Fondasi UI dan POS inti](./M01-fondasi-ui-dan-pos-inti.md)         | A, C      | Backoffice Catalog dan POS-only menyelesaikan transaksi dari buka shift sampai tutup shift dengan UI baru        | —                        | Selesai         |
 | M2  | [Core modular dan pengaturan](./M02-core-modular-dan-pengaturan.md) | B         | Paket berversi, instalasi modul, entitlement efektif, limit, event antarmodul, perangkat, dan halaman Pengaturan | M1                       | Selesai         |
-| M3  | [Kitchen Display System](./M03-kds.md)                              | D         | KDS-only dan POS + KDS memakai use case yang sama                                                                | M2                       | Menunggu review |
+| M3  | [Kitchen Display System](./M03-kds.md)                              | D         | KDS-only dan POS + KDS memakai use case yang sama                                                                | M2                       | Berjalan        |
 | M4  | [Meja, Self-Order, dan Customer](./M04-meja-self-order-customer.md) | E         | Tata letak meja, sesi meja, QR, pesan dari meja, makan di tempat di POS, data pelanggan                          | M3                       | Menunggu review |
 | M5  | [Inventory](./M05-inventory.md)                                     | F         | Buku stok, opname, penerimaan, resep, konsumsi otomatis dari penjualan                                           | M2                       | Belum mulai     |
 | M6  | [Keuangan bisnis](./M06-keuangan-bisnis.md)                         | G         | Buku kas, pemasukan/pengeluaran, rekonsiliasi, penjualan tercatat otomatis tanpa pendapatan ganda                | M2                       | Belum mulai     |
@@ -66,7 +66,7 @@ Alur kerja:
 
 M5, M6, dan M7 hanya bergantung pada M2, sehingga urutannya boleh ditukar bila prioritas bisnis berubah. Urutan di atas mengikuti `prd.md` bagian 11.2.
 
-**Titik lanjut:** penutupan teknis M3 selesai dan dipush (`e7ac7e3`, `10799b9`); M3 **Menunggu review** pengguna/uji monitor dapur fisik (M3 bagian 7). M4 masih menunggu review. Lihat [review M3/M4 dan gap Release 1](./REVIEW-M03-M04.md). Moderasi staf Self-Order Basic adalah gap M4 dan tidak digabung dalam batch M3. Belum ada milestone berikutnya yang Berjalan; instruksi lanjut tidak dianggap hasil uji fisik.
+**Titik lanjut:** pengguna menolak hasil visual M3 setelah penutupan teknis (`e7ac7e3`, `10799b9`) dan meminta koreksi KDS lalu audit ulang layout M2. M3-UX-05 **Berjalan**; review pengguna/uji monitor fisik tetap terbuka. M4 masih menunggu review. Lihat [review M3/M4 dan gap Release 1](./REVIEW-M03-M04.md). Moderasi staf Self-Order Basic adalah gap M4 dan tidak digabung dalam batch M3. Tidak memulai milestone berikutnya; audit ulang M2 diizinkan eksplisit oleh pengguna, bukan persetujuan otomatis terhadap hasil visual M3.
 
 ```mermaid
 flowchart LR

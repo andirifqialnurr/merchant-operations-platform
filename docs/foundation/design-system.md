@@ -742,7 +742,7 @@ Aturan: tidak ada scroll horizontal tingkat halaman pada Small; aksi kritis tida
 ### 20.4 Tata letak per surface
 
 - **POS:** L rail kategori 180px + produk + keranjang 380px; M produk + keranjang ringkas; S produk sebagai tampilan utama, keranjang dibuka dari bar ringkasan.
-- **KDS:** L grid multi-kolom; M 2–3 kolom; S satu kolom berprioritas. Ticket terlama di awal.
+- **KDS:** mulai 1024px board hanya untuk status yang mempunyai tiket, tanpa kolom kosong/count nol. Setiap status memiliki heading tetap dan daftar gulir mandiri yang bisa difokus keyboard; dua atau lebih status masing-masing memakai satu kolom tiket agar tiket panjang tidak membuat lubang di baris. Bila hanya satu status, ruangnya dipakai grid tiket responsif. 768–1023px memakai grid kronologis dua kolom; di bawahnya satu kolom, terlama di awal. Padding/gap tiket 16px, header mengikuti isi (tidak ada tinggi kosong tetap); judul pesanan lebih menonjol, item/modifier/catatan tetap utuh. Tombol tambah/suara/kios 48px; aksi tiket 56px (64px pada kios). Riwayat memakai grid dan area gulir sendiri di desktop.
 - **Floor:** Live Table View dan Edit Layout terpisah. Pada Small, Live menyediakan daftar pengganti; Edit memakai form/sheet sehingga drag presisi tidak wajib.
 - **Customer:** S 1–2 kolom dengan keranjang sticky; M 2–3 kolom; L katalog terpusat.
 

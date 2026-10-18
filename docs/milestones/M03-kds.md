@@ -1,6 +1,6 @@
 # M3 — Kitchen Display System
 
-**Status:** Menunggu review — implementasi dan verifikasi otomatis M3 selesai, termasuk penutupan limit intake `e7ac7e3` dan regresi browser `10799b9`. Sebanyak 29 task awal dicatat selesai 16 Oktober 2026; dua task penutupan ditambahkan setelah rekonsiliasi. Uji keterbacaan jarak 1–2 meter pada monitor dapur dan persetujuan pengguna masih terbuka; tidak diklaim selesai dari screenshot. Tidak melanjutkan M4/M5.
+**Status:** Berjalan — pengguna menolak hasil visual awal dan meminta koreksi KDS serta audit ulang M2. Implementasi domain dan verifikasi otomatis sebelumnya selesai (`e7ac7e3`, `10799b9`), tetapi bukan penerimaan layout. Sebanyak 29 task awal dicatat selesai 16 Oktober 2026; dua task penutupan ditambahkan setelah rekonsiliasi. Uji keterbacaan jarak 1–2 meter pada monitor dapur dan persetujuan pengguna masih terbuka; tidak diklaim selesai dari screenshot. Tidak melanjutkan M4/M5.
 **Tahap PRD:** D (KDS)
 **Bergantung pada:** M2 (event, inbox, binding, perangkat)
 
@@ -50,9 +50,11 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 ### UX — Alur dan interaksi
 
 - [x] **M3-UX-01 Shell KDS** `f0e9d9b` — rute `(kds)`, layar penuh, mode kios, tanpa sidebar. Selesai 13 Oktober 2026 (TODO 14.9). Mode kios memakai layar penuh browser lewat tombol di bar atas; belum diuji di perangkat dapur sungguhan.
-- [x] **M3-UX-02 Tata letak** `f0e9d9b` — kolom per status di layar lebar; daftar satu kolom di tablet potret. Selesai 13 Oktober 2026 (TODO 14.9). Papan empat kolom mulai lebar 1024px; di bawahnya satu daftar, terlama di awal.
+- [x] **M3-UX-02 Tata letak** `f0e9d9b` — kolom per status di layar lebar; daftar satu kolom di tablet potret. Selesai 13 Oktober 2026 (TODO 14.9). Itu baseline awal; koreksi visual M3-UX-05 di bawah mengganti empat kolom tetap dengan status terisi dan area gulir mandiri.
 - [x] **M3-UX-03 Timer** `b1b2273` — berubah warna saat mendekati dan melewati batas, tanpa berkedip. Selesai 15 Oktober 2026 (TODO 14.15). Kuning mulai menit ke-10, merah mulai menit ke-15, dihitung dari ticket diterima; tetap untuk semua outlet (`WAIT_WARNING_MINUTES`, `WAIT_LATE_MINUTES` di `features/kds/ticket-view.ts`). **Angka ini asumsi**, belum ada di dokumen produk; target per station atau produk adalah SLA tier Pro.
 - [x] **M3-UX-04 Koneksi** `f6aceef` — banner menyambung ulang dan data mungkin usang. Selesai 15 Oktober 2026 (TODO 14.14). 'Menyambung ulang…' atau 'Perangkat offline' + 'Ticket di layar mungkin belum terbaru.' dengan tombol 'Muat ulang'. Hilang sendiri setelah tersambung dan antrean diambil ulang.
+
+- [~] **M3-UX-05 Koreksi layout berdasarkan review pengguna** — kolom kosong dihilangkan, area board dibatasi tinggi viewport desktop dengan scroll per status yang bisa diakses keyboard, tiket diberi padding/gap 16px dan header mengikuti isi, toolbar sentuh 48px. API/state/izin tidak berubah. Field inventory ada di TODO; 4 test browser lulus dengan 32 kombinasi awal dan 18 stress capture (7+3 tiket, satu status 9 tiket, kosong, 1–6 item, label/catatan panjang). Hasil pada data development 10 tiket juga diperiksa tanpa memutasi tiket. Menunggu commit dan review pengguna.
 
 ### DS — Design system dan komponen
 
@@ -102,7 +104,7 @@ Dapur melihat antrean ticket dan menggerakkannya terima → siapkan → siap →
 - **Paket/limit:** `e7ac7e3`; satu sumber untuk KDS-only Basic, versi penerus F&B standar nol sumber eksternal, snapshot/subscription lama tetap, atomic create, override/downgrade dan isolasi diuji. Migrasi belum diterapkan ke database development dalam batch ini; seluruh pengujian memakai database disposable.
 - **Browser:** `10799b9`; tiga test lulus dengan 32 kombinasi viewport/tema/bahasa, manual/status/riwayat, kios, suara lewat keyboard, offline/recovery, API intake/idempotency/limit/cabut. Screenshot lokal: `apps/web/test-results/kds`; sampel desktop, mobile, tablet, batas 1280px, kios, dan limit dibaca. Kontrol aksi ticket terukur ≥44px, kios ≥64px.
 - **Regresi/build:** lint, typecheck, test, format, dan schema validation lulus; 20 test integrasi PostgreSQL lulus; build API, web, worker lulus. Uji latency penutupan: 200 pesanan, p99 1.162 ms, maksimum 1.171 ms (mesin lokal, bukan SLA produksi). Peringatan deprecation pg tentang query bersamaan masih tercatat, bukan kegagalan suite.
-- **Keamanan data uji:** API fixture memakai port 4001 hanya selama suite lalu ditutup; database sementara dihapus. Tidak ada akun, kunci, atau tiket uji baru pada database development. Spec KDS dilewati runner E2E biasa; gunakan `pnpm --filter @merchant/web test:e2e:kds` saat port 4001 kosong.
+- **Keamanan data uji:** runner terbaru memakai web/API 4100/4101 dan output Next terpisah; API development 4001 tidak dihentikan. Database sementara dihapus setelah suite. Tidak ada akun, kunci, atau tiket uji baru pada database development. Spec KDS dilewati runner E2E biasa; gunakan `pnpm --filter @merchant/web test:e2e:kds`. Screenshot awal 4 tiket/status merata tidak dianggap membuktikan antrean padat; stress scenarios ditambahkan pada M3-UX-05.
 
 Yang masih harus dilakukan pengguna sebelum status **Selesai**:
 

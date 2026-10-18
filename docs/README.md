@@ -61,7 +61,7 @@ Pada penyelarasan 5 Agustus 2026, `docs/00-GLOBAL-PRODUCT-SCOPE.md`, `docs/FEATU
 
 ## Kondisi implementasi
 
-M1 dan M2 selesai dan sudah disetujui pengguna. Seluruh task implementasi awal M3 (KDS) dan M4 (Meja, Self-Order, Customer) sudah dicatat selesai. Penutupan teknis M3 juga selesai: limit paket `e7ac7e3`, browser disposable `10799b9`, regresi/build lulus. M3 tetap **Menunggu review** pengguna dan uji monitor dapur fisik; M4 masih **Menunggu review** beserta gap Basic yang dicatat. Belum ada milestone berikutnya yang berstatus Berjalan.
+M1 dan M2 selesai dan sudah disetujui pengguna. Seluruh task implementasi awal M3 (KDS) dan M4 (Meja, Self-Order, Customer) sudah dicatat selesai. Penutupan teknis M3 juga selesai: limit paket `e7ac7e3`, browser disposable `10799b9`, regresi/build lulus. M3 tetap **Menunggu review** pengguna dan uji monitor dapur fisik; M4 masih **Menunggu review** beserta gap Basic yang dicatat. Setelah itu pengguna menolak kualitas visual KDS dan mengizinkan koreksi M3-UX-05 serta audit ulang layout M2. Perbaikan ini tidak berarti memulai M4/M5 atau menerima hasil visual sebelumnya.
 
 - Catalog, POS, Pengaturan, KDS, editor/operasi meja, halaman tamu `/t/[token]`, dan pelanggan di POS sudah terhubung ke API. Bank warna Calm Neutral, Tabler, dua bahasa, dan tema terang/gelap sudah dipakai surface tersebut.
 - Inventory, Business Finance, HC, laporan, dan UI Platform Admin belum dibangun. API dasar platform sudah ada; itu bukan UI Platform Admin lengkap. `/inventory` hanya pratinjau development.

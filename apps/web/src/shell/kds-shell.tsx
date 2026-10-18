@@ -33,7 +33,7 @@ export function KdsShell({
   const fullscreen = useFullscreen();
 
   return (
-    <div className="flex min-h-dvh flex-col bg-canvas text-foreground">
+    <div className="kds-shell flex min-h-dvh flex-col bg-canvas text-foreground">
       <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 border-b border-line-subtle bg-surface px-3 sm:px-4">
         <div className="min-w-0 flex-1">
           <ShellContext />
@@ -43,6 +43,7 @@ export function KdsShell({
           icon={fullscreen.active ? IconArrowsMinimize : IconArrowsMaximize}
           label={t(fullscreen.active ? "exitKiosk" : "enterKiosk")}
           onClick={fullscreen.toggle}
+          size="lg"
           variant="ghost"
         />
         {/* The way back to the backoffice gives its space to the outlet on phones. */}
@@ -50,7 +51,7 @@ export function KdsShell({
           <span className="max-sm:hidden">
             <Link
               aria-label={t("openBackoffice")}
-              className="ui-button ui-icon-button ui-button--md ui-button--ghost"
+              className="ui-button ui-icon-button ui-button--lg ui-button--ghost"
               href="/catalog"
               title={t("openBackoffice")}
             >
@@ -60,7 +61,7 @@ export function KdsShell({
         ) : null}
         <ShellAccount onSignOut={onSignOut} user={user} />
       </header>
-      <main className="w-full flex-1 p-4 sm:p-6">{children}</main>
+      <main className="kds-shell__main w-full flex-1 p-4 sm:p-6">{children}</main>
     </div>
   );
 }
