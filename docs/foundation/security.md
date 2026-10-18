@@ -26,16 +26,18 @@ Dokumen terkait: [`architecture.md`](./architecture.md), [`backend.md`](./backen
 
 ## 2. Status kontrol
 
+Status implementasi dicocokkan dengan baseline Git `7b61eb1` setelah task M4; ini bukan audit penetrasi atau sertifikasi siap produksi. Bukti historis ada di TODO/milestone, batas verifikasi terbaru di [review M3/M4](../milestones/REVIEW-M03-M04.md).
+
 | Kontrol                                                                                                                     | Status                               | Lokasi                                                        |
 | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------- |
 | Hash kata sandi Argon2id (64 MiB, 3 pass) dengan perbandingan waktu-konstan                                                 | Berjalan                             | `apps/api/src/core/auth/password.ts`                          |
 | Token sesi acak 32 byte; database hanya menyimpan SHA-256                                                                   | Berjalan                             | `auth/password.ts`, tabel `login_sessions`                    |
 | Cookie sesi `HttpOnly`, `SameSite=Lax`, `Secure` di produksi                                                                | Berjalan                             | `auth/session-cookie.ts`                                      |
 | Sesi platform terpisah dari sesi merchant                                                                                   | Berjalan                             | `platform/`                                                   |
-| Rate limit login (5 per 15 menit per IP+email)                                                                              | Berjalan, di memori proses           | `security/rate-limit.service.ts`                              |
-| Header keamanan (`nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, COOP, CORP, `Permissions-Policy`, HSTS di produksi) | Berjalan                             | `security/http-security.ts`                                   |
-| Pemeriksaan header CSRF untuk mutasi bersesi                                                                                | Berjalan di API dan klien web        | `security/http-security.ts`, `apps/web/src/lib/api-client.ts` |
-| Guard sesi + keanggotaan + izin + cakupan lokasi + entitlement modul                                                        | Berjalan                             | `access/session-permission.guard.ts`                          |
+| Rate limit login (5 per 15 menit per IP+email) | Tersedia; memori atau Redis sesuai konfigurasi | `apps/api/src/core/security/` |
+| Header keamanan (`nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, COOP, CORP, `Permissions-Policy`, HSTS di produksi) | Berjalan pada respons API; web belum lengkap | `apps/api/src/bootstrap/http-security.ts` |
+| Pemeriksaan header CSRF untuk mutasi bersesi | Berjalan di API dan klien web; batas custom-header ada di bagian 5 | `apps/api/src/bootstrap/http-security.ts`, `apps/web/src/lib/api-client.ts` |
+| Guard sesi, keanggotaan, langganan, entitlement/capability, instalasi, izin, cakupan lokasi, dan feature flag terkait | Tersedia; limit dijaga pada command terkait | `apps/api/src/core/memberships/session-permission.guard.ts`, `core/entitlements/access-evaluator.ts` |
 | Validasi Zod untuk header, params, body, response                                                                           | Berjalan                             | `zod-validation.pipe.ts`, `packages/contracts`                |
 | Error tanpa detail internal pada 5xx                                                                                        | Berjalan                             | `api-exception.filter.ts`                                     |
 | Audit aksi kritis                                                                                                           | Berjalan untuk modul yang ada        | `audit/critical-action-audit.ts`                              |
@@ -44,22 +46,22 @@ Dokumen terkait: [`architecture.md`](./architecture.md), [`backend.md`](./backen
 | Drill backup dan restore                                                                                                    | Berjalan sebagai skrip               | `packages/database/src/backup-restore-drill.ts`               |
 | Test isolasi tenant/outlet dan constraint skema                                                                             | Berjalan                             | `reliability/`, `tenant-isolation-schema.spec.ts`             |
 | Content-Security-Policy                                                                                                     | **Belum**                            | —                                                             |
-| Rate limit lintas instance (Redis)                                                                                          | **Belum**                            | —                                                             |
-| Rate limit API integrasi dan endpoint sensitif lain                                                                         | **Belum**                            | —                                                             |
-| Idempotency pada endpoint                                                                                                   | **Belum** (tabel ada, belum dipakai) | —                                                             |
-| Token QR ber-hash dengan rotasi                                                                                             | **Belum** (kontrak ada)              | —                                                             |
+| Rate limit lintas instance (Redis) | Tersedia lewat `RATE_LIMIT_STORE=redis`; fallback memori saat Redis gagal, bukan jaminan batas global saat gangguan | `apps/api/src/core/security/redis-rate-limit.service.ts` |
+| Rate limit API integrasi dan endpoint sensitif | KDS intake, self-order, login, undangan, dan aktivasi perangkat tersedia; audit penuh endpoint lain mengikuti M9 | `apps/api/src/core/security/`, `modules/kds/`, `modules/floor/` |
+| Idempotency pada endpoint | Tersedia: kunci transaksional domain dan interceptor generik untuk retry binding; bukan jaminan seluruh endpoint otomatis idempotent | `apps/api/src/core/idempotency/`, kernel order/billing, modul terkait |
+| Token QR ber-hash dengan rotasi | Tersedia; token diturunkan dari rahasia server dan garam, hash disimpan; rotasi/cabut berlaku seketika | `apps/api/src/modules/floor/domain/qr-token.ts`, bagian 12 |
 | Akses support beralasan dan berbatas waktu                                                                                  | **Belum** (kontrak ada)              | —                                                             |
 | Registri perangkat dan kredensial perangkat                                                                                 | **Ada**                              | `core/devices`, `core_devices`                                |
-| Lint batas modul                                                                                                            | **Belum** (kontrak ada)              | —                                                             |
-| Integration test PostgreSQL sekali pakai                                                                                    | **Belum**                            | —                                                             |
+| Lint batas modul | Tersedia dan ikut `pnpm lint` | `apps/api/scripts/check-boundaries.mjs` |
+| Integration test PostgreSQL sekali pakai | Tersedia; tidak memakai database development sebagai target mutasi suite | `apps/api/test/`, `packages/database/test/disposable-postgres.mjs` |
 | Upload berkas bertanda tangan                                                                                               | **Ada**                              | `core/files`                                                  |
-| Row-level security PostgreSQL                                                                                               | **Belum diputuskan** (`SCH-02`)      | —                                                             |
+| Row-level security PostgreSQL | Tidak dipakai pada implementasi kini: filter tenant/outlet + FK komposit; review keputusan `SCH-02` tetap ada sebelum produksi | Bagian 8, TODO 13.56, M9-SC-07 |
 
 ---
 
 ## 3. Temuan yang perlu ditindaklanjuti
 
-Temuan berikut berasal dari pembacaan kode pada 2 Oktober 2026 dan belum diverifikasi dengan menjalankan aplikasi.
+Temuan awal berasal dari pembacaan kode 2 Oktober 2026. Catatan penyelesaian pada tiap baris merekam verifikasi checkpoint berikutnya; temuan tanpa penyelesaian tetap terbuka. Penyelarasan status terbaru tidak mengulang semua pengujian runtime tersebut.
 
 | ID     | Temuan                                                                                                                           | Dampak                                                                                                        | Tindakan                                                                                                                                                                                                                                                                                                                          |
 | ------ | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -215,11 +217,11 @@ Pembatasan dilakukan di DTO backend, bukan dengan menyembunyikan field di fronte
 ## 11. Token QR dan surface publik
 
 - QR memakai token acak yang tidak dapat ditebak, bukan ID meja.
-- Database hanya menyimpan hash, versi, dan status (`ACTIVE`, `ROTATED`, `REVOKED`, `EXPIRED`). Token mentah hanya ada saat QR dibuat.
+- Database menyimpan hash, versi, status (`ACTIVE`, `ROTATED`, `REVOKED`, `EXPIRED`), dan garam per versi. Token tidak disimpan; server dapat menurunkannya lagi untuk cetak ulang hanya melalui akses staf berizin (rincian bagian 12).
 - QR melekat pada meja, bukan sesi. Server menentukan sesi yang valid tanpa mengirim ID sesi ke klien.
 - Rotasi membuat QR lama tidak berlaku dan diaudit.
 - Resolusi QR idempotent: pindai berulang tidak membuat sesi ganda.
-- Endpoint publik (resolusi QR, kirim pesanan tamu) memiliki rate limit per IP dan per token (kebijakan `qrSubmit`: 20 per menit).
+- Kirim pesanan tamu dibatasi 20 per QR dan 60 per alamat jaringan per 10 menit; permintaan layanan/klaim bayar berbagi batas 10 per QR per 10 menit (rincian bagian 12). Batas tersebut bukan bukti bahwa seluruh endpoint baca/resolusi publik sudah dibatasi; cakupannya tetap harus diaudit di M9.
 - Respons publik hanya berisi konteks yang aman: nama merchant, lokasi, label meja, menu, dan status pesanan tamu itu sendiri.
 - Input tamu (catatan pesanan) dibatasi panjangnya dan selalu di-escape saat ditampilkan di POS dan KDS.
 

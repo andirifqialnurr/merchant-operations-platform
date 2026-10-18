@@ -66,6 +66,8 @@ Alur kerja:
 
 M5, M6, dan M7 hanya bergantung pada M2, sehingga urutannya boleh ditukar bila prioritas bisnis berubah. Urutan di atas mengikuti `prd.md` bagian 11.2.
 
+**Titik lanjut setelah baseline `7b61eb1`:** M3/M4 masih menunggu review; belum ada milestone berikutnya yang Berjalan. Lihat [review M3/M4 dan gap Release 1](./REVIEW-M03-M04.md). Moderasi staf Self-Order Basic belum dibuat meskipun task implementasi awal M4 dicentang; requirement tier tetap berlaku. Penyelarasan dokumentasi tidak menutup gate review atau mengizinkan mulai M5.
+
 ```mermaid
 flowchart LR
     M1 --> M2

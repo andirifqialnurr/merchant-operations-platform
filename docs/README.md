@@ -1,7 +1,8 @@
 # Dokumentasi Cafe Companion Pro
 
 **Status:** Indeks source of truth
-**Diselaraskan:** 2 Oktober 2026
+**Kontrak diselaraskan:** 2 Oktober 2026
+**Status implementasi diperiksa:** setelah penutupan task M4, baseline Git `7b61eb1`
 
 Dokumen produk dan foundation di folder ini menjadi dasar keputusan. Dokumen kemajuan implementasi tidak boleh mengubah cakupan hanya agar sesuai dengan kode yang sudah ada.
 
@@ -43,7 +44,7 @@ Bila terjadi konflik, dokumen dengan urutan lebih tinggi mengatur area tanggung 
 - `docs/product/` — kontrak produk, tier, paket, limit, arah rilis.
 - `docs/foundation/` — arsitektur, skema, backend, frontend, keamanan, deploy, design system, alur, dan audit.
 - `docs/milestones/` — rencana kerja per milestone, kriteria selesai, dan task per jalur kerja.
-- `apps/web/src/app/foundation/page.tsx` hanyalah rute pratinjau development, bukan dokumentasi.
+- `apps/web/src/app/foundation/page.dev.tsx` hanyalah rute pratinjau development, bukan dokumentasi dan tidak ikut build produksi.
 
 ## Catatan penyelarasan 2 Oktober 2026
 
@@ -60,6 +61,13 @@ Pada penyelarasan 5 Agustus 2026, `docs/00-GLOBAL-PRODUCT-SCOPE.md`, `docs/FEATU
 
 ## Kondisi implementasi
 
-Backend (login, organisasi, peran dan izin, langganan, audit, keamanan dasar) lebih maju daripada UI. Di web, hanya Catalog Backoffice yang terhubung ke API; POS, KDS, dan Inventory masih placeholder; Floor, Finance, HC, Customer, Reports, Settings, dan Platform Admin belum punya rute. Bank warna baru sudah diterapkan; ikon dan dua bahasa belum. Rincian per area ada di `prd.md` bagian 11.1.
+M1 dan M2 selesai dan sudah disetujui pengguna. Seluruh task implementasi M3 (KDS) dan M4 (Meja, Self-Order, Customer) sudah dicatat selesai, tetapi kedua milestone masih **Menunggu review**. Belum ada milestone berikutnya yang berstatus Berjalan.
+
+- Catalog, POS, Pengaturan, KDS, editor/operasi meja, halaman tamu `/t/[token]`, dan pelanggan di POS sudah terhubung ke API. Bank warna Calm Neutral, Tabler, dua bahasa, dan tema terang/gelap sudah dipakai surface tersebut.
+- Inventory, Business Finance, HC, laporan, dan UI Platform Admin belum dibangun. API dasar platform sudah ada; itu bukan UI Platform Admin lengkap. `/inventory` hanya pratinjau development.
+- Profil/menu publik `/m/[slug]`, moderasi pesanan tamu, dan beberapa capability Basic lain masih memiliki gap. Checkbox task tidak menggantikan acceptance atau kontrak produk.
+- Deploy produksi dan pilot belum dikerjakan.
+
+Rincian per area ada di [`product/prd.md` bagian 11.1](./product/prd.md). Mulai pekerjaan berikutnya dari [`milestones/README.md`](./milestones/README.md), [`review M3/M4`](./milestones/REVIEW-M03-M04.md), dan [`TODO.md`](../TODO.md). Dokumen audit bertanggal lama dan checkpoint historis bukan gambaran runtime terkini.
 
 Kredensial aplikasi lokal dikelola terpisah di `CREDENTIALS.local.md` dan bukan bagian dari source of truth produk.

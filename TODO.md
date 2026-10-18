@@ -67,7 +67,17 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-> **NEXT: M2 (`docs/milestones/M02-core-modular-dan-pengaturan.md`).** M1 disetujui pengguna pada 3 Oktober 2026. M2 dimulai dari restrukturisasi backend (`M2-QA-01`, `M2-QA-03`, `M2-QA-04`).
+> **NEXT: review M3/M4 dan rekonsiliasi gap Release 1.** M1/M2 sudah disetujui; M3/M4 masih **Menunggu review**, belum ada milestone berikutnya yang Berjalan. Mulai dari [`docs/milestones/REVIEW-M03-M04.md`](docs/milestones/REVIEW-M03-M04.md). Jangan memulai M5 atau menyatakan seluruh Basic lengkap hanya dari checkbox task.
+
+#### Checkpoint aktif — penyelarasan status setelah M4 (baseline `7b61eb1`)
+
+- [x] Arsip sesi `3cb9d5ff-83ec-4a30-8152-ef42f1491331`, riwayat Git, route, manifest, dan kontrak dibandingkan; tidak ada perubahan kode atau data.
+- [x] Indeks docs, PRD ringkas, kondisi frontend, tabel kontrol keamanan, dan titik NEXT diperbarui agar tidak lagi menyebut POS/KDS/Floor/Pengaturan sebagai belum dibuat.
+- [x] Register review memisahkan implementasi, bukti historis, gap wajib, keputusan terbuka, dan penerimaan pengguna. Delapan gap dicatat dengan sumber dan bukti selesai; tidak diubah menjadi future secara sepihak.
+- [x] M4 diberi gate moderasi staf Basic dan review representasi bill/struk; status M3/M4 tetap Menunggu review. Tidak ada task implementasi baru yang diklaim selesai.
+- [x] Verifikasi khusus dokumentasi: `git diff --check`, 76 tautan lokal (termasuk dokumen baru), rujukan requirement/kode, dan Prettier dokumen review lulus. Perubahan hanya delapan file Markdown. Test contracts/web/worker dan test API (396 pada invocation sumber API) lulus saat pemeriksaan baseline; bukan pengganti browser, integration PostgreSQL, atau build penuh.
+- [x] Pengguna meminta lanjut sampai pekerjaan M3 selesai dan mengizinkan commit/push. Checkpoint dokumentasi disimpan terpisah sebelum perubahan kode M3; hash ada di riwayat Git commit `docs: reconcile implementation status and M3 M4 review gaps`.
+- [ ] Gate review pengguna M3/M4 tetap terbuka. Atas instruksi terbaru, pekerjaan teknis berikutnya **khusus M3**: GAP-08 limit intake, regresi API/integrasi/browser, dan dokumen penerimaan. Moderasi Basic adalah gap M4 dan tidak dikerjakan dalam batch M3. Uji monitor dapur fisik tidak dapat digantikan oleh screenshot.
 
 Urutan fondasi UI mengikuti `docs/foundation/frontend.md` bagian 14; setiap butir adalah checkpoint yang berdiri sendiri:
 
@@ -1274,44 +1284,23 @@ Catatan alignment 5 Agustus 2026: urutan historis P2 dimulai setelah primitive U
 
 ## 9. Urutan checkpoint berikutnya
 
-Urutan ini menggantikan daftar push fondasi lama. Setiap baris tetap harus menjadi checkpoint yang berdiri sendiri dan route reslicing memerlukan konfirmasi user.
+Urutan aktif setelah task M4 menggantikan urutan fondasi lama. Checkpoint 12.x–14.x di atas tetap menjadi riwayat; pernyataan "belum" atau "berikutnya" di dalam checkpoint lama berlaku pada saat itu, bukan otomatis status sekarang.
 
-```text
-Current  Source-of-truth alignment: product + foundation + audit + TODO
-Done     Backend Delta 1: architecture + ORM/API/security contract audit
-Done     Backend Delta 2.1: workspace terminology contract
-Done     Backend Delta 2.2: module manifest contract
-Done     Backend Delta 2.3: installation and integration lifecycle contract
-Done     Backend Delta 3.1: package limit and usage metering contract
-Done     Backend Delta 4.1: event envelope and inbox contract
-Done     Backend Delta 4.2: command context contract
-Done     Security Delta 1: support access contract
-Done     Security Delta 2: QR token lifecycle contract
-Done     Backend Delta 5.1: module boundary rule contract
-Done     Documentation remap: prd, design-system, architecture, schema, backend, frontend, security, deploy, flowchart
-Done     UI Foundation 1: bank warna Calm Neutral monokrom
-STOP     User meninjau /color-bank light dan dark
-Then     Komponen UI dibenahi satu per satu, dimulai dari Button
-Then     UI Foundation 2-7: Tabler, i18n, API client, shell/pattern, route group, reslice Catalog
-Then     Core modular: tabel dan API instalasi, binding, paket berversi, limit, inbox
-Then     Catalog + POS Basic end-to-end
-Then     KDS Basic + standalone/integration proof
-Then     Floor/Table + QR + Live Table View
-Then     Customer, Inventory, Business Finance, HC, Platform Admin, Reports
-```
+1. Selesaikan penyelarasan status dan register review M3/M4 (checkpoint aktif bagian 2), lalu review dan commit/push.
+2. Konfirmasi satu checkpoint perbaikan moderasi staf Basic (GAP-01); tentukan owner, command/state, DTO, izin, event, idempotency, audit, dan inventaris field sebelum implementasi. Jangan menggabungkannya dengan reslicing rute.
+3. Review M3/M4, selesaikan gap penerimaan, dan alokasikan gap Catalog/POS/Customer serta limit KDS terhadap kontrak Release 1. Keterbacaan monitor dapur tetap membutuhkan pengguna/perangkat nyata.
+4. M5 baru dimulai setelah gate diterima atau pengguna memutuskan pengecualian secara eksplisit. OD-05 harus ditetapkan sebelum integrasi stok.
+5. M6–M9 mengikuti roadmap; tidak ada izin batch implementasi atau deploy yang tersirat dari checkpoint dokumentasi ini.
 
-Jangan menggabungkan backend delta audit, foundation convergence, dan reslicing route bisnis. Setelah setiap checkpoint, update file ini dan lengkapi acceptance gate sebelum lanjut.
+Setiap checkpoint berdiri sendiri: verifikasi → review/commit/push → lanjut sesuai izin pengguna dan `AGENTS.md`.
 
 ## 10. Hal yang belum dikerjakan sekarang
 
-- Browser acceptance aktual belum tersedia; runtime dev masih tertahan lock `.next/dev`. Production HTTP smoke lulus, tetapi tidak ada klaim screenshot, click flow, responsive, light/dark, atau accessibility untuk alignment baru.
-- Backend delta terhadap PRD Modular v2.3 belum diaudit detail: module manifest, installation lifecycle, integration binding, package version snapshot, usage metering, standalone module path, dan workspace terminology baru belum boleh dianggap selesai.
-- ORM/schema delta perlu diperiksa ulang terhadap `docs/foundation/architecture.md`: Core tables, usage tables, module installation/config, integration binding, Floor/Table/QR, KDS, Inventory, Finance Core, HC, Customer, dan reporting projection.
-- Security/reliability lama sudah selesai untuk checkpoint Tahap 19, tetapi requirement baru masih perlu proof tambahan: integration API rate limit, module boundary lint, disposable PostgreSQL/RLS integration test, QR token privacy, support access, PII-safe event/log, dan hard/soft limit semantics.
-- Bank warna sudah Calm Neutral, tetapi tiap komponen belum diperiksa satu per satu pada palet baru dan halaman referensi `/design-system` masih memuat teks lama. Font Geist dipertahankan. Ikon masih Lucide dan belum ada i18n.
-- Web client belum mengirim header `x-csrf-token` yang diwajibkan API untuk mutasi bersesi (temuan `SEC-F1` di `docs/foundation/security.md`); perlu diverifikasi di browser dan diperbaiki pada UI Foundation 4.
-- Runtime route matrix perlu dilengkapi setelah server dan browser gate tersedia; source audit awal berada di `docs/foundation/DESIGN_SYSTEM_APP_AUDIT.md`.
-- POS, KDS, Inventory, Floor/Table, Finance, HC, Customer/Self-Order, Reports, Settings, dan Platform Admin belum boleh dianggap UI selesai hanya karena domain component atau backend contract tersedia.
-- Audit penutupan acceptance gate Storybook dan seluruh primitive P1 perlu diulang terhadap design system baru.
-- Redis/BullMQ dan Docker Compose local services tetap deferred sampai use case worker/infrastructure ditetapkan. PostgreSQL development lokal sudah tersedia; integration test PostgreSQL/RLS tetap menunggu database test terisolasi dan disposable.
-- Authentication/session, organization registry, membership/RBAC/outlet assignment, subscription/module/entitlement core, tenant-isolation regression, Platform Owner, security, reliability, dan observability yang sudah diterapkan harus dipertahankan saat UI diselaraskan.
+- Review M3/M4 dan delapan gap pada [`REVIEW-M03-M04.md`](docs/milestones/REVIEW-M03-M04.md), termasuk moderasi Basic, profil publik, diskon, pembayaran campuran, gambar tamu, struk kunjungan, Customer mandiri, dan limit sumber API KDS.
+- Inventory, Business Finance, HC, laporan, serta UI Platform Admin belum dibangun; tabel/komponen rencana bukan fitur selesai. API platform dasar sudah ada.
+- Utang M2 dan keputusan layanan email, tujuan upgrade, wajib/tidaknya perangkat POS, provisioning lengkap, serta gap keamanan/operasional tetap dilacak di TODO 13.59 dan register review.
+- Audit lintas seluruh endpoint/surface, CSP web, trust proxy, support access, backup operasional, monitoring, retention, kepatuhan, dan pilot mengikuti M8/M9. Test PostgreSQL disposable, lint batas modul, rate limiter Redis, token QR, dan penjaga payload event sudah tersedia; itu bukan audit keamanan penuh.
+- Workflow CI hanya manual. Sebelum kontributor kedua atau deploy pertama, pulihkan trigger push/PR dan buktikan run hijau GitHub; verifikasi lokal tidak sama dengan bukti runner.
+- Beberapa bagian foundation/inventaris masih merekam snapshot lama; rekonsiliasi lanjutan harus mempertahankan requirement produk dan bukti historis.
+- Browser/visual, integration PostgreSQL, dan build penuh belum diulang pada checkpoint dokumentasi ini. Bukti terdahulu tetap ada di checkpoint implementasi, bukan klaim runtime terkini; jangan menyalakan stack lokal tanpa meninjau memori dan kebutuhan pengujian.
+- Komponen modul berikutnya dan file besar diaudit saat checkpoint terkait; perubahan struktur/reslicing tidak digabung diam-diam dengan fitur baru.

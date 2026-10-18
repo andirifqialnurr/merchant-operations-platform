@@ -10,45 +10,47 @@ Dokumen terkait: [`design-system.md`](./design-system.md), [`flowchart.md`](./fl
 
 ## 1. Kondisi saat ini
 
+Dicocokkan dengan sumber pada baseline Git `7b61eb1` (setelah task M4). M1/M2 disetujui; M3/M4 menunggu review. Pohon berikut adalah implementasi, sedangkan bagian 2–3 tetap struktur target.
+
 ```text
 apps/web/src/
   app/
-    layout.tsx                 font Geist, ThemeProvider, service worker; lang="id" tetap
-    page.tsx                   pemilih mode perangkat
-    backoffice/catalog/page.tsx  satu-satunya halaman bisnis yang memakai API
-    pos/ kds/ inventory/       placeholder
-    design-system/ color-bank/ typography/ foundation/   halaman referensi dev (`page.dev.tsx`, tidak ikut build produksi)
-    globals.css  backoffice-shell.css  catalog.css  device-mode.css
-    manifest.ts
-  components/
-    backoffice-shell.tsx
-    catalog-backoffice.tsx     1.114 baris: login, master, komposisi, katalog outlet dalam satu file
-    device-mode-selector.tsx
-    theme/                     kontrak tema, provider, switcher
-    pwa/                       cache keranjang, konfirmasi server, registrasi service worker
-  lib/api-client.ts            fetch + validasi Zod
+    layout.tsx                 Geist, tema, query, intl, service worker; lang dinamis
+    page.tsx                   redirect ke /catalog
+    (auth)/                    login, invite, activate
+    (backoffice)/              catalog, floor, settings/*; SessionGate + AppShell
+    (pos)/                     pos, pos/orders, pos/shift, pos/tables
+    (kds)/                     kds (antrean dan riwayat dalam satu halaman)
+    (customer)/t/[token]/      self-order, metadata, gambar pratinjau
+    backoffice/catalog/        redirect alamat lama
+    */page.dev.tsx             referensi desain, pemilih mode lama, pratinjau inventory
+  features/
+    auth/ catalog/ workspace/ device/ settings/
+    pos/ kds/ floor/ self-order/ customers/
+  shell/                       shell per surface, guard sesi, preferensi, state akses/limit
+  providers/                   query, intl, toast
+  i18n/                        resolusi bahasa, pergantian, kamus bertipe, test
+  lib/
+    api-client.ts              HTTP + Zod + CSRF + idempotency + konteks
+    menu-cart.ts  charges.ts   logika bersama kasir dan tamu
+    realtime/                  koneksi KDS
+  components/theme/            provider tema
+  components/pwa/              cache tampilan/draft dan konfirmasi server
+apps/web/messages/             id.json, en.json
 packages/ui/src/
-  components/                  41 file komponen (59 ekspor), datar dalam satu folder
-  styles/                      satu file CSS per komponen + token
-apps/storybook/                40 story + smoke Playwright
+  components/                  primitive, pattern, dan domain masih dalam satu folder
+  styles/                      token dan CSS komponen
+apps/storybook/                story dan smoke Playwright
 ```
 
-### 1.1 Yang perlu dibenahi
+### 1.1 Yang sudah dibenahi dan yang tersisa
 
-| Temuan                                                                                           | Perbaikan                                                                          |
-| ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
-| `catalog-backoffice.tsx` memuat login, tiga tampilan, dan semua form dalam satu file             | Pecah per fitur (bagian 2)                                                         |
-| Login berada di dalam komponen Catalog                                                           | Rute `(auth)` tersendiri + guard sesi di layout                                    |
-| State server dikelola manual (`useState` + `fetch`)                                              | TanStack Query                                                                     |
-| Form dikelola manual                                                                             | React Hook Form + skema Zod dari `packages/contracts`                              |
-| String UI ditulis langsung dalam Bahasa Indonesia, termasuk di `packages/ui`                     | Kamus `id`/`en`; `packages/ui` menerima label lewat props                          |
-| `lang="id"` tetap di `<html>`                                                                    | Mengikuti bahasa aktif                                                             |
-| CSS halaman (`catalog.css`, `backoffice-shell.css`) diimpor global di `layout.tsx`               | Gaya milik fitur dimuat bersama fiturnya                                           |
-| `packages/ui` datar, primitive dan domain tercampur                                              | Kelompokkan (bagian 3)                                                             |
-| Ikon diimpor langsung dari `lucide-react` di halaman                                             | Semua lewat `AppIcon`; ganti ke Tabler                                             |
-| Klien API tidak mengirim header `x-csrf-token`, sedangkan API mewajibkannya untuk mutasi bersesi | Tambahkan di klien API (lihat `security.md` bagian 5)                              |
-| Navigasi statis                                                                                  | Disusun dari manifest + entitlement + izin                                         |
-| Halaman referensi dev tercampur dengan rute aplikasi                                             | Pindahkan ke grup `(dev)` yang tidak dibangun di produksi, atau cukup di Storybook |
+- Catalog monolitik sudah dipecah ke fitur; login dan sesi memakai rute/guard sendiri. TanStack Query, kamus id/en, lang dinamis, Tabler, header CSRF, dan navigasi Backoffice dari manifest sudah tersedia.
+- Grup `(kds)` dan `(customer)` sudah ada; `(platform)`, `/m/[slug]`, daftar pelanggan Backoffice, dan surface M5–M8 belum dibuat.
+- `packages/ui` belum dipindah ke struktur target bagian 3. Komponen domain modul yang belum dibangun tidak otomatis memenuhi kontrak label/visual hanya karena sudah mempunyai story.
+- React Hook Form dan Zustand belum terpasang; struktur target bukan klaim dependency sudah tersedia. Form/draft saat ini memakai state React dan validasi kontrak.
+- Beberapa file fitur masih besar, termasuk `features/pos/tables-page.tsx` dan `features/settings/organization-page.tsx`; pemecahan perlu checkpoint tersendiri, bukan digabung dengan perubahan perilaku.
+- Gap produk dan penerimaan M3/M4 ada di [`review M3/M4`](../milestones/REVIEW-M03-M04.md). Tidak ada reslicing rute baru dalam penyelarasan dokumentasi ini.
 
 ---
 
@@ -416,7 +418,7 @@ export default function ProductsPage() {
 | Story smoke                     | Playwright                   | `apps/storybook/tests`               |
 | Unit fitur (pemeta, hook, util) | Vitest                       | `apps/web/src/features/**`           |
 | Kesamaan kunci kamus            | Vitest                       | `apps/web/messages`                  |
-| E2E alur kritis                 | Playwright                   | (belum ada) login, katalog, POS, KDS |
+| E2E alur kritis                 | Playwright                   | `apps/web/e2e`: login, katalog, POS/shift, navigasi, Pengaturan; bukti browser KDS/tamu ada di checkpoint M3/M4, belum seluruhnya menjadi suite E2E tersimpan |
 
 Gerbang tiap halaman: lint, typecheck, test terkait, smoke rute HTTP, smoke klik di browser, S/M/L + batas 320/767/768/1279/1280, terang dan gelap, `id` dan `en`, keyboard dan fokus, serta data guard.
 
@@ -428,11 +430,11 @@ Setiap butir adalah checkpoint yang dapat di-push sendiri.
 
 1. Token Calm Neutral di `tokens.css`/`primitives.css` — **selesai**; pratinjau di `/color-bank`.
 2. `AppIcon` ke Tabler; ganti semua impor ikon; hapus `lucide-react` — **selesai**; lint menolak impor `lucide-react`.
-3. `next-intl` — **selesai** untuk shell, login, dan Catalog: kamus `id`/`en`, bawaan mengikuti browser, pemilih bahasa di menu akun dan halaman login, error diterjemahkan per kode. Yang tersisa: menyimpan pilihan ke `users.locale`, dan menghapus bawaan Bahasa Indonesia pada props label `packages/ui`.
-4. Klien API: header CSRF dan TanStack Query — **selesai**. Idempotency dan pemetaan error berdasarkan kode menyusul.
+3. `next-intl` — **selesai** untuk surface M1–M4: kamus `id`/`en`, bawaan mengikuti browser, preferensi `users.locale` (TODO 12.18), dan terjemahan error berdasarkan kode. Primitive dan komponen domain yang dipakai sudah menerima label melalui props; komponen modul berikutnya tetap diaudit saat dipakai.
+4. Klien API: CSRF, TanStack Query, idempotency pada mutasi terkait, dan error bertipe berdasarkan kode — **tersedia**; endpoint baru tetap wajib diaudit sendiri.
 5. `AppShell`, `ContextSwitcher`, `UserMenu`, `PageHeader`, `FilterBar`, `Chip` — **selesai**. `ModuleAccessState`, `UsageLimitState`, dan `UsageMeter` juga **selesai**.
-6. Grup rute dan guard: `(auth)`, `(backoffice)`, dan `(pos)` — **selesai**; guard sesi dipakai bersama lewat `shell/session-gate.tsx`, shell kasir di `shell/pos-shell.tsx`. Layar jual `/pos` meminta shift terbuka. Guard perangkat, `(kds)`, `(customer)`, `(platform)` menyusul bersama halamannya. `(customer)` dibuat 16 Oktober 2026 (M4): tanpa sesi merchant, toast sendiri, tema mengikuti perangkat; rute `t/[token]` dengan metadata dan gambar pratinjau dari server.
-7. Pecah `catalog-backoffice.tsx` menjadi `features/catalog` — **selesai**; rutenya `/catalog`. String masih di `messages.ts` per fitur sampai i18n dipasang.
+6. Grup `(auth)`, `(backoffice)`, `(pos)`, `(kds)`, dan `(customer)` — **tersedia**; `(platform)` mengikuti M8. `/pos` meminta shift untuk jual biasa; pesanan meja dikirim tanpa menerima uang. Sesi perangkat dan realtime KDS diperiksa server; POS belum mewajibkan perangkat aktif (keputusan produk masih terbuka). `(customer)` tanpa sesi merchant, dengan toast, tema perangkat, metadata, dan gambar pratinjau.
+7. Pecah `catalog-backoffice.tsx` menjadi `features/catalog` — **selesai**; rute `/catalog`, teks dari kamus global `id.json`/`en.json`, bukan `messages.ts` per fitur.
 8. Benahi komponen lama **satu per satu** (satu komponen = satu checkpoint): tampilan pada palet baru, tinggi kontrol, `Panel` menggantikan kartu bersarang, hapus status `special`. Urutan: Button → Input/FormField → Select/Combobox → kontrol pilihan → Badge/Alert/Toast → overlay → navigasi → DataTable dan tampilan data → komponen domain.
 
 Setelah butir 7 lulus gerbang, pola yang sama dipakai untuk POS, KDS, dan modul berikutnya.

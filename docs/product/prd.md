@@ -115,9 +115,9 @@ Platform
 
 Jenis workspace: `BUSINESS` (R1) dan `PERSONAL` (fondasi sekarang, UI nanti). Business template (Cafe, Restaurant, Bakery/Retail, Cloud Kitchen, HC Only, Finance Only, Personal) hanya mengubah label, navigasi bawaan, dan onboarding — tidak mengubah skema atau aturan keamanan.
 
-### 5.1 Mata uang dasar bisnis (rencana M2)
+### 5.1 Mata uang dasar bisnis (tersedia sejak M2)
 
-Tambahan permintaan user 4 Oktober 2026: satu bisnis dapat memilih **IDR atau USD (dolar AS)**, berlaku untuk seluruh outlet dan terpisah dari pilihan bahasa. Perubahan hanya tersedia sebelum ada data bernilai uang; setelah itu mata uang baca-saja dengan alasan, sementara nama bisnis tetap dapat diedit. Histori dan nominal lama tidak dikonversi atau diganti label. USD mendukung sen; skala IDR lama dipertahankan. Requirement rinci: PRD Modular 6.5 (`CUR-001`–`CUR-005`); alur: `flowchart.md` 12.1; implementasi: `M2-FT-10`. Status saat ini masih rencana, bukan fitur yang sudah tersedia.
+Tambahan permintaan user 4 Oktober 2026: satu bisnis dapat memilih **IDR atau USD (dolar AS)**, berlaku untuk seluruh outlet dan terpisah dari pilihan bahasa. Perubahan hanya tersedia sebelum ada data bernilai uang; setelah itu mata uang baca-saja dengan alasan, sementara nama bisnis tetap dapat diedit. Histori dan nominal lama tidak dikonversi atau diganti label. USD mendukung sen; skala IDR lama dipertahankan. Requirement rinci: PRD Modular 6.5 (`CUR-001`–`CUR-005`); alur: `flowchart.md` 12.1; implementasi: `M2-FT-10`. Tersedia sejak M2-FT-10 (`ae3bbcb`, TODO 13.47–13.49); penerimaan M2 sudah disetujui pengguna. Bahasa tidak mengubah mata uang bisnis.
 
 ---
 
@@ -275,16 +275,21 @@ Inventory, Finance, HC, Customer, dan Reports berada di Backoffice. Alur per lay
 
 ### 11.1 Posisi saat ini
 
-| Area                                                                                                                 | Status                                                                                                                                                                                                                                  |
-| -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Login, sesi, organisasi, peran/izin, langganan/entitlement, audit, outbox                                            | Berjalan (API + database)                                                                                                                                                                                                               |
-| Catalog                                                                                                              | Berjalan dari database sampai halaman Backoffice, dengan AppShell, dua bahasa, dan terang/gelap                                                                                                                                         |
-| Kontrak modular (manifest, instalasi, binding, limit, event, command context, QR token, support access, batas modul) | Tersedia sebagai kontrak tipe; belum ada tabel dan API                                                                                                                                                                                  |
-| POS                                                                                                                  | Berjalan dari database sampai layar kasir: shift dan kas, jual, bayar (tunai, QRIS, transfer, EDC), struk, refund, batal, catatan item, tahan pesanan. Belum: pajak per outlet, persetujuan PIN manager, makan di tempat, gambar produk |
-| KDS, Inventory                                                                                                       | Komponen UI ada; halaman hanya placeholder di mode development; belum ada API dan tabel                                                                                                                                                 |
-| Floor, Finance, HC, Customer, Reports, Platform Admin                                                                | Sebagian komponen UI ada; belum ada halaman, API, dan tabel                                                                                                                                                                             |
-| Bank warna                                                                                                           | Sudah mengikuti D-01                                                                                                                                                                                                                    |
-| Komponen UI, ikon, dua bahasa                                                                                        | Komponen dasar, shell, dan komponen POS mengikuti D-03 sampai D-07; label lewat props dan kamus `id`/`en`. Komponen domain lain (Floor, KDS, Inventory, Finance, Customer, Platform) dibenahi di milestone masing-masing                |
+Status ini dicocokkan dengan baseline Git `7b61eb1` setelah penutupan task M4. **M1/M2 disetujui; M3/M4 menunggu review.** Tersedianya implementasi bukan pernyataan bahwa seluruh requirement Basic atau gerbang produksi sudah terpenuhi.
+
+| Area | Implementasi dan batasnya |
+| --- | --- |
+| Core modular | Login, organisasi, peran/izin, paket berversi, entitlement/capability, instalasi, binding, limit/metering, perangkat, feature flag, idempotency, audit, dan outbox/inbox tersedia. Pengaturan organisasi, pengguna, peran, perangkat, langganan, dan integrasi memakai API. Akses support beralasan/bermasa berlaku belum dibuat. |
+| Catalog | Backoffice produk/kategori/varian/modifier, gambar, dan override outlet berjalan. Profil/menu publik mandiri `/m/[slug]` belum ada; requirement Catalog & Profile tetap berlaku. |
+| POS | Shift/kas, jual, empat metode pembayaran manual, struk, refund/PIN persetujuan, batal, catatan, tahan pesanan, gambar, pajak/service, IDR/USD, dan makan di tempat berjalan. Diskon sederhana dan pembayaran campuran dalam PRD belum mempunyai alur command/UI lengkap. |
+| KDS | Antrean/status, manual intake, POS/self-order lewat event, API eksternal, realtime perangkat, kios, timer, dan suara tersedia. Review pengguna serta keterbacaan 1–2 meter di monitor dapur masih terbuka. |
+| Floor dan Self-Order | Editor, sesi, pindah meja, bayar kunjungan, QR, menu/keranjang/status tamu, panggil pelayan/minta bill, dan klaim bayar VERIFYING tersedia. Moderasi staf Basic, gambar menu tamu, dan struk gabungan kunjungan masih gap. |
+| Customer | API profil, pencarian, tautan pesanan, riwayat, dan privasi telepon tersedia; dipakai dari POS. Halaman daftar pelanggan Backoffice belum ada. |
+| Inventory, Business Finance, HC, laporan | Belum ada modul backend dan surface bisnis aktif; sebagian komponen/pratinjau UI ada. Dikerjakan di M5–M8. |
+| Platform Admin | Sesi dan API master dasar tersedia. UI operator, Package Builder, provisioning lengkap, dan support access mengikuti M8. |
+| UI dan operasional | Calm Neutral, Geist, Tabler, kamus id/en, dan tema terang/gelap tersedia pada surface yang sudah dibangun. Komponen domain modul berikutnya tetap perlu dibenahi. Compose lokal dan workflow verifikasi manual tersedia; deploy produksi belum dibuat. |
+
+Gap, sumber requirement, bukti, dan gate berikutnya dicatat di [`review M3/M4`](../milestones/REVIEW-M03-M04.md). Gap tidak menjadi penundaan atau perubahan scope tanpa keputusan eksplisit.
 
 ### 11.2 Urutan pengerjaan
 
