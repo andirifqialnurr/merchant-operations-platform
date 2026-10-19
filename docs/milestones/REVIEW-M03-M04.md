@@ -27,7 +27,7 @@ Bukti implementasi terdahulu: [M3](./M03-kds.md) dan TODO 14.6–14.23. Angka p9
 
 - [ ] Pengguna meninjau editor, buka/pindah/tutup kunjungan, beberapa ronde pesanan, pembayaran kunjungan, QR, permintaan layanan, dan klaim bayar.
 - [ ] Privasi telepon pelanggan, konteks outlet, dan riwayat diperiksa dengan peran kasir dan pemilik.
-- [x] Moderasi Basic GAP-01 ditutup secara teknis oleh M4-GAP01-BE/UI/E2E lokal (`93f4931`, dipush). Review visual pengguna tetap pada gate pertama. Gambar/struk masih membutuhkan checkpoint tersendiri, bukan dihilangkan dari scope diam-diam.
+- [x] Moderasi Basic GAP-01 ditutup secara teknis oleh M4-GAP01-BE/UI/E2E lokal (`93f4931`, dipush). Review visual pengguna tetap pada gate pertama. Gambar sudah ditutup teknis pada GAP-05 (lihat pembaruan); struk GAP-06 masih membutuhkan checkpoint tersendiri, bukan dihilangkan dari scope diam-diam.
 
 Bukti implementasi terdahulu: [M4](./M04-meja-self-order-customer.md) dan TODO 13.10–13.22 untuk task M4. Nomor 13.x juga dipakai checkpoint M2; cocokkan judul dan ID task, bukan nomor saja.
 
@@ -48,7 +48,11 @@ Setiap baris di bawah adalah pekerjaan tersisa atau pemeriksaan yang harus dialo
 
 ### Pembaruan GAP-01 — selesai teknis, review visual terbuka
 
-M4-GAP01-BE dan UI/E2E sudah terverifikasi lokal dan dipush sebagai `93f4931`. QR baru menunggu staf tanpa event dapur/tagihan; endpoint accept/reject berizin mengubah keputusan/audit/outbox atomik. Panel kunjungan yang ada menyediakan review snapshot dan form alasan inline, pending ditemukan dari tile tanpa queue duplikat. Billing, claim, close dan progress/KDS tetap digerbang di server. Migrasi mempertahankan order lama dan belum diterapkan pada development. 21 integrasi PostgreSQL, root gates/build serta 16 browser test (empat test staf disposable + 12 mock tamu), 40 capture lulus; screenshot sampel dibaca, bukan seluruhnya atau persetujuan visual otomatis. GAP-01 selesai teknis, tetapi M4 belum diterima dan GAP-05/GAP-06 tetap terbuka. Rincian [kontrak dan bukti](./M04-moderasi-basic.md#9-bukti-checkpoint-m4-gap01-ui). Tabel di atas mencatat baseline sebelum perbaikan.
+M4-GAP01-BE dan UI/E2E sudah terverifikasi lokal dan dipush sebagai `93f4931`. QR baru menunggu staf tanpa event dapur/tagihan; endpoint accept/reject berizin mengubah keputusan/audit/outbox atomik. Panel kunjungan yang ada menyediakan review snapshot dan form alasan inline, pending ditemukan dari tile tanpa queue duplikat. Billing, claim, close dan progress/KDS tetap digerbang di server. Migrasi mempertahankan order lama dan belum diterapkan pada development. 21 integrasi PostgreSQL, root gates/build serta 16 browser test (empat test staf disposable + 12 mock tamu), 40 capture lulus; screenshot sampel dibaca, bukan seluruhnya atau persetujuan visual otomatis. GAP-01 selesai teknis, tetapi M4 belum diterima dan GAP-06 tetap terbuka; penyelesaian gambar dicatat pada pembaruan GAP-05 berikut. Rincian [kontrak dan bukti](./M04-moderasi-basic.md#9-bukti-checkpoint-m4-gap01-ui). Tabel di atas mencatat baseline sebelum perbaikan.
+
+### Pembaruan GAP-05 — selesai teknis, siap commit/push
+
+Menu tamu kini memuat flag `hasImage`; foto dibaca dari endpoint QR/product same-origin, bukan URL/ID gambar staf atau redirect storage. Gate QR + menu sellable, ownership Catalog, bounded 5 MB/timeout/no-redirect/sniff pada Core Files, rate limit terpisah dan header no-store melindungi akses. Foto/fallback memakai ProductTile yang ada; tidak ada route page baru, bucket/data development atau dependency baru. 22 integrasi penuh, tiga browser media (12 kombinasi, 14 capture; empat sampel dibaca), regresi moderasi 16 browser dan root gates/build lulus. GAP-05 selesai teknis, bukan acceptance M4; bukti/batas operasional pada [checkpoint gambar](./M04-gambar-menu-tamu.md#5-bukti-dan-batas-checkpoint). Tabel register di atas tetap merekam baseline sebelum koreksi.
 
 ### Pembaruan GAP-08 — implementasi tersedia
 

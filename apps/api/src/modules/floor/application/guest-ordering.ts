@@ -112,6 +112,7 @@ export class GuestOrdering {
       products: menu.products.map((product) => ({
         categoryId: product.categoryId,
         id: product.id,
+        hasImage: product.imageId !== null,
         modifierGroups: product.modifierGroups,
         name: product.name,
         priceMinor: product.priceMinor,

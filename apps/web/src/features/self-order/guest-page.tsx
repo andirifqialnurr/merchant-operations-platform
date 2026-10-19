@@ -23,7 +23,7 @@ import { Sheet } from "@merchant/ui/sheet";
 
 import { CartPanel, ProductOptionsSheet } from "@/features/pos";
 import { localeOptions, useLocaleSwitch } from "@/i18n/use-locale-switch";
-import { ApiClientError, guestApi } from "@/lib/api-client";
+import { ApiClientError, guestApi, guestProductImageUrl } from "@/lib/api-client";
 import { payable } from "@/lib/charges";
 import { useErrorMessage, useFormat } from "@/lib/i18n";
 import {
@@ -204,6 +204,7 @@ function Ordering({
 
   const view = useMemo(() => viewCart(cart, menu.products), [cart, menu.products]);
   const due = payable(view.totalMinor, menu.charges);
+  const hasPictures = menu.products.some((product) => product.hasImage);
   const products =
     categoryId === ALL_CATEGORIES
       ? menu.products
@@ -299,14 +300,23 @@ function Ordering({
                 orientation="horizontal"
               />
             ) : null}
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <div
+              className={
+                hasPictures
+                  ? "grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:grid-cols-3"
+                  : "grid grid-cols-2 gap-2 sm:grid-cols-3"
+              }
+            >
               {products.map((product) => (
                 <ProductTile
                   key={product.id}
                   name={product.name}
                   onClick={() => pick(product)}
                   priceLabel={money(product.priceMinor)}
-                  variant="compact"
+                  variant={hasPictures ? "customer" : "compact"}
+                  {...(product.hasImage
+                    ? { imageAlt: "", imageUrl: guestProductImageUrl(token, product.id) }
+                    : {})}
                 />
               ))}
             </div>

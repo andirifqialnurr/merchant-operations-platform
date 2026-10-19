@@ -8,6 +8,8 @@ import { CatalogModule } from "../../kernels/catalog/public.js";
 import { OrderIntakeModule } from "../../kernels/order-intake/public.js";
 import { OrganizationModule } from "../../core/workspaces/public.js";
 import { FloorStructureController } from "./adapters/floor-structure.controller.js";
+import { GuestProductImageController } from "./adapters/guest-product-image.controller.js";
+import { GuestProductImage } from "./application/guest-product-image.js";
 import { GuestOrderModerationController } from "./adapters/guest-order-moderation.controller.js";
 import { FloorTableController } from "./adapters/floor-table.controller.js";
 import { PrismaFloorStructureRepository } from "./adapters/prisma-floor-structure.repository.js";
@@ -52,6 +54,7 @@ export function tableQrSecret(environment: NodeJS.ProcessEnv = process.env) {
 @Module({
   controllers: [
     GuestOrderModerationController,
+    GuestProductImageController,
     FloorStructureController,
     FloorTableController,
     PublicTableQrController,
@@ -84,6 +87,7 @@ export function tableQrSecret(environment: NodeJS.ProcessEnv = process.env) {
     { provide: SERVICE_REQUEST_REPOSITORY, useExisting: PrismaServiceRequestRepository },
     TableQrCodes,
     GuestOrdering,
+    GuestProductImage,
     PrismaTableQrRepository,
     { provide: TABLE_QR_REPOSITORY, useExisting: PrismaTableQrRepository },
     { provide: TABLE_QR_SECRET, useFactory: tableQrSecret },

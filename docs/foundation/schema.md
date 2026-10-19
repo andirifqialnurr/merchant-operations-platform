@@ -270,6 +270,10 @@ Migrasi maju `20261019010000_self_order_moderation` menambah `order_orders.moder
 
 `PENDING` tidak masuk hutang kunjungan atau KDS dan tidak boleh dibayar/diklaim; close ditolak sampai staf memutuskan. Adapter order, Floor close dan billing memakai advisory transaction lock per workspace/kunjungan sebelum pemeriksaan mutasi; Floor menyediakan port baca guard kunjungan sehingga kernel tidak mengakses tabel milik Floor. Gate billing dicek kembali di persistence untuk snapshot stale. Auto-accept Pro belum diimplementasikan. Endpoint dan panel UI staf tersedia dengan E2E disposable; review visual/penerimaan M4 tetap terbuka. Live floor menambah `pendingOrderCount` turunan per meja dari group-by order scoped outlet (tidak disimpan sebagai status/input). Detail order kunjungan membawa snapshot modifier serta catatan item/order untuk review staf; tetap tanpa kontak atau metadata audit.
 
+### Gambar menu QR (M4-GAP05)
+
+Tidak menambah tabel/kolom atau migrasi. `hasImage` pada DTO produk tamu adalah flag turunan dari gambar Catalog primary aktif; bukan input atau penyimpanan URL baru. Product ID yang sudah publik dan QR mengalamatkan proxy gambar, tanpa internal image/workspace ID atau object key. Core Files memiliki bounded raster read, Catalog tetap owner metadata, Floor memiliki gate QR/menu. Kontrak dan batas operasional: [checkpoint gambar](../milestones/M04-gambar-menu-tamu.md).
+
 ## B.4 Floor dan Self-Order
 
 ```mermaid

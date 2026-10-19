@@ -39,6 +39,7 @@ import { createProductModifierGroup as createProductModifierGroupUseCase } from 
 import { updateProductModifierGroup as updateProductModifierGroupUseCase } from "./commands/update-product-modifier-group.js";
 import { createProductImage as createProductImageUseCase } from "./commands/create-product-image.js";
 import { productImageUrl as productImageUrlUseCase } from "./queries/product-image-url.js";
+import { primaryProductImageContent } from "./queries/primary-product-image-content.js";
 import { updateProductImage as updateProductImageUseCase } from "./commands/update-product-image.js";
 import { createOutletProduct as createOutletProductUseCase } from "./commands/create-outlet-product.js";
 import { updateOutletProduct as updateOutletProductUseCase } from "./commands/update-outlet-product.js";
@@ -167,6 +168,10 @@ export class CatalogService {
   }
 
   /** A short-lived address for showing an active picture; null when there is none. */
+  primaryProductImageContent(tenantId: string, imageId: string) {
+    return primaryProductImageContent(this.deps, tenantId, imageId);
+  }
+
   productImageUrl(tenantId: string, imageId: string) {
     return productImageUrlUseCase(this.deps, tenantId, imageId);
   }

@@ -4,7 +4,7 @@ import { type LimitGate } from "../../../shared/limits/limit-gate.js";
 import type { FileStorageService } from "../../../core/files/public.js";
 
 /** The part of file storage the catalog needs. */
-export type ProductImageFiles = Pick<FileStorageService, "readUrl" | "verifyUpload">;
+export type ProductImageFiles = Pick<FileStorageService, "readUrl" | "verifyUpload" | "readImage">;
 
 export const notFound = (code: string, message: string) => new NotFoundException({ code, message });
 

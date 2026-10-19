@@ -30,6 +30,8 @@ export interface ObjectStorage {
   head(key: string): Promise<{ contentType: string | null; sizeBytes: number } | null>;
   /** The first `length` bytes of an object. */
   readStart(key: string, length: number): Promise<Uint8Array>;
+  /** Full read bounded while receiving bytes, not after an unbounded allocation. */
+  readContent(key: string, maxBytes: number): Promise<Uint8Array | null>;
   remove(key: string): Promise<void>;
   signRead(key: string, expiresIn: number, now: Date): string;
   /** A URL that accepts one upload of exactly this type and size. */
@@ -40,6 +42,12 @@ export interface ObjectStorage {
     expiresIn: number,
     now: Date,
   ): string;
+}
+
+export class StoredObjectTooLarge extends Error {
+  constructor(readonly maxBytes: number) {
+    super("Stored object exceeds the read limit.");
+  }
 }
 
 export const OBJECT_STORAGE = Symbol("OBJECT_STORAGE");
@@ -137,10 +145,33 @@ export class FileStorageService {
     return this.storage.signRead(objectKey, READ_URL_TTL_SECONDS, now);
   }
 
+  /** Byte proxy callers still prove the owning workspace; no storage URL is returned. */
+  async readImage(tenantId: string, purpose: FilePurpose, objectKey: string) {
+    const policy = FILE_POLICIES[purpose];
+    if (!ownsObjectKey(tenantId, policy, objectKey)) throw notFound();
+    const bytes = await this.reach(() => this.storage.readContent(objectKey, policy.maxBytes));
+    if (!bytes) throw notFound();
+    if (bytes.byteLength > policy.maxBytes)
+      throw new PayloadTooLargeException({
+        code: "FILE_TOO_LARGE",
+        message: "The file is too large.",
+      });
+    const contentType = sniffImageType(bytes.subarray(0, SNIFF_BYTES));
+    if (!contentType || !(contentType in policy.types))
+      throw invalid("FILE_TYPE_NOT_ALLOWED", "The file is not a supported raster image.");
+    return { bytes, contentType };
+  }
+
   private async reach<T>(action: () => Promise<T>) {
     try {
       return await action();
-    } catch {
+    } catch (error) {
+      if (error instanceof StoredObjectTooLarge)
+        throw new PayloadTooLargeException({
+          code: "FILE_TOO_LARGE",
+          details: { maxBytes: String(error.maxBytes) },
+          message: "The file is too large.",
+        });
       // Nothing about the storage (address, bucket, credentials) goes into the answer.
       throw new HttpException(
         { code: "FILE_STORAGE_UNAVAILABLE", message: "File storage cannot be reached right now." },

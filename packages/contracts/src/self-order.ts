@@ -17,12 +17,18 @@ export const guestMenuProductSchema = z
   .object({
     categoryId: z.uuid(),
     id: z.uuid(),
+    /** Only availability: internal image IDs, storage keys and signed URLs stay private. */
+    hasImage: z.boolean().default(false),
     modifierGroups: z.array(sellableMenuModifierGroupSchema),
     name: catalogNameSchema,
     /** Outlet price before any variant or modifier surcharge. */
     priceMinor: moneyMinorSchema,
     variants: z.array(sellableMenuOptionSchema),
   })
+  .strict();
+
+export const guestProductImageParamsSchema = z
+  .object({ token: z.string().min(1).max(100), productId: z.uuid() })
   .strict();
 
 export const guestMenuSchema = z

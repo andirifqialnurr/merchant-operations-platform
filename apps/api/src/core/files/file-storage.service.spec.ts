@@ -47,6 +47,14 @@ class MemoryStorage implements ObjectStorage {
     return new Uint8Array((this.objects.get(key)?.bytes ?? []).slice(0, length));
   }
 
+  async readContent(key: string, maxBytes: number) {
+    this.reach();
+    const value = this.objects.get(key);
+    if (!value) return null;
+    if (value.bytes.length > maxBytes) throw new Error("Test storage read limit exceeded.");
+    return new Uint8Array(value.bytes);
+  }
+
   async remove(key: string) {
     this.objects.delete(key);
     this.removed.push(key);
@@ -84,6 +92,37 @@ async function codeOf(action: () => unknown) {
     throw error;
   }
 }
+
+test("byte reads recheck workspace ownership and raster magic, and return no object key or URL", async () => {
+  const { service, storage } = setup();
+  const { objectKey } = service.createUpload(TENANT, request());
+  storage.objects.set(objectKey, { bytes: PNG, contentType: "text/html", sizeBytes: PNG.length });
+  const content = await service.readImage(TENANT, "CATALOG_PRODUCT_IMAGE", objectKey);
+  assert.deepEqual(content, { contentType: "image/png", bytes: new Uint8Array(PNG) });
+  assert.doesNotMatch(JSON.stringify(content), /objectKey|https:|tenants/);
+  storage.down = true;
+  assert.equal(
+    await codeOf(() => service.readImage(OTHER_TENANT, "CATALOG_PRODUCT_IMAGE", objectKey)),
+    "404 FILE_NOT_FOUND",
+  );
+});
+
+test("byte reads never serve SVG, HTML, empty or missing files", async () => {
+  const { service, storage } = setup();
+  const { objectKey } = service.createUpload(TENANT, request());
+  assert.equal(
+    await codeOf(() => service.readImage(TENANT, "CATALOG_PRODUCT_IMAGE", objectKey)),
+    "404 FILE_NOT_FOUND",
+  );
+  for (const bytes of [SVG, HTML, []]) {
+    storage.objects.set(objectKey, { bytes, contentType: "image/png", sizeBytes: bytes.length });
+    assert.equal(
+      await codeOf(() => service.readImage(TENANT, "CATALOG_PRODUCT_IMAGE", objectKey)),
+      "400 FILE_TYPE_NOT_ALLOWED",
+    );
+    assert.equal(storage.removed.length, 0, "an image GET must not delete catalog data");
+  }
+});
 
 test("an upload ticket names a key the server made up, inside the workspace's folder", () => {
   const { service } = setup();

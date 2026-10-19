@@ -1,4 +1,4 @@
-import type { ObjectStorage } from "./file-storage.service.js";
+import { StoredObjectTooLarge, type ObjectStorage } from "./file-storage.service.js";
 import { presignS3Url, type S3Config } from "./s3-presign.js";
 
 type StorageEnvironment = Partial<
@@ -74,6 +74,49 @@ export class S3ObjectStorage implements ObjectStorage {
     return new Uint8Array(await response.arrayBuffer()).slice(0, length);
   }
 
+  async readContent(key: string, maxBytes: number) {
+    const response = await fetch(this.internal("GET", key), {
+      redirect: "error",
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+    if (response.status === 404) {
+      await response.body?.cancel();
+      return null;
+    }
+    if (!response.ok || !response.body) {
+      await response.body?.cancel();
+      throw new Error("Object storage could not provide the content.");
+    }
+    if (Number(response.headers.get("content-length")) > maxBytes) {
+      await response.body.cancel();
+      throw new StoredObjectTooLarge(maxBytes);
+    }
+    const reader = response.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let length = 0;
+    try {
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        length += value.byteLength;
+        if (length > maxBytes) {
+          await reader.cancel();
+          throw new StoredObjectTooLarge(maxBytes);
+        }
+        chunks.push(value);
+      }
+    } finally {
+      reader.releaseLock();
+    }
+    const bytes = new Uint8Array(length);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    return bytes;
+  }
+
   async remove(key: string) {
     const response = await fetch(this.internal("DELETE", key), {
       method: "DELETE",
@@ -94,6 +137,9 @@ class MissingObjectStorage implements ObjectStorage {
     return this.fail();
   }
   async readStart(): Promise<never> {
+    return this.fail();
+  }
+  async readContent(): Promise<never> {
     return this.fail();
   }
   async remove(): Promise<never> {

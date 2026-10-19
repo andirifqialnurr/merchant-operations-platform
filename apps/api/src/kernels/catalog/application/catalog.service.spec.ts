@@ -985,6 +985,10 @@ function pictureFiles(result: "image/jpeg" | "missing" | "not-an-image" = "image
   return {
     checked,
     files: {
+      readImage: async () => ({
+        contentType: "image/jpeg",
+        bytes: new Uint8Array([0xff, 0xd8, 0xff, 0xe0]),
+      }),
       readUrl: (tenantId: string, _purpose: string, objectKey: string) =>
         `https://storage.test/${objectKey}?tenant=${tenantId}`,
       verifyUpload: async (tenantId: string, _purpose: string, objectKey: string) => {
@@ -1053,9 +1057,18 @@ test("a picture's address is given for an active picture of this workspace only"
     await service.productImageUrl(TENANT_A, image.id),
     `https://storage.test/tenants/a/catalog/product-images/kopi.jpg?tenant=${TENANT_A}`,
   );
+  assert.deepEqual(await service.primaryProductImageContent(TENANT_A, image.id), {
+    contentType: "image/jpeg",
+    bytes: new Uint8Array([0xff, 0xd8, 0xff, 0xe0]),
+  });
   // Another workspace asking for the same picture gets nothing.
   assert.equal(await service.productImageUrl(TENANT_B, image.id), null);
+  assert.equal(await service.primaryProductImageContent(TENANT_B, image.id), null);
+  await service.updateProductImage(TENANT_A, image.id, { isPrimary: false });
+  assert.equal(await service.primaryProductImageContent(TENANT_A, image.id), null);
+  await service.updateProductImage(TENANT_A, image.id, { isPrimary: true });
   // A removed picture has no address either.
   await service.updateProductImage(TENANT_A, image.id, { status: "INACTIVE" });
   assert.equal(await service.productImageUrl(TENANT_A, image.id), null);
+  assert.equal(await service.primaryProductImageContent(TENANT_A, image.id), null);
 });

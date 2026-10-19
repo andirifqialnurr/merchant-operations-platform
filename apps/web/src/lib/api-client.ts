@@ -8,6 +8,7 @@ import {
   orderCustomerSchema,
   type CreateCustomer,
   guestMenuSchema,
+  guestProductImageParamsSchema,
   guestOrderSchema,
   guestVisitSchema,
   placeGuestOrderSchema,
@@ -1173,6 +1174,12 @@ export const merchantApi = {
 /** The token as part of an address, checked for shape first. */
 function guestPath(token: string, rest = "") {
   return `/public/table-qr/${encodeURIComponent(publicQrTokenParamsSchema.parse({ token }).token)}${rest}`;
+}
+
+/** No workspace, internal image ID or storage address is sent to a guest image element. */
+export function guestProductImageUrl(token: string, productId: string) {
+  const params = guestProductImageParamsSchema.parse({ token, productId });
+  return `/api/v1${guestPath(params.token, `/products/${params.productId}/image`)}`;
 }
 
 /**
