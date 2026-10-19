@@ -19,7 +19,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 Checkbox berikut merekam bukti implementasi awal, bukan persetujuan pengguna atau pembebasan requirement yang terlewat. Gate tambahan dari rekonsiliasi kontrak:
 
 - [x] Moderasi staf accept/reject untuk Self-Order Basic terpenuhi dan diuji sebelum pesanan masuk dapur (Module Tiers 5.2; GAP-01). BE + UI/E2E lokal (`93f4931`, dipush), lihat [bukti](./M04-moderasi-basic.md#9-bukti-checkpoint-m4-gap01-ui). Tidak menutup review pengguna.
-- [x] Gambar produk primary aktif tampil pada menu QR melalui proxy raster ber-gate tanpa URL/ID media staf; fallback/no-photo dan S/M/L diverifikasi. GAP-05, siap commit/push; [bukti](./M04-gambar-menu-tamu.md#5-bukti-dan-batas-checkpoint).
+- [x] Gambar produk primary aktif tampil pada menu QR melalui proxy raster ber-gate tanpa URL/ID media staf; fallback/no-photo dan S/M/L diverifikasi. GAP-05 (`e287eb4`, dipush); [bukti](./M04-gambar-menu-tamu.md#5-bukti-dan-batas-checkpoint).
 - [ ] Representasi bill/struk satu kunjungan direview terhadap FLOOR-005; nominal pembayaran gabungan tidak menyesatkan pada struk per pesanan (GAP-06).
 
 - [x] Lokasi baru langsung memiliki `Main Floor` dan `Main Area`. _Trigger database pada `outlets`; integration `floor-layout` (TODO 13.10)._
@@ -42,7 +42,7 @@ Checkbox berikut merekam bukti implementasi awal, bukan persetujuan pengguna ata
 
 ### Koreksi kontrak GAP-05
 
-- [x] **M4-GAP05 Gambar menu tamu** — flag availability tanpa metadata staf, proxy byte raster QR/product dengan gate menu sellable dan bounded private-storage read, foto/fallback ProductTile tanpa reslicing rute. 22 integrasi penuh, 3 browser gambar/14 capture (12 kombinasi), regresi moderasi 16 browser, root gates/build lulus. Tidak ada migrasi/dependency baru atau perubahan bucket development. Siap commit/push, hash menyusul; [kontrak dan batas](./M04-gambar-menu-tamu.md).
+- [x] **M4-GAP05 Gambar menu tamu** `e287eb4` — flag availability tanpa metadata staf, proxy byte raster QR/product dengan gate menu sellable dan bounded private-storage read, foto/fallback ProductTile tanpa reslicing rute. 22 integrasi penuh, 3 browser gambar/14 capture (12 kombinasi), regresi moderasi 16 browser, root gates/build lulus. Tidak ada migrasi/dependency baru atau perubahan bucket development. Dipush ke `origin/main`; [kontrak dan batas](./M04-gambar-menu-tamu.md).
 
 ### FT — Fitur produk
 

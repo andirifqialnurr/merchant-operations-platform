@@ -1,6 +1,6 @@
 # M4 — gambar menu tamu (GAP-05)
 
-**Status:** selesai teknis dan terverifikasi lokal; siap commit/push sebagai satu checkpoint setelah moderasi `93f4931` dan pencatatan push `ee4945e`. Review visual pengguna/penerimaan M4 tetap terbuka.
+**Status:** selesai teknis dan terverifikasi lokal; dipush ke `origin/main` sebagai `e287eb4` setelah moderasi `93f4931` dan pencatatan push `ee4945e`. Review visual pengguna/penerimaan M4 tetap terbuka.
 **Scope:** foto produk pada `/t/[token]` yang sudah ada, bukan profil `/m/[slug]`, reslicing route, upload baru, atau struk GAP-06. Commit/push wajib sesudah verifikasi sebelum task berikutnya.
 
 ## 1. Sumber dan audit
@@ -53,4 +53,4 @@ Tetap Calm Neutral/id/en, tidak menambah page description/CTA/kartu bersarang. F
 - Root lint/boundary/warna, typecheck/test/format, build API/web terisolasi lulus. 405 test sumber API dan 43 test contracts lulus, termasuk dua test kontrak media privacy/params. Gagal lint awal karena type-only import dan binding fetch test diperbaiki, bukan diabaikan. Tidak ada klaim run CI GitHub atau deploy.
 - Runner `pnpm --filter @merchant/web test:e2e:guest-images`: web 4100/output `.next/guest-images-e2e`, API 4101, database baru dan private storage loopback baru; semuanya ditutup/dibersihkan setelah suite. Build memakai `.next/guest-images-build`. File `next-env.d.ts` hasil generated output dikembalikan ke path development bawaan.
 - **Batas operasional:** proxy menambah bandwidth/API work dan membuffer maksimal 5 MB per request (plus staging/copy), bukan batas memori global. Belum ada resize/re-encode/CDN cache atau pengujian beban foto produksi; concurrency, bandwidth, angka rate limit dan trust-proxy/Redis perlu verifikasi pilot/hardening. Tidak ada klaim menarik kembali file yang sudah diunduh. Malware scanning/cleanup upload lama tetap utang yang sudah tercatat di security.
-- Tidak membaca/mengubah bucket atau database development. Migrasi moderasi dari checkpoint terdahulu tetap perlu diterapkan melalui proses normal sebelum menjalankan seluruh backend baru terhadap schema development lama. **GAP-05 selesai teknis, bukan acceptance M4**; GAP-06 struk kunjungan dan review fisik/visual M3/M4 tetap terbuka. Commit/push checkpoint ini wajib sebelum task berikutnya.
+- Tidak membaca/mengubah bucket atau database development. Migrasi moderasi dari checkpoint terdahulu tetap perlu diterapkan melalui proses normal sebelum menjalankan seluruh backend baru terhadap schema development lama. **GAP-05 selesai teknis, bukan acceptance M4**; GAP-06 struk kunjungan dan review fisik/visual M3/M4 tetap terbuka. Implementasi dan bukti checkpoint ini dipush sebagai `e287eb4`; task berikutnya tetap wajib verifikasi → commit → push secara terpisah.
