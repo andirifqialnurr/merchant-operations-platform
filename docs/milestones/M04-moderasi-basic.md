@@ -1,6 +1,6 @@
 # M4 — kontrak checkpoint moderasi Self-Order Basic
 
-**Status:** GAP-01 ditutup secara teknis melalui BE + UI dan E2E lokal. Review visual pengguna/penerimaan M4 tetap terbuka. Belum commit/push.
+**Status:** GAP-01 ditutup secara teknis melalui BE + UI dan E2E lokal. Review visual pengguna/penerimaan M4 tetap terbuka. Implementasi dipush ke `origin/main` sebagai `93f4931`.
 **Baseline audit:** `2a5f8fd`.
 **Otorisasi:** pengguna meminta lanjut M4 setelah koreksi KDS/M2. Ini pengecualian urutan milestone, bukan penerimaan visual M3 atau hasil uji monitor fisik.
 
@@ -120,4 +120,4 @@ Pengguna menginstruksikan `lanju` setelah checkpoint BE; UI dilanjutkan eksplisi
 - **40 capture** di `apps/web/test-results/moderation` (di luar duplikat attachment): 24 pending/form staf pada 320/768/1440 × light/dark × id/en, 12 tamu, empat flow/read-only. Sampel desktop light id, tablet dark en, HP dark en, retry dan hasil tamu dibaca. Tidak mengklaim seluruh 40 gambar dibaca, persetujuan pengguna atau uji fisik.
 - **21 integrasi PostgreSQL lulus** sesudah perluasan DTO: snapshot catatan/opsi untuk staf, count pending hilang setelah keputusan, isolasi, retry/race/rollback, billing/close gates, POS/KDS dan regresi modul lain. P99 POS → KDS lokal terbaru 1.091 ms/200 pesanan, bukan SLA produksi. Root lint/boundary/warna, typecheck, test dan format lulus (398 sumber API, 41 contracts, 281 UI, 61 test TS web + 10 script web; worker juga lulus); build API/web terisolasi lulus.
 - `pnpm --filter @merchant/web test:e2e:moderation` kini menjalankan kedua suite pada web 4100 dan API fixture 4101; database dibuat/dihapus oleh fixture. Runner umum melewati suite staf dan tidak menyalakan fixture. Tidak ada migrasi, form submit atau mutasi data development; schema development masih harus dimigrasikan sebelum memakai kode baru.
-- **GAP-01 selesai teknis, belum commit/push dan bukan penerimaan M4.** Review visual pengguna, GAP-05 gambar, GAP-06 struk dan gate fisik M3 tetap terbuka. Tidak memulai checkpoint berikutnya/M5 atau reslicing rute lain.
+- **GAP-01 selesai teknis, dipush sebagai `93f4931`, bukan penerimaan M4.** Review visual pengguna, GAP-05 gambar, GAP-06 struk dan gate fisik M3 tetap terbuka. M5/reslicing rute lain tidak diizinkan otomatis. Setelah checkpoint ini pengguna mengizinkan commit/push tiap task sebelum lanjut; catatan belum-commit pada bagian BE/UI di atas merekam kondisi sebelum `93f4931`.

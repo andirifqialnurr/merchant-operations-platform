@@ -1,6 +1,6 @@
 # M4 — Meja, Self-Order, dan Customer
 
-**Status:** Berjalan — dilanjutkan atas instruksi pengguna `lanjut m4` setelah baseline `2a5f8fd`, tanpa menutup review/uji fisik M3. Checkpoint BE + UI [moderasi Basic](./M04-moderasi-basic.md#9-bukti-checkpoint-m4-gap01-ui) selesai lokal beserta E2E, belum commit/push; review pengguna tetap terbuka. Semua task implementasi awal dicatat selesai 16 Oktober 2026 (dimulai hari yang sama atas permintaan pengguna, sementara M3 menunggu review). GAP-01 moderasi staf accept/reject (Module Tiers 5.2) ditutup secara teknis; itu bukan penerimaan seluruh kontrak M4. Gambar produk tamu dan struk kunjungan juga masih gap. Lihat [register review](./REVIEW-M03-M04.md) sebelum penerimaan milestone.
+**Status:** Berjalan — dilanjutkan atas instruksi pengguna `lanjut m4` setelah baseline `2a5f8fd`, tanpa menutup review/uji fisik M3. Checkpoint BE + UI [moderasi Basic](./M04-moderasi-basic.md#9-bukti-checkpoint-m4-gap01-ui) selesai lokal beserta E2E, dipush sebagai `93f4931`; review pengguna tetap terbuka. Semua task implementasi awal dicatat selesai 16 Oktober 2026 (dimulai hari yang sama atas permintaan pengguna, sementara M3 menunggu review). GAP-01 moderasi staf accept/reject (Module Tiers 5.2) ditutup secara teknis; itu bukan penerimaan seluruh kontrak M4. Gambar produk tamu dan struk kunjungan juga masih gap. Lihat [register review](./REVIEW-M03-M04.md) sebelum penerimaan milestone.
 **Tahap PRD:** E (Floor + Self-Order + Customer)
 **Bergantung pada:** M3
 
@@ -18,7 +18,7 @@ Outlet mengatur denah lantai, area, dan meja; kasir dan pelayan melayani tamu pe
 
 Checkbox berikut merekam bukti implementasi awal, bukan persetujuan pengguna atau pembebasan requirement yang terlewat. Gate tambahan dari rekonsiliasi kontrak:
 
-- [x] Moderasi staf accept/reject untuk Self-Order Basic terpenuhi dan diuji sebelum pesanan masuk dapur (Module Tiers 5.2; GAP-01). BE + UI/E2E lokal; belum commit/push, lihat [bukti](./M04-moderasi-basic.md#9-bukti-checkpoint-m4-gap01-ui). Tidak menutup review pengguna.
+- [x] Moderasi staf accept/reject untuk Self-Order Basic terpenuhi dan diuji sebelum pesanan masuk dapur (Module Tiers 5.2; GAP-01). BE + UI/E2E lokal (`93f4931`, dipush), lihat [bukti](./M04-moderasi-basic.md#9-bukti-checkpoint-m4-gap01-ui). Tidak menutup review pengguna.
 - [ ] Representasi bill/struk satu kunjungan direview terhadap FLOOR-005; nominal pembayaran gabungan tidak menyesatkan pada struk per pesanan (GAP-06).
 
 - [x] Lokasi baru langsung memiliki `Main Floor` dan `Main Area`. _Trigger database pada `outlets`; integration `floor-layout` (TODO 13.10)._
@@ -35,9 +35,9 @@ Checkbox berikut merekam bukti implementasi awal, bukan persetujuan pengguna ata
 
 ### Koreksi kontrak GAP-01
 
-- [x] **M4-GAP01-PLAN** — kontrak state/transaksi/izin, inventaris field, acceptance matrix: [rincian](./M04-moderasi-basic.md). Belum commit/push.
-- [x] **M4-GAP01-BE** — backend approval atomik, migration kompatibel, gate billing/close/KDS, DTO/OpenAPI, dan regresi disposable. 21 integrasi penuh lulus; suite self-order diulang untuk race tambahan. 12 browser mocked GET-only memeriksa kompatibilitas pending tamu. Root gates, Prisma validate, build API/web lulus. Tidak memigrasikan development. Hash belum tersedia karena belum commit/push; lihat [bukti dan batas](./M04-moderasi-basic.md#8-bukti-checkpoint-m4-gap01-be).
-- [x] **M4-GAP01-UI** — tombol accept/reject berizin pada panel yang ada, alasan inline dengan recovery, review snapshot opsi/catatan, pending discovery pada tile. 16 browser test/40 capture (empat test staf disposable + 12 mock tamu), 21 integrasi penuh dan root gates/build lulus. Koreksi terbatas spacing header Small dan lifecycle focus overlay; tidak mereslicing rute atau mengubah data development. Hash belum tersedia (belum commit/push); [bukti dan batas](./M04-moderasi-basic.md#9-bukti-checkpoint-m4-gap01-ui). GAP-01 selesai teknis, bukan acceptance M4.
+- [x] **M4-GAP01-PLAN** `93f4931` — kontrak state/transaksi/izin, inventaris field, acceptance matrix: [rincian](./M04-moderasi-basic.md). Dipush.
+- [x] **M4-GAP01-BE** `93f4931` — backend approval atomik, migration kompatibel, gate billing/close/KDS, DTO/OpenAPI, dan regresi disposable. 21 integrasi penuh lulus; suite self-order diulang untuk race tambahan. 12 browser mocked GET-only memeriksa kompatibilitas pending tamu. Root gates, Prisma validate, build API/web lulus. Tidak memigrasikan development. Dipush dalam checkpoint GAP-01; lihat [bukti dan batas](./M04-moderasi-basic.md#8-bukti-checkpoint-m4-gap01-be).
+- [x] **M4-GAP01-UI** `93f4931` — tombol accept/reject berizin pada panel yang ada, alasan inline dengan recovery, review snapshot opsi/catatan, pending discovery pada tile. 16 browser test/40 capture (empat test staf disposable + 12 mock tamu), 21 integrasi penuh dan root gates/build lulus. Koreksi terbatas spacing header Small dan lifecycle focus overlay; tidak mereslicing rute atau mengubah data development. Dipush dalam checkpoint GAP-01; [bukti dan batas](./M04-moderasi-basic.md#9-bukti-checkpoint-m4-gap01-ui). GAP-01 selesai teknis, bukan acceptance M4.
 
 ### FT — Fitur produk
 
