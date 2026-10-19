@@ -145,7 +145,19 @@ class InMemoryBillingRepository implements BillingRepository {
 
   async findPaidCheckoutByOrder(_tenantId: string, _outletId: string, orderId: string) {
     const found = this.checkouts.find((item) => item.bill.orderId === orderId);
-    return found ? { ...found, cashierName: "Kasir Uji" } : null;
+    return found
+      ? {
+          ...found,
+          cashierName: "Kasir Uji",
+          allocation: {
+            amountMinor: found.bill.paidMinor,
+            billAllocationCount: 1,
+            paymentAllocationCount: this.checkouts.filter(
+              (item) => item.payment.id === found.payment.id,
+            ).length,
+          },
+        }
+      : null;
   }
 
   readonly refunds: (RefundRecord & { key: string; saleId: string; shift: string })[] = [];
@@ -226,7 +238,10 @@ class InMemoryBillingRepository implements BillingRepository {
 
   async sumPaymentsByMethod(_tenantId: string, registerSessionId: string) {
     const sums = new Map<PaymentMethod, bigint>();
+    const seen = new Set<string>();
     for (const item of this.checkouts.filter((entry) => entry.shift === registerSessionId)) {
+      if (seen.has(item.payment.id)) continue;
+      seen.add(item.payment.id);
       sums.set(
         item.payment.method,
         (sums.get(item.payment.method) ?? 0n) + item.payment.amountMinor,
@@ -494,6 +509,47 @@ test("refuses an order cancelled while it was being paid, and reports paid order
   );
 });
 
+test("shared receipt allocations remain distinct from the actual cash transaction and per-order refunds", async () => {
+  const { service } = setup();
+  const first = order({ subtotalMinor: "50000" }),
+    second = order({ subtotalMinor: "25000" });
+  const checkout = await service.payTableSessionInFull(
+    {
+      ...base,
+      idempotencyKey: "shared-pay",
+      orders: [first, second],
+      tableSessionId: randomUUID(),
+      pay: cash("100000"),
+    },
+    context,
+  );
+  for (const [item, amount] of [
+    [first, "50000"],
+    [second, "25000"],
+  ] as const) {
+    const receipt = await service.paidCheckout(TENANT, OUTLET, item.id);
+    assert.deepEqual(receipt?.paymentAllocation, { amountMinor: amount, shared: true });
+    assert.equal(receipt?.checkout.payment.id, checkout.payment.id);
+    assert.equal(receipt?.checkout.payment.amountMinor, "75000");
+    assert.equal(receipt?.checkout.payment.tenderedMinor, "100000");
+    assert.equal(receipt?.checkout.payment.changeMinor, "25000");
+  }
+  await service.refundOrder(
+    {
+      ...base,
+      idempotencyKey: "shared-refund",
+      orderId: first.id,
+      refund: { amountMinor: "10000", reason: "Item returned" },
+    },
+    context,
+  );
+  const after = await service.paidCheckout(TENANT, OUTLET, first.id);
+  assert.deepEqual(after?.paymentAllocation, { amountMinor: "50000", shared: true });
+  assert.equal(after?.refunds.refundableMinor, "40000");
+  assert.equal((await service.paidCheckout(TENANT, OUTLET, second.id))?.refunds.refunds.length, 0);
+  assert.equal(await service.cashReceivedInSession(TENANT, SHIFT), 65_000n);
+});
+
 test("returns the paid checkout of an order with its cashier", async () => {
   const { service } = setup();
   const paidOrder = order();
@@ -504,6 +560,7 @@ test("returns the paid checkout of an order with its cashier", async () => {
   );
   const receipt = await service.paidCheckout(TENANT, OUTLET, paidOrder.id);
   assert.equal(receipt?.cashierName, "Kasir Uji");
+  assert.deepEqual(receipt?.paymentAllocation, { amountMinor: "64000", shared: false });
   assert.equal(receipt?.checkout.payment.changeMinor, "36000");
   assert.equal(receipt?.checkout.sale.saleNumber, 1);
 });

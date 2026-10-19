@@ -16,6 +16,7 @@ import { ConflictException, Inject, Injectable } from "@nestjs/common";
 import type { CommandOrigin } from "../../../shared/command/command-origin.js";
 
 import { billTotal, cashChange } from "../domain/bill-total.js";
+import { receiptAllocation } from "../domain/receipt-allocation.js";
 import {
   BILLING_REPOSITORY,
   type BillingMutationContext,
@@ -453,7 +454,12 @@ export class BillingService {
       refunds: await this.billing.refundsOfSale(tenantId, found.sale.id),
       sale: found.sale,
     });
-    return { cashierName: found.cashierName, checkout: toCheckout(found), refunds };
+    return {
+      cashierName: found.cashierName,
+      checkout: toCheckout(found),
+      refunds,
+      paymentAllocation: receiptAllocation(found),
+    };
   }
 
   /**

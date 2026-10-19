@@ -195,6 +195,11 @@ export type RefundOrder = z.infer<typeof refundOrderSchema>;
 
 export type SaleRefunds = z.infer<typeof saleRefundsSchema>;
 
+/** One order's actual part of a payment; global cash tender/change are not divisible per order. */
+export const receiptPaymentAllocationSchema = z
+  .object({ amountMinor: positiveMoneyMinorSchema, shared: z.boolean() })
+  .strict();
+
 /**
  * Everything a receipt prints for one paid order. Outlet and workspace names
  * come from the caller's workspace context, so they are not repeated here.
@@ -203,7 +208,9 @@ export const receiptSchema = z.object({
   bill: billSchema,
   cashierName: z.string().min(1).max(160),
   order: orderSchema,
+  /** Actual payment transaction snapshot; for shared payments use paymentAllocation in the order view. */
   payment: paymentSchema,
+  paymentAllocation: receiptPaymentAllocationSchema,
   refundableMinor: moneyMinorSchema,
   refunds: z.array(refundSchema),
   sale: saleSchema,

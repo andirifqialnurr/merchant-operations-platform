@@ -15,7 +15,9 @@ import { Sheet } from "@merchant/ui/sheet";
 import { useWorkspace } from "@/features/workspace";
 import { useErrorMessage, useFormat } from "@/lib/i18n";
 
+import { ApiClientError } from "@/lib/api-client";
 import { useReceipt } from "./api";
+import { orderReceiptPayment } from "./receipt-payment";
 
 const PAPER_KEY = "pos-receipt-paper";
 const PAPERS: readonly ReceiptPaper[] = ["58mm", "80mm", "a4"];
@@ -64,7 +66,8 @@ function ReceiptContent({
   const t = useTranslations("pos");
   const { dateTime, locale, money } = useFormat();
   const { outlet, workspace } = useWorkspace();
-  const { bill, order, payment, sale } = receipt;
+  const { bill, order, sale } = receipt;
+  const payment = orderReceiptPayment(receipt);
 
   // Adjustments are listed only when they apply; with none, the total stands alone.
   const adjustments: ReceiptRow[] = [
@@ -145,8 +148,10 @@ function ReceiptContent({
       paper={paper}
       payment={[
         {
-          label: t(methodKeys[payment.method]),
-          value: money(payment.tenderedMinor ?? payment.amountMinor),
+          label: payment.shared
+            ? t("allocatedPaymentMethod", { method: t(methodKeys[payment.method]) })
+            : t(methodKeys[payment.method]),
+          value: money(payment.amountMinor),
         },
         ...(payment.changeMinor !== null
           ? [{ emphasis: true, label: t("change"), value: money(payment.changeMinor) }]
@@ -191,12 +196,22 @@ export function ReceiptSheet({
   const errorMessage = useErrorMessage();
   const receipt = useReceipt(tenantId, outletId, orderId);
   const [paper, setPaper] = useStoredPaper();
+  const ready = receipt.isSuccess && receipt.fetchStatus === "idle";
+  const retryable =
+    !(receipt.error instanceof ApiClientError) ||
+    receipt.error.status >= 500 ||
+    receipt.error.status === 429;
 
   return (
     <Sheet
       closeLabel={t("closeSheet")}
       footer={
-        <Button disabled={!receipt.data} onClick={() => window.print()}>
+        <Button
+          disabled={!ready}
+          onClick={() => {
+            if (ready) window.print();
+          }}
+        >
           {t("print")}
         </Button>
       }
@@ -214,10 +229,22 @@ export function ReceiptSheet({
           size="sm"
           value={paper}
         />
-        {receipt.data ? (
+        {receipt.isError ? (
+          <ErrorState
+            {...(retryable
+              ? {
+                  action: (
+                    <Button onClick={() => void receipt.refetch()} variant="secondary">
+                      {t("retry")}
+                    </Button>
+                  ),
+                }
+              : {})}
+            description={errorMessage(receipt.error)}
+            title={t("receiptLoadFailed")}
+          />
+        ) : ready && receipt.data ? (
           <ReceiptContent copy={copy} paper={paper} receipt={receipt.data} />
-        ) : receipt.isError ? (
-          <ErrorState description={errorMessage(receipt.error)} title={t("receiptLoadFailed")} />
         ) : (
           <Skeleton variant="ticket" />
         )}

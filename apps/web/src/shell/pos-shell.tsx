@@ -49,7 +49,10 @@ export function PosShell({
           <ShellContext />
         </div>
         <PosStatus />
-        <nav aria-label={t("posNavigation")} className="flex shrink-0 items-center gap-0 sm:gap-1">
+        <nav
+          aria-label={t("posNavigation")}
+          className="ui-pos-navigation flex shrink-0 items-center gap-0 sm:gap-1"
+        >
           {surfaces.map((surface) => {
             const active = pathname === surface.href;
             return (

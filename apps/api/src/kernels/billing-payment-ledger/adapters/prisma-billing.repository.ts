@@ -448,10 +448,18 @@ export class PrismaBillingRepository implements BillingRepository {
     const bill = await getPrismaClient().bill.findFirst({
       select: {
         ...billSelect,
+        _count: { select: { allocations: true } },
         allocations: {
           orderBy: { createdAt: "asc" },
           select: {
-            payment: { select: { ...paymentSelect, actor: { select: { displayName: true } } } },
+            amountMinor: true,
+            payment: {
+              select: {
+                ...paymentSelect,
+                actor: { select: { displayName: true } },
+                _count: { select: { allocations: true } },
+              },
+            },
           },
           take: 1,
         },
@@ -459,11 +467,17 @@ export class PrismaBillingRepository implements BillingRepository {
       },
       where: { orderId, outletId, status: "PAID", tenantId },
     });
-    const paid = bill?.allocations[0]?.payment;
+    const allocation = bill?.allocations[0];
+    const paid = allocation?.payment;
     // A paid payment always has its cashier; only an undecided claim has none.
-    if (!bill?.sale || !paid?.actor) return null;
-    const { actor, ...payment } = paid;
+    if (!bill?.sale || !paid?.actor || !allocation) return null;
+    const { actor, _count, ...payment } = paid;
     return {
+      allocation: {
+        amountMinor: allocation.amountMinor,
+        billAllocationCount: bill._count.allocations,
+        paymentAllocationCount: _count.allocations,
+      },
       bill: {
         chargesIncluded: bill.chargesIncluded,
         currency: bill.currency,

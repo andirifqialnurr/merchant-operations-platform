@@ -274,6 +274,10 @@ Migrasi maju `20261019010000_self_order_moderation` menambah `order_orders.moder
 
 Tidak menambah tabel/kolom atau migrasi. `hasImage` pada DTO produk tamu adalah flag turunan dari gambar Catalog primary aktif; bukan input atau penyimpanan URL baru. Product ID yang sudah publik dan QR mengalamatkan proxy gambar, tanpa internal image/workspace ID atau object key. Core Files memiliki bounded raster read, Catalog tetap owner metadata, Floor memiliki gate QR/menu. Kontrak dan batas operasional: [checkpoint gambar](../milestones/M04-gambar-menu-tamu.md).
 
+### Proyeksi struk per pesanan (M4-GAP06A)
+
+Tidak menambah tabel/kolom atau migrasi. Receipt membaca `billing_payment_allocations.amount_minor` serta kardinalitas relasi bill/payment untuk proyeksi read-only `paymentAllocation: { amountMinor, shared }`; snapshot `payment` tetap transaksi asli untuk ledger/refund. R1 hanya mendukung satu allocation per paid bill; bentuk multiple tender pada satu bill atau invariant nilai yang tidak representable ditolak untuk receipt, bukan dipecah secara proporsional. Struk order shared menampilkan bagian pembayaran, bukan tender/change gabungan. Struktur per-order ini **bukan** penyelesaian UI satu bill/struk per kunjungan (FLOOR-005, GAP06B tetap wajib). [Kontrak dan bukti](../milestones/M04-struk-kunjungan.md).
+
 ## B.4 Floor dan Self-Order
 
 ```mermaid

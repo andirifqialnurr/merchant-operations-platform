@@ -51,6 +51,12 @@ export type SaleRecord = {
 
 export type CheckoutRecord = { bill: BillRecord; payment: PaymentRecord; sale: SaleRecord };
 
+export type PaidCheckoutRecord = CheckoutRecord & {
+  cashierName: string;
+  /** Actual ledger relation, not a ratio of the group's payment total. */
+  allocation: { amountMinor: bigint; billAllocationCount: number; paymentAllocationCount: number };
+};
+
 export type FullPayment = {
   /** The charges of the outlet when the bill is made, kept on the bill. */
   charges: OutletCharges;
@@ -205,7 +211,7 @@ export interface BillingRepository {
     tenantId: string,
     outletId: string,
     orderId: string,
-  ): Promise<(CheckoutRecord & { cashierName: string }) | null>;
+  ): Promise<PaidCheckoutRecord | null>;
   /** Paid orders among `orderIds`, with the number and state of the sale each became. */
   paidOrders(tenantId: string, orderIds: readonly string[]): Promise<Map<string, PaidOrderState>>;
   /** The refund a request with this key produced, with the order it belongs to. */

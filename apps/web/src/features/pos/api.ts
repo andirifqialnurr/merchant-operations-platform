@@ -25,12 +25,13 @@ export const orderKeys = {
     ["pos", tenantId, "orders", outletId, orderId, "receipt"] as const,
 };
 
-/** A paid order's receipt; it never changes once paid, so it is cached for the session. */
+/** Payment snapshots stay fixed, but refunds/history may change: revalidate on each opening. */
 export function useReceipt(tenantId: string, outletId: string, orderId: string) {
   return useQuery({
     queryFn: () => merchantApi.posReceipt(tenantId, outletId, orderId),
     queryKey: orderKeys.receipt(tenantId, outletId, orderId),
-    staleTime: Number.POSITIVE_INFINITY,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 }
 

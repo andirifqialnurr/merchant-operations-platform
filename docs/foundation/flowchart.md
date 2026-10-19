@@ -217,6 +217,8 @@ flowchart TD
 
 Layar pembayaran menggantikan katalog dan keranjang; total hanya tampil satu kali.
 
+**Koreksi receipt per-order M4-GAP06A:** struk dibaca ulang saat dibuka; Print tidak aktif selama fetch/paused/error, termasuk ketika ada cache lama. Gangguan sementara menawarkan Coba lagi; allocation yang tidak representable meminta pemeriksaan pengelola tanpa mencetak data tebakan. Payment shared menampilkan bagian pembayaran order dari ledger, bukan uang diterima/kembalian kunjungan pada tiap order. Tender/change single-order tetap asli. Koreksi ini tidak mengubah bayar/refund atau menambah split bill; bill/struk satu kunjungan (FLOOR-005, GAP06B) masih wajib. [Bukti dan batas](../milestones/M04-struk-kunjungan.md).
+
 ### 5.4 Membatalkan dan refund
 
 ```mermaid

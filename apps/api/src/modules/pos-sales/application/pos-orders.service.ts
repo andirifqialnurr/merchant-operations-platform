@@ -81,8 +81,14 @@ export class PosOrdersService {
         message: "This order has no receipt because it is not paid.",
       });
     }
+    if (!paid.paymentAllocation)
+      throw new ConflictException({
+        code: "RECEIPT_ALLOCATION_UNAVAILABLE",
+        message: "The saved payment allocation cannot be represented on an order receipt.",
+      });
     return receiptSchema.parse({
       ...paid.checkout,
+      paymentAllocation: paid.paymentAllocation,
       cashierName: paid.cashierName,
       order,
       refundableMinor: paid.refunds.refundableMinor,
