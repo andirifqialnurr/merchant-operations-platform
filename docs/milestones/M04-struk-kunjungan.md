@@ -1,6 +1,6 @@
 # M4 — bill dan struk kunjungan (GAP-06)
 
-**Status:** GAP06A selesai teknis lokal setelah `920cbc4`; verifikasi akhir dan commit/push dicatat pada bagian 6. GAP06B tetap terbuka. Bukan penerimaan pengguna/M4.
+**Status:** GAP06A selesai teknis, diverifikasi dan dipush ke `origin/main` sebagai `d86dd72` setelah `920cbc4`. GAP06B tetap terbuka/belum dimulai. Bukan penerimaan pengguna/M4.
 
 ## 1. Sumber dan batas
 
@@ -57,6 +57,8 @@ Regresi offline mengungkap overflow shell POS 24 px pada 320 px. Koreksi dibatas
 - Root lint/boundary/warna, typecheck/test/format, build API/web; update TODO dan milestone dengan bukti/batas, commit dan push ke branch aktif sebelum B.
 
 ## 6. Bukti checkpoint A
+
+Implementasi dan bukti verifikasi dipush sebagai `d86dd72` (`fix(receipts): show actual order allocations for shared payments`). Gate verify → commit → push A terpenuhi sebelum B.
 
 - Repository memproyeksikan allocation positif aktual dan kardinalitas; domain menolak bentuk R1 tak representable. DTO staff/OpenAPI menambah field read-only, bukan command. Refund/shift/claim dan snapshot payment asli tidak diubah. Test double kas diperbaiki agar menghitung payment unik seperti repository nyata, bukan menggandakan payment per checkout.
 - Root unit **409** test sumber API + test skrip, **45** contracts, serta web/UI/worker lulus. Precision di atas safe integer, USD cents, single/shared, penolakan nol/invariant, dan tidak adanya allocation pada command diverifikasi.

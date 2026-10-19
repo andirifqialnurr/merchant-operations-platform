@@ -46,7 +46,7 @@ Checkbox berikut merekam bukti implementasi awal, bukan persetujuan pengguna ata
 
 ### Koreksi kontrak GAP-06
 
-- [x] **M4-GAP06A Alokasi struk per pesanan** — field read-only dari ledger, label bagian pembayaran tanpa tender/change gabungan, single-order tetap, fail-closed data invalid dan Print disabled saat fetch/paused/error meskipun ada cache. 29 integrasi penuh (7 khusus receipt), 4 browser/22 capture, regresi moderasi/gambar, root gates/build lulus. [Kontrak dan bukti](./M04-struk-kunjungan.md#6-bukti-checkpoint-a). Commit/push dicatat setelah gate akhir; bukan acceptance M4.
+- [x] **M4-GAP06A Alokasi struk per pesanan** `d86dd72` — field read-only dari ledger, label bagian pembayaran tanpa tender/change gabungan, single-order tetap, fail-closed data invalid dan Print disabled saat fetch/paused/error meskipun ada cache. 29 integrasi penuh (7 khusus receipt), 4 browser/22 capture, regresi moderasi/gambar, root gates/build lulus. [Kontrak dan bukti](./M04-struk-kunjungan.md#6-bukti-checkpoint-a). Diverifikasi dan dipush ke `origin/main`; bukan acceptance M4.
 - [ ] **M4-GAP06B Bill/struk satu kunjungan** — agregasi/deduplikasi dan akses dari flow kunjungan sesuai FLOOR-005. A bukan pengganti; GAP-06 tetap terbuka.
 
 ### FT — Fitur produk

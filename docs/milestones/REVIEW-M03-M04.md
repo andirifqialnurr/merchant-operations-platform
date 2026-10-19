@@ -56,7 +56,7 @@ Menu tamu kini memuat flag `hasImage`; foto dibaca dari endpoint QR/product same
 
 ### Pembaruan GAP-06 — A selesai teknis, B tetap terbuka
 
-Checkpoint GAP06A mengoreksi struk per-order: nominal allocation ledger aktual dan label bagian pembayaran menggantikan nominal transaksi gabungan pada rendering shared; snapshot payment, refund dan kas tetap asli. Receipt fresh-read, Print disabled saat fetch/paused/error dan fail-closed allocation tak representable diuji. 29 integrasi penuh (7 khusus allocation), 4 browser/22 capture, regresi 16 moderasi + 3 gambar, root gates/build lulus; sembilan sampel dibaca. Commit/push dicatat setelah gate akhir pada [checkpoint struk](./M04-struk-kunjungan.md#6-bukti-checkpoint-a). **GAP06B — bill/struk satu kunjungan sesuai FLOOR-005 — belum diimplementasikan**, sehingga GAP-06 dan penerimaan M4 tetap terbuka. Tabel baseline di atas tidak diubah menjadi klaim selesai.
+Checkpoint GAP06A mengoreksi struk per-order: nominal allocation ledger aktual dan label bagian pembayaran menggantikan nominal transaksi gabungan pada rendering shared; snapshot payment, refund dan kas tetap asli. Receipt fresh-read, Print disabled saat fetch/paused/error dan fail-closed allocation tak representable diuji. 29 integrasi penuh (7 khusus allocation), 4 browser/22 capture, regresi 16 moderasi + 3 gambar, root gates/build lulus; sembilan sampel dibaca. Diverifikasi dan dipush sebagai `d86dd72`; bukti pada [checkpoint struk](./M04-struk-kunjungan.md#6-bukti-checkpoint-a). **GAP06B — bill/struk satu kunjungan sesuai FLOOR-005 — belum diimplementasikan**, sehingga GAP-06 dan penerimaan M4 tetap terbuka. Tabel baseline di atas tidak diubah menjadi klaim selesai.
 
 ### Pembaruan GAP-08 — implementasi tersedia
 
