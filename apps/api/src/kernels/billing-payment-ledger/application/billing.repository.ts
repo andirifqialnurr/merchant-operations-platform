@@ -107,6 +107,7 @@ export type PaymentClaimRecord = {
 };
 
 export type NewPaymentClaim = {
+  orderIds: readonly string[];
   amountMinor: bigint;
   idempotencyKey: string;
   method: PaymentClaimRecord["method"];

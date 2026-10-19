@@ -3,6 +3,8 @@ import {
   type OutletCharges,
   checkoutSchema,
   tableSessionCheckoutSchema,
+  isOrderApproved,
+  type OrderModerationStatus,
   saleRefundsSchema,
   type Checkout,
   type OrderStatus,
@@ -28,6 +30,7 @@ const conflict = (code: string, message: string) => new ConflictException({ code
 const NON_CASH_ORDER = ["MERCHANT_QRIS", "TRANSFER", "EDC", "OTHER"] as const;
 
 export type PayableOrder = {
+  moderationStatus: OrderModerationStatus;
   currency: string;
   id: string;
   status: OrderStatus;
@@ -44,6 +47,9 @@ function sessionBills(orders: readonly PayableOrder[], charges: OutletCharges) {
   }
   if (orders.some((order) => order.status === "CANCELED")) {
     throw conflict("ORDER_CANCELED", "A canceled order cannot be paid.");
+  }
+  if (orders.some((order) => !isOrderApproved(order))) {
+    throw conflict("SELF_ORDER_PENDING", "Staff must approve guest orders before payment.");
   }
   const currency = orders[0]!.currency;
   if (orders.some((order) => order.currency !== currency)) {
@@ -232,6 +238,9 @@ export class BillingService {
       throw conflict("ORDER_CANCELED", "A canceled order cannot be paid.");
     }
 
+    if (!isOrderApproved(order))
+      throw conflict("SELF_ORDER_PENDING", "Staff must approve this order before payment.");
+
     // The order holds the sum of menu prices. Service and tax are either
     // added to it or taken out of it, as the outlet is set up at this moment;
     // the bill keeps each part. Discount and rounding are not configured yet.
@@ -399,6 +408,7 @@ export class BillingService {
       await this.billing.claimPayment(
         {
           amountMinor: totalMinor,
+          orderIds: input.orders.map((order) => order.id),
           idempotencyKey: input.idempotencyKey,
           method: input.method,
           outletId: input.outletId,

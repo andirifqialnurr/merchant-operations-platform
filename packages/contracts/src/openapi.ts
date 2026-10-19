@@ -138,6 +138,8 @@ import {
 } from "./pos-shift.ts";
 import { sellableMenuSchema } from "./menu.ts";
 import {
+  acceptGuestOrderSchema,
+  rejectGuestOrderSchema,
   cancelOrderSchema,
   createPosOrderSchema,
   createTableOrderSchema,
@@ -366,6 +368,8 @@ export const posOpenApiSchemas = {
   RefundOrder: toOpenApiSchema(refundOrderSchema),
   SaleRefunds: toOpenApiSchema(saleRefundsSchema),
   Receipt: toOpenApiSchema(receiptSchema),
+  AcceptGuestOrder: toOpenApiSchema(acceptGuestOrderSchema),
+  RejectGuestOrder: toOpenApiSchema(rejectGuestOrderSchema),
   CancelOrder: toOpenApiSchema(cancelOrderSchema),
   PosOrderList: toOpenApiSchema(posOrderListSchema),
   Checkout: toOpenApiSchema(checkoutSchema),

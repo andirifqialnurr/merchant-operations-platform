@@ -31,6 +31,7 @@ test("a guest sees canceled orders without steps and others at their step", () =
   assert.equal(stepOf("PREPARING"), 1);
   assert.equal(stepOf("READY"), 2);
   assert.equal(stepOf("CANCELED"), null);
+  assert.equal(stepOf("PENDING"), null);
 });
 
 test("the order just sent comes first", () => {

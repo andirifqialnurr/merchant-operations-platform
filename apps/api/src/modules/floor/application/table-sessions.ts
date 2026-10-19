@@ -1,5 +1,6 @@
 import {
   computeCharges,
+  isOrderApproved,
   MODULES,
   liveFloorSchema,
   tableSessionDetailSchema,
@@ -66,13 +67,14 @@ export class TableSessions {
 
   /** Active floors and areas, every table with its status, and who holds them. */
   async live(tenantId: string, outletId: string) {
-    const [floors, tables, policy, access, requests, claims] = await Promise.all([
+    const [floors, tables, policy, access, requests, claims, pending] = await Promise.all([
       this.structure.list(tenantId, outletId),
       this.sessions.live(tenantId, outletId),
       this.sessions.policy(tenantId, outletId),
       this.entitlements.describeAccess(tenantId, MODULES.tableSelfOrder),
       this.requests.openAt(tenantId, outletId),
       this.billing.verifyingClaims(tenantId, outletId),
+      this.orders.pendingBySession(tenantId, outletId),
     ]);
     const shown = floors
       .filter((floor) => floor.status === "ACTIVE")
@@ -103,6 +105,7 @@ export class TableSessions {
           gridY: table.gridY,
           id: table.id,
           label: table.label,
+          pendingOrderCount: table.holder ? (pending.get(table.holder.id) ?? 0) : 0,
           sessionId: table.holder?.id ?? null,
           shape: table.shape,
           status: tableStatus(table, table.holder),
@@ -213,10 +216,14 @@ export class TableSessions {
         lines: order.items.map((item) => ({
           name: item.variantName ? `${item.name} (${item.variantName})` : item.name,
           quantity: item.quantity,
+          modifiers: item.modifiers.map((modifier) => modifier.optionName),
+          note: item.note,
         })),
+        note: order.note,
         orderNumber: order.orderNumber,
         paid: settled !== undefined,
         status: order.status,
+        moderationStatus: order.moderationStatus,
         // What was paid stays; an unpaid order is priced with today's charges.
         totalMinor: (
           settled?.totalMinor ?? computeCharges(BigInt(order.subtotalMinor), charges).totalMinor
@@ -224,7 +231,7 @@ export class TableSessions {
       };
     });
     const dueMinor = rows
-      .filter((row) => !row.paid && row.status !== "CANCELED")
+      .filter((row) => !row.paid && row.status !== "CANCELED" && isOrderApproved(row))
       .reduce((sum, row) => sum + BigInt(row.totalMinor), 0n);
     return tableSessionDetailSchema.parse({
       dueMinor: dueMinor.toString(),
@@ -277,21 +284,29 @@ export class TableSessions {
         message: "This visit is already closed.",
       });
     }
-    const orders = (await this.orders.listBySession(tenantId, outletId, sessionId)).filter(
-      (order) => order.status !== "CANCELED",
-    );
-    const paid = await this.billing.paidOrders(
-      tenantId,
-      orders.map((order) => order.id),
-    );
-    const unpaid = orders.filter((order) => !paid.has(order.id));
-    if (unpaid.length > 0) {
-      throw new ConflictException({
-        code: "TABLE_SESSION_UNPAID",
-        details: { orderNumbers: unpaid.map((order) => order.orderNumber) },
-        message: "Every order of the visit must be paid or canceled first.",
-      });
-    }
+    const ensureSettled = async () => {
+      const orders = (await this.orders.listBySession(tenantId, outletId, sessionId)).filter(
+        (order) => order.status !== "CANCELED",
+      );
+      if (orders.some((order) => !isOrderApproved(order))) {
+        throw new ConflictException({
+          code: "SELF_ORDER_PENDING",
+          message: "Decide pending orders before closing this visit.",
+        });
+      }
+      const paid = await this.billing.paidOrders(
+        tenantId,
+        orders.map((order) => order.id),
+      );
+      const unpaid = orders.filter((order) => !paid.has(order.id));
+      if (unpaid.length > 0)
+        throw new ConflictException({
+          code: "TABLE_SESSION_UNPAID",
+          details: { orderNumbers: unpaid.map((order) => order.orderNumber) },
+          message: "Every order of the visit must be paid or canceled first.",
+        });
+    };
+    await ensureSettled();
     const policy = await this.sessions.policy(tenantId, outletId);
     const closed = await this.sessions.close(
       tenantId,
@@ -299,6 +314,7 @@ export class TableSessions {
       sessionId,
       { needsCleaning: policy.cleaningAfterClose, now: new Date() },
       origin,
+      ensureSettled,
     );
     if (!closed) {
       throw new ConflictException({

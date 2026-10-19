@@ -314,7 +314,10 @@ flowchart TD
     J -.-> K{Server menerima?}
     K -- Gagal --> L[Pesan + coba lagi; keranjang tetap]
     K -- Ya --> M[Status pesanan]
-    M --> N[Dikirim -> Diterima -> Disiapkan -> Siap]
+    M --> MOD[Menunggu persetujuan staf]
+    MOD --> DEC{Keputusan staf}
+    DEC -- Terima --> N[Diterima -> Disiapkan -> Siap]
+    DEC -- Tolak dengan alasan --> REJ[Dibatalkan; tidak masuk dapur atau tagihan]
     M --> O[Pesan lagi] --> C
     M --> P[Panggil pelayan]
     M --> Q[Minta bill]
@@ -322,6 +325,8 @@ flowchart TD
     R --> S[Saya sudah bayar] --> T[Menunggu konfirmasi kasir]
     T -.-> U[Kasir mengonfirmasi] --> V[Lunas]
 ```
+
+**Pembaruan backend M4-GAP01-BE:** pesanan QR baru menunggu moderasi. `POST /floor/guest-orders/:id/accept` (`order.create`) melepas satu event dapur; `/reject` (`order.cancel`, alasan wajib) membatalkan tanpa tagihan. Retry keputusan sama tidak menggandakan efek, keputusan berlawanan conflict. Pending tidak masuk hutang dan diblokir pada pembayaran/claim/close; status tamu tidak lagi menganggapnya sudah diterima dapur. POS biasa/data lama tidak dipaksa moderasi. Staf membuka tile bertanda Tinjau/Review, memeriksa snapshot opsi/catatan, lalu Terima atau Tolak pada baris order. Tolak memakai alasan inline; gagal kirim mempertahankan input, conflict memuat ulang keputusan staf lain. Tombol mengikuti izin; pending bukan label Belum dibayar/Lunas. Alur submit → keputusan → KDS/progres guest telah diuji di browser dengan backend disposable; review visual pengguna tetap terbuka.
 
 Tamu tidak perlu membuat akun. Pemilih bahasa ada di header. Layar tamu tidak pernah menampilkan meja lain, ID internal, atau status internal yang tidak relevan.
 

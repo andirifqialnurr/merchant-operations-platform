@@ -47,6 +47,7 @@ export interface TableSessionRepository {
     sessionId: string,
     change: { needsCleaning: boolean; now: Date },
     origin: ActorCommandOrigin,
+    ensureSettled: () => Promise<void>,
   ): Promise<TableSessionRecord | null>;
   findSession(
     tenantId: string,

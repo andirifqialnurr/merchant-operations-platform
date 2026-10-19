@@ -2,15 +2,15 @@ import type { GuestOrder, GuestOrderStatus, GuestVisit } from "@merchant/contrac
 
 import { addLine, isLineComplete, type CartLine, type MenuItem } from "@/lib/menu-cart";
 
-/** The steps a guest sees an order go through; a canceled order has none. */
+/** Fulfillment steps start after staff approval; pending/canceled orders have none. */
 export const GUEST_STEPS = ["RECEIVED", "PREPARING", "READY"] as const satisfies readonly Exclude<
   GuestOrderStatus,
-  "CANCELED"
+  "CANCELED" | "PENDING"
 >[];
 
-/** Where an order is among the steps, or null when it was canceled. */
+/** Fulfillment progress, or null while pending or after cancellation. */
 export function stepOf(status: GuestOrderStatus) {
-  return status === "CANCELED" ? null : GUEST_STEPS.indexOf(status);
+  return status === "CANCELED" || status === "PENDING" ? null : GUEST_STEPS.indexOf(status);
 }
 
 /** Newest first: the order just sent is the one a guest looks for. */

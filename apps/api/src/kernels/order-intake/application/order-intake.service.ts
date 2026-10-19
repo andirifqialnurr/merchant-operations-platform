@@ -5,8 +5,9 @@ import {
   type Order,
   type OrderType,
 } from "@merchant/contracts";
-import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Inject, Injectable, NotFoundException, Optional } from "@nestjs/common";
 
+import { TABLE_VISIT_SOURCE, type TableVisitSource } from "./table-visit-source.port.js";
 import { SELLABLE_MENU_SOURCE, type SellableMenuSource } from "./sellable-menu.port.js";
 import { statusesBefore, type KitchenProgress } from "../domain/fulfillment.js";
 import { priceOrderLines } from "../domain/price-order.js";
@@ -51,6 +52,7 @@ export function toOrder(record: OrderRecord): Order {
       variantName: item.variantNameSnapshot,
     })),
     note: record.note,
+    moderationStatus: record.moderationStatus,
     orderNumber: record.orderNumber,
     orderType: record.orderType,
     outletId: record.outletId,
@@ -71,6 +73,7 @@ export class OrderIntakeService {
   constructor(
     @Inject(ORDER_REPOSITORY) private readonly orders: OrderRepository,
     @Inject(SELLABLE_MENU_SOURCE) private readonly catalog: SellableMenuSource,
+    @Optional() @Inject(TABLE_VISIT_SOURCE) private readonly visits?: TableVisitSource,
   ) {}
 
   async submitPosOrder(
@@ -119,7 +122,15 @@ export class OrderIntakeService {
   ) {
     // A retry returns the order already taken, priced as it was then.
     const existing = await this.orders.findByIdempotencyKey(tenantId, outletId, idempotencyKey);
-    if (existing) return toOrder(existing);
+    if (existing) {
+      if (existing.tableSessionId !== tableSessionId || existing.source !== source) {
+        throw new ConflictException({
+          code: "IDEMPOTENCY_KEY_CONFLICT",
+          message: "This key belongs to another order context.",
+        });
+      }
+      return toOrder(existing);
+    }
 
     const menu = await this.catalog.getSellableMenu(tenantId, outletId);
     const priced = priceOrderLines(menu.products, input.items);
@@ -145,8 +156,40 @@ export class OrderIntakeService {
           tenantId,
         },
         context,
+        tableSessionId ? () => this.ensureVisitOpen(tenantId, outletId, tableSessionId) : undefined,
       ),
     );
+  }
+
+  private ensureVisitOpen(tenantId: string, outletId: string, visitId: string) {
+    if (!this.visits) throw new Error("The table visit source is not wired.");
+    return this.visits.ensureOpen(tenantId, outletId, visitId);
+  }
+
+  async decideGuestOrder(
+    tenantId: string,
+    outletId: string,
+    orderId: string,
+    decision: "ACCEPTED" | "REJECTED",
+    reason: string | null,
+    context: OrderMutationContext,
+  ) {
+    const order = await this.orders.decideGuestOrder(
+      tenantId,
+      outletId,
+      orderId,
+      decision,
+      reason,
+      (visitId) => this.ensureVisitOpen(tenantId, outletId, visitId),
+      context,
+    );
+    if (!order)
+      throw new NotFoundException({ code: "ORDER_NOT_FOUND", message: "Order not found." });
+    return toOrder(order);
+  }
+
+  pendingBySession(tenantId: string, outletId: string) {
+    return this.orders.pendingBySession(tenantId, outletId);
   }
 
   /** The orders of one table session, oldest first, canceled ones included. */

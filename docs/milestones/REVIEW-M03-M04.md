@@ -6,6 +6,8 @@
 
 ## 1. Posisi dan aturan lanjut
 
+**Pembaruan setelah `2a5f8fd`:** pengguna meminta `lanjut m4`. M4 kembali **Berjalan**, dimulai dengan [kontrak GAP-01](./M04-moderasi-basic.md), tanpa menutup gate review visual/uji fisik M3. Kontrak adalah checkpoint dokumentasi, bukan implementasi moderasi atau penerimaan milestone. Status baseline dan urutan sebelumnya di bawah merupakan riwayat.
+
 - M1/M2 selesai dan disetujui pengguna. Atas instruksi setelah `21f2fbc`, penutupan teknis M3 selesai dan dipush sebagai `e7ac7e3` (paket/limit) serta `10799b9` (browser). M3 kembali **Menunggu review**, M4 tetap Menunggu review. Penerimaan pengguna/uji fisik tidak dicentang otomatis.
 - Permintaan untuk melanjutkan penyelarasan dokumentasi tidak dianggap sebagai persetujuan visual, perubahan scope produk, atau izin memulai M5.
 - Checkbox task M3/M4 merekam checkpoint implementasi terdahulu, bukan bukti bahwa seluruh capability Basic sudah lengkap.
@@ -25,7 +27,7 @@ Bukti implementasi terdahulu: [M3](./M03-kds.md) dan TODO 14.6–14.23. Angka p9
 
 - [ ] Pengguna meninjau editor, buka/pindah/tutup kunjungan, beberapa ronde pesanan, pembayaran kunjungan, QR, permintaan layanan, dan klaim bayar.
 - [ ] Privasi telepon pelanggan, konteks outlet, dan riwayat diperiksa dengan peran kasir dan pemilik.
-- [ ] Moderasi Basic di bagian 3 ditutup dan diverifikasi sebelum M4 dinyatakan memenuhi kontrak Self-Order Basic. Gambar/struk juga perlu keputusan checkpoint, bukan dihilangkan dari scope diam-diam.
+- [x] Moderasi Basic GAP-01 ditutup secara teknis oleh M4-GAP01-BE/UI/E2E lokal; belum commit/push. Review visual pengguna tetap pada gate pertama. Gambar/struk masih membutuhkan checkpoint tersendiri, bukan dihilangkan dari scope diam-diam.
 
 Bukti implementasi terdahulu: [M4](./M04-meja-self-order-customer.md) dan TODO 13.10–13.22 untuk task M4. Nomor 13.x juga dipakai checkpoint M2; cocokkan judul dan ID task, bukan nomor saja.
 
@@ -43,6 +45,10 @@ Setiap baris di bawah adalah pekerjaan tersisa atau pemeriksaan yang harus dialo
 | GAP-06 Struk kunjungan            | FLOOR-005 membatasi UI Basic ke satu bill per sesi; M4-BE-08 membayar kunjungan dengan satu pembayaran yang dialokasikan ke bill per pesanan. Struk per pesanan masih menampilkan pembayaran gabungan.                       | Review konsistensi representasi bill/struk terhadap FLOOR-005 sebelum menutup gap; butuh struk kunjungan tanpa nominal diterima/kembalian berulang atau menyesatkan. Skema per-order bukan alasan menurunkan kontrak UI.                                                      |
 | GAP-07 Customer mandiri           | PRD 20.1–20.2: contact list sederhana tanpa POS. API pelanggan tersedia, tetapi UI hanya di sheet pesanan POS; `/customers` belum ada.                                                                                       | Alokasikan surface Backoffice sebelum paket Customer-only dirilis. Inventaris field, izin kontak dan nominal, pencarian, serta scope riwayat ditentukan sebelum JSX.                                                                                                          |
 | GAP-08 Limit sumber API KDS       | Packages & Limits 5.4: KDS Basic standalone satu external intake source. Dimensi/gauge tersedia, tetapi TODO 14.21 mencatat angka limit belum diisi pada paket lokal; tanpa angka gerbang tidak membatasi.                   | Periksa snapshot paket dan kebijakan paket berversi sebelum migrasi data. Buktikan sumber kedua ditolak pada paket Basic yang dibatasi, perbedaan paket/override dihormati, dan sumber lama tidak dicabut oleh downgrade. Jangan mengedit isi versi PUBLISHED yang immutable. |
+
+### Pembaruan GAP-01 — selesai teknis, review visual terbuka
+
+M4-GAP01-BE dan UI/E2E sudah terverifikasi lokal; belum commit/push. QR baru menunggu staf tanpa event dapur/tagihan; endpoint accept/reject berizin mengubah keputusan/audit/outbox atomik. Panel kunjungan yang ada menyediakan review snapshot dan form alasan inline, pending ditemukan dari tile tanpa queue duplikat. Billing, claim, close dan progress/KDS tetap digerbang di server. Migrasi mempertahankan order lama dan belum diterapkan pada development. 21 integrasi PostgreSQL, root gates/build serta 16 browser test (empat test staf disposable + 12 mock tamu), 40 capture lulus; screenshot sampel dibaca, bukan seluruhnya atau persetujuan visual otomatis. GAP-01 selesai teknis, tetapi M4 belum diterima dan GAP-05/GAP-06 tetap terbuka. Rincian [kontrak dan bukti](./M04-moderasi-basic.md#9-bukti-checkpoint-m4-gap01-ui). Tabel di atas mencatat baseline sebelum perbaikan.
 
 ### Pembaruan GAP-08 — implementasi tersedia
 

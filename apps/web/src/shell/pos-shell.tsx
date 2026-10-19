@@ -44,12 +44,12 @@ export function PosShell({
 
   return (
     <div className="flex min-h-dvh flex-col bg-canvas text-foreground">
-      <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 border-b border-line-subtle bg-surface px-3 sm:px-4">
+      <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-1 sm:gap-3 border-b border-line-subtle bg-surface px-3 sm:px-4">
         <div className="min-w-0 flex-1">
           <ShellContext />
         </div>
         <PosStatus />
-        <nav aria-label={t("posNavigation")} className="flex shrink-0 items-center gap-1">
+        <nav aria-label={t("posNavigation")} className="flex shrink-0 items-center gap-0 sm:gap-1">
           {surfaces.map((surface) => {
             const active = pathname === surface.href;
             return (

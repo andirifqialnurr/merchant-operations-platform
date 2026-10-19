@@ -30,6 +30,8 @@ import {
   catalogProductModifierGroupSchema,
   catalogProductSchema,
   catalogProductVariantSchema,
+  acceptGuestOrderSchema,
+  rejectGuestOrderSchema,
   cancelOrderSchema,
   catalogSnapshotSchema,
   checkoutSchema,
@@ -1116,6 +1118,24 @@ export const merchantApi = {
       `/floor/sessions/${entityIdParamsSchema.parse({ id: sessionId }).id}`,
       tableSessionDetailSchema,
       { headers: outletHeaders(tenantId, outletId) },
+    ),
+  acceptGuestOrder: (tenantId: string, outletId: string, orderId: string) =>
+    jsonMutation(
+      `/floor/guest-orders/${entityIdParamsSchema.parse({ id: orderId }).id}/accept`,
+      "POST",
+      {},
+      acceptGuestOrderSchema,
+      orderSchema,
+      outletHeaders(tenantId, outletId),
+    ),
+  rejectGuestOrder: (tenantId: string, outletId: string, orderId: string, reason: string) =>
+    jsonMutation(
+      `/floor/guest-orders/${entityIdParamsSchema.parse({ id: orderId }).id}/reject`,
+      "POST",
+      { reason },
+      rejectGuestOrderSchema,
+      orderSchema,
+      outletHeaders(tenantId, outletId),
     ),
   /** One more order for the guests of a visit; the key makes a retry return the same order. */
   addTableOrder: (

@@ -1,4 +1,9 @@
-import type { OrderSource, OrderStatus, OrderType } from "@merchant/contracts";
+import type {
+  OrderModerationStatus,
+  OrderSource,
+  OrderStatus,
+  OrderType,
+} from "@merchant/contracts";
 
 import type { PricedLine } from "../domain/price-order.js";
 import {
@@ -31,6 +36,7 @@ export type OrderRecord = {
   id: string;
   items: OrderItemRecord[];
   note: string | null;
+  moderationStatus: OrderModerationStatus;
   orderNumber: number;
   orderType: OrderType;
   outletId: string;
@@ -60,7 +66,20 @@ export interface OrderRepository {
    * Stores a submitted order with the outlet's next order number. When the
    * idempotency key was already used, the order it created is returned.
    */
-  createSubmitted(order: NewSubmittedOrder, context: OrderSubmitContext): Promise<OrderRecord>;
+  createSubmitted(
+    order: NewSubmittedOrder,
+    context: OrderSubmitContext,
+    ensureVisitOpen?: () => Promise<void>,
+  ): Promise<OrderRecord>;
+  decideGuestOrder(
+    tenantId: string,
+    outletId: string,
+    orderId: string,
+    decision: "ACCEPTED" | "REJECTED",
+    reason: string | null,
+    ensureVisitOpen: (visitId: string) => Promise<void>,
+    context: OrderMutationContext,
+  ): Promise<OrderRecord | null>;
   /**
    * Locks the order, runs `ensureCancellable` (which throws to refuse), then
    * marks it canceled. Returns null when the order is not found; an order
@@ -85,6 +104,8 @@ export interface OrderRepository {
     from: readonly OrderStatus[],
     to: OrderStatus,
   ): Promise<"missing" | "moved" | "unchanged">;
+  /** Pending guest rounds grouped by visit, scoped to an outlet. */
+  pendingBySession(tenantId: string, outletId: string): Promise<Map<string, number>>;
   /** The orders of one table session, oldest first. */
   listBySession(tenantId: string, outletId: string, tableSessionId: string): Promise<OrderRecord[]>;
   /** The outlet's orders created since `since`, newest first. */

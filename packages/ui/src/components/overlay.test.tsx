@@ -3,6 +3,25 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { AlertDialog, Dialog, DropdownMenu, Popover, Sheet, Tooltip } from "./overlay";
 describe("overlay primitives", () => {
+  it("a late focus callback is harmless after its portal was removed", () => {
+    let lateFocus: (() => void) | undefined;
+    const timer = vi.spyOn(window, "setTimeout").mockImplementation((handler) => {
+      if (typeof handler === "function") lateFocus = handler as () => void;
+      return 0;
+    });
+    try {
+      const { unmount } = render(
+        <Dialog closeLabel="Tutup" onOpenChange={vi.fn()} open title="Kunjungan">
+          <button>Terima</button>
+        </Dialog>,
+      );
+      unmount();
+      expect(lateFocus).toBeTypeOf("function");
+      expect(() => lateFocus?.()).not.toThrow();
+    } finally {
+      timer.mockRestore();
+    }
+  });
   it("closes dialog with Escape", async () => {
     const user = userEvent.setup();
     const close = vi.fn();

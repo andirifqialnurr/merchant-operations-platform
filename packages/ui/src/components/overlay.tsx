@@ -126,7 +126,10 @@ function Overlay({
     previous.current = document.activeElement as HTMLElement;
     const bodyOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const timer = window.setTimeout(() => focusable(panelRef.current!)[0]?.focus(), 0);
+    const timer = window.setTimeout(() => {
+      const panel = panelRef.current;
+      if (panel) focusable(panel)[0]?.focus();
+    }, 0);
     function escape(event: KeyboardEvent | globalThis.KeyboardEvent) {
       // A control inside that used Escape for itself (an open list) marks it as handled.
       if (event.key === "Escape" && !event.defaultPrevented) onCloseRef.current();
@@ -142,7 +145,7 @@ function Overlay({
   if (!open || typeof document === "undefined") return null;
   function trap(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key !== "Tab") return;
-    const targets = focusable(panelRef.current!);
+    const targets = focusable(event.currentTarget);
     if (!targets.length) return;
     const first = targets[0]!;
     const last = targets.at(-1)!;

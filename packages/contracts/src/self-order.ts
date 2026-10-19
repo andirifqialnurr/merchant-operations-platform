@@ -48,7 +48,13 @@ export const placeGuestOrderSchema = z
   .strict();
 
 /** Where an order is, in the words a guest needs. */
-export const guestOrderStatusSchema = z.enum(["RECEIVED", "PREPARING", "READY", "CANCELED"]);
+export const guestOrderStatusSchema = z.enum([
+  "PENDING",
+  "RECEIVED",
+  "PREPARING",
+  "READY",
+  "CANCELED",
+]);
 
 export const guestOrderSchema = z
   .object({

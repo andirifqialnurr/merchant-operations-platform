@@ -1,12 +1,15 @@
 import { Global, Module, NotFoundException } from "@nestjs/common";
 
+import { isOrderApproved } from "@merchant/contracts";
+
 import { CatalogModule, CatalogService } from "./kernels/catalog/public.js";
 import {
   OrderIntakeModule,
   OrderIntakeService,
   SELLABLE_MENU_SOURCE,
+  TABLE_VISIT_SOURCE,
 } from "./kernels/order-intake/public.js";
-import { FloorModule, TableSessions } from "./modules/floor/public.js";
+import { FloorModule, TableSessions, TableVisitGuard } from "./modules/floor/public.js";
 import { KITCHEN_ORDER_SOURCE, type KitchenOrderSource } from "./modules/kds/public.js";
 
 /**
@@ -33,6 +36,7 @@ export function kitchenOrderSource(
           : null;
       return {
         canceled: order.status === "CANCELED",
+        approved: isOrderApproved(order),
         items: order.items.map((item) => ({
           // The variant is read first, like the size of a drink.
           modifiers: [
@@ -58,11 +62,12 @@ export function kitchenOrderSource(
  */
 @Global()
 @Module({
-  exports: [KITCHEN_ORDER_SOURCE, SELLABLE_MENU_SOURCE],
+  exports: [KITCHEN_ORDER_SOURCE, SELLABLE_MENU_SOURCE, TABLE_VISIT_SOURCE],
   imports: [CatalogModule, FloorModule, OrderIntakeModule],
   providers: [
     // Orders are priced from the catalog's sellable menu.
     { provide: SELLABLE_MENU_SOURCE, useExisting: CatalogService },
+    { provide: TABLE_VISIT_SOURCE, useExisting: TableVisitGuard },
     // The kitchen reads what to prepare from the owner of orders.
     {
       inject: [OrderIntakeService, TableSessions],

@@ -1,5 +1,6 @@
 import {
   computeCharges,
+  isOrderApproved,
   guestMenuSchema,
   guestOrderSchema,
   guestVisitSchema,
@@ -190,7 +191,7 @@ export class GuestOrdering {
 
   /**
    * Places a guest's order on the table's visit, opening one when nobody
-   * sits there yet. It reaches the kitchen like an order from the cashier.
+   * sits there yet. Staff must approve it before it reaches the kitchen.
    */
   async placeOrder(
     token: string,
@@ -278,7 +279,7 @@ export class GuestOrdering {
       const settled = paid.get(order.id);
       return {
         guest: this.toGuestOrder(order, charges, settled?.totalMinor),
-        owing: settled === undefined && order.status !== "CANCELED",
+        owing: settled === undefined && order.status !== "CANCELED" && isOrderApproved(order),
       };
     });
     const dueMinor = rows
@@ -313,7 +314,10 @@ export class GuestOrdering {
         };
       }),
       orderNumber: order.orderNumber,
-      status: GUEST_STATUS[order.status] ?? "RECEIVED",
+      status:
+        order.moderationStatus === "PENDING" && order.status !== "CANCELED"
+          ? "PENDING"
+          : (GUEST_STATUS[order.status] ?? "RECEIVED"),
       submittedAt: order.submittedAt,
       totalMinor: (
         paidTotal ?? computeCharges(BigInt(order.subtotalMinor), charges).totalMinor

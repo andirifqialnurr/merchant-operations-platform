@@ -142,7 +142,9 @@ function OrderCard({
       </div>
       {step === null ? (
         <div>
-          <Badge tone="danger">{t("status.CANCELED")}</Badge>
+          <Badge tone={order.status === "CANCELED" ? "danger" : "neutral"}>
+            {t(`status.${order.status}`)}
+          </Badge>
         </div>
       ) : (
         <OrderProgress
@@ -358,7 +360,7 @@ function Ordering({
                   <p className="m-0 text-body-sm text-foreground-secondary" role="status">
                     {t("claimWaiting")} · {t(`method.${visit.data.claim.method}`)}
                   </p>
-                ) : menu.paymentNote ? (
+                ) : menu.paymentNote && !orders.some((order) => order.status === "PENDING") ? (
                   <section aria-labelledby="guest-pay" className="grid gap-3">
                     <h2 className="m-0 text-label font-semibold" id="guest-pay">
                       {t("payTitle")}
@@ -382,7 +384,9 @@ function Ordering({
                   </section>
                 ) : null}
               </div>
-            ) : visit.data && orders.some((order) => order.status !== "CANCELED") ? (
+            ) : visit.data &&
+              !orders.some((order) => order.status === "PENDING") &&
+              orders.some((order) => order.status !== "CANCELED") ? (
               <p className="m-0 border-t border-line-default pt-4 text-body-sm" role="status">
                 {t("paidAll")}
               </p>

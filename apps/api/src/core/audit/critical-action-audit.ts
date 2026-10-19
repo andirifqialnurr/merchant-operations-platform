@@ -31,6 +31,8 @@ export const CRITICAL_AUDIT_ACTIONS = [
   "module_installation.suspend",
   "module_installation.uninstall",
   "order.cancel",
+  "order.guest_accept",
+  "order.guest_reject",
   "order.submit",
   "outlet.update",
   "payment.record",

@@ -10,6 +10,8 @@
 export type KitchenOrder = {
   /** True when the order was canceled before the kitchen heard of it. */
   canceled: boolean;
+  /** False until staff approve a moderated order. */
+  approved: boolean;
   items: Array<{ modifiers: string[]; name: string; note?: string; quantity: number }>;
   orderLabel: string;
   source: "POS" | "SELF_ORDER";

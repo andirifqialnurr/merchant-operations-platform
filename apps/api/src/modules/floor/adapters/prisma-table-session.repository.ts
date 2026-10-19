@@ -2,6 +2,8 @@ import type { FloorPolicy, FloorTableRotation } from "@merchant/contracts";
 import { getPrismaClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
+import { lockTableVisit } from "../../../shared/command/lock-table-visit.js";
+
 import { buildAuditMetadata, buildAuditPayload } from "../../../core/audit/public.js";
 import {
   eventOrigin,
@@ -279,8 +281,11 @@ export class PrismaTableSessionRepository implements TableSessionRepository {
     sessionId: string,
     change: { needsCleaning: boolean; now: Date },
     origin: ActorCommandOrigin,
+    ensureSettled: () => Promise<void>,
   ) {
     return getPrismaClient().$transaction(async (transaction) => {
+      await lockTableVisit(transaction, tenantId, sessionId);
+      await ensureSettled();
       const updated = await transaction.floorTableSession.updateMany({
         data: {
           closedAt: change.now,

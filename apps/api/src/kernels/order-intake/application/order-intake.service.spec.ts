@@ -95,6 +95,20 @@ class InMemoryOrderRepository implements OrderRepository {
     return "moved" as const;
   }
 
+  async pendingBySession(tenantId: string, outletId: string) {
+    const counts = new Map<string, number>();
+    for (const order of this.orders)
+      if (
+        order.tenantId === tenantId &&
+        order.outletId === outletId &&
+        order.tableSessionId &&
+        order.moderationStatus === "PENDING" &&
+        order.status === "SUBMITTED"
+      )
+        counts.set(order.tableSessionId, (counts.get(order.tableSessionId) ?? 0) + 1);
+    return counts;
+  }
+
   async listBySession(tenantId: string, outletId: string, tableSessionId: string) {
     return this.orders.filter(
       (order) =>
@@ -148,6 +162,10 @@ class InMemoryOrderRepository implements OrderRepository {
     );
   }
 
+  async decideGuestOrder(): Promise<never> {
+    throw new Error("Use the PostgreSQL moderation tests for decisions.");
+  }
+
   async createSubmitted(order: NewSubmittedOrder) {
     const orderNumber = this.orders.filter((item) => item.outletId === order.outletId).length + 1;
     const record: OrderRecord & { idempotencyKey: string } = {
@@ -174,6 +192,7 @@ class InMemoryOrderRepository implements OrderRepository {
         variantNameSnapshot: line.variantName,
       })),
       note: order.note,
+      moderationStatus: order.source === "SELF_ORDER" ? "PENDING" : "NOT_REQUIRED",
       orderNumber,
       orderType: order.orderType,
       outletId: order.outletId,

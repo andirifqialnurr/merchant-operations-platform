@@ -8,6 +8,7 @@ import { CatalogModule } from "../../kernels/catalog/public.js";
 import { OrderIntakeModule } from "../../kernels/order-intake/public.js";
 import { OrganizationModule } from "../../core/workspaces/public.js";
 import { FloorStructureController } from "./adapters/floor-structure.controller.js";
+import { GuestOrderModerationController } from "./adapters/guest-order-moderation.controller.js";
 import { FloorTableController } from "./adapters/floor-table.controller.js";
 import { PrismaFloorStructureRepository } from "./adapters/prisma-floor-structure.repository.js";
 import { PrismaFloorTableRepository } from "./adapters/prisma-floor-table.repository.js";
@@ -25,6 +26,7 @@ import { SERVICE_REQUEST_REPOSITORY } from "./application/service-request.reposi
 import { TableQrCodes } from "./application/table-qr-codes.js";
 import { TABLE_QR_REPOSITORY, TABLE_QR_SECRET } from "./application/table-qr.repository.js";
 import { TABLE_SESSION_REPOSITORY } from "./application/table-session.repository.js";
+import { TableVisitGuard } from "./application/table-visit-guard.js";
 import { TableSessions } from "./application/table-sessions.js";
 
 /**
@@ -49,6 +51,7 @@ export function tableQrSecret(environment: NodeJS.ProcessEnv = process.env) {
  */
 @Module({
   controllers: [
+    GuestOrderModerationController,
     FloorStructureController,
     FloorTableController,
     PublicTableQrController,
@@ -56,7 +59,7 @@ export function tableQrSecret(environment: NodeJS.ProcessEnv = process.env) {
     TableSessionController,
   ],
   // The kitchen's tickets name the table a visit sits at.
-  exports: [TableSessions],
+  exports: [TableSessions, TableVisitGuard],
   imports: [
     AccessModule,
     AuthModule,
@@ -67,6 +70,7 @@ export function tableQrSecret(environment: NodeJS.ProcessEnv = process.env) {
     OrganizationModule,
   ],
   providers: [
+    TableVisitGuard,
     FloorStructure,
     PrismaFloorStructureRepository,
     { provide: FLOOR_STRUCTURE_REPOSITORY, useExisting: PrismaFloorStructureRepository },

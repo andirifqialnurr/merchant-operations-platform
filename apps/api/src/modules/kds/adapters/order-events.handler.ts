@@ -62,6 +62,7 @@ export class OrderEventsHandler implements OnModuleInit {
     if (!order) throw new BlockedEventError("The order of this event was not found.");
     // Called off before the kitchen heard of it: there is nothing to prepare.
     if (order.canceled) return "skipped:order_canceled";
+    if (!order.approved) return "skipped:order_not_approved";
 
     const { created, ticket } = await this.createTicket.execute(
       event.workspaceId,

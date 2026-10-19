@@ -20,7 +20,7 @@ import {
 import { AppIcon } from "@merchant/ui/app-icon";
 import { AreaSelector } from "@merchant/ui/area-selector";
 import { Button } from "@merchant/ui/button";
-import { Alert, Badge, EmptyState, ErrorState, Skeleton } from "@merchant/ui/feedback";
+import { Alert, EmptyState, ErrorState, Skeleton } from "@merchant/ui/feedback";
 import { FloorSelector } from "@merchant/ui/floor-selector";
 import { LiveTableView, type LiveTableViewItem } from "@merchant/ui/live-table-view";
 import { ModuleAccessState } from "@merchant/ui/module-access-state";
@@ -41,6 +41,9 @@ import { useToast } from "@/providers/toast-provider";
 import { RequestErrorState } from "@/shell/request-error-state";
 
 import { PaymentView } from "./payment-view";
+import { VisitOrders } from "./visit-orders";
+import { visitHasPending } from "./table-order-state";
+import { useGuestOrderDecision } from "./use-guest-order-decision";
 
 /** How often the cashier's view of the tables is read again. */
 export const LIVE_FLOOR_REFRESH_MS = 10_000;
@@ -73,7 +76,13 @@ const canvasShape = (shape: LiveTable["shape"]) =>
 const minutesSince = (iso: string, now: number) =>
   Math.max(0, Math.floor((now - new Date(iso).getTime()) / 60_000));
 
-type Permissions = { canMove: boolean; canOrder: boolean; canPay: boolean; canSeat: boolean };
+type Permissions = {
+  canMove: boolean;
+  canOrder: boolean;
+  canPay: boolean;
+  canSeat: boolean;
+  canRejectOrder: boolean;
+};
 
 /** POS > Tables: who sits where, seating guests, their orders and bill, and letting tables go. */
 export function PosTablesPage() {
@@ -99,6 +108,7 @@ export function PosTablesPage() {
         canOrder: can(PERMISSIONS.orderCreate),
         canPay: can(PERMISSIONS.paymentConfirm),
         canSeat: can(PERMISSIONS.tableManage),
+        canRejectOrder: can(PERMISSIONS.orderCancel),
       }}
       key={`${tenantId}:${outlet.id}`}
       outletId={outlet.id}
@@ -244,8 +254,19 @@ function LiveTables({
       : t("tableTitle", { label: table.label });
   };
 
-  const metrics = (session: TableSession | undefined): TableTileMetric[] => {
+  const metrics = (
+    session: TableSession | undefined,
+    pendingOrderCount: number,
+  ): TableTileMetric[] => {
     if (!session) return [];
+    if (pendingOrderCount > 0)
+      return [
+        {
+          kind: "orders",
+          label: t("pendingOrderCount", { count: pendingOrderCount }),
+          text: String(pendingOrderCount),
+        },
+      ];
     const minutes = minutesSince(session.openedAt, now);
     return [
       {
@@ -270,17 +291,20 @@ function LiveTables({
     gridY: table.gridY,
     id: table.id,
     label: table.label,
-    metrics: metrics(table.sessionId ? sessions.get(table.sessionId) : undefined),
+    metrics: metrics(
+      table.sessionId ? sessions.get(table.sessionId) : undefined,
+      table.pendingOrderCount,
+    ),
     shape: canvasShape(table.shape),
-    state: TILE_STATE[table.status],
-    stateLabel: t(`tableStatus.${table.status}`),
+    state: table.pendingOrderCount > 0 ? "waiting-order" : TILE_STATE[table.status],
+    stateLabel: table.pendingOrderCount > 0 ? t("pendingTile") : t(`tableStatus.${table.status}`),
   }));
 
   const panel = selected ? (
     selectedSession && selected.status !== "CLEANING" ? (
       <VisitPanel
         allowed={allowed}
-        busy={action.isPending}
+        busy={action.isPending || confirm.isPending}
         key={`${selectedSession.id}:${selected.id}`}
         now={now}
         onClose={() =>
@@ -648,6 +672,8 @@ function VisitPanel({
 }>) {
   const t = useTranslations("floor");
   const { locale, money, time } = useFormat();
+  const moderation = useGuestOrderDecision(tenantId, outletId);
+  const blocked = busy || moderation.isPending;
   const detail = useQuery({
     queryFn: () => merchantApi.tableSessionDetail(tenantId, outletId, session.id),
     queryKey: visitKey(tenantId, outletId, session.id),
@@ -656,6 +682,7 @@ function VisitPanel({
   const minutes = minutesSince(session.openedAt, now);
   const visit: TableSessionDetail | undefined = detail.data;
   const owing = visit ? BigInt(visit.dueMinor) > 0n : false;
+  const pending = visit ? visitHasPending(visit.orders) : false;
   const [moving, setMoving] = useState(false);
   const [target, setTarget] = useState<LiveTable>();
 
@@ -669,7 +696,7 @@ function VisitPanel({
       <TableSessionPanel
         actions={
           <>
-            <Button disabled={!target || busy} onClick={() => target && onMove(target)}>
+            <Button disabled={!target || blocked} onClick={() => target && onMove(target)}>
               {target ? t("moveTo", { label: target.label }) : t("chooseDestination")}
             </Button>
             <Button onClick={() => setMoving(false)} variant="ghost">
@@ -717,25 +744,29 @@ function VisitPanel({
   // One main step at a time: pay while something is owed, close once nothing is.
   const actions = (
     <>
-      {claim && allowed.canPay ? (
+      {claim && allowed.canPay && detail.isSuccess ? (
         <>
-          <Button disabled={busy} onClick={() => onConfirmClaim(claim)}>
-            {t("confirmClaim")}
-          </Button>
-          <Button disabled={busy} onClick={() => onRejectClaim(claim)} variant="secondary">
+          {!pending ? (
+            <Button disabled={blocked} onClick={() => onConfirmClaim(claim)}>
+              {t("confirmClaim")}
+            </Button>
+          ) : null}
+          <Button disabled={blocked} onClick={() => onRejectClaim(claim)} variant="secondary">
             {t("rejectClaim")}
           </Button>
         </>
-      ) : visit && owing && allowed.canPay ? (
-        <Button onClick={() => onPay(visit.dueMinor)}>{t("pay")}</Button>
+      ) : visit && owing && !pending && allowed.canPay && detail.isSuccess ? (
+        <Button disabled={blocked} onClick={() => onPay(visit.dueMinor)}>
+          {t("pay")}
+        </Button>
       ) : null}
-      {visit && !owing && allowed.canSeat ? (
-        <Button disabled={busy} onClick={onClose}>
+      {visit && !owing && !pending && allowed.canSeat && detail.isSuccess ? (
+        <Button disabled={blocked} onClick={onClose}>
           {t("closeVisit")}
         </Button>
       ) : null}
       {allowed.canMove ? (
-        <Button disabled={busy} onClick={() => setMoving(true)} variant="secondary">
+        <Button disabled={blocked} onClick={() => setMoving(true)} variant="secondary">
           {t("moveTable")}
         </Button>
       ) : null}
@@ -743,6 +774,11 @@ function VisitPanel({
         <Link
           className="ui-button ui-button--md ui-button--secondary"
           href={`/pos?table=${session.id}`}
+          aria-disabled={blocked || undefined}
+          onClick={(event) => {
+            if (blocked) event.preventDefault();
+          }}
+          tabIndex={blocked ? -1 : undefined}
         >
           <span className="ui-button__label">{t("addOrder")}</span>
         </Link>
@@ -757,7 +793,7 @@ function VisitPanel({
         { label: t("guests"), value: session.guestCount },
         { label: t("seatedSince"), value: time(session.openedAt) },
         { label: t("seatedFor"), value: t("durationLabel", { minutes }) },
-        ...(visit
+        ...(visit && !(pending && !owing)
           ? [
               {
                 label: t("due"),
@@ -775,52 +811,25 @@ function VisitPanel({
           {t("claimNotice", { amount: money(claim.amountMinor) })}
         </Alert>
       ) : null}
-      {detail.isPending ? (
-        <Skeleton variant="table-row" />
-      ) : detail.isError ? (
+      {detail.isPending ? <Skeleton variant="table-row" /> : null}
+      {detail.isError ? (
         <RequestErrorState
           error={detail.error}
           onRetry={() => void detail.refetch()}
           title={t("visitLoadFailed")}
         />
-      ) : visit && visit.orders.length > 0 ? (
-        <section aria-label={t("ordersTitle")} className="grid gap-2">
-          <h3 className="m-0 text-label font-semibold">{t("ordersTitle")}</h3>
-          <ul className="m-0 grid list-none gap-2 p-0">
-            {visit.orders.map((order) => (
-              <li
-                className="grid gap-1 border-b border-line-subtle pb-2 last:border-b-0"
-                key={order.id}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-label font-semibold">#{order.orderNumber}</span>
-                  <span className="flex items-center gap-2">
-                    <MoneyDisplay amountMinor={order.totalMinor} locale={locale} />
-                    <Badge
-                      tone={
-                        order.status === "CANCELED" ? "neutral" : order.paid ? "success" : "warning"
-                      }
-                    >
-                      {order.status === "CANCELED"
-                        ? t("orderCanceled")
-                        : order.paid
-                          ? t("orderPaid")
-                          : t("orderUnpaid")}
-                    </Badge>
-                  </span>
-                </div>
-                <p className="m-0 text-body-sm text-foreground-secondary">
-                  {order.lines
-                    .map((line) => t("orderLine", { name: line.name, quantity: line.quantity }))
-                    .join(", ")}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : (
-        <p className="m-0 text-body-sm text-foreground-secondary">{t("noOrders")}</p>
-      )}
+      ) : null}
+      {visit ? (
+        <VisitOrders
+          busy={blocked}
+          activeOrderId={moderation.isPending ? moderation.variables?.orderId : undefined}
+          canAccept={allowed.canOrder}
+          canReject={allowed.canRejectOrder}
+          onDecision={(input) => moderation.mutateAsync(input)}
+          orders={visit.orders}
+          reviewable={detail.isSuccess}
+        />
+      ) : null}
       {/* Joining or splitting tables comes with Tables Pro; Basic shows that it exists. */}
       {!canMerge ? (
         <div className="flex flex-wrap items-center gap-2 border-t border-line-subtle pt-3">

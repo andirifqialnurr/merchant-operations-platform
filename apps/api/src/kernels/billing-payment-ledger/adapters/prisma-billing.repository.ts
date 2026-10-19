@@ -1,5 +1,8 @@
 import { getPrismaClient } from "@merchant/database";
-import { Injectable } from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
+import { isOrderApproved } from "@merchant/contracts";
+
+import { lockTableVisit } from "../../../shared/command/lock-table-visit.js";
 
 import { buildAuditMetadata } from "../../../core/audit/public.js";
 import type {
@@ -19,6 +22,41 @@ import type {
 } from "../application/billing.repository.js";
 import { eventOrigin, type CommandOrigin } from "../../../shared/command/command-origin.js";
 import { safeEventPayload } from "../../../shared/command/event-payload.js";
+
+type Transaction = Parameters<Parameters<ReturnType<typeof getPrismaClient>["$transaction"]>[0]>[0];
+
+/** Recheck under the visit lock: new rounds/decisions cannot slip into a stale total. */
+async function ensureVisitOrders(
+  transaction: Transaction,
+  tenantId: string,
+  outletId: string,
+  visitId: string,
+  expectedIds: readonly string[],
+) {
+  const orders = await transaction.order.findMany({
+    select: { id: true, moderationStatus: true },
+    where: {
+      tenantId,
+      outletId,
+      tableSessionId: visitId,
+      status: { not: "CANCELED" },
+      OR: [{ bill: null }, { bill: { status: "UNPAID" } }],
+    },
+  });
+  if (orders.some((order) => !isOrderApproved(order)))
+    throw new ConflictException({
+      code: "SELF_ORDER_PENDING",
+      message: "Decide pending orders before payment.",
+    });
+  if (
+    orders.length !== expectedIds.length ||
+    orders.some((order) => !expectedIds.includes(order.id))
+  )
+    throw new ConflictException({
+      code: "ORDER_TOTAL_CHANGED",
+      message: "The visit's orders changed. Check its total again.",
+    });
+}
 
 /** Thrown inside a transaction to undo a table visit's payment when a bill does not match. */
 class SessionBillMismatch extends Error {}
@@ -168,6 +206,27 @@ export class PrismaBillingRepository implements BillingRepository {
     const { outletId, tenantId } = payment;
     try {
       return await getPrismaClient().$transaction(async (transaction) => {
+        await lockTableVisit(transaction, tenantId, payment.tableSessionId);
+        const replay = await this.findSessionCheckoutByIdempotencyKey(
+          tenantId,
+          outletId,
+          payment.idempotencyKey,
+        );
+        if (replay) {
+          if (replay.checkouts.some(({ bill }) => bill.tableSessionId !== payment.tableSessionId))
+            throw new ConflictException({
+              code: "IDEMPOTENCY_KEY_REUSED",
+              message: "This payment key belongs to another visit.",
+            });
+          return { kind: "recorded", checkout: replay };
+        }
+        await ensureVisitOrders(
+          transaction,
+          tenantId,
+          outletId,
+          payment.tableSessionId,
+          payment.bills.map((bill) => bill.orderId),
+        );
         // The same shift lock as a single payment: a closing shift either
         // counts this payment or refuses it.
         const shift = await transaction.posRegisterSession.updateMany({
@@ -181,7 +240,13 @@ export class PrismaBillingRepository implements BillingRepository {
         for (const line of payment.bills) {
           const order = await transaction.order.updateMany({
             data: { updatedAt: new Date() },
-            where: { id: line.orderId, outletId, status: { not: "CANCELED" }, tenantId },
+            where: {
+              id: line.orderId,
+              outletId,
+              moderationStatus: { in: ["NOT_REQUIRED", "ACCEPTED"] },
+              status: { not: "CANCELED" },
+              tenantId,
+            },
           });
           if (order.count !== 1) return { kind: "order_canceled" as const };
         }
@@ -603,6 +668,14 @@ export class PrismaBillingRepository implements BillingRepository {
     if (existing) return toClaim(existing);
     try {
       return await getPrismaClient().$transaction(async (transaction) => {
+        await lockTableVisit(transaction, tenantId, claim.tableSessionId);
+        await ensureVisitOrders(
+          transaction,
+          tenantId,
+          outletId,
+          claim.tableSessionId,
+          claim.orderIds,
+        );
         const row = await transaction.billingPayment.create({
           data: {
             amountMinor: claim.amountMinor,
@@ -746,6 +819,11 @@ export class PrismaBillingRepository implements BillingRepository {
     const { outletId, tenantId } = payment;
     try {
       return await getPrismaClient().$transaction(async (transaction) => {
+        const before = await transaction.order.findFirst({
+          select: { tableSessionId: true },
+          where: { id: payment.orderId, tenantId, outletId },
+        });
+        await lockTableVisit(transaction, tenantId, before?.tableSessionId ?? null);
         // Locks the shift row for this transaction. Closing a shift takes the
         // same lock before it totals the cash, so a payment is either counted
         // by the close or refused here; it can never fall in between.
@@ -762,6 +840,15 @@ export class PrismaBillingRepository implements BillingRepository {
           where: { id: payment.orderId, outletId, status: { not: "CANCELED" }, tenantId },
         });
         if (order.count !== 1) return { kind: "order_canceled" };
+        const locked = await transaction.order.findFirstOrThrow({
+          select: { moderationStatus: true },
+          where: { id: payment.orderId, outletId, tenantId },
+        });
+        if (!isOrderApproved(locked))
+          throw new ConflictException({
+            code: "SELF_ORDER_PENDING",
+            message: "Staff must approve this order before payment.",
+          });
 
         const existing = await transaction.bill.findUnique({
           select: { id: true },

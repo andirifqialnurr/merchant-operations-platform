@@ -3,7 +3,7 @@ import * as z from "zod";
 import { paymentClaimSchema } from "./billing.ts";
 
 import { moneyMinorSchema } from "./money.ts";
-import { orderStatusSchema } from "./orders.ts";
+import { orderModerationStatusSchema, orderStatusSchema } from "./orders.ts";
 
 /** Floors, areas, and tables can be set aside without being deleted. */
 export const floorRecordStatusSchema = z.enum(["ACTIVE", "INACTIVE"]);
@@ -255,6 +255,8 @@ export const liveTableSchema = z
     gridY: gridCellSchema.nullable(),
     id: z.uuid(),
     label: tableLabelSchema,
+    /** Pending guest rounds, for staff discovery; never submitted as input. */
+    pendingOrderCount: z.number().int().min(0),
     sessionId: z.uuid().nullable(),
     shape: floorTableShapeSchema,
     status: floorTableStatusSchema,
@@ -327,10 +329,19 @@ export const tableSessionOrderSchema = z
     createdAt: z.iso.datetime(),
     id: z.uuid(),
     lines: z.array(
-      z.object({ name: z.string().min(1), quantity: z.number().int().min(1) }).strict(),
+      z
+        .object({
+          name: z.string().min(1),
+          quantity: z.number().int().min(1),
+          modifiers: z.array(z.string().min(1)),
+          note: z.string().nullable(),
+        })
+        .strict(),
     ),
+    note: z.string().nullable(),
     orderNumber: z.number().int().min(1),
     paid: z.boolean(),
+    moderationStatus: orderModerationStatusSchema,
     status: orderStatusSchema,
     /** With the outlet's tax and service: paid amount once paid, otherwise as of now. */
     totalMinor: moneyMinorSchema,

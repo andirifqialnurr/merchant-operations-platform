@@ -10,6 +10,7 @@
 - If the user explicitly asks to continue through several tasks, work through multiple independently verifiable checkpoints in sequence within the same run.
 - When working through multiple checkpoints by explicit instruction, keep each checkpoint bounded, update `TODO.md` after each completed checkpoint, and do not merge unrelated route reslicing/redesign work into the batch.
 - If commit and push permission has been explicitly granted, commit and push each completed checkpoint to the current branch before continuing to the next checkpoint.
+- The user has explicitly authorized commit and push for completed tasks in this repository: verify each bounded checkpoint, commit it, and push to the current branch before continuing. Do not force-push, change branches, deploy, migrate development data, or treat technical completion as user acceptance under this permission.
 - Stop before any route reslicing/redesign checkpoint unless the user has explicitly confirmed that reslicing scope.
 
 ## Documentation source of truth

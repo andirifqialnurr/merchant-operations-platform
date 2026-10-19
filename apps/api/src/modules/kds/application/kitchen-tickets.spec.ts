@@ -421,6 +421,7 @@ function kitchen(order: KitchenOrder | null) {
 }
 
 const latteOrder: KitchenOrder = {
+  approved: true,
   canceled: false,
   items: [{ modifiers: ["Besar", "Gula aren"], name: "Latte", note: "kurang manis", quantity: 2 }],
   orderLabel: "#12",
@@ -552,6 +553,12 @@ test("a hand-made ticket is not canceled by an order with the same reference", a
   assert.equal(tickets.stored[0]?.status, "NEW");
 });
 
+test("even a replayed submitted event cannot send an unapproved order to the kitchen", async () => {
+  const { run, tickets } = kitchen({ ...latteOrder, approved: false });
+  assert.equal(await run(event("order.submitted.v1")), "skipped:order_not_approved");
+  assert.equal(tickets.stored.length, 0);
+});
+
 test("what the kitchen is told about an order has no price in it", async () => {
   const order = {
     canceledAt: null,
@@ -584,6 +591,7 @@ test("what the kitchen is told about an order has no price in it", async () => {
       },
     ],
     note: null,
+    moderationStatus: "NOT_REQUIRED",
     orderNumber: 12,
     orderType: "TAKEAWAY",
     outletId: OUTLET,
@@ -596,6 +604,7 @@ test("what the kitchen is told about an order has no price in it", async () => {
   const seen = await source.kitchenOrder(TENANT, OUTLET, ORDER);
 
   assert.deepEqual(seen, {
+    approved: true,
     canceled: false,
     items: [
       // The variant is read first, then the chosen options.

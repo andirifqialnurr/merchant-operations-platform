@@ -62,6 +62,8 @@ export const floorManifest: ModuleManifest = {
     { label: "Tables at the cashier", path: "/pos/tables", permissionKey: PERMISSIONS.tableView },
   ],
   permissions: [
+    PERMISSIONS.orderCreate,
+    PERMISSIONS.orderCancel,
     PERMISSIONS.orderMoveTable,
     PERMISSIONS.tableView,
     PERMISSIONS.tableManage,

@@ -290,8 +290,52 @@ function setup() {
   return { repository, service: new BillingService(repository) };
 }
 
+test("pending guest orders cannot be paid directly, in a visit or claimed as paid", async () => {
+  const { service } = setup();
+  const pending = order({ moderationStatus: "PENDING" });
+  const input = {
+    charges: { included: true, serviceChargeRateBp: 0, taxRateBp: 0 },
+    idempotencyKey: "pending-test",
+    outletId: OUTLET,
+    tenantId: TENANT,
+  };
+  await rejectsWithCode(
+    service.payOrderInFull(
+      {
+        ...input,
+        order: pending,
+        pay: { method: "CASH", tenderedMinor: "64000" },
+        registerSessionId: SHIFT,
+      },
+      context,
+    ),
+    "SELF_ORDER_PENDING",
+  );
+  await rejectsWithCode(
+    service.payTableSessionInFull(
+      {
+        ...input,
+        orders: [pending],
+        tableSessionId: randomUUID(),
+        pay: { method: "CASH", tenderedMinor: "64000" },
+        registerSessionId: SHIFT,
+      },
+      context,
+    ),
+    "SELF_ORDER_PENDING",
+  );
+  await rejectsWithCode(
+    service.claimTableSessionPayment(
+      { ...input, orders: [pending], tableSessionId: randomUUID(), method: "TRANSFER" },
+      { channel: "WEB" },
+    ),
+    "SELF_ORDER_PENDING",
+  );
+});
+
 function order(overrides: Partial<PayableOrder> = {}): PayableOrder {
   return {
+    moderationStatus: "NOT_REQUIRED",
     currency: "IDR",
     id: randomUUID(),
     status: "SUBMITTED",

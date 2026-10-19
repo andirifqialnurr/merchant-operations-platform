@@ -18,6 +18,23 @@ export const orderStatusSchema = z.enum([
   "CANCELED",
 ]);
 
+export const orderModerationStatusSchema = z.enum([
+  "NOT_REQUIRED",
+  "PENDING",
+  "ACCEPTED",
+  "REJECTED",
+]);
+
+/** Shared rule for projections and financial/kernel gates. */
+export function isOrderApproved(order: { moderationStatus: OrderModerationStatus }) {
+  return order.moderationStatus === "NOT_REQUIRED" || order.moderationStatus === "ACCEPTED";
+}
+
+export const acceptGuestOrderSchema = z.object({}).strict();
+export const rejectGuestOrderSchema = z
+  .object({ reason: z.string().trim().min(3).max(300) })
+  .strict();
+
 export const orderItemModifierSchema = z.object({
   groupName: catalogNameSchema,
   optionName: catalogNameSchema,
@@ -46,6 +63,7 @@ export const orderSchema = z.object({
   id: z.uuid(),
   items: z.array(orderItemSchema),
   note: z.string().nullable(),
+  moderationStatus: orderModerationStatusSchema,
   orderNumber: z.number().int().min(1),
   orderType: orderTypeSchema,
   outletId: z.uuid(),
@@ -128,3 +146,5 @@ export type OrderSource = z.infer<typeof orderSourceSchema>;
 export type OrderStatus = z.infer<typeof orderStatusSchema>;
 
 export type OrderType = z.infer<typeof orderTypeSchema>;
+
+export type OrderModerationStatus = z.infer<typeof orderModerationStatusSchema>;
