@@ -429,7 +429,14 @@
     "FILE_TOO_LARGE": "Berkas kosong atau terlalu besar.",
     "FILE_TYPE_NOT_ALLOWED": "Jenis berkas ini tidak diizinkan. Pakai JPG, PNG, WebP, atau AVIF.",
     "HELD_CART_NOT_FOUND": "Pesanan ini sudah dilanjutkan atau dibuang.",
-    "IDEMPOTENCY_KEY_REUSED": "Permintaan ini bentrok dengan permintaan sebelumnya. Coba lagi.",
+    "IDEMPOTENCY_KEY_REQUIRED": "Kunci permintaan yang sah diperlukan.",
+    "IDEMPOTENCY_IN_PROGRESS": "Permintaan sebelumnya masih diproses. Periksa hasilnya sebelum mengirim ulang.",
+    "IDEMPOTENCY_FAILED": "Hasil permintaan sebelumnya perlu diperiksa sebelum mencoba lagi.",
+    "IDEMPOTENCY_EXPIRED": "Hasil permintaan sudah kedaluwarsa. Periksa data sebelum mengirim permintaan baru.",
+    "IDEMPOTENCY_RESULT_UNAVAILABLE": "Hasil permintaan tersimpan tidak dapat diverifikasi. Hubungi pengelola.",
+    "INVENTORY_UNIT_CODE_TAKEN": "Kode satuan sudah digunakan.",
+    "INVENTORY_COMMAND_CONTEXT_INVALID": "Konteks permintaan tidak sesuai dengan pengguna yang berizin.",
+    "IDEMPOTENCY_KEY_REUSED": "Permintaan ini sudah digunakan untuk data yang berbeda. Periksa hasil sebelumnya.",
     "INSTALLATION_SETUP_REQUIRED": "Modul ini belum dipasang atau belum selesai diatur.",
     "INVITATION_ACCOUNT_REQUIRED": "Isi nama dan kata sandi untuk membuat akun.",
     "INVITATION_INVALID": "Tautan undangan ini salah atau sudah tidak berlaku.",
@@ -950,6 +957,7 @@
         }
       },
       "inventory": {
+        "master": { "manage": "Mengelola master stok" },
         "adjust": "Mengoreksi jumlah stok",
         "receive": "Menerima barang masuk",
         "stocktake": "Melakukan stok opname"

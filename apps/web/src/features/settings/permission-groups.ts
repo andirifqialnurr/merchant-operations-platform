@@ -49,6 +49,7 @@ export const PERMISSION_GROUPS = [
   {
     key: "inventory",
     permissions: [
+      PERMISSIONS.inventoryMasterManage,
       PERMISSIONS.inventoryReceive,
       PERMISSIONS.inventoryAdjust,
       PERMISSIONS.inventoryStocktake,

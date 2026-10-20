@@ -1,6 +1,6 @@
 # M5 — master Inventory
 
-**Status:** M5-BE-01B1 selesai teknis/terverifikasi — `f3f7e5f` (dipush ke `origin/main`). B2a query internal selesai teknis/terverifikasi, `8ccf52f` (dipush; bagian 6–7). Parent B/M5 tetap Berjalan. Baseline fondasi numerik `89ba34f`/`0ea003c`.
+**Status:** M5-BE-01B1 selesai teknis/terverifikasi — `f3f7e5f` (dipush ke `origin/main`). B2a query internal selesai teknis/terverifikasi, `8ccf52f` (dipush; bagian 6–7). B2b1 create unit transaksional juga selesai teknis/terverifikasi ([checkpoint](./M05-pembuatan-satuan.md)). Parent B/M5 tetap Berjalan. Baseline fondasi numerik `89ba34f`/`0ea003c`.
 
 ## 1. Scope checkpoint
 
@@ -69,4 +69,8 @@ B2 dipecah lagi: **B2a read contracts/port/Prisma adapter + dua query use case b
 - **7 PostgreSQL query tests (induk + 6 subtest)**: 107 unit tenant A + tenant B, page 100/7 serta 37 tanpa duplikasi/lompatan, keyset/filter cross-tenant, missing scope tidak menjadi Prisma undefined-filter fallback, minimum/full precision factor kanonik, DTO tanpa metadata, real membership/role revocation sebelum master IO, no-write snapshot master/latch/timestamp/audit/outbox/idempotency. Entitlement facts disimulasikan melalui facade untuk query fixture; ini bukan instalasi/aktivasi module di database atau test HTTP sesi.
 - **62 integrasi PostgreSQL penuh lulus, 0 gagal/skip**. Root lint/boundary/warna/typecheck/test/format serta build API/web lulus: 448 source API + 6 scripts, 59 contracts, 285 UI, 69 web TS + 10 scripts; database/worker tetap lulus. `next-env.d.ts` dipulihkan ke referensi dev tracked dan typecheck diperiksa ulang. Log `.cache/m5-master-read-*` Git-ignored.
 - Tidak ada paket, DDL/migrasi development, registrasi runtime/module/capability, grant permission, HTTP/OpenAPI/UI/JSX atau mutasi Inventory produksi. Query foundation bukan API Inventory-only end-to-end atau penyelesaian FT-01/BE-01/B2/SC-01/SC-02.
-- NEXT: **B2b command master unit/conversion**, tentukan permission mutasi tersendiri, scope workspace, validasi parent/compatibility, repository transaksional, error mapping dan audit/idempotency sebelum endpoint. Resource master lain, LimitGate aktif yang relevan, activation/manifest dan acceptance tetap checkpoint berikutnya, tanpa membuka reslicing rute.
+- NEXT saat B2a ditutup adalah B2b command master. B2b1 create unit kini selesai teknis/terverifikasi di bawah; parent B2b/B2 dan resource lain tetap belum selesai.
+
+## 8. B2b1 — create unit
+
+[Batas, inventaris dan bukti](./M05-pembuatan-satuan.md): permission master tersendiri (default Owner/Manager, bukan staf operasional), scope all-outlet/Backoffice, unit + audit kritis + snapshot replay dalam satu transaksi melalui port writer dan helper core idempotency. B2a reader kini juga menerima permission master. Metadata permission/error di kamus id/en Pengaturan existing; tidak ada JSX/rute atau aktivasi capability. Migrasi katalog/grant hanya diuji disposable, bukan development. NEXT B2b2 create direct conversion dengan parent/compatibility; update/lifecycle dan master lain tetap terpisah sebelum HTTP. Task induk B2b/B2/B/BE-01/FT-01 belum selesai.

@@ -65,8 +65,9 @@ async function denied(run: Promise<unknown>, code: string) {
   });
 }
 
-test("shared unit definitions can be read by each existing Inventory operational permission without all-outlet mutation rights", async () => {
+test("shared definitions allow master managers or Inventory operational readers without all-outlet mutation rights", async () => {
   for (const permission of [
+    PERMISSIONS.inventoryMasterManage,
     PERMISSIONS.inventoryReceive,
     PERMISSIONS.inventoryAdjust,
     PERMISSIONS.inventoryStocktake,

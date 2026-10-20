@@ -14,6 +14,7 @@ import type {
 } from "../application/inventory-master-read-access.js";
 
 const READ_PERMISSIONS = [
+  PERMISSIONS.inventoryMasterManage,
   PERMISSIONS.inventoryReceive,
   PERMISSIONS.inventoryAdjust,
   PERMISSIONS.inventoryStocktake,

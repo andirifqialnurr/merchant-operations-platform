@@ -28,6 +28,7 @@ export const PERMISSIONS = {
   kdsTicketManage: "kds.ticket.manage",
   kdsTicketView: "kds.ticket.view",
   inventoryAdjust: "inventory.adjust",
+  inventoryMasterManage: "inventory.master.manage",
   inventoryReceive: "inventory.receive",
   inventoryStocktake: "inventory.stocktake",
   orderCancel: "order.cancel",

@@ -159,9 +159,11 @@ Aturan:
 - Worker integrasi memakai identitas layanan, bukan peran pengguna palsu.
 - Role sistem tidak dapat diubah; perubahan role dan keanggotaan diaudit.
 - Menyembunyikan menu di frontend bukan kontrol keamanan.
-- Query master unit/conversion Inventory B2a (belum HTTP/runtime) membaca ulang membership/entitlement sebelum IO, mewajibkan instalasi ACTIVE/capability `inventory.item.manage` dan salah satu izin baca operasional existing Inventory. Definisi workspace bersama ini tidak mengandung saldo/biaya/kontak; staf scoped-outlet boleh membacanya, tetapi sesi perangkat ditolak. Ini bukan izin mengedit master atau hak mutasi lintas outlet; command tulis memerlukan kontrol tersendiri. [Kontrak/batas/bukti](../milestones/M05-master-inventory.md#7-bukti-b2a).
+- Query master unit/conversion Inventory B2a (belum HTTP/runtime) membaca ulang membership/entitlement sebelum IO, mewajibkan instalasi ACTIVE/capability `inventory.item.manage` dan salah satu izin baca operasional existing Inventory. Definisi workspace bersama ini tidak mengandung saldo/biaya/kontak; staf scoped-outlet boleh membacanya, tetapi sesi perangkat ditolak. Reader kini juga menerima `inventory.master.manage` dari B2b1. Izin baca operasional ini bukan izin mengedit master atau hak mutasi lintas outlet; command tulis memerlukan kontrol tersendiri. [Kontrak/batas/bukti](../milestones/M05-master-inventory.md#7-bukti-b2a).
 
 ---
+
+Command internal create unit B2b1 memakai permission `inventory.master.manage` + all-outlet scope dan menolak sesi perangkat, dengan fresh access juga sebelum replay. Permission default hanya untuk OWNER/MANAGER; migrasi katalog/grant belum diterapkan ke development, bukan aktivasi modul/capability. Unit/audit kritis/hasil idempotency adalah satu transaksi, scope key mencakup tenant/operation/actor, snapshot diverifikasi tanpa membocorkan row tenant lain. Tidak mengizinkan scope/actor/audit/balance/cost/latch dari body. [Batas/bukti](../milestones/M05-pembuatan-satuan.md#4-bukti-b2b1); HTTP/session wiring dan master lain belum tersedia.
 
 ## 8. Isolasi workspace
 
