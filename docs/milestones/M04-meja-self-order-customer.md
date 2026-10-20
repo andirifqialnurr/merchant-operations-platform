@@ -129,7 +129,7 @@ Checkbox berikut merekam bukti implementasi awal, bukan persetujuan pengguna ata
 
 ## 6. Penerimaan dan transisi
 
-M4 diterima pengguna setelah `6129b5b`; instruksi lanjut M5 berlaku pada scope Inventory. Catatan historis di task yang menyebut review masih terbuka merekam keadaan saat checkpoint dibuat, bukan membatalkan penerimaan ini. Review M2/M3 dan printer fisik tetap dilacak terpisah. GAP-02/03/04/07 pada register produk tidak otomatis selesai atau berubah menjadi future; tidak ada izin reslicing/rute baru/deploy atau migrasi development tersirat.
+M4 diterima pengguna setelah `6129b5b`; penerimaan/transisi dicatat dalam `89ba34f` (dipush). Instruksi lanjut M5 berlaku pada scope Inventory. Catatan historis di task yang menyebut review masih terbuka merekam keadaan saat checkpoint dibuat, bukan membatalkan penerimaan ini. Review M2/M3 dan printer fisik tetap dilacak terpisah. GAP-02/03/04/07 pada register produk tidak otomatis selesai atau berubah menjadi future; tidak ada izin reslicing/rute baru/deploy atau migrasi development tersirat.
 
 ## 7. Referensi
 

@@ -40,7 +40,7 @@ Outlet mencatat stok bahan dan barang: penerimaan, penyesuaian, waste, transfer 
 ### BE — Backend dan data
 
 - [~] **M5-BE-01 Tabel inventory** — schema B.6 lengkap dengan constraint dan indeks; dipecah agar tiap checkpoint bounded dan pushable.
-  - [x] **M5-BE-01A Fondasi satuan/jumlah** — kontrak strict, presisi desimal dan konversi bigint eksak sebelum persistence; 10 domain/6 contracts baru, root gates dan build API/web lulus. [Kontrak/bukti/batas](./M05-fondasi-satuan.md#6-bukti-dan-batas-checkpoint-a); hash dicatat setelah commit sebelum push. Belum migration/API/JSX, bukan penyelesaian seluruh B.6.
+  - [x] **M5-BE-01A Fondasi satuan/jumlah** `89ba34f` (dipush) — kontrak strict, presisi desimal dan konversi bigint eksak sebelum persistence; 10 domain/6 contracts baru, root gates dan build API/web lulus. [Kontrak/bukti/batas](./M05-fondasi-satuan.md#6-bukti-dan-batas-checkpoint-a); implementasi diverifikasi dan dipush ke `origin/main`. Belum migration/API/JSX, bukan penyelesaian seluruh B.6.
   - [ ] **M5-BE-01B Master inventory** — kontrak/schema/persistence unit/conversion/item/category/supplier/stock location, owner/scope/FK/unik/izin/limit dan migrasi disposable; dapat dipecah lagi sebelum endpoint.
   - [ ] **M5-BE-01C Tabel operasional** — ledger/projection, receipt, stocktake/transfer, recipe dan constraint sesuai checkpoint transaksi terkait; tidak mengklaim seluruh schema tersedia dari master saja.
 - [ ] **M5-BE-02 Mutasi dan pembalikan** — satu use case pencatatan mutasi untuk semua tipe; `reverses_movement_id`; event `stock.movement_recorded.v1`.

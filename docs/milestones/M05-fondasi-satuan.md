@@ -1,6 +1,6 @@
 # M5 — fondasi satuan dan jumlah
 
-**Status:** Selesai teknis/terverifikasi — checkpoint M5-BE-01A, hash dicatat setelah commit sebelum push; setelah pengguna menerima M4 dan meminta lanjut M5 pada baseline `6129b5b`.
+**Status:** Selesai teknis/terverifikasi — checkpoint M5-BE-01A, `89ba34f` (dipush); setelah pengguna menerima M4 dan meminta lanjut M5 pada baseline `6129b5b`.
 
 ## 1. Sumber dan batas
 
@@ -43,7 +43,7 @@ Jika tiba tahap JSX: shell Backoffice dan pola Inventory design-system-modules �
 - [x] Contracts: skema strict, batas SQL desimal/precision, positif/nonnegatif/bertanda, pasangan unit berbeda, tidak menerima metadata/derived/cost input.
 - [x] Domain: pecahan eksak, negatif/zero, trailing zero, nilai di atas safe integer, round-trip, konversi kecil/besar/inexact/overflow, invalid precision/factor; tanpa IO/framework/float.
 - [x] Root lint/boundary/warna, typecheck, test/format dan build API/web; tidak perlu PostgreSQL/browser untuk primitive tanpa persistence/HTTP/JSX ini. Test tersebut tetap wajib pada checkpoint integrasinya nanti.
-- [~] Update TODO/milestone, commit dan push ke branch aktif sebelum checkpoint berikutnya. Implementasi terverifikasi, hash dicatat setelah commit/push. Penerimaan M5 tidak otomatis dari test fondasi.
+- [x] Update TODO/milestone, commit dan push ke branch aktif sebelum checkpoint berikutnya. Implementasi terverifikasi dan dipush ke `origin/main` sebagai `89ba34f`. Penerimaan M5 tidak otomatis dari test fondasi.
 
 ## 6. Bukti dan batas checkpoint A
 
