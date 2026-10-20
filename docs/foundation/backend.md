@@ -424,6 +424,12 @@ Satu fungsi, `computeCharges` di `packages/contracts/src/charges.ts`, memecah ju
 
 `GET /floor/sessions/:id/document` memakai `ReadVisitDocument`, facade publik OrderIntake/BillingReceiptQueries/Organization, dan repository Floor pemilik session. Guard modul Floor + `order.create` mengikuti receipt POS aktual (bukan izin baru `order.view`); response `visitDocumentSchema`/OpenAPI `VisitDocument`, `private, no-store`. Seluruh order visit dibaca tanpa pagination/cutoff; bill semua status dibaca agar paid bill rusak tidak hilang sebagai unpaid. Invariant/scope salah atau alokasi tak lengkap menghasilkan 409 `RECEIPT_ALLOCATION_UNAVAILABLE`. UI/cetak tersedia melalui B-03 pada flow kunjungan yang ada dan hanya memakai query ini; tidak ada perubahan ledger/schema/migrasi atau command uang dari cetak. Inventaris, state, bukti dan checkpoint berikutnya: [`M04-struk-kunjungan.md` bagian 7](../milestones/M04-struk-kunjungan.md#7-gap06b--checkpoint-dan-kontrak).
 
+### 7.3 Fondasi numerik Inventory (M5-BE-01A)
+
+`packages/contracts/src/inventory.ts` memisahkan quantity bertanda (ledger), nonnegatif/positif (input action), precision unit 0–6, factor positif dan command master strict. `modules/inventory/domain/quantity.ts` mengubah string decimal ke atom bigint, memformat kanonik dan menerapkan direct conversion eksak; pecahan yang tidak sesuai precision, overflow atau conversion inexact menghasilkan failure, bukan angka hasil tebakan/pembulatan. Batas storage rencana mengikuti schema B.6.1, bukan kuota paket. Tidak ada dependency pada Catalog/POS/KDS, IO, NestJS atau Prisma di domain ini.
+
+Ini belum API, migration, modul aktif, ledger atau keputusan negative-stock/cost policy. Konversi numerik bukan bukti izin/scope/dimensi fisik atau resolver reciprocal/path; guard master dan constraint harus ditambahkan sebelum endpoint. OD-05 tetap konfigurasi integrasi selanjutnya menurut PRD §15.4 (termasuk PRODUCTION_STARTED), bukan keputusan fondasi jumlah. [Kontrak, inventaris dan batas](../milestones/M05-fondasi-satuan.md).
+
 ## 8. Persistence
 
 - Hanya `adapters/persistence` yang mengimpor klien Prisma.

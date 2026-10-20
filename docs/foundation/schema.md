@@ -342,6 +342,12 @@ Status meja (`AVAILABLE`, `OCCUPIED`, `CLOSING`, `CLEANING`, `INACTIVE`) adalah 
 | `inventory_recipes`                | `product_id?`, `variant_id?`, `status`                                                                                                                                                                                                                          | Jembatan opsional ke Catalog                                                                    |
 | `inventory_recipe_items`           | `recipe_id`, `item_id`, `quantity`, `unit_id`                                                                                                                                                                                                                   |                                                                                                 |
 
+### B.6.1 Fondasi numerik M5-BE-01A (belum migrasi)
+
+Kontrak `inventory.ts` dan domain `modules/inventory/domain/quantity.ts` menetapkan representasi R1: quantity/minimum/balance direncanakan `numeric(30,6)` (24 digit bulat, 6 pecahan), precision unit 0–6, conversion factor `numeric(30,12)` positif (18 digit bulat, 12 pecahan). JSON memakai string desimal, aritmetika atom bigint; conversion dengan sisa pembagian atau hasil overflow ditolak, bukan dibulatkan. Uang tetap minor-unit integer, bukan memakai primitive quantity ini.
+
+Satuan/conversion master tidak menerima balance, cost, actor, timestamp atau tenant/outlet dari payload. Scope/izin, unit compatibility, keunikan workspace dan larangan menafsirkan ulang unit yang sudah dipakai ledger harus ditambahkan pada persistence/use case; primitive numerik tidak membuktikannya. Seluruh tabel B.6 masih rencana, belum tersedia dari checkpoint A; tidak ada perubahan Prisma/migrasi/database development. [Kontrak/batas/checkpoint](../milestones/M05-fondasi-satuan.md).
+
 ## B.7 Finance
 
 | Tabel                        | Kolom                                                                                                                                                                                                                                                          | Aturan                                                                                                               |

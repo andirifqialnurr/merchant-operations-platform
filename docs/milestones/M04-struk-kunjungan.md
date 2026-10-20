@@ -1,6 +1,6 @@
 # M4 — bill dan struk kunjungan (GAP-06)
 
-**Status:** GAP06A selesai teknis, diverifikasi dan dipush ke `origin/main` sebagai `d86dd72` setelah `920cbc4`. GAP06B selesai teknis: B-01 (`765d453`, dipush) menyiapkan kontrak/proyeksi finansial murni; query API B-02 selesai teknis/terverifikasi; UI/cetak B-03 selesai teknis, diverifikasi dan dipush sebagai `53592d2`. B-02 dipush ke `origin/main` sebagai `86b3eef`. Bukan penerimaan pengguna/M4.
+**Status:** GAP06A selesai teknis, diverifikasi dan dipush ke `origin/main` sebagai `d86dd72` setelah `920cbc4`. GAP06B selesai teknis: B-01 (`765d453`, dipush) menyiapkan kontrak/proyeksi finansial murni; query API B-02 selesai teknis/terverifikasi; UI/cetak B-03 selesai teknis, diverifikasi dan dipush sebagai `53592d2`. B-02 dipush ke `origin/main` sebagai `86b3eef`. Pengguna kemudian menerima hasil M4 dan meminta lanjut M5 setelah baseline `6129b5b`; bukti printer fisik tetap belum tersedia.
 
 ## 1. Sumber dan batas
 
@@ -159,4 +159,8 @@ Menggunakan shell POS, Sheet dan Receipt sesuai design-system §4/§5 serta desi
 - QA awal menemukan mock error tanpa requestId, formatter fixture, radio 42 px/menu 32 px, return-focus tertimpa, serta menu bawah terpotong. Payload/format test diperbaiki mengikuti kontrak; ukuran nyata diperbaiki, Sheet memilih initial focus di dalam panel dengan fallback disabled, dan menu membuka ke atas. Story menu juga diberi konteks ruang yang sesuai untuk end-aligned trigger. Gate akhir diulang; tidak melonggarkan assertion atau mengubah otorisasi/mutasi uang demi test.
 - Reproduksi: `pnpm --filter @merchant/web test:e2e:visit-documents`, runner regresi receipts/moderation/guest-images, `pnpm --filter @merchant/storybook exec playwright test tests/receipt.smoke.spec.ts`; log `.cache/m4-visit-ui-*.log`, capture/PDF `apps/web/test-results/visit-documents` (Git-ignored). Fixture menutup API/DB invocation dan membuang database miliknya, tidak memigrasikan/mengubah development, bucket atau dependency. Tidak deploy, memulai M5 atau menerima M3/M4 atas nama pengguna.
 
-**GAP-06 selesai teknis end-to-end (A + B-01/02/03); review pengguna terhadap FLOOR-005/M4 dan printer fisik tetap terbuka.** B-03 diverifikasi dan dipush ke `origin/main` sebagai `53592d2`.
+**GAP-06 selesai teknis end-to-end (A + B-01/02/03).** B-03 diverifikasi dan dipush ke `origin/main` sebagai `53592d2`. Pada checkpoint itu review pengguna/printer fisik masih terbuka.
+
+## 8. Penerimaan pengguna sesudah B-03
+
+Setelah baseline `6129b5b`, pengguna menyatakan **“iya saya menerima lanjut ke m5”**. Hasil M4 termasuk dokumen kunjungan FLOOR-005 diterima; M5 diizinkan dimulai. Ini bukan klaim bahwa printer fisik telah diuji, menutup review/monitor M3 atau koreksi M2, membebaskan gap produk lain, atau memberi izin deploy/migrasi development/reslicing rute baru.

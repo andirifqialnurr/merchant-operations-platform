@@ -1,6 +1,6 @@
 # M5 — Inventory
 
-**Status:** Belum mulai
+**Status:** Berjalan — pengguna menerima M4 dan menginstruksikan lanjut M5 setelah baseline `6129b5b`. M5-BE-01A fondasi satuan/jumlah eksak selesai teknis/terverifikasi; berikutnya M5-BE-01B master schema/persistence. Belum ada tabel/API/UI Inventory. Review M2/M3 dan uji printer fisik tidak dianggap selesai oleh penerimaan M4.
 **Tahap PRD:** F (Inventory)
 **Bergantung pada:** M2 (dapat dikerjakan sejajar dengan M3–M4)
 
@@ -34,17 +34,20 @@ Outlet mencatat stok bahan dan barang: penerimaan, penyesuaian, waste, transfer 
 - [ ] **M5-FT-05 Transfer** — lokasi asal ke tujuan, status kirim dan terima.
 - [ ] **M5-FT-06 Opname** — mulai, isi jumlah hitung, simpan draft, finalisasi dengan konfirmasi.
 - [ ] **M5-FT-07 Resep** — bahan per produk atau varian.
-- [ ] **M5-FT-08 Pengaturan titik potong** — saat pesanan diterima atau saat penjualan selesai (`OD-05`).
+- [ ] **M5-FT-08 Pengaturan titik potong** — `ORDER_ACCEPTED` (default F&B), `PRODUCTION_STARTED`, atau `SALE_COMPLETED` sesuai PRD §15.4; konfigurasi `OD-05` ditetapkan sebelum integrasi, bukan dipilih diam-diam pada fondasi master.
 - [ ] **M5-FT-09 Pemasok** — daftar sederhana.
 
 ### BE — Backend dan data
 
-- [ ] **M5-BE-01 Tabel inventory** — schema B.6 lengkap dengan constraint dan indeks.
+- [~] **M5-BE-01 Tabel inventory** — schema B.6 lengkap dengan constraint dan indeks; dipecah agar tiap checkpoint bounded dan pushable.
+  - [x] **M5-BE-01A Fondasi satuan/jumlah** — kontrak strict, presisi desimal dan konversi bigint eksak sebelum persistence; 10 domain/6 contracts baru, root gates dan build API/web lulus. [Kontrak/bukti/batas](./M05-fondasi-satuan.md#6-bukti-dan-batas-checkpoint-a); hash dicatat setelah commit sebelum push. Belum migration/API/JSX, bukan penyelesaian seluruh B.6.
+  - [ ] **M5-BE-01B Master inventory** — kontrak/schema/persistence unit/conversion/item/category/supplier/stock location, owner/scope/FK/unik/izin/limit dan migrasi disposable; dapat dipecah lagi sebelum endpoint.
+  - [ ] **M5-BE-01C Tabel operasional** — ledger/projection, receipt, stocktake/transfer, recipe dan constraint sesuai checkpoint transaksi terkait; tidak mengklaim seluruh schema tersedia dari master saja.
 - [ ] **M5-BE-02 Mutasi dan pembalikan** — satu use case pencatatan mutasi untuk semua tipe; `reverses_movement_id`; event `stock.movement_recorded.v1`.
 - [ ] **M5-BE-03 Saldo projection** — diperbarui dalam transaksi yang sama; dapat dibangun ulang dari mutasi.
 - [ ] **M5-BE-04 Opname dan transfer** — lifecycle draft → final.
 - [ ] **M5-BE-05 Resep** — dengan konversi satuan.
-- [ ] **M5-BE-06 Handler konsumsi** — `sale.completed.v1` atau `order.accepted.v1` sesuai titik potong; `sale.refunded.v1` dan `order.cancelled.v1` membalik; idempotent per sumber.
+- [ ] **M5-BE-06 Handler konsumsi** — `sale.completed.v1`, `order.accepted.v1` atau `kitchen_ticket.started.v1` sesuai PRD §15.4/titik potong; `sale.refunded.v1` dan `order.cancelled.v1` membalik; idempotent per sumber.
 - [ ] **M5-BE-07 Impor item** — CSV item dan saldo awal dengan validasi dan laporan baris gagal.
 
 ### UX — Alur dan interaksi

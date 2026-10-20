@@ -67,7 +67,13 @@ Aturan pengerjaan:
 
 ### Tahap implementasi berikutnya
 
-#### M4 dilanjutkan atas instruksi pengguna — baseline `2a5f8fd`
+#### M5 aktif — penerimaan M4 setelah baseline `6129b5b`
+
+- [x] Pengguna menyatakan **“iya saya menerima lanjut ke m5”**: hasil M4/struk kunjungan `53592d2` diterima dan M5 Inventory diizinkan berjalan. M3 (review/uji monitor), koreksi M2 dan printer fisik tidak dianggap selesai; GAP-02/03/04/07 tetap tercatat. Tidak ada izin deploy, migrasi development atau reslicing/rute baru tersirat.
+- [x] **M5-BE-01A — fondasi satuan/jumlah:** kontrak strict unit/conversion dan quantity decimal string; domain parse/format/konversi bigint eksak, tanpa float/rounding diam-diam. Rencana quantity `numeric(30,6)`, factor `numeric(30,12)`, unit precision 0–6; belum tabel/API/ledger/UI/manifest aktif. Inventaris dan batas: [`M05-fondasi-satuan.md`](docs/milestones/M05-fondasi-satuan.md). **10 test domain + 6 contracts baru**, root lint/boundary/warna/typecheck/test/format dan build API/web terisolasi lulus (432 sumber API + 55 contracts). Run lama yang terputus/tidak bersih bukan bukti lulus; suite penuh diulang dan lulus. Belum IO/persistence/HTTP/JSX, sehingga PostgreSQL/browser tidak dijalankan dan data development tidak dimutasi. Hash dicatat setelah commit sebelum push; task induk M5-BE-01/M5-FT-01 belum selesai.
+- [ ] **Berikutnya M5-BE-01B:** bounded master schema/persistence satuan/conversion/item/category/supplier/stock location, guard scope/izin/limit dan migration disposable sebelum endpoint. Tidak melompat ke form/route atau konsumsi otomatis. `OD-05` ditetapkan sebelum integrasi; PRD §15.4 memiliki ORDER_ACCEPTED (default F&B), PRODUCTION_STARTED dan SALE_COMPLETED.
+
+#### Riwayat M4 dilanjutkan — baseline `2a5f8fd` (sebelum penerimaan terbaru)
 
 **Otorisasi commit/push:** pengguna meminta seluruh pekerjaan selesai diverifikasi, di-commit dan dipush ke branch aktif sebelum lanjut, berlaku untuk checkpoint berikutnya juga. GAP-01 BE/UI yang terlanjur berada bersama di working tree disimpan sebagai satu checkpoint moderasi terverifikasi (tanpa mencampur gap lain); implementasi dan dokumentasi GAP-01 sudah dipush sebagai `93f4931` ke `origin/main`. Root lint/typecheck/test/format diulang sebelum commit dan lulus; 21 integrasi serta 16 browser pada checkpoint sebelumnya tetap bukti runtime yang tercatat. Izin ini bukan deploy, migrasi development, force-push atau acceptance visual.
 
@@ -99,7 +105,7 @@ Aturan pengerjaan:
 - [x] Verifikasi M2: **12 browser test passed (4,3 menit), 232 capture** pada `.cache/m2-verified`: delapan kombinasi representatif 320–1440px, light/dark, id/en; data panjang, lima state Integrasi, kosong/aktif saja, undangan pending/expired/revoked, usage, read-only perangkat/Integrasi, PIN dan aktivasi/terima undangan. Screenshot sampel setiap area dibaca; bukan seluruh 232 capture atau persetujuan visual otomatis. Satu run sebelumnya gagal akibat `/auth/session` lokal 500; suite akhir diulang tanpa pengujian database bersamaan dan lulus, tanpa menyatakan akar 500 diperbaiki.
 - [x] Root lint/boundary/warna, typecheck, unit/component test, format lulus; lint/typecheck web dan build web produksi terisolasi diulang setelah perubahan read-only terakhir. Regresi KDS **4 passed (1,8 menit)**, port 4100/4101/database disposable; development 4000/4001 tetap hidup. Tidak submit form atau mengubah data/preferensi development. Implementasi disimpan pada `6d19c45`; review pengguna dan monitor dapur fisik tetap terbuka.
 
-> **Gate review tetap terbuka: koreksi KDS (`44f6619`) dan M2 (`M2-UX-06`).** NEXT aktif: review UI moderasi M4 tetap terbuka; checkpoint BE+UI sudah dipush (`93f4931`). Pengguna mengizinkan melanjutkan M4 dengan setiap checkpoint baru wajib verifikasi → commit → push. GAP-05 foto juga selesai teknis dan sudah dipush (`e287eb4`); struk kunjungan GAP-06 kini selesai teknis end-to-end (B-03), menunggu review pengguna/printer fisik. Tidak membuka milestone/rute baru otomatis. GAP-01 selesai teknis; ini bukan persetujuan visual/penerimaan M4. Kedua checkpoint koreksi teknis selesai; hasil visual tidak disetujui otomatis oleh test. Bukti M2: [`REVIEW-M02-VISUAL.md`](docs/milestones/REVIEW-M02-VISUAL.md). Riwayat persetujuan M1/M2 tetap ada, tetapi bukan persetujuan baru untuk perubahan ini. Lihat [gate pengguna M3 bagian 7](docs/milestones/M03-kds.md) dan [`REVIEW-M03-M04.md`](docs/milestones/REVIEW-M03-M04.md). M4 kini diizinkan berlanjut; M5 tidak dimulai dan instruksi lanjut bukan hasil uji fisik.
+> **Gate review tetap terbuka: koreksi KDS (`44f6619`) dan M2 (`M2-UX-06`).** NEXT aktif: M5-BE-01B master schema/persistence setelah fondasi numerik A terverifikasi; pengguna menerima M4 pada baseline `6129b5b`; checkpoint moderasi BE+UI sudah dipush (`93f4931`). Pengguna mengizinkan melanjutkan M5 dengan setiap checkpoint baru wajib verifikasi → commit → push. GAP-05 foto juga selesai teknis dan sudah dipush (`e287eb4`); struk kunjungan GAP-06 kini selesai teknis end-to-end (B-03), diterima pengguna sebagai hasil M4; printer fisik belum diuji. M5 dibuka oleh instruksi eksplisit, bukan otomatis; tidak membuka rute/reslicing baru. GAP-01 selesai teknis; penerimaan M4 kini berasal dari pernyataan eksplisit pengguna, bukan test otomatis. Kedua checkpoint koreksi teknis selesai; hasil visual tidak disetujui otomatis oleh test. Bukti M2: [`REVIEW-M02-VISUAL.md`](docs/milestones/REVIEW-M02-VISUAL.md). Riwayat persetujuan M1/M2 tetap ada, tetapi bukan persetujuan baru untuk perubahan ini. Lihat [gate pengguna M3 bagian 7](docs/milestones/M03-kds.md) dan [`REVIEW-M03-M04.md`](docs/milestones/REVIEW-M03-M04.md). M4 diterima dan M5 diizinkan berjalan; instruksi ini bukan hasil uji fisik M3/printer.
 
 #### Checkpoint dokumentasi — penyelarasan status setelah M4 (baseline `7b61eb1`, commit `21f2fbc`, dipush)
 
@@ -1282,6 +1288,8 @@ Catatan alignment 5 Agustus 2026: urutan historis P2 dimulai setelah primitive U
 
 ### Tahap 15 - Inventory Basic
 
+Checkbox historis ini merekam komponen/pratinjau UI, **bukan** penyelesaian modul, API/ledger atau milestone M5. Implementasi M5 aktif dimulai pada M5-BE-01A di bagian 2 dan `docs/milestones/M05-inventory.md`.
+
 - [x] Inventory item/unit.
 - [x] Stock Indicator dan Movement Row.
 - [x] Stock in/out, adjustment, opname, waste, dan transfer.
@@ -1343,20 +1351,20 @@ Catatan alignment 5 Agustus 2026: urutan historis P2 dimulai setelah primitive U
 Urutan aktif setelah task M4 menggantikan urutan fondasi lama. Checkpoint 12.x–14.x di atas tetap menjadi riwayat; pernyataan "belum" atau "berikutnya" di dalam checkpoint lama berlaku pada saat itu, bukan otomatis status sekarang.
 
 1. Review hasil teknis M3 (`e7ac7e3`, `10799b9`) dan selesaikan uji monitor dapur fisik pada M3 bagian 7. Tidak ada pekerjaan teknis M3 yang sedang tertunda pada checkpoint ini; penerimaan pengguna tidak digantikan oleh test otomatis.
-2. Setelah diizinkan melanjutkan M4, konfirmasi checkpoint moderasi staf Basic (GAP-01); tentukan owner, command/state, DTO, izin, event, idempotency, audit, dan inventaris field sebelum implementasi. Jangan menggabungkannya dengan reslicing rute.
-3. Review M3/M4, selesaikan gap penerimaan, dan alokasikan gap Catalog/POS/Customer serta limit KDS terhadap kontrak Release 1. Keterbacaan monitor dapur tetap membutuhkan pengguna/perangkat nyata.
-4. M5 baru dimulai setelah gate diterima atau pengguna memutuskan pengecualian secara eksplisit. OD-05 harus ditetapkan sebelum integrasi stok.
+2. M4 (termasuk GAP-01/05/06) selesai teknis dan diterima pengguna setelah `6129b5b` melalui “iya saya menerima lanjut ke m5”. Uji printer fisik tetap terpisah; tidak ada penerimaan M2/M3 baru tersirat.
+3. Review M3/koreksi M2 dan alokasikan gap Catalog/POS/Customer yang belum selesai terhadap Release 1; penerimaan M4 tidak menghilangkan GAP-02/03/04/07. Keterbacaan monitor dapur tetap membutuhkan pengguna/perangkat nyata.
+4. M5 kini aktif atas penerimaan/instruksi eksplisit pengguna: mulai M5-BE-01A, lalu master schema/persistence bounded sebelum API/UI. OD-05 harus ditetapkan sebelum integrasi stok, bukan sebelum primitive master; jangan menghapus pilihan PRODUCTION_STARTED pada PRD §15.4.
 5. M6–M9 mengikuti roadmap; tidak ada izin batch implementasi atau deploy yang tersirat dari checkpoint dokumentasi ini.
 
 Setiap checkpoint berdiri sendiri: verifikasi → review/commit/push → lanjut sesuai izin pengguna dan `AGENTS.md`.
 
 ## 10. Hal yang belum dikerjakan sekarang
 
-- Review M3/M4 dan register delapan gap pada [`REVIEW-M03-M04.md`](docs/milestones/REVIEW-M03-M04.md). GAP-08 limit sumber API KDS ditutup teknis `e7ac7e3`; tujuh gap lain (moderasi Basic, profil publik, diskon, pembayaran campuran, gambar tamu, struk kunjungan, Customer mandiri) tetap terbuka dan bukan scope batch M3.
-- Inventory, Business Finance, HC, laporan, serta UI Platform Admin belum dibangun; tabel/komponen rencana bukan fitur selesai. API platform dasar sudah ada.
+- Review M3/M4 dan register delapan gap pada [`REVIEW-M03-M04.md`](docs/milestones/REVIEW-M03-M04.md). GAP-08 limit KDS, GAP-01 moderasi, GAP-05 gambar dan GAP-06 struk selesai teknis; hasil M4 diterima pengguna setelah `6129b5b`. GAP-02 profil publik, GAP-03 diskon, GAP-04 pembayaran campuran dan GAP-07 Customer mandiri tetap membutuhkan alokasi/scope; bukan dihapus oleh penerimaan M4.
+- Inventory baru memasuki fondasi numerik M5, belum API/ledger/UI operasional; Business Finance, HC, laporan, serta UI Platform Admin belum dibangun. Tabel/komponen rencana bukan fitur selesai. API platform dasar sudah ada.
 - Utang M2 dan keputusan layanan email, tujuan upgrade, wajib/tidaknya perangkat POS, provisioning lengkap, serta gap keamanan/operasional tetap dilacak di TODO 13.59 dan register review.
 - Audit lintas seluruh endpoint/surface, CSP web, trust proxy, support access, backup operasional, monitoring, retention, kepatuhan, dan pilot mengikuti M8/M9. Test PostgreSQL disposable, lint batas modul, rate limiter Redis, token QR, dan penjaga payload event sudah tersedia; itu bukan audit keamanan penuh.
 - Workflow CI hanya manual. Sebelum kontributor kedua atau deploy pertama, pulihkan trigger push/PR dan buktikan run hijau GitHub; verifikasi lokal tidak sama dengan bukti runner.
 - Beberapa bagian foundation/inventaris masih merekam snapshot lama; rekonsiliasi lanjutan harus mempertahankan requirement produk dan bukti historis.
-- Regresi browser KDS, seluruh 20 integration PostgreSQL, serta build API/web/worker sudah diulang pada penutupan teknis M3. Acceptance visual M4 dan uji monitor dapur fisik tetap belum dilakukan; jangan menyalakan stack lokal tanpa meninjau memori/kebutuhan pengujian.
+- Regresi browser KDS, seluruh 20 integration PostgreSQL, serta build API/web/worker sudah diulang pada penutupan teknis M3. M4 telah diterima pengguna, tetapi uji monitor dapur fisik/printer tidak diklaim selesai; jangan menyalakan stack lokal tanpa meninjau memori/kebutuhan pengujian.
 - Komponen modul berikutnya dan file besar diaudit saat checkpoint terkait; perubahan struktur/reslicing tidak digabung diam-diam dengan fitur baru.

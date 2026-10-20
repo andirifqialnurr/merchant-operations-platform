@@ -1,12 +1,14 @@
 # Review M3/M4 dan gap Release 1
 
-**Status:** Menunggu review pengguna; bukan persetujuan milestone.
+**Status:** M4 diterima pengguna setelah `6129b5b`; review/uji fisik M3 dan koreksi M2 tetap terbuka. M5 diizinkan berjalan.
 **Baseline kode:** `7b61eb1` (penutupan task M4).
-**Lingkup checkpoint:** sinkronisasi status dokumentasi dan pencatatan gap, tanpa perubahan kode, database, atau rute.
+**Lingkup checkpoint awal:** sinkronisasi status dokumentasi dan pencatatan gap, tanpa perubahan kode, database, atau rute.
 
 ## 1. Posisi dan aturan lanjut
 
-**Pembaruan setelah `2a5f8fd`:** pengguna meminta `lanjut m4`. M4 kembali **Berjalan**, dimulai dengan [kontrak GAP-01](./M04-moderasi-basic.md), tanpa menutup gate review visual/uji fisik M3. Kontrak adalah checkpoint dokumentasi, bukan implementasi moderasi atau penerimaan milestone. Status baseline dan urutan sebelumnya di bawah merupakan riwayat.
+**Penerimaan terbaru setelah `6129b5b`:** pengguna menyatakan **“iya saya menerima lanjut ke m5”**. Hasil M4 termasuk dokumen kunjungan diterima; M5-BE-01A [fondasi satuan/jumlah](./M05-fondasi-satuan.md) sudah terverifikasi; berikutnya master schema/persistence M5-BE-01B. Penerimaan bukan uji printer/monitor fisik, penutupan koreksi M2/M3, perubahan scope GAP-02/03/04/07, izin deploy/migrasi development atau reslicing baru.
+
+**Riwayat pembaruan setelah `2a5f8fd`:** pengguna meminta `lanjut m4`. M4 kembali **Berjalan**, dimulai dengan [kontrak GAP-01](./M04-moderasi-basic.md), tanpa menutup gate review visual/uji fisik M3. Kontrak adalah checkpoint dokumentasi, bukan implementasi moderasi atau penerimaan milestone. Status baseline dan urutan sebelumnya di bawah merupakan riwayat.
 
 - M1/M2 selesai dan disetujui pengguna. Atas instruksi setelah `21f2fbc`, penutupan teknis M3 selesai dan dipush sebagai `e7ac7e3` (paket/limit) serta `10799b9` (browser). M3 kembali **Menunggu review**, M4 tetap Menunggu review. Penerimaan pengguna/uji fisik tidak dicentang otomatis.
 - Permintaan untuk melanjutkan penyelarasan dokumentasi tidak dianggap sebagai persetujuan visual, perubahan scope produk, atau izin memulai M5.
@@ -25,9 +27,9 @@ Bukti implementasi terdahulu: [M3](./M03-kds.md) dan TODO 14.6–14.23. Angka p9
 
 ### M4 — Meja, tamu, pelanggan
 
-- [ ] Pengguna meninjau editor, buka/pindah/tutup kunjungan, beberapa ronde pesanan, pembayaran kunjungan, QR, permintaan layanan, dan klaim bayar.
-- [ ] Privasi telepon pelanggan, konteks outlet, dan riwayat diperiksa dengan peran kasir dan pemilik.
-- [x] Moderasi Basic GAP-01 ditutup secara teknis oleh M4-GAP01-BE/UI/E2E lokal (`93f4931`, dipush). Review visual pengguna tetap pada gate pertama. Gambar sudah ditutup teknis pada GAP-05 (lihat pembaruan); struk GAP-06 juga selesai teknis melalui A dan B-01/02/03 (lihat pembaruan), bukan dihilangkan dari scope diam-diam. Review pengguna tetap terbuka.
+- [x] Pengguna menerima hasil M4 (editor/kunjungan/POS/QR/moderasi/gambar/dokumen/klaim) melalui pernyataan “iya saya menerima lanjut ke m5” setelah `6129b5b`; bukan penerimaan yang disimpulkan dari test.
+- [x] Hasil Customer Basic/privasi/konteks/riwayat pada scope M4 diterima bersama milestone berdasarkan bukti implementasi/QA yang tercatat (`365a19f`, `a5b86b4`). Tidak mengklaim sesi uji manual per-role baru pada saat penerimaan atau menyelesaikan Customer mandiri GAP-07.
+- [x] Moderasi Basic GAP-01 ditutup secara teknis oleh M4-GAP01-BE/UI/E2E lokal (`93f4931`, dipush). Review visual pengguna tetap pada gate pertama. Gambar sudah ditutup teknis pada GAP-05 (lihat pembaruan); struk GAP-06 juga selesai teknis melalui A dan B-01/02/03 (lihat pembaruan), bukan dihilangkan dari scope diam-diam. Hasil M4 kini diterima secara eksplisit, bukan otomatis dari bukti teknis.
 
 Bukti implementasi terdahulu: [M4](./M04-meja-self-order-customer.md) dan TODO 13.10–13.22 untuk task M4. Nomor 13.x juga dipakai checkpoint M2; cocokkan judul dan ID task, bukan nomor saja.
 
@@ -62,7 +64,7 @@ Checkpoint GAP06A mengoreksi struk per-order: nominal allocation ledger aktual d
 
 B-01 (`765d453`) memproyeksikan satu dokumen read-only; B-02 (`86b3eef`) membaca snapshot repeatable-read/read-only lintas facade. B-03 kini menyediakan akses berizin dari panel dan hasil pembayaran/konfirmasi klaim, grup order/payment/refund unik, pending tanpa harga, fresh-read dan Print guard; tidak menambah rute atau mutasi uang. Spacing 16 px, kontrol baru 48 px, menu atas tidak terpotong dan fokus kembali tanpa modal Small bertumpuk. **7 browser/34 capture + 2 smoke Storybook**, regresi 4 receipt/16 moderasi/3 gambar, 43 integrasi penuh, root gates/build API/web/Storybook lulus. PDF panjang memuat semua 24 ronde; sampel screenshot dibaca, bukan seluruhnya/hasil printer fisik. [Inventaris, bukti dan batas](./M04-struk-kunjungan.md#77-buktibatas-b-03). Implementasi B-03 diverifikasi dan dipush ke `origin/main` sebagai `53592d2`.
 
-**GAP-06 selesai teknis end-to-end; review pengguna FLOOR-005/M4 dan printer fisik tetap terbuka.** Ini bukan penerimaan milestone atau izin M5/reslicing baru.
+**GAP-06 selesai teknis end-to-end dan hasil M4/FLOOR-005 diterima pengguna setelah `6129b5b`; printer fisik belum diuji.** Izin M5 berasal dari pernyataan eksplisit tersebut, bukan otomatis dari test atau izin reslicing baru.
 
 ### Pembaruan GAP-08 — implementasi tersedia
 

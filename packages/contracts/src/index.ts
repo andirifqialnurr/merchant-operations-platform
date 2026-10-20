@@ -23,6 +23,7 @@ export * from "./kds.ts";
 export * from "./floor.ts";
 export * from "./self-order.ts";
 export * from "./customer.ts";
+export * from "./inventory.ts";
 export * from "./devices.ts";
 export * from "./files.ts";
 export * from "./invitations.ts";

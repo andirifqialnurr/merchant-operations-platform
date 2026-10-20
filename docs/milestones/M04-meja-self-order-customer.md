@@ -1,6 +1,6 @@
 # M4 — Meja, Self-Order, dan Customer
 
-**Status:** Berjalan — dilanjutkan atas instruksi pengguna `lanjut m4` setelah baseline `2a5f8fd`, tanpa menutup review/uji fisik M3. Checkpoint BE + UI [moderasi Basic](./M04-moderasi-basic.md#9-bukti-checkpoint-m4-gap01-ui) selesai lokal beserta E2E, dipush sebagai `93f4931`; review pengguna tetap terbuka. Semua task implementasi awal dicatat selesai 16 Oktober 2026 (dimulai hari yang sama atas permintaan pengguna, sementara M3 menunggu review). GAP-01 moderasi staf accept/reject (Module Tiers 5.2) ditutup secara teknis; itu bukan penerimaan seluruh kontrak M4. GAP-05 gambar menu tamu juga selesai teknis; GAP-06 struk kunjungan selesai teknis end-to-end (B-03); review visual pengguna/printer fisik dan penerimaan M4 tetap terbuka. Lihat [register review](./REVIEW-M03-M04.md) sebelum penerimaan milestone.
+**Status:** Selesai — pengguna secara eksplisit menyatakan **“iya saya menerima lanjut ke m5”** setelah baseline `6129b5b`/implementasi akhir `53592d2`. Penerimaan M4 mencakup hasil moderasi, gambar menu dan dokumen kunjungan yang diserahkan; M5 diizinkan berjalan. Ini bukan bukti printer fisik, penutupan review/uji monitor M3 atau koreksi M2, deploy/migrasi development, maupun pembebasan gap produk lain pada [register review](./REVIEW-M03-M04.md). Riwayat implementasi dan batas bukti tetap dicatat di bawah.
 **Tahap PRD:** E (Floor + Self-Order + Customer)
 **Bergantung pada:** M3
 
@@ -20,7 +20,7 @@ Checkbox berikut merekam bukti implementasi awal, bukan persetujuan pengguna ata
 
 - [x] Moderasi staf accept/reject untuk Self-Order Basic terpenuhi dan diuji sebelum pesanan masuk dapur (Module Tiers 5.2; GAP-01). BE + UI/E2E lokal (`93f4931`, dipush), lihat [bukti](./M04-moderasi-basic.md#9-bukti-checkpoint-m4-gap01-ui). Tidak menutup review pengguna.
 - [x] Gambar produk primary aktif tampil pada menu QR melalui proxy raster ber-gate tanpa URL/ID media staf; fallback/no-photo dan S/M/L diverifikasi. GAP-05 (`e287eb4`, dipush); [bukti](./M04-gambar-menu-tamu.md#5-bukti-dan-batas-checkpoint).
-- [ ] Pengguna menerima representasi bill/struk satu kunjungan terhadap FLOOR-005. GAP-06 A/B kini selesai teknis dan terverifikasi; ini bukan persetujuan visual/printer fisik otomatis.
+- [x] Pengguna menerima hasil M4 termasuk representasi bill/struk kunjungan FLOOR-005 melalui pernyataan “iya saya menerima lanjut ke m5” setelah `6129b5b` (`53592d2` implementasi UI). Ini penerimaan eksplisit, bukan kesimpulan dari test; uji printer fisik belum diklaim.
 
 - [x] Lokasi baru langsung memiliki `Main Floor` dan `Main Area`. _Trigger database pada `outlets`; integration `floor-layout` (TODO 13.10)._
 - [x] Editor menempatkan meja tiga bentuk; tumpang tindih dan keluar batas ditolak; tersedia alternatif form untuk layar kecil dan keyboard. _M4-FT-02, M4-UX-01 (TODO 13.12)._
@@ -127,6 +127,10 @@ Checkbox berikut merekam bukti implementasi awal, bukan persetujuan pengguna ata
 7. M4-BE-06, M4-FT-09, M4-BE-07, M4-FT-10.
 8. M4-BE-09, M4-FT-11, M4-SC-03, M4-OP-02.
 
-## 6. Referensi
+## 6. Penerimaan dan transisi
+
+M4 diterima pengguna setelah `6129b5b`; instruksi lanjut M5 berlaku pada scope Inventory. Catatan historis di task yang menyebut review masih terbuka merekam keadaan saat checkpoint dibuat, bukan membatalkan penerimaan ini. Review M2/M3 dan printer fisik tetap dilacak terpisah. GAP-02/03/04/07 pada register produk tidak otomatis selesai atau berubah menjadi future; tidak ada izin reslicing/rute baru/deploy atau migrasi development tersirat.
+
+## 7. Referensi
 
 `prd.md` 6.3, 9.2–9.3 · `flowchart.md` 6–7 · `schema.md` B.4, B.9 · `design-system.md` 19.3 · `design-system-modules.md` 7, 12 · `security.md` 11.
