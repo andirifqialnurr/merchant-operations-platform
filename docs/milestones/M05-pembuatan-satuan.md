@@ -1,6 +1,6 @@
 # M5 — pembuatan satuan
 
-**Status:** B2b1 selesai teknis/terverifikasi; commit dicatat setelah push. Parent B2b/B2/M5 tetap Berjalan. Baseline B2a `8ccf52f`/`90a3988`.
+**Status:** B2b1 selesai teknis/terverifikasi — `fcc5c2f` (dipush ke `origin/main`). Parent B2b/B2/M5 tetap Berjalan. Baseline B2a `8ccf52f`/`90a3988`.
 
 ## 1. Scope sebelum implementasi
 
@@ -37,4 +37,4 @@ PRD Modular §15, Module Tiers §7, Packages & Limits §4.6/§5.5, schema B.6 da
 - **74 integrasi penuh PostgreSQL lulus, 0 gagal/skip**, seluruh migration history hanya pada database disposable. Membership/roles diuji nyata; entitlement facts tetap disimulasikan melalui facade, bukan aktivasi modul atau test HTTP sesi. Snapshot/idempotency policy ini tidak mengubah generic interceptor lama.
 - Root lint/boundary/warna/typecheck/test/format dan build API/web lulus. Generated `next-env.d.ts` dipulihkan ke referensi dev tracked, typecheck diperiksa ulang. Log `.cache/m5-unit-create-*` Git-ignored. Tidak ada dependency/JSX/layout atau rute baru; browser visual bukan gate metadata permission/error saja.
 - Terdapat **migrasi katalog/grant permission** untuk rilis, tetapi tidak dijalankan pada development dan tidak ada deploy. Sebelum memakai provisioning workspace dengan kode baru, operator perlu menerapkan migrasi tersebut melalui proses rilis yang disetujui; tidak ada auto-migrate. Writer/helper internal belum di-register ke AppModule/manifest/HTTP/OpenAPI; capability delivery, unit update/lifecycle, conversion, master lain, ledger, SC-01/02 dan acceptance M5 belum selesai.
-- NEXT **B2b2 create direct conversion** dengan scope/parent/compatibility, transaksi/audit/idempotency yang sama; tidak melompat ke endpoint/JSX atau konsumsi otomatis. Implementasi dan commit hash dicatat setelah push.
+- NEXT **B2b2 create direct conversion** dengan scope/parent/compatibility, transaksi/audit/idempotency yang sama; tidak melompat ke endpoint/JSX atau konsumsi otomatis. Implementasi diverifikasi, di-commit dan dipush ke `origin/main` sebagai `fcc5c2f`.

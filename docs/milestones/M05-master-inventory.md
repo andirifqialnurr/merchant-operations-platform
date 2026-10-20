@@ -1,6 +1,6 @@
 # M5 — master Inventory
 
-**Status:** M5-BE-01B1 selesai teknis/terverifikasi — `f3f7e5f` (dipush ke `origin/main`). B2a query internal selesai teknis/terverifikasi, `8ccf52f` (dipush; bagian 6–7). B2b1 create unit transaksional juga selesai teknis/terverifikasi ([checkpoint](./M05-pembuatan-satuan.md)). Parent B/M5 tetap Berjalan. Baseline fondasi numerik `89ba34f`/`0ea003c`.
+**Status:** M5-BE-01B1 selesai teknis/terverifikasi — `f3f7e5f` (dipush ke `origin/main`). B2a query internal selesai teknis/terverifikasi, `8ccf52f` (dipush; bagian 6–7). B2b1 create unit transaksional juga selesai teknis/terverifikasi, `fcc5c2f` (dipush; [checkpoint](./M05-pembuatan-satuan.md)). Parent B/M5 tetap Berjalan. Baseline fondasi numerik `89ba34f`/`0ea003c`.
 
 ## 1. Scope checkpoint
 
