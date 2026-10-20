@@ -1,6 +1,6 @@
 # M4 — bill dan struk kunjungan (GAP-06)
 
-**Status:** GAP06A selesai teknis, diverifikasi dan dipush ke `origin/main` sebagai `d86dd72` setelah `920cbc4`. GAP06B berjalan: B-01 menyiapkan kontrak/proyeksi finansial murni; query API dan UI/cetak belum tersedia. Bukan penerimaan pengguna/M4.
+**Status:** GAP06A selesai teknis, diverifikasi dan dipush ke `origin/main` sebagai `d86dd72` setelah `920cbc4`. GAP06B berjalan: B-01 (`765d453`, dipush) menyiapkan kontrak/proyeksi finansial murni; query API dan UI/cetak belum tersedia. Bukan penerimaan pengguna/M4.
 
 ## 1. Sumber dan batas
 
@@ -74,7 +74,7 @@ Implementasi dan bukti verifikasi dipush sebagai `d86dd72` (`fix(receipts): show
 
 Instruksi pengguna sesi 20 Oktober 2026: lanjutkan pekerjaan, verifikasi → commit → push setiap task; prioritaskan jarak layout, satu fakta satu lokasi, tanpa deskripsi panjang. Tidak ada izin reslicing/redesign rute baru.
 
-- [x] **B-01 — kontrak/proyeksi finansial:** skema read-only `visitFinancialDocumentSchema` dan fungsi domain murni `visitFinancialDocument`; belum ada HTTP, repository, query hook atau JSX. Implementasi diverifikasi; hash dicatat setelah commit sebelum push.
+- [x] **B-01 — kontrak/proyeksi finansial:** skema read-only `visitFinancialDocumentSchema` dan fungsi domain murni `visitFinancialDocument`; belum ada HTTP, repository, query hook atau JSX. Implementasi diverifikasi dan dipush ke `origin/main` sebagai `765d453`.
 - [ ] **B-02 — query API:** satu query kunjungan melalui facade publik kernel; scoped tenant/outlet/session, izin baca keuangan sama dengan receipt (`order.view`) ditambah konteks modul Floor. Pilih query/read consistency sebelum implementasi; dilarang merangkai receipt per-order dari pembacaan berbeda lalu menganggapnya satu snapshot atomik. Paid bills, allocation, payment dan refund harus konsisten; seluruh pembayaran shared harus tertutup di visit yang sama. Data tidak lengkap/tidak representable ditolak, bukan diubah menjadi unpaid. Uji API lokal/PostgreSQL disposable, rollback/read-only, izin dan substitusi scope.
 - [ ] **B-03 — UI/cetak:** akses dari panel kunjungan dan hasil pembayaran yang sudah ada; tanpa rute/shell baru. Fresh read saat membuka; Print disabled saat fetching/paused/error. Bayar/close tetap command yang ada, bukan aksi dalam struk. Uji browser S/M/L × light/dark × id/en, state finansial/error/cache/retry serta media 58/80/A4. Review sampel screenshot dan duplicate fact sebelum commit/push. Printer fisik dan acceptance pengguna tidak diganti oleh browser test.
 
