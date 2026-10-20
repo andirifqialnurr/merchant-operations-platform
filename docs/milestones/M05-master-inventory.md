@@ -1,6 +1,6 @@
 # M5 — master Inventory
 
-**Status:** M5-BE-01B1 selesai teknis/terverifikasi — `f3f7e5f` (dipush ke `origin/main`). B2a query internal selesai teknis/terverifikasi (bagian 6–7). Parent B/M5 tetap Berjalan. Baseline fondasi numerik `89ba34f`/`0ea003c`.
+**Status:** M5-BE-01B1 selesai teknis/terverifikasi — `f3f7e5f` (dipush ke `origin/main`). B2a query internal selesai teknis/terverifikasi, `8ccf52f` (dipush; bagian 6–7). Parent B/M5 tetap Berjalan. Baseline fondasi numerik `89ba34f`/`0ea003c`.
 
 ## 1. Scope checkpoint
 
@@ -63,7 +63,7 @@ B2 dipecah lagi: **B2a read contracts/port/Prisma adapter + dua query use case b
 
 ## 7. Bukti B2a
 
-**Status:** selesai teknis/terverifikasi; commit dicatat setelah push, bukan acceptance M5.
+**Status:** selesai teknis/terverifikasi — `8ccf52f` (dipush ke `origin/main`), bukan acceptance M5.
 
 - **4 contracts + 11 source tests baru**: strict bounded pagination/DTO, cursor metadata, exact factor, no scope/derived input, auth sebelum IO, revocation/stale permission/capability, urutan refusal dan sesi perangkat. Schema response diperiksa juga oleh use case, bukan mengandalkan ORM row mentah.
 - **7 PostgreSQL query tests (induk + 6 subtest)**: 107 unit tenant A + tenant B, page 100/7 serta 37 tanpa duplikasi/lompatan, keyset/filter cross-tenant, missing scope tidak menjadi Prisma undefined-filter fallback, minimum/full precision factor kanonik, DTO tanpa metadata, real membership/role revocation sebelum master IO, no-write snapshot master/latch/timestamp/audit/outbox/idempotency. Entitlement facts disimulasikan melalui facade untuk query fixture; ini bukan instalasi/aktivasi module di database atau test HTTP sesi.
