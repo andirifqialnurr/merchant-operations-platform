@@ -1,6 +1,6 @@
 # M5 — master Inventory
 
-**Status:** M5-BE-01B1 selesai teknis/terverifikasi — `f3f7e5f` (dipush ke `origin/main`). Parent B/M5 tetap Berjalan. Baseline fondasi numerik `89ba34f`/`0ea003c`.
+**Status:** M5-BE-01B1 selesai teknis/terverifikasi — `f3f7e5f` (dipush ke `origin/main`). B2a query internal selesai teknis/terverifikasi (bagian 6–7). Parent B/M5 tetap Berjalan. Baseline fondasi numerik `89ba34f`/`0ea003c`.
 
 ## 1. Scope checkpoint
 
@@ -48,4 +48,25 @@ UI tetap checkpoint terpisah: Backoffice, gap bagian ≥16px, label pendek, satu
 - **55 integrasi PostgreSQL penuh lulus, 0 gagal/skip**, seluruh migration history diterapkan pada database baru milik helper. Run awal dari root tanpa API tsconfig ditolak esbuild karena parameter decorators; bukan bukti lulus. Run sah diulang dari `apps/api` dengan konfigurasi TypeScript API, tanpa menonaktifkan test.
 - **Root lint/boundaries/warna, typecheck, test, format check lulus**: 437 sumber API + 6 script boundary, 55 contracts, 285 UI, 69 web TS + 10 scripts, database 3 dan worker 10. Build API/web lulus; `next-env.d.ts` dikembalikan ke referensi development yang tracked, lalu typecheck diperiksa kembali. Tidak ada perubahan JSX sehingga browser/Storybook visual dan uji fisik bukan gate B1.
 - Log lokal Git-ignored: `.cache/m5-master-*`; tidak ada migrasi/seed pada development, deploy, grant permission, aktivasi modul/capability atau perubahan dependency. B1 bukan hasil audit izin/limit/API dan bukan acceptance M5; review M2/M3, printer fisik serta OD-05 tetap terpisah.
-- NEXT: **B2 kontrak/use case/repository master berizin**, mulai unit/conversion, termasuk error/serialization dan guard scope/kompatibilitas/audit/idempotency/limit yang relevan sebelum endpoint. Parent B/BE-01/FT-01/FT-09 tetap belum selesai. Implementasi diverifikasi, di-commit dan dipush ke `origin/main` sebagai `f3f7e5f`.
+- NEXT saat B1 ditutup: B2 akses master berizin. B2a kini tersedia di bawah; parent B/BE-01/FT-01/FT-09 tetap belum selesai. Implementasi B1 diverifikasi, di-commit dan dipush ke `origin/main` sebagai `f3f7e5f`.
+
+## 6. B2a — query unit/conversion
+
+B2 dipecah lagi: **B2a read contracts/port/Prisma adapter + dua query use case berizin**, lalu B2b command tulis berikut audit/idempotency/error/guard sebelum endpoint. B2a tidak mendaftarkan provider ke AppModule, manifest, route, izin baru, migration atau UI; seluruh data tetap diuji pada PostgreSQL disposable. B2/BE-01/FT-01 tetap terbuka.
+
+- Identity berasal dari adapter sesi, bukan query/body. Adapter akses membaca ulang `AccessService.describeAccess` dan `EntitlementService.describeAccess`; keanggotaan/user/workspace harus aktif dan membership ID cocok. Wajib subscription usable, module INVENTORY_BASIC entitled, instalasi **ACTIVE** (missing ditolak), capability `inventory.item.manage`, serta salah satu izin operasional existing `inventory.receive`/`inventory.adjust`/`inventory.stocktake`. Tidak memberi hak mengubah master melalui izin operasional tersebut; permission mutasi diputuskan terpisah di B2b.
+- Unit/conversion adalah definisi workspace bersama tanpa cost/contact/quantity per outlet: pembacaan diperbolehkan untuk staf Inventory scoped-outlet tanpa mengklaim all-outlet mutation. Sesi perangkat ditolak; modul tetap Backoffice. Otorisasi sebelum membaca master, tanpa cache hasil izin.
+- Query strict: cursor UUID sebagai posisi (bukan lookup record), limit 1–100/default 25; conversion boleh memfilter from/to UUID persis. Keyset `id > cursor`, urutan id ascending dan limit+1; tidak ada count/total palsu atau fallback unfiltered jika filter tidak cocok. Semua query ORM mempunyai tenant non-null tervalidasi dan select kolom eksplisit. Cursor asing diperlakukan sama dengan UUID posisi acak, tidak dibaca sebagai row tenant lain.
+- Factor ditulis ke DTO sebagai decimal string kanonik, termasuk 10^-12 tanpa exponent. `Decimal.toFixed()` **tanpa argumen** hanya format semua digit, bukan pembulatan/arithmetic; hasil tetap divalidasi schema factor. Tidak ada inverse/path/kompatibilitas fisik yang disimpulkan oleh query.
+- Inventaris read action: cursor/limit/from/to filter = **user input**; unit id/code/name/precision dan conversion id/from/to/factor = **read-only authoritative**; pageInfo = **derived read-only**; tenant/aktor/timestamps/latch/saldo/cost/contact/status dan nilai konversi hasil = **hidden/out of scope**. Tidak ada JSX.
+- Read tidak memerlukan LimitGate, audit mutasi atau idempotency write; tidak mengklaim kontrol command tersebut sudah tersedia.
+
+## 7. Bukti B2a
+
+**Status:** selesai teknis/terverifikasi; commit dicatat setelah push, bukan acceptance M5.
+
+- **4 contracts + 11 source tests baru**: strict bounded pagination/DTO, cursor metadata, exact factor, no scope/derived input, auth sebelum IO, revocation/stale permission/capability, urutan refusal dan sesi perangkat. Schema response diperiksa juga oleh use case, bukan mengandalkan ORM row mentah.
+- **7 PostgreSQL query tests (induk + 6 subtest)**: 107 unit tenant A + tenant B, page 100/7 serta 37 tanpa duplikasi/lompatan, keyset/filter cross-tenant, missing scope tidak menjadi Prisma undefined-filter fallback, minimum/full precision factor kanonik, DTO tanpa metadata, real membership/role revocation sebelum master IO, no-write snapshot master/latch/timestamp/audit/outbox/idempotency. Entitlement facts disimulasikan melalui facade untuk query fixture; ini bukan instalasi/aktivasi module di database atau test HTTP sesi.
+- **62 integrasi PostgreSQL penuh lulus, 0 gagal/skip**. Root lint/boundary/warna/typecheck/test/format serta build API/web lulus: 448 source API + 6 scripts, 59 contracts, 285 UI, 69 web TS + 10 scripts; database/worker tetap lulus. `next-env.d.ts` dipulihkan ke referensi dev tracked dan typecheck diperiksa ulang. Log `.cache/m5-master-read-*` Git-ignored.
+- Tidak ada paket, DDL/migrasi development, registrasi runtime/module/capability, grant permission, HTTP/OpenAPI/UI/JSX atau mutasi Inventory produksi. Query foundation bukan API Inventory-only end-to-end atau penyelesaian FT-01/BE-01/B2/SC-01/SC-02.
+- NEXT: **B2b command master unit/conversion**, tentukan permission mutasi tersendiri, scope workspace, validasi parent/compatibility, repository transaksional, error mapping dan audit/idempotency sebelum endpoint. Resource master lain, LimitGate aktif yang relevan, activation/manifest dan acceptance tetap checkpoint berikutnya, tanpa membuka reslicing rute.

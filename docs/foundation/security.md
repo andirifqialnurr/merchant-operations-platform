@@ -159,6 +159,7 @@ Aturan:
 - Worker integrasi memakai identitas layanan, bukan peran pengguna palsu.
 - Role sistem tidak dapat diubah; perubahan role dan keanggotaan diaudit.
 - Menyembunyikan menu di frontend bukan kontrol keamanan.
+- Query master unit/conversion Inventory B2a (belum HTTP/runtime) membaca ulang membership/entitlement sebelum IO, mewajibkan instalasi ACTIVE/capability `inventory.item.manage` dan salah satu izin baca operasional existing Inventory. Definisi workspace bersama ini tidak mengandung saldo/biaya/kontak; staf scoped-outlet boleh membacanya, tetapi sesi perangkat ditolak. Ini bukan izin mengedit master atau hak mutasi lintas outlet; command tulis memerlukan kontrol tersendiri. [Kontrak/batas/bukti](../milestones/M05-master-inventory.md#7-bukti-b2a).
 
 ---
 

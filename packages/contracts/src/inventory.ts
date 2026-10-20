@@ -1,5 +1,7 @@
 import * as z from "zod";
 
+import { createCursorPageSchema, cursorPaginationQuerySchema } from "./http.ts";
+
 /** R1 storage bounds, not package/usage limits. Amounts never travel as JSON numbers. */
 export const INVENTORY_QUANTITY_SCALE = 6;
 export const INVENTORY_QUANTITY_INTEGER_DIGITS = 24;
@@ -57,6 +59,55 @@ export const createInventoryUnitConversionSchema = z
     path: ["toUnitId"],
   });
 
+/** Authoritative definition only, not a calculated quantity or proof of compatibility. */
+export const inventoryUnitConversionSchema = createInventoryUnitConversionSchema
+  .safeExtend({ id: z.uuid() })
+  .strict();
+
+export const inventoryUnitListQuerySchema = cursorPaginationQuerySchema
+  .extend({
+    cursor: z.uuid().optional(),
+    limit: z
+      .union([z.number(), z.string().regex(/^[1-9]\d{0,2}$/)])
+      .pipe(z.coerce.number<string | number>().int().min(1).max(100))
+      .default(25),
+  })
+  .strict();
+export const inventoryUnitConversionListQuerySchema = inventoryUnitListQuerySchema
+  .extend({ fromUnitId: z.uuid().optional(), toUnitId: z.uuid().optional() })
+  .strict();
+
+const inventoryMasterPageInfoSchema = z
+  .object({ hasNextPage: z.boolean(), nextCursor: z.uuid().nullable() })
+  .strict()
+  .refine((value) => value.hasNextPage === (value.nextCursor !== null));
+
+function endCursorMatches(page: {
+  items: Array<{ id: string }>;
+  pageInfo: { hasNextPage: boolean; nextCursor: string | null };
+}) {
+  return !page.pageInfo.hasNextPage || page.items.at(-1)?.id === page.pageInfo.nextCursor;
+}
+
+export const inventoryUnitPageSchema = createCursorPageSchema(inventoryUnitSchema)
+  .extend({ items: z.array(inventoryUnitSchema).max(100), pageInfo: inventoryMasterPageInfoSchema })
+  .strict()
+  .refine(endCursorMatches);
+export const inventoryUnitConversionPageSchema = createCursorPageSchema(
+  inventoryUnitConversionSchema,
+)
+  .extend({
+    items: z.array(inventoryUnitConversionSchema).max(100),
+    pageInfo: inventoryMasterPageInfoSchema,
+  })
+  .strict()
+  .refine(endCursorMatches);
+
+export type InventoryUnitConversion = z.infer<typeof inventoryUnitConversionSchema>;
+export type InventoryUnitListQuery = z.infer<typeof inventoryUnitListQuerySchema>;
+export type InventoryUnitConversionListQuery = z.infer<
+  typeof inventoryUnitConversionListQuerySchema
+>;
 export type CreateInventoryUnit = z.infer<typeof createInventoryUnitSchema>;
 export type InventoryUnit = z.infer<typeof inventoryUnitSchema>;
 export type CreateInventoryUnitConversion = z.infer<typeof createInventoryUnitConversionSchema>;
