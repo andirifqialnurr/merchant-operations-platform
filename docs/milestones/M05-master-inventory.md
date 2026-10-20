@@ -1,6 +1,6 @@
 # M5 — master Inventory
 
-**Status:** M5-BE-01B1 selesai teknis/terverifikasi; commit dicatat setelah push. Parent B/M5 tetap Berjalan. Baseline fondasi numerik `89ba34f`/`0ea003c`.
+**Status:** M5-BE-01B1 selesai teknis/terverifikasi — `f3f7e5f` (dipush ke `origin/main`). Parent B/M5 tetap Berjalan. Baseline fondasi numerik `89ba34f`/`0ea003c`.
 
 ## 1. Scope checkpoint
 
@@ -39,7 +39,7 @@ UI tetap checkpoint terpisah: Backoffice, gap bagian ≥16px, label pendek, satu
 - [x] Prisma format/validate/generate; enam tabel sesuai model, numeric tanpa typmod dan guard tidak melakukan silent rounding.
 - [x] Static schema tests: FK komposit/owner, no Catalog/cost/balance, retention dan latch/precision guards; migrasi tidak memberi izin/capability/kuota.
 - [x] PostgreSQL disposable + Prisma: master tanpa Catalog, nullable/zero minimum, exact big decimal/factor, invalid scale/range/unit precision/special numeric, cross-workspace FK, unique scope/case, rollback/latch dan concurrent reference vs definition, DELETE/TRUNCATE/identity retention.
-- [x] Root gates dan build API/web; dokumentasi/TODO diperbarui. Commit/push dicatat di bawah sebelum B2. Bukan verifikasi API/izin/limit/audit/stock workflow atau acceptance M5.
+- [x] Root gates dan build API/web; dokumentasi/TODO diperbarui. Implementasi `f3f7e5f` dipush sebelum B2. Bukan verifikasi API/izin/limit/audit/stock workflow atau acceptance M5.
 
 ## 5. Bukti B1
 
@@ -48,4 +48,4 @@ UI tetap checkpoint terpisah: Backoffice, gap bagian ≥16px, label pendek, satu
 - **55 integrasi PostgreSQL penuh lulus, 0 gagal/skip**, seluruh migration history diterapkan pada database baru milik helper. Run awal dari root tanpa API tsconfig ditolak esbuild karena parameter decorators; bukan bukti lulus. Run sah diulang dari `apps/api` dengan konfigurasi TypeScript API, tanpa menonaktifkan test.
 - **Root lint/boundaries/warna, typecheck, test, format check lulus**: 437 sumber API + 6 script boundary, 55 contracts, 285 UI, 69 web TS + 10 scripts, database 3 dan worker 10. Build API/web lulus; `next-env.d.ts` dikembalikan ke referensi development yang tracked, lalu typecheck diperiksa kembali. Tidak ada perubahan JSX sehingga browser/Storybook visual dan uji fisik bukan gate B1.
 - Log lokal Git-ignored: `.cache/m5-master-*`; tidak ada migrasi/seed pada development, deploy, grant permission, aktivasi modul/capability atau perubahan dependency. B1 bukan hasil audit izin/limit/API dan bukan acceptance M5; review M2/M3, printer fisik serta OD-05 tetap terpisah.
-- NEXT: **B2 kontrak/use case/repository master berizin**, mulai unit/conversion, termasuk error/serialization dan guard scope/kompatibilitas/audit/idempotency/limit yang relevan sebelum endpoint. Parent B/BE-01/FT-01/FT-09 tetap belum selesai. Commit implementation dicatat setelah push.
+- NEXT: **B2 kontrak/use case/repository master berizin**, mulai unit/conversion, termasuk error/serialization dan guard scope/kompatibilitas/audit/idempotency/limit yang relevan sebelum endpoint. Parent B/BE-01/FT-01/FT-09 tetap belum selesai. Implementasi diverifikasi, di-commit dan dipush ke `origin/main` sebagai `f3f7e5f`.
