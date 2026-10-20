@@ -388,6 +388,12 @@ model Tenant {
   floorServiceTables           FloorServiceTable[]
   floorTableSessions           FloorTableSession[]
   customers                    CustomerCustomer[]
+  inventoryUnits               InventoryUnit[]
+  inventoryConversions         InventoryUnitConversion[]
+  inventoryCategories          InventoryCategory[]
+  inventoryItems               InventoryItem[]
+  inventorySuppliers           InventorySupplier[]
+  inventoryStockLocations      InventoryStockLocation[]
 
   @@map("tenants")
 }
@@ -410,21 +416,21 @@ model Brand {
 }
 
 model Outlet {
-  id                  String                 @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  tenantId            String                 @map("tenant_id") @db.Uuid
-  brandId             String                 @map("brand_id") @db.Uuid
-  code                String                 @db.VarChar(40)
-  name                String                 @db.VarChar(160)
-  timezone            String                 @default("Asia/Jakarta") @db.VarChar(64)
-  address             String?                @db.VarChar(500)
-  chargesIncluded     Boolean                @default(true) @map("charges_included")
-  taxRateBp           Int                    @default(0) @map("tax_rate_bp")
-  serviceChargeRateBp Int                    @default(0) @map("service_charge_rate_bp")
-  status              OrganizationUnitStatus @default(ACTIVE)
-  createdAt           DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt           DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
-  tenant              Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  brand               Brand                  @relation(fields: [tenantId, brandId], references: [tenantId, id], onDelete: Restrict)
+  id                  String                   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId            String                   @map("tenant_id") @db.Uuid
+  brandId             String                   @map("brand_id") @db.Uuid
+  code                String                   @db.VarChar(40)
+  name                String                   @db.VarChar(160)
+  timezone            String                   @default("Asia/Jakarta") @db.VarChar(64)
+  address             String?                  @db.VarChar(500)
+  chargesIncluded     Boolean                  @default(true) @map("charges_included")
+  taxRateBp           Int                      @default(0) @map("tax_rate_bp")
+  serviceChargeRateBp Int                      @default(0) @map("service_charge_rate_bp")
+  status              OrganizationUnitStatus   @default(ACTIVE)
+  createdAt           DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant              Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  brand               Brand                    @relation(fields: [tenantId, brandId], references: [tenantId, id], onDelete: Restrict)
   auditLogs           AuditLog[]
   idempotencyKeys     IdempotencyKey[]
   outboxEvents        OutboxEvent[]
@@ -448,6 +454,7 @@ model Outlet {
   saleNumberCounter   SaleNumberCounter?
   orderNumberCounter  OrderNumberCounter?
   customerOrderLinks  CustomerOrderLink[]
+  stockLocations      InventoryStockLocation[]
 
   @@unique([tenantId, code])
   @@unique([tenantId, id])
@@ -1904,6 +1911,122 @@ model FloorQrToken {
 
   @@unique([tenantId, tableId, version], map: "floor_qr_tokens_table_version_key")
   @@map("floor_qr_tokens")
+}
+
+enum InventoryRecordStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model InventoryUnit {
+  id               String                    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId         String                    @map("tenant_id") @db.Uuid
+  code             String                    @db.VarChar(24)
+  name             String                    @db.VarChar(160)
+  precision        Int                       @db.SmallInt
+  /// Internal, irreversible first-reference latch; never a client input.
+  definitionLocked Boolean                   @default(false) @map("definition_locked")
+  createdAt        DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime                  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant           Tenant                    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  items            InventoryItem[]
+  conversionsFrom  InventoryUnitConversion[] @relation("InventoryConversionFrom")
+  conversionsTo    InventoryUnitConversion[] @relation("InventoryConversionTo")
+
+  // Case-insensitive code uniqueness is a SQL-managed expression index.
+  @@unique([tenantId, id])
+  @@map("inventory_units")
+}
+
+model InventoryUnitConversion {
+  id         String        @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId   String        @map("tenant_id") @db.Uuid
+  fromUnitId String        @map("from_unit_id") @db.Uuid
+  toUnitId   String        @map("to_unit_id") @db.Uuid
+  /// Unconstrained NUMERIC with SQL range/scale checks: never implicit rounding.
+  factor     Decimal       @db.Decimal
+  createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant     Tenant        @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  fromUnit   InventoryUnit @relation("InventoryConversionFrom", fields: [tenantId, fromUnitId], references: [tenantId, id], onDelete: Restrict, map: "inventory_unit_conversions_from_unit_fkey")
+  toUnit     InventoryUnit @relation("InventoryConversionTo", fields: [tenantId, toUnitId], references: [tenantId, id], onDelete: Restrict, map: "inventory_unit_conversions_to_unit_fkey")
+
+  @@unique([tenantId, id])
+  @@unique([tenantId, fromUnitId, toUnitId])
+  @@index([tenantId, toUnitId])
+  @@map("inventory_unit_conversions")
+}
+
+model InventoryCategory {
+  id        String                @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId  String                @map("tenant_id") @db.Uuid
+  name      String                @db.VarChar(160)
+  status    InventoryRecordStatus @default(ACTIVE)
+  createdAt DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime              @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant    Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  items     InventoryItem[]
+
+  // Case-insensitive name uniqueness is a SQL-managed expression index.
+  @@unique([tenantId, id])
+  @@index([tenantId, status])
+  @@map("inventory_categories")
+}
+
+model InventoryItem {
+  id         String                @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId   String                @map("tenant_id") @db.Uuid
+  sku        String?               @db.VarChar(64)
+  name       String                @db.VarChar(160)
+  categoryId String?               @map("category_id") @db.Uuid
+  baseUnitId String                @map("base_unit_id") @db.Uuid
+  /// Threshold only, NOT stock balance; SQL checks scale, range and unit precision.
+  minStock   Decimal?              @map("min_stock") @db.Decimal
+  status     InventoryRecordStatus @default(ACTIVE)
+  createdAt  DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime              @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant     Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  category   InventoryCategory?    @relation(fields: [tenantId, categoryId], references: [tenantId, id], onDelete: Restrict, map: "inventory_items_category_fkey")
+  baseUnit   InventoryUnit         @relation(fields: [tenantId, baseUnitId], references: [tenantId, id], onDelete: Restrict, map: "inventory_items_base_unit_fkey")
+
+  // Nullable, case-insensitive SKU uniqueness is SQL-managed, including inactive rows.
+  @@unique([tenantId, id])
+  @@index([tenantId, status, name])
+  @@index([tenantId, categoryId])
+  @@index([tenantId, baseUnitId])
+  @@map("inventory_items")
+}
+
+model InventorySupplier {
+  id        String                @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId  String                @map("tenant_id") @db.Uuid
+  name      String                @db.VarChar(160)
+  contact   String?               @db.VarChar(200)
+  status    InventoryRecordStatus @default(ACTIVE)
+  createdAt DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime              @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant    Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, id])
+  @@index([tenantId, status, name])
+  @@map("inventory_suppliers")
+}
+
+model InventoryStockLocation {
+  id        String                @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tenantId  String                @map("tenant_id") @db.Uuid
+  outletId  String?               @map("outlet_id") @db.Uuid
+  name      String                @db.VarChar(160)
+  status    InventoryRecordStatus @default(ACTIVE)
+  createdAt DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime              @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant    Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  outlet    Outlet?               @relation(fields: [tenantId, outletId], references: [tenantId, id], onDelete: Restrict, map: "inventory_stock_locations_outlet_fkey")
+
+  // Separate SQL-managed CI name indexes handle outlet scope and NULL workspace storage.
+  @@unique([tenantId, id])
+  @@index([tenantId, outletId, status])
+  @@map("inventory_stock_locations")
 }
 
 enum CustomerStatus {

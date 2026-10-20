@@ -37,7 +37,14 @@ export async function withDisposablePostgres(run) {
       const sql = await readFile(new URL(`${directory}/migration.sql`, migrations), "utf8");
       await database.query(sql);
     }
-    await run({ connectionString: testUrl.href, database, name });
+    await run({
+      connectionString: testUrl.href,
+      // Extra concurrent clients can only target this owned database. The caller
+      // closes them before returning; DROP ... FORCE remains the cleanup fence.
+      createClient: () => new pg.Client({ connectionString: testUrl.href }),
+      database,
+      name,
+    });
   } finally {
     await database?.end();
     try {

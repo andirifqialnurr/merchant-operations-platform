@@ -97,6 +97,11 @@ test("unit creation owns only code/name/precision, never IDs, balance, cost, act
   const read = { id: randomUUID(), code: "pcs", name: "Piece", precision: 0 };
   assert.deepEqual(inventoryUnitSchema.parse(read), read);
   assert.equal(inventoryUnitSchema.safeParse({ ...read, calculatedBalance: "0" }).success, false);
+  assert.equal(inventoryUnitSchema.safeParse({ ...read, definitionLocked: true }).success, false);
+  assert.equal(
+    createInventoryUnitSchema.safeParse({ ...unit, definitionLocked: true }).success,
+    false,
+  );
 });
 
 test("conversion definition requires different unit IDs and does not accept a derived result or scope", () => {

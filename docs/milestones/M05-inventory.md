@@ -1,6 +1,6 @@
 # M5 — Inventory
 
-**Status:** Berjalan — pengguna menerima M4 dan menginstruksikan lanjut M5 setelah baseline `6129b5b`. M5-BE-01A fondasi satuan/jumlah eksak selesai teknis/terverifikasi; berikutnya M5-BE-01B master schema/persistence. Belum ada tabel/API/UI Inventory. Review M2/M3 dan uji printer fisik tidak dianggap selesai oleh penerimaan M4.
+**Status:** Berjalan — pengguna menerima M4 dan menginstruksikan lanjut M5 setelah baseline `6129b5b`. M5-BE-01A dan B1 (enam schema master/guard database) selesai teknis/terverifikasi; berikutnya B2 kontrak/use case/repository master berizin sebelum endpoint. Migrasi B1 hanya diuji pada PostgreSQL disposable; belum diterapkan ke development, belum API/UI/ledger Inventory. Review M2/M3 dan uji printer fisik tidak dianggap selesai oleh penerimaan M4.
 **Tahap PRD:** F (Inventory)
 **Bergantung pada:** M2 (dapat dikerjakan sejajar dengan M3–M4)
 
@@ -41,7 +41,9 @@ Outlet mencatat stok bahan dan barang: penerimaan, penyesuaian, waste, transfer 
 
 - [~] **M5-BE-01 Tabel inventory** — schema B.6 lengkap dengan constraint dan indeks; dipecah agar tiap checkpoint bounded dan pushable.
   - [x] **M5-BE-01A Fondasi satuan/jumlah** `89ba34f` (dipush) — kontrak strict, presisi desimal dan konversi bigint eksak sebelum persistence; 10 domain/6 contracts baru, root gates dan build API/web lulus. [Kontrak/bukti/batas](./M05-fondasi-satuan.md#6-bukti-dan-batas-checkpoint-a); implementasi diverifikasi dan dipush ke `origin/main`. Belum migration/API/JSX, bukan penyelesaian seluruh B.6.
-  - [ ] **M5-BE-01B Master inventory** — kontrak/schema/persistence unit/conversion/item/category/supplier/stock location, owner/scope/FK/unik/izin/limit dan migrasi disposable; dapat dipecah lagi sebelum endpoint.
+  - [~] **M5-BE-01B Master inventory** — kontrak/schema/persistence unit/conversion/item/category/supplier/stock location, owner/scope/FK/unik/izin/limit dan migrasi disposable; belum selesai hanya dari DDL.
+    - [x] **M5-BE-01B1 Schema/guard master** — enam model/DDL dengan FK komposit, CI scoped uniqueness, numeric tanpa typmod + CHECK presisi/rentang, latch definisi unit aman terhadap race/upsert, retention; 5 static tests baru, 12 test PostgreSQL master (termasuk induk), 55 integrasi penuh, root gates dan build API/web lulus. [Bukti/batas](./M05-master-inventory.md#5-bukti-b1). Commit dicatat setelah push; tidak ada repository/use case/API/aktivasi/izin/limit yang diklaim selesai.
+    - [ ] **M5-BE-01B2 Akses master berizin** — kontrak dan use case/repository bounded (mulai unit/conversion), mapping error/serialization, audit/idempotency, permission/scope dan parent/compatibility/LimitGate yang relevan sebelum endpoint; dipecah lagi per resource bila perlu. Tidak membuka JSX/rute.
   - [ ] **M5-BE-01C Tabel operasional** — ledger/projection, receipt, stocktake/transfer, recipe dan constraint sesuai checkpoint transaksi terkait; tidak mengklaim seluruh schema tersedia dari master saja.
 - [ ] **M5-BE-02 Mutasi dan pembalikan** — satu use case pencatatan mutasi untuk semua tipe; `reverses_movement_id`; event `stock.movement_recorded.v1`.
 - [ ] **M5-BE-03 Saldo projection** — diperbarui dalam transaksi yang sama; dapat dibangun ulang dari mutasi.
