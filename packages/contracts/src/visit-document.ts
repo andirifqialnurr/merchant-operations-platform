@@ -3,6 +3,7 @@ import * as z from "zod";
 import { billSchema, paymentSchema, refundSchema, saleSchema } from "./billing.ts";
 import { currencyCodeSchema, moneyMinorSchema, signedMoneyMinorSchema } from "./money.ts";
 import { orderSchema } from "./orders.ts";
+import { tableSessionSchema } from "./floor.ts";
 
 /** A read-only price breakdown. Paid values are snapshots, never today's outlet rates. */
 export const visitOrderPricingSchema = billSchema
@@ -48,5 +49,21 @@ export const visitFinancialDocumentSchema = z
   })
   .strict();
 
+/** Staff-only visit query; metadata belongs to this document, not to each transaction/order. */
+export const visitDocumentSchema = visitFinancialDocumentSchema
+  .extend({
+    visit: tableSessionSchema.pick({ id: true, displayNumber: true, status: true }).strict(),
+    tableLabel: z.string().min(1).nullable(),
+    outlet: z
+      .object({
+        name: z.string().min(1),
+        workspaceName: z.string().min(1),
+        timezone: z.string().min(1),
+      })
+      .strict(),
+  })
+  .strict();
+
+export type VisitDocument = z.infer<typeof visitDocumentSchema>;
 export type VisitFinancialDocument = z.infer<typeof visitFinancialDocumentSchema>;
 export type VisitOrderPricing = z.infer<typeof visitOrderPricingSchema>;

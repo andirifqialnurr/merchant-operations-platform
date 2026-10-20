@@ -1,4 +1,5 @@
 import * as z from "zod";
+import { visitDocumentSchema } from "./visit-document.ts";
 
 import {
   createCustomerSchema,
@@ -400,6 +401,7 @@ export const kdsOpenApiSchemas = {
 } as const;
 
 export const floorOpenApiSchemas = {
+  VisitDocument: toOpenApiSchema(visitDocumentSchema),
   CreateFloor: toOpenApiSchema(createFloorSchema),
   CreateFloorArea: toOpenApiSchema(createFloorAreaSchema),
   CreateFloorTable: toOpenApiSchema(createFloorTableSchema),

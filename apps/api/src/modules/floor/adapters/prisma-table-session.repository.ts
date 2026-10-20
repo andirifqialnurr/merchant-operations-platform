@@ -3,6 +3,8 @@ import { getPrismaClient } from "@merchant/database";
 import { Injectable } from "@nestjs/common";
 
 import { lockTableVisit } from "../../../shared/command/lock-table-visit.js";
+import { readDatabase } from "../../../core/read-snapshots/public.js";
+import type { ReadSnapshot } from "../../../shared/query/read-snapshot.js";
 
 import { buildAuditMetadata, buildAuditPayload } from "../../../core/audit/public.js";
 import {
@@ -160,8 +162,13 @@ export class PrismaTableSessionRepository implements TableSessionRepository {
     return held ? toSession(held.session) : null;
   }
 
-  async findSession(tenantId: string, outletId: string, sessionId: string) {
-    const row = await getPrismaClient().floorTableSession.findFirst({
+  async findSession(
+    tenantId: string,
+    outletId: string,
+    sessionId: string,
+    snapshot?: ReadSnapshot,
+  ) {
+    const row = await readDatabase({ tenantId, outletId }, snapshot).floorTableSession.findFirst({
       select: sessionSelect,
       where: { id: sessionId, outletId, tenantId },
     });
@@ -380,8 +387,13 @@ export class PrismaTableSessionRepository implements TableSessionRepository {
     });
   }
 
-  async primaryTableLabel(tenantId: string, outletId: string, sessionId: string) {
-    const row = await getPrismaClient().floorSessionTable.findFirst({
+  async primaryTableLabel(
+    tenantId: string,
+    outletId: string,
+    sessionId: string,
+    snapshot?: ReadSnapshot,
+  ) {
+    const row = await readDatabase({ tenantId, outletId }, snapshot).floorSessionTable.findFirst({
       orderBy: [{ detachedAt: { nulls: "first", sort: "desc" } }, { attachedAt: "desc" }],
       select: { table: { select: { label: true } } },
       where: { outletId, role: "PRIMARY", sessionId, tenantId },

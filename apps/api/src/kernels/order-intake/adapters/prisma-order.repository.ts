@@ -3,6 +3,8 @@ import { getPrismaClient } from "@merchant/database";
 import { ConflictException, Injectable } from "@nestjs/common";
 
 import { lockTableVisit } from "../../../shared/command/lock-table-visit.js";
+import { readDatabase } from "../../../core/read-snapshots/public.js";
+import type { ReadSnapshot } from "../../../shared/query/read-snapshot.js";
 
 import { buildAuditMetadata } from "../../../core/audit/public.js";
 import type {
@@ -83,8 +85,13 @@ export class PrismaOrderRepository implements OrderRepository {
     );
   }
 
-  async listBySession(tenantId: string, outletId: string, tableSessionId: string) {
-    return getPrismaClient().order.findMany({
+  async listBySession(
+    tenantId: string,
+    outletId: string,
+    tableSessionId: string,
+    snapshot?: ReadSnapshot,
+  ) {
+    return readDatabase({ tenantId, outletId }, snapshot).order.findMany({
       orderBy: { createdAt: "asc" },
       select: orderSelect,
       where: { outletId, tableSessionId, tenantId },

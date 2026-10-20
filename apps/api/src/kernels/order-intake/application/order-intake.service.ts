@@ -1,3 +1,4 @@
+import type { ReadSnapshot } from "../../../shared/query/read-snapshot.js";
 import {
   orderSchema,
   type CreatePosOrder,
@@ -193,8 +194,15 @@ export class OrderIntakeService {
   }
 
   /** The orders of one table session, oldest first, canceled ones included. */
-  async listBySession(tenantId: string, outletId: string, tableSessionId: string) {
-    return (await this.orders.listBySession(tenantId, outletId, tableSessionId)).map(toOrder);
+  async listBySession(
+    tenantId: string,
+    outletId: string,
+    tableSessionId: string,
+    snapshot?: ReadSnapshot,
+  ) {
+    return (await this.orders.listBySession(tenantId, outletId, tableSessionId, snapshot)).map(
+      toOrder,
+    );
   }
 
   /** Orders of the outlet created in the last `hours` hours, newest first. */

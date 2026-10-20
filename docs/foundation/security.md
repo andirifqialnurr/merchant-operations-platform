@@ -183,6 +183,7 @@ Aturan:
 - Pembatalan, void, refund, penyesuaian kas, dan penyesuaian stok mewajibkan alasan.
 - Pembayaran manual berstatus `VERIFYING` sampai kasir mengonfirmasi. UI tidak menampilkan "lunas" sebelum server menyimpan `PAID`.
 - Konfirmasi ganda aman dan mengembalikan state terkini.
+- Dokumen kunjungan staf (`GET /floor/sessions/:id/document`) memakai guard sesi/modul Floor/outlet + `order.create`, sama dengan izin receipt POS aktual; `table.view` saja tidak membuka data finansial. Output `private, no-store`, tanpa actor ID/idempotency key/audit/QR. Query menyatukan session/order/ledger/refund/currency/tarif dalam transaksi repeatable-read/read-only melalui capability internal scope-bound yang kedaluwarsa; bukan capability HTTP atau bypass izin. Broken/missing paid relations dan scope/kardinalitas allocation salah ditolak 409, bukan dipalsukan sebagai unpaid. Tidak ada mutasi/audit/outbox dari query. Bukti/batas: [GAP06B](../milestones/M04-struk-kunjungan.md#7-gap06b--checkpoint-dan-kontrak).
 - Event duplikat tidak menggandakan ticket, mutasi stok, atau transaksi keuangan (inbox + referensi sumber unik).
 
 ---

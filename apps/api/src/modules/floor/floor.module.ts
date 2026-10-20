@@ -1,4 +1,7 @@
 import { Module } from "@nestjs/common";
+import { ReadSnapshotsModule } from "../../core/read-snapshots/public.js";
+import { ReadVisitDocument } from "./application/read-visit-document.js";
+import { VisitDocumentController } from "./adapters/visit-document.controller.js";
 
 import { AuthModule } from "../../core/auth/public.js";
 import { AccessModule } from "../../core/memberships/public.js";
@@ -53,6 +56,7 @@ export function tableQrSecret(environment: NodeJS.ProcessEnv = process.env) {
  */
 @Module({
   controllers: [
+    VisitDocumentController,
     GuestOrderModerationController,
     GuestProductImageController,
     FloorStructureController,
@@ -64,6 +68,7 @@ export function tableQrSecret(environment: NodeJS.ProcessEnv = process.env) {
   // The kitchen's tickets name the table a visit sits at.
   exports: [TableSessions, TableVisitGuard],
   imports: [
+    ReadSnapshotsModule,
     AccessModule,
     AuthModule,
     BillingPaymentLedgerModule,
@@ -73,6 +78,7 @@ export function tableQrSecret(environment: NodeJS.ProcessEnv = process.env) {
     OrganizationModule,
   ],
   providers: [
+    ReadVisitDocument,
     TableVisitGuard,
     FloorStructure,
     PrismaFloorStructureRepository,

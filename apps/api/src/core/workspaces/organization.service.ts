@@ -1,3 +1,4 @@
+import type { ReadSnapshot } from "../../shared/query/read-snapshot.js";
 import {
   brandSchema,
   createBrandSchema,
@@ -311,6 +312,22 @@ export class OrganizationService {
       "Kode outlet sudah digunakan pada tenant ini.",
     );
     return toOutlet(outlet);
+  }
+
+  /** Scoped print context and current unpaid-order charges, all in the caller's read snapshot. */
+  async visitDocumentContext(tenantId: string, outletId: string, snapshot: ReadSnapshot) {
+    const tenant = await this.repository.findTenantById(tenantId, snapshot);
+    const outlet = await this.repository.findOutletById(tenantId, outletId, snapshot);
+    if (!tenant || !outlet) throw notFound("OUTLET_NOT_FOUND", "This outlet was not found.");
+    return {
+      currency: tenant.currency,
+      outlet: { name: outlet.name, workspaceName: tenant.name, timezone: outlet.timezone },
+      charges: {
+        included: outlet.chargesIncluded,
+        serviceChargeRateBp: outlet.serviceChargeRateBp,
+        taxRateBp: outlet.taxRateBp,
+      },
+    };
   }
 
   /** How this outlet charges tax and service right now; read when a bill is made. */

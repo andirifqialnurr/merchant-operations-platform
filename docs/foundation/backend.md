@@ -418,11 +418,11 @@ Satu fungsi, `computeCharges` di `packages/contracts/src/charges.ts`, memecah ju
 - Tarif dibaca saat membayar dan disalin ke tagihan. Permintaan bayar membawa `expectedTotalMinor`; bila berbeda dari hitungan server, permintaan ditolak `ORDER_TOTAL_CHANGED` dan tidak ada yang ditagih.
 - Bawaan outlet (sudah termasuk, kedua tarif 0) adalah keputusan `M1-OD-01`: harga menu adalah harga akhir.
 
-### 7.2 Proyeksi finansial struk kunjungan (GAP06B-01)
+### 7.2 Dokumen finansial kunjungan (GAP06B-01/02)
 
 `packages/contracts/src/visit-document.ts` menetapkan keluaran read-only; `modules/floor/domain/visit-financial-document.ts` memproyeksikan paid receipt snapshots dan order belum dibayar tanpa IO/mutasi. Transaksi payment dan refund dideduplikasi berdasarkan ID; snapshot bertentangan atau payment shared yang tidak tertutup lengkap dalam visit ditolak. Pending dipisahkan dari pricing/hutang; refund tidak membuka hutang baru. Nilai paid memakai snapshot lama, unpaid memakai `computeCharges` kini, seluruh agregasi bigint/string.
 
-Ini fondasi domain, **belum endpoint atau fitur cetak**. Integrasi berikutnya wajib query lengkap dan konsisten lewat facade publik kernel, scope tenant/outlet/session dan izin baca receipt; jangan mengklaim rangkaian read receipt terpisah sebagai satu snapshot atomik. Tidak ada perubahan ledger/schema/migrasi. Inventaris, state dan checkpoint berikutnya: [`M04-struk-kunjungan.md` bagian 7](../milestones/M04-struk-kunjungan.md#7-gap06b--checkpoint-dan-kontrak).
+`GET /floor/sessions/:id/document` memakai `ReadVisitDocument`, facade publik OrderIntake/BillingReceiptQueries/Organization, dan repository Floor pemilik session. Guard modul Floor + `order.create` mengikuti receipt POS aktual (bukan izin baru `order.view`); response `visitDocumentSchema`/OpenAPI `VisitDocument`, `private, no-store`. Seluruh order visit dibaca tanpa pagination/cutoff; bill semua status dibaca agar paid bill rusak tidak hilang sebagai unpaid. Invariant/scope salah atau alokasi tak lengkap menghasilkan 409 `RECEIPT_ALLOCATION_UNAVAILABLE`. UI/cetak belum tersedia; tidak ada perubahan ledger/schema/migrasi. Inventaris, state, bukti dan checkpoint berikutnya: [`M04-struk-kunjungan.md` bagian 7](../milestones/M04-struk-kunjungan.md#7-gap06b--checkpoint-dan-kontrak).
 
 ## 8. Persistence
 
@@ -435,6 +435,12 @@ Ini fondasi domain, **belum endpoint atau fitur cetak**. Integrasi berikutnya wa
 - Daftar besar memakai pagination cursor dan proyeksi kolom yang aman.
 
 ---
+
+### 8.1 Snapshot query lintas pemilik data
+
+Port teknis `shared/query/read-snapshot.ts` menyediakan `READ_SNAPSHOTS.run(scope, callback)`; implementasi `core/read-snapshots` membuka satu transaksi `RepeatableRead` dengan `SET TRANSACTION READ ONLY` (timeout 10 detik, max wait 3 detik). Capability internal frozen menyimpan scope tenant/outlet dan kedaluwarsa setelah callback selesai/gagal. `readDatabase` hanya untuk adapter pemilik data; transaksi disimpan di registry WeakMap selama callback, bukan ambient/global current transaction. Application/domain hanya membawa capability, tidak menerima/mengimpor Prisma.
+
+Facade/repository read terkait menerima capability eksplisit; query kunjungan menggunakannya untuk session/meja, order, ledger/refund, serta currency/tarif/metadata outlet. Tanpa capability, read lama tetap memakai client biasa; tidak ada perubahan perilaku command. Capability salah scope/kedaluwarsa ditolak; database menolak write dalam callback. Jangan memakai callback untuk jaringan/IO eksternal, command atau pekerjaan panjang. Ini snapshot konsisten pada waktu read, bukan lock/promise atas perubahan sesudah response atau pengganti pemeriksaan izin di controller.
 
 ## 9. Error
 

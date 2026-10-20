@@ -22,6 +22,7 @@ import type {
 } from "../application/billing.repository.js";
 import { eventOrigin, type CommandOrigin } from "../../../shared/command/command-origin.js";
 import { safeEventPayload } from "../../../shared/command/event-payload.js";
+import { billSelect, paymentSelect, saleSelect, refundSelect } from "./billing-record-selects.js";
 
 type Transaction = Parameters<Parameters<ReturnType<typeof getPrismaClient>["$transaction"]>[0]>[0];
 
@@ -90,50 +91,6 @@ function toClaim(row: {
     tableSessionId: row.tableSessionId ?? "",
   };
 }
-
-const billSelect = {
-  chargesIncluded: true,
-  currency: true,
-  discountMinor: true,
-  id: true,
-  orderId: true,
-  paidMinor: true,
-  roundingMinor: true,
-  serviceChargeMinor: true,
-  serviceChargeRateBp: true,
-  status: true,
-  subtotalMinor: true,
-  tableSessionId: true,
-  taxMinor: true,
-  taxRateBp: true,
-  totalMinor: true,
-} as const;
-
-const paymentSelect = {
-  amountMinor: true,
-  confirmedAt: true,
-  id: true,
-  method: true,
-  reference: true,
-  status: true,
-  tenderedMinor: true,
-} as const;
-
-const saleSelect = {
-  completedAt: true,
-  id: true,
-  saleNumber: true,
-  status: true,
-  totalMinor: true,
-} as const;
-
-const refundSelect = {
-  amountMinor: true,
-  createdAt: true,
-  id: true,
-  method: true,
-  reason: true,
-} as const;
 
 function isUniqueConstraintError(error: unknown) {
   return typeof error === "object" && error !== null && "code" in error && error.code === "P2002";

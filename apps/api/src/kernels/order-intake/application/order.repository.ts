@@ -1,3 +1,4 @@
+import type { ReadSnapshot } from "../../../shared/query/read-snapshot.js";
 import type {
   OrderModerationStatus,
   OrderSource,
@@ -107,7 +108,12 @@ export interface OrderRepository {
   /** Pending guest rounds grouped by visit, scoped to an outlet. */
   pendingBySession(tenantId: string, outletId: string): Promise<Map<string, number>>;
   /** The orders of one table session, oldest first. */
-  listBySession(tenantId: string, outletId: string, tableSessionId: string): Promise<OrderRecord[]>;
+  listBySession(
+    tenantId: string,
+    outletId: string,
+    tableSessionId: string,
+    snapshot?: ReadSnapshot,
+  ): Promise<OrderRecord[]>;
   /** The outlet's orders created since `since`, newest first. */
   listSince(tenantId: string, outletId: string, since: Date, limit: number): Promise<OrderRecord[]>;
   findByIdempotencyKey(

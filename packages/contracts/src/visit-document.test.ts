@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { visitFinancialDocumentSchema } from "./visit-document.ts";
+import { visitDocumentSchema, visitFinancialDocumentSchema } from "./visit-document.ts";
+import { floorOpenApiSchemas } from "./openapi.ts";
 
 const empty = {
   currency: "IDR",
@@ -33,6 +34,30 @@ test("visit financial projection accepts exact integer minor units and signed ro
     "9007199254740993",
   );
   assert.equal(visitFinancialDocumentSchema.parse({ ...empty, totals }).totals.roundingMinor, "-1");
+});
+
+test("staff visit document adds scoped read-only print context without audit or command fields", () => {
+  const response = {
+    ...empty,
+    visit: { id: "01990000-0000-7000-8000-000000000001", displayNumber: 1, status: "OPEN" },
+    tableLabel: null,
+    outlet: { name: "Outlet", workspaceName: "Workspace", timezone: "Asia/Jakarta" },
+  };
+  assert.deepEqual(visitDocumentSchema.parse(response), response);
+  assert.equal(visitDocumentSchema.safeParse({ ...response, actorId: "secret" }).success, false);
+  assert.equal(
+    visitDocumentSchema.safeParse({ ...response, visit: { ...response.visit, openedBy: "secret" } })
+      .success,
+    false,
+  );
+  assert.equal(
+    visitDocumentSchema.safeParse({
+      ...response,
+      outlet: { ...response.outlet, guestPaymentNote: "not print metadata" },
+    }).success,
+    false,
+  );
+  assert.equal(floorOpenApiSchemas.VisitDocument.type, "object");
 });
 
 test("visit financial output has no input, permission, or editable-total escape hatch", () => {

@@ -14,6 +14,8 @@ import { Injectable } from "@nestjs/common";
 import { buildAuditMetadata } from "../audit/public.js";
 import { eventOrigin, type CommandOrigin } from "../../shared/command/command-origin.js";
 import { safeEventPayload } from "../../shared/command/event-payload.js";
+import { readDatabase } from "../read-snapshots/public.js";
+import type { ReadSnapshot } from "../../shared/query/read-snapshot.js";
 
 export type MutationContext = CommandOrigin;
 
@@ -75,8 +77,12 @@ export interface OrganizationRepository {
   findBrandById(tenantId: string, brandId: string): Promise<BrandRecord | null>;
   findBrandBySlug(tenantId: string, slug: string): Promise<BrandRecord | null>;
   findOutletByCode(tenantId: string, code: string): Promise<OutletRecord | null>;
-  findOutletById(tenantId: string, outletId: string): Promise<OutletRecord | null>;
-  findTenantById(tenantId: string): Promise<TenantRecord | null>;
+  findOutletById(
+    tenantId: string,
+    outletId: string,
+    snapshot?: ReadSnapshot,
+  ): Promise<OutletRecord | null>;
+  findTenantById(tenantId: string, snapshot?: ReadSnapshot): Promise<TenantRecord | null>;
   findTenantBySlug(slug: string): Promise<TenantRecord | null>;
   getSnapshot(tenantId: string): Promise<OrganizationSnapshotRecord | null>;
   updateBrand(
@@ -245,8 +251,11 @@ async function writeChange(
 
 @Injectable()
 export class PrismaOrganizationRepository implements OrganizationRepository {
-  async findTenantById(tenantId: string) {
-    return getPrismaClient().tenant.findUnique({ select: tenantSelect, where: { id: tenantId } });
+  async findTenantById(tenantId: string, snapshot?: ReadSnapshot) {
+    return readDatabase(
+      { tenantId, outletId: snapshot?.outletId ?? "" },
+      snapshot,
+    ).tenant.findUnique({ select: tenantSelect, where: { id: tenantId } });
   }
 
   async findTenantBySlug(slug: string) {
@@ -369,8 +378,8 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
     });
   }
 
-  async findOutletById(tenantId: string, outletId: string) {
-    return getPrismaClient().outlet.findFirst({
+  async findOutletById(tenantId: string, outletId: string, snapshot?: ReadSnapshot) {
+    return readDatabase({ tenantId, outletId }, snapshot).outlet.findFirst({
       select: outletSelect,
       where: { id: outletId, tenantId },
     });

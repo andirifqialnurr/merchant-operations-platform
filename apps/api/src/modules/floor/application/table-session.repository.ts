@@ -1,4 +1,5 @@
 import type { FloorPolicy, FloorRecordStatus, TableSessionStatus } from "@merchant/contracts";
+import type { ReadSnapshot } from "../../../shared/query/read-snapshot.js";
 
 import type { ActorCommandOrigin, CommandOrigin } from "../../../shared/command/command-origin.js";
 import type { FloorTableRecord } from "./floor-table.repository.js";
@@ -53,6 +54,7 @@ export interface TableSessionRepository {
     tenantId: string,
     outletId: string,
     sessionId: string,
+    snapshot?: ReadSnapshot,
   ): Promise<TableSessionRecord | null>;
   findTable(tenantId: string, outletId: string, tableId: string): Promise<SeatableTable | null>;
   /** Every table of the outlet with its holder, and the sessions still holding tables. */
@@ -79,7 +81,12 @@ export interface TableSessionRepository {
   holderOf(tenantId: string, outletId: string, tableId: string): Promise<TableSessionRecord | null>;
   policy(tenantId: string, outletId: string): Promise<FloorPolicy>;
   /** The label of the visit's primary table, the last one it had once closed. */
-  primaryTableLabel(tenantId: string, outletId: string, sessionId: string): Promise<string | null>;
+  primaryTableLabel(
+    tenantId: string,
+    outletId: string,
+    sessionId: string,
+    snapshot?: ReadSnapshot,
+  ): Promise<string | null>;
   setPolicy(
     tenantId: string,
     outletId: string,
