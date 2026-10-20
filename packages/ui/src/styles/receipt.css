@@ -7,11 +7,22 @@
   font-family: var(--font-family-sans);
   font-size: var(--text-body-sm);
   font-variant-numeric: tabular-nums;
-  gap: var(--space-3);
+  gap: var(--space-4);
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
   inline-size: 100%;
   line-height: 1.4;
   margin-inline: auto;
   padding: var(--space-4);
+}
+
+[data-receipt-document] .ui-segmented-control__item {
+  min-block-size: var(--control-height-lg);
+}
+
+.ui-sheet:has([data-receipt-document]) .ui-overlay__close {
+  min-block-size: var(--control-height-lg);
+  min-inline-size: var(--control-height-lg);
 }
 
 .ui-receipt--58mm {
@@ -64,10 +75,13 @@
 
 .ui-receipt__row dt {
   color: var(--color-text-secondary);
+  min-inline-size: 0;
 }
 
 .ui-receipt__row dd {
   margin: 0;
+  flex-shrink: 0;
+  max-inline-size: 60%;
   text-align: end;
 }
 
@@ -89,8 +103,36 @@
   padding: var(--space-3) 0;
 }
 
-.ui-receipt__line > span:last-child {
+.ui-receipt__line > span:first-child {
+  min-inline-size: 0;
+}
+
+.ui-receipt__line > span + span {
   flex-shrink: 0;
+  max-inline-size: 60%;
+  text-align: end;
+}
+
+.ui-receipt__group {
+  border-block-start: 1px dashed var(--color-border-strong);
+  display: grid;
+  gap: var(--space-3);
+  padding-block-start: var(--space-4);
+}
+
+.ui-receipt__group .ui-receipt__lines {
+  border: 0;
+  padding: 0;
+}
+
+.ui-receipt__group-detail {
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.ui-receipt__document-label,
+.ui-receipt__group-title {
+  font-weight: 600;
 }
 
 .ui-receipt__detail {
@@ -126,6 +168,31 @@
   html,
   body {
     background: var(--color-print-paper) !important;
+    block-size: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Remove non-document layout, not just its ink. Overlay scroll containers must
+     participate in normal page flow so long visit documents paginate. */
+  body:has(.ui-receipt) *:not(.ui-receipt):not(.ui-receipt *):not(:has(.ui-receipt)) {
+    display: none !important;
+  }
+
+  body:has(.ui-receipt) *:has(.ui-receipt) {
+    display: block !important;
+    position: static !important;
+    overflow: visible !important;
+    block-size: auto !important;
+    min-block-size: 0 !important;
+    max-block-size: none !important;
+    inline-size: auto !important;
+    min-inline-size: 0 !important;
+    max-inline-size: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    transform: none !important;
+    contain: none !important;
   }
 
   body * {
@@ -142,12 +209,9 @@
     background: var(--color-print-paper);
     border: 0;
     border-radius: 0;
-    inset-block-start: 0;
-    inset-inline-start: 0;
     max-inline-size: none;
     padding: 2mm;
-    /* Fixed to the page, so the receipt prints from the top-left wherever it sits on screen. */
-    position: fixed;
+    position: static;
   }
 
   .ui-receipt--58mm {
@@ -169,7 +233,17 @@
   }
 
   .ui-receipt__lines,
+  .ui-receipt__group,
   .ui-receipt__footer {
     border-color: var(--color-print-ink) !important;
+  }
+
+  .ui-receipt li,
+  .ui-receipt__row {
+    break-inside: avoid;
+  }
+
+  .ui-receipt__group-title {
+    break-after: avoid;
   }
 }

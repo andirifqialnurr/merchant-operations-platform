@@ -2,8 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { IconLock } from "@tabler/icons-react";
 
@@ -25,7 +24,7 @@ import { FloorSelector } from "@merchant/ui/floor-selector";
 import { LiveTableView, type LiveTableViewItem } from "@merchant/ui/live-table-view";
 import { ModuleAccessState } from "@merchant/ui/module-access-state";
 import { MoneyDisplay } from "@merchant/ui/money-display";
-import { Sheet } from "@merchant/ui/overlay";
+import { DropdownMenu, Sheet } from "@merchant/ui/overlay";
 import { PageHeader } from "@merchant/ui/page";
 import { Select } from "@merchant/ui/select";
 import { QuantityStepper } from "@merchant/ui/selection-control";
@@ -41,6 +40,7 @@ import { useToast } from "@/providers/toast-provider";
 import { RequestErrorState } from "@/shell/request-error-state";
 
 import { PaymentView } from "./payment-view";
+import { VisitDocumentSheet } from "./visit-document-sheet";
 import { VisitOrders } from "./visit-orders";
 import { visitHasPending } from "./table-order-state";
 import { useGuestOrderDecision } from "./use-guest-order-decision";
@@ -155,7 +155,7 @@ function LiveTables({
       notify({ message: errorMessage(error), tone: "danger" });
       void refresh();
     },
-    onSuccess: (checkout) => setPaid(checkout),
+    onSuccess: (checkout, { sessionId }) => setPaid({ checkout, sessionId }),
   });
   const { money } = useFormat();
   const [floorId, setFloorId] = useState<string>();
@@ -166,7 +166,20 @@ function LiveTables({
     () => params.get("table") ?? undefined,
   );
   const [paying, setPaying] = useState<{ dueMinor: string; sessionId: string }>();
-  const [paid, setPaid] = useState<TableSessionCheckout>();
+  const [paid, setPaid] = useState<{ checkout: TableSessionCheckout; sessionId: string }>();
+  const [documentId, setDocumentId] = useState<string>();
+  const [restoreDocumentFocus, setRestoreDocumentFocus] = useState(false);
+  const documentSheet = documentId ? (
+    <VisitDocumentSheet
+      tenantId={tenantId}
+      outletId={outletId}
+      sessionId={documentId}
+      onClose={() => {
+        setRestoreDocumentFocus(true);
+        setDocumentId(undefined);
+      }}
+    />
+  ) : null;
   const { cell, ref: planBox } = useCellSize(
     (query.data?.floors.find((floor) => floor.id === floorId) ?? query.data?.floors[0])?.gridCols ??
       24,
@@ -176,13 +189,17 @@ function LiveTables({
 
   if (paid) {
     return (
-      <VisitPaid
-        checkout={paid}
-        onDone={() => {
-          setPaid(undefined);
-          void refresh();
-        }}
-      />
+      <>
+        <VisitPaid
+          checkout={paid.checkout}
+          onDocument={allowed.canOrder ? () => setDocumentId(paid.sessionId) : undefined}
+          onDone={() => {
+            setPaid(undefined);
+            void refresh();
+          }}
+        />
+        {documentSheet}
+      </>
     );
   }
   if (paying) {
@@ -191,7 +208,7 @@ function LiveTables({
         onBack={() => setPaying(undefined)}
         onSessionPaid={(checkout) => {
           setPaying(undefined);
-          setPaid(checkout);
+          setPaid({ checkout, sessionId: paying.sessionId });
         }}
         outletId={outletId}
         source={{ dueMinor: paying.dueMinor, kind: "session", sessionId: paying.sessionId }}
@@ -349,6 +366,7 @@ function LiveTables({
             { onSuccess: () => setSelectedId(to.id) },
           )
         }
+        onDocument={() => setDocumentId(selectedSession.id)}
         onPay={(dueMinor) => setPaying({ dueMinor, sessionId: selectedSession.id })}
         outletId={outletId}
         session={selectedSession}
@@ -539,11 +557,15 @@ function LiveTables({
       ) : (
         <EmptyState description={t("noFloorHint")} title={t("noFloor")} />
       )}
-      {!wide && selected ? (
+      {!wide && selected && !documentId ? (
         <Sheet
           closeLabel={t("close")}
+          {...(restoreDocumentFocus ? { initialFocusSelector: "[data-visit-document-open]" } : {})}
           onOpenChange={(open) => {
-            if (!open) setSelectedId(undefined);
+            if (!open) {
+              setRestoreDocumentFocus(false);
+              setSelectedId(undefined);
+            }
           }}
           open
           size="sm"
@@ -552,6 +574,7 @@ function LiveTables({
           {panel}
         </Sheet>
       ) : null}
+      {documentSheet}
     </>
   );
 }
@@ -641,6 +664,7 @@ function VisitPanel({
   onClose,
   onMove,
   onPay,
+  onDocument,
   outletId,
   session,
   table,
@@ -663,6 +687,7 @@ function VisitPanel({
   onClose: () => void;
   onMove: (to: LiveTable) => void;
   onPay: (dueMinor: string) => void;
+  onDocument: () => void;
   outletId: string;
   session: TableSession;
   table: LiveTable;
@@ -671,6 +696,8 @@ function VisitPanel({
   titleHidden: boolean;
 }>) {
   const t = useTranslations("floor");
+  const doc = useTranslations("visitDocument");
+  const router = useRouter();
   const { locale, money, time } = useFormat();
   const moderation = useGuestOrderDecision(tenantId, outletId);
   const blocked = busy || moderation.isPending;
@@ -747,41 +774,64 @@ function VisitPanel({
       {claim && allowed.canPay && detail.isSuccess ? (
         <>
           {!pending ? (
-            <Button disabled={blocked} onClick={() => onConfirmClaim(claim)}>
+            <Button size="lg" disabled={blocked} onClick={() => onConfirmClaim(claim)}>
               {t("confirmClaim")}
             </Button>
           ) : null}
-          <Button disabled={blocked} onClick={() => onRejectClaim(claim)} variant="secondary">
-            {t("rejectClaim")}
-          </Button>
         </>
       ) : visit && owing && !pending && allowed.canPay && detail.isSuccess ? (
-        <Button disabled={blocked} onClick={() => onPay(visit.dueMinor)}>
+        <Button size="lg" disabled={blocked} onClick={() => onPay(visit.dueMinor)}>
           {t("pay")}
         </Button>
       ) : null}
       {visit && !owing && !pending && allowed.canSeat && detail.isSuccess ? (
-        <Button disabled={blocked} onClick={onClose}>
+        <Button size="lg" disabled={blocked} onClick={onClose}>
           {t("closeVisit")}
         </Button>
       ) : null}
-      {allowed.canMove ? (
-        <Button disabled={blocked} onClick={() => setMoving(true)} variant="secondary">
-          {t("moveTable")}
+      {allowed.canOrder ? (
+        <Button
+          size="lg"
+          variant="secondary"
+          disabled={blocked}
+          onClick={onDocument}
+          data-visit-document-open
+        >
+          {doc("open")}
         </Button>
       ) : null}
-      {allowed.canOrder ? (
-        <Link
-          className="ui-button ui-button--md ui-button--secondary"
-          href={`/pos?table=${session.id}`}
-          aria-disabled={blocked || undefined}
-          onClick={(event) => {
-            if (blocked) event.preventDefault();
-          }}
-          tabIndex={blocked ? -1 : undefined}
-        >
-          <span className="ui-button__label">{t("addOrder")}</span>
-        </Link>
+      {allowed.canMove || allowed.canOrder || (claim && allowed.canPay) ? (
+        <div className="[--control-height-sm:var(--control-height-lg)] [&_button]:min-h-12 [&_button]:min-w-12">
+          <DropdownMenu
+            side="top"
+            label={doc("moreActions")}
+            trigger={doc("moreActions")}
+            items={[
+              ...(allowed.canOrder
+                ? [
+                    {
+                      label: t("addOrder"),
+                      disabled: blocked,
+                      onSelect: () => router.push(`/pos?table=${session.id}`),
+                    },
+                  ]
+                : []),
+              ...(allowed.canMove
+                ? [{ label: t("moveTable"), disabled: blocked, onSelect: () => setMoving(true) }]
+                : []),
+              ...(claim && allowed.canPay
+                ? [
+                    {
+                      label: t("rejectClaim"),
+                      disabled: blocked,
+                      destructive: true,
+                      onSelect: () => onRejectClaim(claim),
+                    },
+                  ]
+                : []),
+            ]}
+          />
+        </div>
       ) : null}
     </>
   );
@@ -850,9 +900,15 @@ function VisitPanel({
 function VisitPaid({
   checkout,
   onDone,
-}: Readonly<{ checkout: TableSessionCheckout; onDone: () => void }>) {
+  onDocument,
+}: Readonly<{
+  checkout: TableSessionCheckout;
+  onDone: () => void;
+  onDocument: (() => void) | undefined;
+}>) {
   const t = useTranslations("floor");
   const pos = useTranslations("pos");
+  const doc = useTranslations("visitDocument");
   const { locale } = useFormat();
   const { payment } = checkout;
   const row = "flex items-baseline justify-between gap-3 py-3";
@@ -889,6 +945,17 @@ function VisitPaid({
           </>
         ) : null}
       </dl>
+      {onDocument ? (
+        <Button
+          fullWidth
+          onClick={onDocument}
+          size="lg"
+          variant="secondary"
+          data-visit-document-open
+        >
+          {doc("open")}
+        </Button>
+      ) : null}
       <Button fullWidth onClick={onDone} size="lg">
         {t("backToTables")}
       </Button>

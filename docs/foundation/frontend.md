@@ -54,6 +54,14 @@ apps/storybook/                story dan smoke Playwright
 
 ---
 
+### 1.2 Dokumen kunjungan (GAP06B-03)
+
+`features/pos/visit-document-sheet.tsx` memakai API snapshot `GET /floor/sessions/:id/document`; query key membawa tenant/outlet/session, staleTime 0 dan refetchOnMount always. Selama fetching/paused/error, cache lama tidak dirender sebagai dokumen siap cetak. Empty tidak mencetak nol palsu dan Print dinonaktifkan; error sementara menawarkan retry, error 4xx/invariant tidak.
+
+Akses berada pada panel kunjungan dan hasil bayar/konfirmasi klaim di `/pos/tables`, digerbang `order.create`; session ID hasil mutasi dipertahankan. Dokumen satu secondary, add/move/reject-claim tetap command yang sama di menu aksi atas agar tidak terpotong Small. Sheet kunjungan Small digantikan (tidak ditumpuk) dan fokus kembali ke tombol dokumen. Format uang memakai currency API, waktu transaksi memakai timezone API, bukan bahasa/perangkat yang menentukan mata uang.
+
+`visit-document-view.ts` hanya memformat snapshot: per-order adjustment/tarif di satu tempat, pending tanpa harga, total/sisa/net bersyarat, payment/refund unik tanpa metadata audit tambahan. Label dari kamus id/en; `Receipt` menerima props generik dan tidak melakukan IO. Preferensi paper perangkat dibagi dengan order receipt melalui `use-receipt-paper.ts`, bukan payload finansial. Tidak ada rute/shell baru atau reslicing. [Inventaris, bukti/batas](../milestones/M04-struk-kunjungan.md).
+
 ## 2. Struktur target `apps/web`
 
 ```text
@@ -412,12 +420,12 @@ export default function ProductsPage() {
 
 ## 13. Test
 
-| Jenis                           | Alat                         | Lokasi                               |
-| ------------------------------- | ---------------------------- | ------------------------------------ |
-| Komponen + aksesibilitas        | Vitest, Testing Library, axe | `packages/ui/src/**/*.test.tsx`      |
-| Story smoke                     | Playwright                   | `apps/storybook/tests`               |
-| Unit fitur (pemeta, hook, util) | Vitest                       | `apps/web/src/features/**`           |
-| Kesamaan kunci kamus            | Vitest                       | `apps/web/messages`                  |
+| Jenis                           | Alat                         | Lokasi                                                                                                                                                                                      |
+| ------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Komponen + aksesibilitas        | Vitest, Testing Library, axe | `packages/ui/src/**/*.test.tsx`                                                                                                                                                             |
+| Story smoke                     | Playwright                   | `apps/storybook/tests`                                                                                                                                                                      |
+| Unit fitur (pemeta, hook, util) | Vitest                       | `apps/web/src/features/**`                                                                                                                                                                  |
+| Kesamaan kunci kamus            | Vitest                       | `apps/web/messages`                                                                                                                                                                         |
 | E2E alur kritis                 | Playwright                   | `apps/web/e2e`: login, katalog, POS/shift, navigasi, Pengaturan; KDS memakai runner disposable tersendiri; bukti browser tamu di checkpoint M4 belum seluruhnya menjadi suite E2E tersimpan |
 
 **Regresi KDS tersimpan (M3-QA-04):** `pnpm --filter @merchant/web test:e2e:kds` memakai `playwright.kds.config.ts` dan fixture `apps/api/test/kds-browser-fixture.mjs`. Runner sekarang memakai web/API terpisah pada 4100/4101 (dapat diatur lewat `E2E_BASE_URL` dan `E2E_KDS_API_PORT`), dengan output Next `.next/kds-e2e` melalui `NEXT_DIST_DIR`. Web/API development pada 4000/4001 tidak dihentikan/dipakai ulang. Database PostgreSQL sementara dibuat/dihapus melalui kredensial admin dari `.env`; tidak perlu worker atau Redis. Spec KDS dilewati oleh runner E2E biasa agar tidak mengambil port API development. Cakupan: manual/status/riwayat, 32 kombinasi viewport × tema × bahasa, kios, suara/keyboard, offline/recovery, sumber eksternal/API/idempotency/limit/cabut; ditambah 18 pengambilan tampilan antrean 7 Baru + 3 Disiapkan, 9 dalam satu status, dan kosong, termasuk label/catatan panjang, 1–6 item, scroll region/keyboard, padding/gap terukur dan tidak ada tinggi header buatan. Screenshot di `apps/web/test-results/kds` (Git-ignored) adalah bukti untuk review, bukan baseline visual yang disetujui otomatis atau pengganti uji monitor fisik.

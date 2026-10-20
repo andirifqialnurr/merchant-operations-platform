@@ -51,6 +51,41 @@ describe("Receipt", () => {
     expect(screen.getByRole("region", { name: "Struk" })).toHaveClass("ui-receipt--58mm");
   });
 
+  it("keeps labeled order/payment groups separate and pending lines unpriced", async () => {
+    const { container } = render(
+      <Receipt
+        {...props}
+        lines={[]}
+        payment={[]}
+        documentLabel="Tagihan · Menunggu tinjauan"
+        lineGroups={[
+          {
+            key: "order-1",
+            title: "Pesanan #1",
+            lines: [{ key: "line-1", name: "Kopi", quantity: "1×", amount: "Rp50.000" }],
+          },
+          {
+            key: "order-2",
+            title: "Tinjau · Pesanan #2",
+            detail: "Tanpa gula",
+            lines: [{ key: "line-2", name: "Teh", quantity: "1×" }],
+          },
+        ]}
+        paymentGroups={[
+          { key: "payment-1", title: "Tunai", rows: [{ label: "Pembayaran", value: "Rp50.000" }] },
+        ]}
+      />,
+    );
+    const receipt = screen.getByRole("region", { name: "Struk" });
+    expect(within(receipt).getAllByText("Tunai")).toHaveLength(1);
+    expect(within(receipt).getAllByText("Tagihan · Menunggu tinjauan")).toHaveLength(1);
+    const pending = within(receipt).getByText("Tinjau · Pesanan #2").closest(".ui-receipt__group")!;
+    expect(within(pending as HTMLElement).getByText("1× Teh")).toBeVisible();
+    expect(pending.querySelectorAll(".ui-receipt__line > span")).toHaveLength(1);
+    expect(pending.querySelectorAll("dl")).toHaveLength(0);
+    expect((await axe(container)).violations).toEqual([]);
+  });
+
   it("passes an axe smoke test", async () => {
     const { container } = render(
       <main>

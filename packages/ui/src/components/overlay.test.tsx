@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { AlertDialog, Dialog, DropdownMenu, Popover, Sheet, Tooltip } from "./overlay";
@@ -21,6 +21,39 @@ describe("overlay primitives", () => {
     } finally {
       timer.mockRestore();
     }
+  });
+  it("focuses the caller's return target when a source sheet remounts", async () => {
+    render(
+      <Sheet
+        closeLabel="Tutup"
+        onOpenChange={vi.fn()}
+        open
+        title="Kunjungan"
+        initialFocusSelector="[data-return-target]"
+      >
+        <button data-return-target>Tagihan</button>
+      </Sheet>,
+    );
+    await waitFor(() => expect(screen.getByRole("button", { name: "Tagihan" })).toHaveFocus());
+  });
+  it("initial focus stays inside the panel and skips disabled targets", async () => {
+    render(
+      <>
+        <button data-return-target>Luar</button>
+        <Sheet
+          closeLabel="Tutup"
+          onOpenChange={vi.fn()}
+          open
+          title="Kunjungan"
+          initialFocusSelector="[data-return-target]"
+        >
+          <button data-return-target disabled>
+            Tagihan
+          </button>
+        </Sheet>
+      </>,
+    );
+    await waitFor(() => expect(screen.getByRole("button", { name: "Tutup" })).toHaveFocus());
   });
   it("closes dialog with Escape", async () => {
     const user = userEvent.setup();
@@ -72,6 +105,23 @@ describe("overlay primitives", () => {
     await user.click(confirmButton);
     expect(confirm).toHaveBeenCalled();
     expect(close).toHaveBeenCalledWith(false);
+  });
+  it("opens a bottom-panel action menu above its trigger without changing selection", async () => {
+    const user = userEvent.setup();
+    const select = vi.fn();
+    render(
+      <DropdownMenu
+        side="top"
+        label="Aksi kunjungan"
+        trigger="Aksi"
+        items={[{ label: "Pindah meja", onSelect: select }]}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "Aksi" }));
+    expect(screen.getByRole("menu", { name: "Aksi kunjungan" })).toHaveClass("ui-dropdown--top");
+    await user.click(screen.getByRole("menuitem", { name: "Pindah meja" }));
+    expect(select).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("button", { name: "Aksi" })).toHaveFocus();
   });
   it("runs dropdown action and renders accessible tooltip", async () => {
     const user = userEvent.setup();

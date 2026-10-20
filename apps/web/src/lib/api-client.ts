@@ -60,6 +60,7 @@ import {
   payOrderSchema,
   tableSessionCheckoutSchema,
   tableSessionDetailSchema,
+  visitDocumentSchema,
   createTableOrderSchema,
   type CreateTableOrder,
   posOrderListSchema,
@@ -1114,6 +1115,13 @@ export const merchantApi = {
       { ...outletHeaders(tenantId, outletId), [API_HEADERS.idempotencyKey]: idempotencyKey },
     ),
   /** A visit with its orders and what is still owed. */
+  visitDocument: (tenantId: string, outletId: string, sessionId: string) =>
+    apiRequest(
+      `/floor/sessions/${entityIdParamsSchema.parse({ id: sessionId }).id}/document`,
+      visitDocumentSchema,
+      { headers: outletHeaders(tenantId, outletId) },
+    ),
+
   tableSessionDetail: (tenantId: string, outletId: string, sessionId: string) =>
     apiRequest(
       `/floor/sessions/${entityIdParamsSchema.parse({ id: sessionId }).id}`,

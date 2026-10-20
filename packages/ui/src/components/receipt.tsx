@@ -16,7 +16,8 @@ export type ReceiptRow = {
 };
 
 export type ReceiptLine = {
-  amount: ReactNode;
+  /** Omit for an unpriced review/pending line. */
+  amount?: ReactNode;
   /** Variant and modifiers in one short line. */
   detail?: string;
   key: string;
@@ -25,11 +26,23 @@ export type ReceiptLine = {
   quantity: string;
 };
 
+export type ReceiptGroup = {
+  key: string;
+  title: string;
+  detail?: string;
+  lines?: readonly ReceiptLine[];
+  rows?: readonly ReceiptRow[];
+};
+
 export type ReceiptProps = {
   /** Accessible name of the receipt region. */
   ariaLabel: string;
   /** Marks a reprint, e.g. "SALINAN". Omit on the first print. */
   copyLabel?: string;
+  /** Document type/state, supplied once by the caller. */
+  documentLabel?: string;
+  lineGroups?: readonly ReceiptGroup[];
+  paymentGroups?: readonly ReceiptGroup[];
   /** Closing line, e.g. a thank-you. */
   footer?: string;
   lines: readonly ReceiptLine[];
@@ -47,6 +60,7 @@ export type ReceiptProps = {
 };
 
 function Rows({ rows }: Readonly<{ rows: readonly ReceiptRow[] }>) {
+  if (rows.length === 0) return null;
   return (
     <dl className="ui-receipt__rows">
       {rows.map((row, index) => (
@@ -62,11 +76,44 @@ function Rows({ rows }: Readonly<{ rows: readonly ReceiptRow[] }>) {
   );
 }
 
+function Lines({ lines }: Readonly<{ lines: readonly ReceiptLine[] }>) {
+  if (lines.length === 0) return null;
+  return (
+    <ul className="ui-receipt__lines">
+      {lines.map((line) => (
+        <li key={line.key}>
+          <div className="ui-receipt__line">
+            <span>
+              {line.quantity} {line.name}
+            </span>
+            {line.amount !== undefined ? <span>{line.amount}</span> : null}
+          </div>
+          {line.detail ? <p className="ui-receipt__detail">{line.detail}</p> : null}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Groups({ groups }: Readonly<{ groups: readonly ReceiptGroup[] }>) {
+  return groups.map((group) => (
+    <div className="ui-receipt__group" key={group.key}>
+      <strong className="ui-receipt__group-title">{group.title}</strong>
+      {group.detail ? <p className="ui-receipt__group-detail">{group.detail}</p> : null}
+      <Lines lines={group.lines ?? []} />
+      <Rows rows={group.rows ?? []} />
+    </div>
+  ));
+}
+
 export function Receipt({
   ariaLabel,
   copyLabel,
+  documentLabel,
   footer,
   lines,
+  lineGroups = [],
+  paymentGroups = [],
   meta,
   paper = "80mm",
   payment,
@@ -80,29 +127,18 @@ export function Receipt({
       <div className="ui-receipt__header">
         <strong>{title}</strong>
         {subtitle ? <span>{subtitle}</span> : null}
+        {documentLabel ? <span className="ui-receipt__document-label">{documentLabel}</span> : null}
         {copyLabel ? <span className="ui-receipt__copy">{copyLabel}</span> : null}
       </div>
 
       <Rows rows={meta} />
 
-      {lines.length > 0 ? (
-        <ul className="ui-receipt__lines">
-          {lines.map((line) => (
-            <li key={line.key}>
-              <div className="ui-receipt__line">
-                <span>
-                  {line.quantity} {line.name}
-                </span>
-                <span>{line.amount}</span>
-              </div>
-              {line.detail ? <p className="ui-receipt__detail">{line.detail}</p> : null}
-            </li>
-          ))}
-        </ul>
-      ) : null}
+      <Lines lines={lines} />
+      <Groups groups={lineGroups} />
 
       <Rows rows={totals} />
       <Rows rows={payment} />
+      <Groups groups={paymentGroups} />
 
       {footer ? <p className="ui-receipt__footer">{footer}</p> : null}
     </section>

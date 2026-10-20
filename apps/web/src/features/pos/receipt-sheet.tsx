@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
 
 import type { PaymentMethod, Receipt as ReceiptData } from "@merchant/contracts";
 import { Button } from "@merchant/ui/button";
@@ -19,36 +18,7 @@ import { ApiClientError } from "@/lib/api-client";
 import { useReceipt } from "./api";
 import { orderReceiptPayment } from "./receipt-payment";
 
-const PAPER_KEY = "pos-receipt-paper";
-const PAPERS: readonly ReceiptPaper[] = ["58mm", "80mm", "a4"];
-
-/** The paper width is a per-device convenience, so it lives in this browser only. */
-function useStoredPaper() {
-  const [paper, setPaper] = useState<ReceiptPaper>("80mm");
-  useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(PAPER_KEY);
-      if (stored && (PAPERS as readonly string[]).includes(stored)) {
-        const timer = window.setTimeout(() => setPaper(stored as ReceiptPaper), 0);
-        return () => window.clearTimeout(timer);
-      }
-    } catch {
-      // Storage can be unavailable; the default paper still works.
-    }
-    return undefined;
-  }, []);
-  return [
-    paper,
-    (next: ReceiptPaper) => {
-      setPaper(next);
-      try {
-        window.localStorage.setItem(PAPER_KEY, next);
-      } catch {
-        // Not remembered, but printing still works.
-      }
-    },
-  ] as const;
-}
+import { RECEIPT_PAPERS, useReceiptPaper } from "./use-receipt-paper";
 
 const methodKeys = {
   CASH: "methodCash",
@@ -195,7 +165,7 @@ export function ReceiptSheet({
   const t = useTranslations("pos");
   const errorMessage = useErrorMessage();
   const receipt = useReceipt(tenantId, outletId, orderId);
-  const [paper, setPaper] = useStoredPaper();
+  const [paper, setPaper] = useReceiptPaper();
   const ready = receipt.isSuccess && receipt.fetchStatus === "idle";
   const retryable =
     !(receipt.error instanceof ApiClientError) ||
@@ -223,7 +193,7 @@ export function ReceiptSheet({
     >
       <div className="grid gap-4">
         <SegmentedControl
-          items={PAPERS.map((value) => ({ label: t(`paper_${value}`), value }))}
+          items={RECEIPT_PAPERS.map((value) => ({ label: t(`paper_${value}`), value }))}
           label={t("paper")}
           onValueChange={(value) => setPaper(value as ReceiptPaper)}
           size="sm"

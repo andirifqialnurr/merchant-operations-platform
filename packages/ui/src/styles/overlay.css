@@ -185,6 +185,10 @@
   inset-block-start: calc(100% + var(--space-1));
   inset-inline-end: 0;
 }
+.ui-dropdown--top {
+  inset-block-start: auto;
+  inset-block-end: calc(100% + var(--space-1));
+}
 .ui-dropdown button {
   background: transparent;
   border: 0;

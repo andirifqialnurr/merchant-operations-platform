@@ -217,7 +217,7 @@ flowchart TD
 
 Layar pembayaran menggantikan katalog dan keranjang; total hanya tampil satu kali.
 
-**Koreksi receipt per-order M4-GAP06A:** struk dibaca ulang saat dibuka; Print tidak aktif selama fetch/paused/error, termasuk ketika ada cache lama. Gangguan sementara menawarkan Coba lagi; allocation yang tidak representable meminta pemeriksaan pengelola tanpa mencetak data tebakan. Payment shared menampilkan bagian pembayaran order dari ledger, bukan uang diterima/kembalian kunjungan pada tiap order. Tender/change single-order tetap asli. Koreksi ini tidak mengubah bayar/refund atau menambah split bill; bill/struk satu kunjungan (FLOOR-005, GAP06B) masih wajib. [Bukti dan batas](../milestones/M04-struk-kunjungan.md).
+**Koreksi receipt per-order M4-GAP06A:** struk dibaca ulang saat dibuka; Print tidak aktif selama fetch/paused/error, termasuk ketika ada cache lama. Gangguan sementara menawarkan Coba lagi; allocation yang tidak representable meminta pemeriksaan pengelola tanpa mencetak data tebakan. Payment shared menampilkan bagian pembayaran order dari ledger, bukan uang diterima/kembalian kunjungan pada tiap order. Tender/change single-order tetap asli. Koreksi ini tidak mengubah bayar/refund atau menambah split bill; bill/struk satu kunjungan (FLOOR-005, GAP06B) tersedia pada flow kunjungan di bagian 6, bukan pengganti atau perubahan ledger per-order. [Bukti dan batas](../milestones/M04-struk-kunjungan.md).
 
 ### 5.4 Membatalkan dan refund
 
@@ -286,7 +286,12 @@ flowchart TD
     H -- Tambah pesanan --> F
     H -- Pindah meja --> I[Pilih meja tujuan] --> J[Sesi pindah; pesanan dan tagihan tetap]
     H -- Bayar --> K[Pembayaran]
-    K --> L[Tutup sesi] --> M{Kebijakan bersih-bersih}
+    K --> PAID[Hasil pembayaran] --> L[Tutup sesi] --> M{Kebijakan bersih-bersih}
+    H -- Tagihan / struk --> DOC[Dokumen kunjungan dari snapshot API]
+    PAID -- Tagihan / struk --> DOC
+    DOC --> READY{Siap dan berisi?}
+    READY -- Ya --> PRINT[Cetak 58 mm / 80 mm / A4]
+    READY -- Tidak --> WAIT[Memuat / offline / error / kosong; Cetak nonaktif]
     M -- Ya --> N[Dibersihkan] --> O[Tandai tersedia]
     M -- Tidak --> O[Tersedia]
     H -- Gabung / pisah meja --> P{Floor Pro?}
@@ -295,6 +300,8 @@ flowchart TD
 ```
 
 Menggeser meja di editor tidak memindahkan tamu. Pindah meja adalah aksi tersendiri dengan pemilihan asal dan tujuan.
+
+**Dokumen kunjungan GAP06B:** Tagihan/struk tersedia bagi `order.create` dari panel dan hasil pembayaran/konfirmasi klaim. Add/move/reject-claim memakai menu Aksi lainnya yang membuka ke atas pada toolbar bawah; izin dan command tidak berubah. Query API dibaca ulang tiap buka, bukan merangkai cache receipt order. Pending tetap bill/review tanpa harga pending; empty tidak menampilkan angka tagihan palsu. Fetch/paused/error menonaktifkan Print, termasuk cache lama; retry hanya untuk gangguan sementara. Satu payment/refund dicetak sekali, tarif per-order memakai snapshot, dan dokumen panjang mengalir antarhalaman. Tutup dokumen kembali ke konteks/fokus sumber; tidak ada rute baru atau mutasi uang dari cetak. [Bukti dan batas](../milestones/M04-struk-kunjungan.md).
 
 **Berjalan sejak 16 Oktober 2026 (`/pos/tables`):** buka meja, tutup kunjungan, dan tandai bersih. Kunjungan hanya bisa ditutup bila semua pesanannya dibayar atau dibatalkan. Kebijakan bersih-bersih diatur di Backoffice > Meja > Lantai dan area. Bila dua kasir membuka meja yang sama bersamaan, yang kedua mendapat pesan bahwa meja tidak tersedia. **Pesanan dan bayar (16 Oktober 2026):** Tambah pesanan membuka layar jual untuk kunjungan itu (Kirim pesanan → dapur → kembali ke meja). Bayar mengambil satu pembayaran untuk semua pesanan yang belum dibayar; setelah lunas, tindakan utama menjadi Tutup kunjungan. **Pindah meja (16 Oktober 2026):** Pindah meja → pilih meja kosong → Pindahkan; kunjungan, pesanan, dan tagihan ikut. Gabung/pisah meja tampil terkunci dengan keterangan Meja Pro pada paket Basic. **Permintaan tamu (16 Oktober 2026):** panggilan pelayan, minta bill, dan klaim "sudah bayar" muncul di bagian Permintaan tamu di atas denah; baris membuka mejanya. Panggilan ditandai Selesai; klaim bayar diputuskan di panel kunjungan dengan Konfirmasi bayar (klaim menjadi pembayaran di shift kasir) atau Tolak, dan selama klaim menunggu tombol Bayar tidak tampil. **Pelanggan (16 Oktober 2026):** POS > Pesanan > buka pesanan > Tautkan pelanggan → cari nama atau 4 digit telepon → Pilih, atau Pelanggan baru → tersimpan dan tertaut; Riwayat menampilkan kunjungan dan totalnya.
 

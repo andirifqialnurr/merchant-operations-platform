@@ -574,6 +574,8 @@ Menampilkan nama dimensi, pemakaian dan batas, tanggal reset, dan ajakan add-on/
 | `DropdownMenu` | 180–320                | Daftar aksi; aksi destruktif dipisah garis                                                                                   |
 | `Tooltip`      | —                      | Maksimal dua kalimat pendek; tidak memuat informasi wajib                                                                    |
 
+`Dialog`/`Sheet` menerima `initialFocusSelector` opsional yang hanya mencari target di dalam panel dan melewati target disabled; default tetap kontrol pertama. Saat dokumen menggantikan sheet kunjungan Small, hanya satu dialog dirender; menutupnya mengembalikan fokus ke aksi dokumen pada sheet sumber. `DropdownMenu.side` (`bottom` bawaan/`top`) mendukung toolbar di bagian bawah; menu tidak boleh terpotong viewport atau memerlukan target sentuh lebih kecil dari kontrak surface.
+
 Pola bawaan Backoffice: klik baris tabel membuka `Sheet` detail di kanan, bukan pindah halaman. Ini menjaga konteks daftar dan menghindari halaman detail yang mengulang data daftar.
 
 ---
@@ -670,7 +672,9 @@ Komponen domain dibangun dari primitive `packages/ui` dan tidak menggandakan But
 | `PaymentMethodTile`, `CashKeypad`                 | Di `apps/web/src/features/pos/payment-view.tsx`, bukan `packages/ui`. Tombol keypad minimal 56px; nominal diterima dan kembalian jelas                                   |
 | `PaymentConfirmationPanel`                        | Di `apps/web/src/features/pos/paid-view.tsx`, bukan `packages/ui`. `Lunas` hanya setelah server menyimpan `PAID`                                                         |
 | `OpenShiftForm`, `CloseShiftForm`, `ShiftSummary` | Nilai turunan tidak menjadi input; selisih mengikuti izin                                                                                                                |
-| `OrderCard`, `Receipt`, `HeldOrderList`           | **Gap**                                                                                                                                                                  |
+| `OrderCard`, `HeldOrderList`                      | **Gap**                                                                                                                                                                  |
+
+`Receipt` tersedia melalui `@merchant/ui/receipt`: paper 58/80/A4, baris berlabel props, serta `documentLabel`, `lineGroups`/`paymentGroups` opsional. Grup memakai divider/spacing, bukan nested card. `ReceiptLine.amount` boleh dihilangkan untuk review pending, bukan diisi nol palsu. Satu lokasi untuk tiap payment/refund; angka tidak dihitung ulang oleh komponen. Print memakai aliran halaman normal (bukan fixed yang memotong dokumen panjang), hitam/putih dan hanya dokumen. Bukti UI/cetak dan batas printer fisik: [GAP06B](../milestones/M04-struk-kunjungan.md).
 
 ### 19.3 Floor dan meja
 

@@ -27,7 +27,7 @@ Bukti implementasi terdahulu: [M3](./M03-kds.md) dan TODO 14.6–14.23. Angka p9
 
 - [ ] Pengguna meninjau editor, buka/pindah/tutup kunjungan, beberapa ronde pesanan, pembayaran kunjungan, QR, permintaan layanan, dan klaim bayar.
 - [ ] Privasi telepon pelanggan, konteks outlet, dan riwayat diperiksa dengan peran kasir dan pemilik.
-- [x] Moderasi Basic GAP-01 ditutup secara teknis oleh M4-GAP01-BE/UI/E2E lokal (`93f4931`, dipush). Review visual pengguna tetap pada gate pertama. Gambar sudah ditutup teknis pada GAP-05 (lihat pembaruan); struk GAP-06 masih membutuhkan checkpoint tersendiri, bukan dihilangkan dari scope diam-diam.
+- [x] Moderasi Basic GAP-01 ditutup secara teknis oleh M4-GAP01-BE/UI/E2E lokal (`93f4931`, dipush). Review visual pengguna tetap pada gate pertama. Gambar sudah ditutup teknis pada GAP-05 (lihat pembaruan); struk GAP-06 juga selesai teknis melalui A dan B-01/02/03 (lihat pembaruan), bukan dihilangkan dari scope diam-diam. Review pengguna tetap terbuka.
 
 Bukti implementasi terdahulu: [M4](./M04-meja-self-order-customer.md) dan TODO 13.10–13.22 untuk task M4. Nomor 13.x juga dipakai checkpoint M2; cocokkan judul dan ID task, bukan nomor saja.
 
@@ -54,9 +54,15 @@ M4-GAP01-BE dan UI/E2E sudah terverifikasi lokal dan dipush sebagai `93f4931`. Q
 
 Menu tamu kini memuat flag `hasImage`; foto dibaca dari endpoint QR/product same-origin, bukan URL/ID gambar staf atau redirect storage. Gate QR + menu sellable, ownership Catalog, bounded 5 MB/timeout/no-redirect/sniff pada Core Files, rate limit terpisah dan header no-store melindungi akses. Foto/fallback memakai ProductTile yang ada; tidak ada route page baru, bucket/data development atau dependency baru. 22 integrasi penuh, tiga browser media (12 kombinasi, 14 capture; empat sampel dibaca), regresi moderasi 16 browser dan root gates/build lulus. GAP-05 selesai teknis dan dipush `e287eb4`, bukan acceptance M4; bukti/batas operasional pada [checkpoint gambar](./M04-gambar-menu-tamu.md#5-bukti-dan-batas-checkpoint). Tabel register di atas tetap merekam baseline sebelum koreksi.
 
-### Pembaruan GAP-06 — A selesai teknis, B tetap terbuka
+### Pembaruan GAP-06 — riwayat checkpoint A
 
-Checkpoint GAP06A mengoreksi struk per-order: nominal allocation ledger aktual dan label bagian pembayaran menggantikan nominal transaksi gabungan pada rendering shared; snapshot payment, refund dan kas tetap asli. Receipt fresh-read, Print disabled saat fetch/paused/error dan fail-closed allocation tak representable diuji. 29 integrasi penuh (7 khusus allocation), 4 browser/22 capture, regresi 16 moderasi + 3 gambar, root gates/build lulus; sembilan sampel dibaca. Diverifikasi dan dipush sebagai `d86dd72`; bukti pada [checkpoint struk](./M04-struk-kunjungan.md#6-bukti-checkpoint-a). **GAP06B — bill/struk satu kunjungan sesuai FLOOR-005 — belum diimplementasikan**, sehingga GAP-06 dan penerimaan M4 tetap terbuka. Tabel baseline di atas tidak diubah menjadi klaim selesai.
+Checkpoint GAP06A mengoreksi struk per-order: nominal allocation ledger aktual dan label bagian pembayaran menggantikan nominal transaksi gabungan pada rendering shared; snapshot payment, refund dan kas tetap asli. Receipt fresh-read, Print disabled saat fetch/paused/error dan fail-closed allocation tak representable diuji. 29 integrasi penuh (7 khusus allocation), 4 browser/22 capture, regresi 16 moderasi + 3 gambar, root gates/build lulus; sembilan sampel dibaca. Diverifikasi dan dipush sebagai `d86dd72`; bukti pada [checkpoint struk](./M04-struk-kunjungan.md#6-bukti-checkpoint-a). Pada checkpoint A, **GAP06B — bill/struk satu kunjungan sesuai FLOOR-005 — belum diimplementasikan**, sehingga A bukan penutupan GAP-06. Tabel baseline di atas merekam kondisi sebelum koreksi; status terbaru B di bawah.
+
+### Pembaruan GAP-06 — B selesai teknis, review pengguna terbuka
+
+B-01 (`765d453`) memproyeksikan satu dokumen read-only; B-02 (`86b3eef`) membaca snapshot repeatable-read/read-only lintas facade. B-03 kini menyediakan akses berizin dari panel dan hasil pembayaran/konfirmasi klaim, grup order/payment/refund unik, pending tanpa harga, fresh-read dan Print guard; tidak menambah rute atau mutasi uang. Spacing 16 px, kontrol baru 48 px, menu atas tidak terpotong dan fokus kembali tanpa modal Small bertumpuk. **7 browser/34 capture + 2 smoke Storybook**, regresi 4 receipt/16 moderasi/3 gambar, 43 integrasi penuh, root gates/build API/web/Storybook lulus. PDF panjang memuat semua 24 ronde; sampel screenshot dibaca, bukan seluruhnya/hasil printer fisik. [Inventaris, bukti dan batas](./M04-struk-kunjungan.md#77-buktibatas-b-03). Hash B-03 dicatat setelah commit sebelum push.
+
+**GAP-06 selesai teknis end-to-end; review pengguna FLOOR-005/M4 dan printer fisik tetap terbuka.** Ini bukan penerimaan milestone atau izin M5/reslicing baru.
 
 ### Pembaruan GAP-08 — implementasi tersedia
 

@@ -191,6 +191,7 @@ Capacity/table count/floor/area limit berasal dari package; membeli Table Pack m
 
 - **Edit Layout:** FloorSelector, AreaSelector, TableLayoutCanvas, TableLayoutToolbar, TablePropertyPanel, UnplacedTableTray.
 - **Live:** Floor/Area/status filter, LiveTableView, TableTile, TableSessionPanel.
+- **Dokumen kunjungan:** aksi Tagihan/struk di panel dan hasil pembayaran/konfirmasi klaim, berizin receipt (`order.create`). Satu dokumen snapshot: kelompok order, payment/refund unik dan ringkasan bersyarat; pending bukan hutang/lunas. Sheet Small menggantikan panel sumber, bukan ditumpuk; 58/80/A4 hanya mencetak Receipt. Tidak ada rute baru, input nominal turunan atau kartu bersarang. [Inventaris/bukti](../milestones/M04-struk-kunjungan.md).
 - **QR:** QRTableCard.
 - **Customer:** MerchantHeader, CustomerProductCard, ProductModifierPicker, StickyCartBar, OrderProgress, Waiter/Bill action.
 

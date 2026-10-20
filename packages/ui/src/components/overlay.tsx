@@ -25,6 +25,8 @@ export type DialogProps = {
   /** Accessible name of the close button. */
   closeLabel: string;
   description?: string;
+  /** Optional focus target inside the panel, e.g. when returning from a replaced sheet. */
+  initialFocusSelector?: string;
   footer?: ReactNode;
   onOpenChange: (open: boolean) => void;
   open: boolean;
@@ -41,6 +43,8 @@ export type AlertDialogProps = Omit<DialogProps, "footer"> & {
 export type SheetProps = {
   children: ReactNode;
   closeLabel: string;
+  /** Optional focus target inside the panel; falls back to the first enabled control. */
+  initialFocusSelector?: string;
   footer?: ReactNode;
   onOpenChange: (open: boolean) => void;
   open: boolean;
@@ -69,6 +73,8 @@ export type DropdownMenuProps = {
   items: readonly DropdownItem[];
   label: string;
   trigger: ReactNode;
+  /** Open above actions near the bottom of a scrolling panel. */
+  side?: "top" | "bottom";
 };
 export type TooltipProps = { children: ReactNode; content: string };
 
@@ -110,10 +116,12 @@ function Overlay({
   children,
   onClose,
   open,
+  initialFocusSelector,
 }: {
   children: ReactNode;
   onClose: () => void;
   open: boolean;
+  initialFocusSelector?: string | undefined;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const previous = useRef<HTMLElement | null>(null);
@@ -128,7 +136,13 @@ function Overlay({
     document.body.style.overflow = "hidden";
     const timer = window.setTimeout(() => {
       const panel = panelRef.current;
-      if (panel) focusable(panel)[0]?.focus();
+      if (panel) {
+        const targets = focusable(panel);
+        const preferred = initialFocusSelector
+          ? panel.querySelector<HTMLElement>(initialFocusSelector)
+          : null;
+        (preferred && targets.includes(preferred) ? preferred : targets[0])?.focus();
+      }
     }, 0);
     function escape(event: KeyboardEvent | globalThis.KeyboardEvent) {
       // A control inside that used Escape for itself (an open list) marks it as handled.
@@ -141,7 +155,7 @@ function Overlay({
       document.removeEventListener("keydown", escape);
       previous.current?.focus();
     };
-  }, [open]);
+  }, [open, initialFocusSelector]);
   if (!open || typeof document === "undefined") return null;
   function trap(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key !== "Tab") return;
@@ -177,6 +191,7 @@ export function Dialog({
   closeLabel,
   description,
   footer,
+  initialFocusSelector,
   onOpenChange,
   open,
   size = "md",
@@ -184,7 +199,11 @@ export function Dialog({
 }: DialogProps) {
   const titleId = useId();
   return (
-    <Overlay onClose={() => onOpenChange(false)} open={open}>
+    <Overlay
+      onClose={() => onOpenChange(false)}
+      open={open}
+      initialFocusSelector={initialFocusSelector}
+    >
       <section
         aria-describedby={description ? `${titleId}-description` : undefined}
         aria-labelledby={titleId}
@@ -252,12 +271,17 @@ export function Sheet({
   onOpenChange,
   open,
   side = "end",
+  initialFocusSelector,
   size = "md",
   title,
 }: SheetProps) {
   const titleId = useId();
   return (
-    <Overlay onClose={() => onOpenChange(false)} open={open}>
+    <Overlay
+      onClose={() => onOpenChange(false)}
+      open={open}
+      initialFocusSelector={initialFocusSelector}
+    >
       <section
         aria-labelledby={titleId}
         aria-modal="true"
@@ -321,7 +345,7 @@ export function Popover({
     </div>
   );
 }
-export function DropdownMenu({ items, label, trigger }: DropdownMenuProps) {
+export function DropdownMenu({ items, label, trigger, side = "bottom" }: DropdownMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -361,7 +385,7 @@ export function DropdownMenu({ items, label, trigger }: DropdownMenuProps) {
         {trigger}
       </button>
       {open ? (
-        <span aria-label={label} className="ui-dropdown" role="menu">
+        <span aria-label={label} className={`ui-dropdown ui-dropdown--${side}`} role="menu">
           {items.map((item) => (
             <button
               className={item.destructive ? "ui-dropdown__item--destructive" : undefined}

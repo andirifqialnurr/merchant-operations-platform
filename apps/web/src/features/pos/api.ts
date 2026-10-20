@@ -25,6 +25,19 @@ export const orderKeys = {
     ["pos", tenantId, "orders", outletId, orderId, "receipt"] as const,
 };
 
+export const visitDocumentKey = (tenantId: string, outletId: string, sessionId: string) =>
+  ["floor", tenantId, outletId, "document", sessionId] as const;
+
+/** A visit can gain orders/payments/refunds. Never print a previously cached document on opening. */
+export function useVisitDocument(tenantId: string, outletId: string, sessionId: string) {
+  return useQuery({
+    queryFn: () => merchantApi.visitDocument(tenantId, outletId, sessionId),
+    queryKey: visitDocumentKey(tenantId, outletId, sessionId),
+    staleTime: 0,
+    refetchOnMount: "always",
+  });
+}
+
 /** Payment snapshots stay fixed, but refunds/history may change: revalidate on each opening. */
 export function useReceipt(tenantId: string, outletId: string, orderId: string) {
   return useQuery({

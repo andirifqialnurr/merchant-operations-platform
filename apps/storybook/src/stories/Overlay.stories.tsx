@@ -44,6 +44,35 @@ export const DialogAndSheet: Story = {
     );
   },
 };
+export const ReturnFocusTarget: Story = {
+  args: {
+    children: "Konten overlay",
+    closeLabel: "Tutup",
+    onOpenChange: () => undefined,
+    open: false,
+    title: "Kunjungan",
+  },
+  render: () => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Kembali ke kunjungan</Button>
+        <Sheet
+          closeLabel="Tutup"
+          onOpenChange={setOpen}
+          open={open}
+          title="Kunjungan"
+          initialFocusSelector="[data-return-target]"
+        >
+          <Button data-return-target variant="secondary">
+            Tagihan / struk
+          </Button>
+        </Sheet>
+      </>
+    );
+  },
+};
+
 export const Menus: Story = {
   args: {
     children: "Konten overlay",
@@ -75,6 +104,29 @@ export const Menus: Story = {
       >
         Tindakan ini tidak dapat dibatalkan.
       </AlertDialog>
+    </div>
+  ),
+};
+
+export const MenusAbove: Story = {
+  ...Menus,
+  render: () => (
+    <div
+      style={{
+        paddingBlockStart: "calc(var(--space-16) * 3)",
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      <DropdownMenu
+        side="top"
+        label="Aksi kunjungan"
+        trigger="Aksi lainnya"
+        items={[
+          { label: "Tambah pesanan", onSelect: () => undefined },
+          { label: "Pindah meja", onSelect: () => undefined },
+        ]}
+      />
     </div>
   ),
 };
