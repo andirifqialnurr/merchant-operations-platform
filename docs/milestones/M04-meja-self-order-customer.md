@@ -47,7 +47,10 @@ Checkbox berikut merekam bukti implementasi awal, bukan persetujuan pengguna ata
 ### Koreksi kontrak GAP-06
 
 - [x] **M4-GAP06A Alokasi struk per pesanan** `d86dd72` — field read-only dari ledger, label bagian pembayaran tanpa tender/change gabungan, single-order tetap, fail-closed data invalid dan Print disabled saat fetch/paused/error meskipun ada cache. 29 integrasi penuh (7 khusus receipt), 4 browser/22 capture, regresi moderasi/gambar, root gates/build lulus. [Kontrak dan bukti](./M04-struk-kunjungan.md#6-bukti-checkpoint-a). Diverifikasi dan dipush ke `origin/main`; bukan acceptance M4.
-- [ ] **M4-GAP06B Bill/struk satu kunjungan** — agregasi/deduplikasi dan akses dari flow kunjungan sesuai FLOOR-005. A bukan pengganti; GAP-06 tetap terbuka.
+- [~] **M4-GAP06B Bill/struk satu kunjungan** — agregasi/deduplikasi dan akses dari flow kunjungan sesuai FLOOR-005. A bukan pengganti; GAP-06 tetap terbuka.
+  - [x] **GAP06B-01 Kontrak/proyeksi finansial** — fungsi murni + skema read-only, 10 domain/3 contracts baru; root gates/build API lulus. Inventaris dan rencana layout sebelum JSX ada di [bagian 7](./M04-struk-kunjungan.md#7-gap06b--checkpoint-dan-kontrak). Hash dicatat setelah commit sebelum push; belum endpoint/JSX/cetak.
+  - [ ] **GAP06B-02 Query API** — sumber lengkap/konsisten, facade kernel, scope/izin dan integrasi PostgreSQL disposable.
+  - [ ] **GAP06B-03 UI/cetak** — flow kunjungan yang ada, spacing/tanpa fakta ganda, fresh-read/Print guard dan browser/media print. Bukan reslicing/redesign rute baru.
 
 ### FT — Fitur produk
 

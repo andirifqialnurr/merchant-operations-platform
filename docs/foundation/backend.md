@@ -418,6 +418,12 @@ Satu fungsi, `computeCharges` di `packages/contracts/src/charges.ts`, memecah ju
 - Tarif dibaca saat membayar dan disalin ke tagihan. Permintaan bayar membawa `expectedTotalMinor`; bila berbeda dari hitungan server, permintaan ditolak `ORDER_TOTAL_CHANGED` dan tidak ada yang ditagih.
 - Bawaan outlet (sudah termasuk, kedua tarif 0) adalah keputusan `M1-OD-01`: harga menu adalah harga akhir.
 
+### 7.2 Proyeksi finansial struk kunjungan (GAP06B-01)
+
+`packages/contracts/src/visit-document.ts` menetapkan keluaran read-only; `modules/floor/domain/visit-financial-document.ts` memproyeksikan paid receipt snapshots dan order belum dibayar tanpa IO/mutasi. Transaksi payment dan refund dideduplikasi berdasarkan ID; snapshot bertentangan atau payment shared yang tidak tertutup lengkap dalam visit ditolak. Pending dipisahkan dari pricing/hutang; refund tidak membuka hutang baru. Nilai paid memakai snapshot lama, unpaid memakai `computeCharges` kini, seluruh agregasi bigint/string.
+
+Ini fondasi domain, **belum endpoint atau fitur cetak**. Integrasi berikutnya wajib query lengkap dan konsisten lewat facade publik kernel, scope tenant/outlet/session dan izin baca receipt; jangan mengklaim rangkaian read receipt terpisah sebagai satu snapshot atomik. Tidak ada perubahan ledger/schema/migrasi. Inventaris, state dan checkpoint berikutnya: [`M04-struk-kunjungan.md` bagian 7](../milestones/M04-struk-kunjungan.md#7-gap06b--checkpoint-dan-kontrak).
+
 ## 8. Persistence
 
 - Hanya `adapters/persistence` yang mengimpor klien Prisma.

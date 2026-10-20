@@ -17,6 +17,7 @@ export * from "./pos-shift.ts";
 export * from "./menu.ts";
 export * from "./orders.ts";
 export * from "./billing.ts";
+export * from "./visit-document.ts";
 export * from "./held-carts.ts";
 export * from "./kds.ts";
 export * from "./floor.ts";
