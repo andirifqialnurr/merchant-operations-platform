@@ -40,7 +40,9 @@ async function waitForBlocked(observer, pid) {
 }
 
 async function unit(db, tenantId, code, precision = 6) {
-  return db.inventoryUnit.create({ data: { tenantId, code, name: code, precision } });
+  return db.inventoryUnit.create({
+    data: { tenantId, code, name: code, precision, dimension: "MASS" },
+  });
 }
 
 async function fixture(db, slug) {
@@ -402,7 +404,7 @@ test("Inventory masters persist independently with exact values and scoped datab
         async () => {
           for (const [sql, values] of [
             [
-              "INSERT INTO inventory_units (tenant_id,code,name,precision) VALUES ($1,'G','Gram',6)",
+              "INSERT INTO inventory_units (tenant_id,code,name,precision,dimension) VALUES ($1,'G','Gram',6,'MASS')",
               [a.tenantId],
             ],
             ["INSERT INTO inventory_categories (tenant_id,name) VALUES ($1,'BAHAN')", [a.tenantId]],
@@ -461,7 +463,7 @@ test("Inventory masters persist independently with exact values and scoped datab
           for (const code of ["", "1kg", "g g", "<g>", " g", "g "]) {
             await refused(
               database.query(
-                "INSERT INTO inventory_units (tenant_id,code,name,precision) VALUES ($1,$2,'Invalid',0)",
+                "INSERT INTO inventory_units (tenant_id,code,name,precision,dimension) VALUES ($1,$2,'Invalid',0,'MASS')",
                 [a.tenantId, code],
               ),
             );

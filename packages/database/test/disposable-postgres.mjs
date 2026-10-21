@@ -10,7 +10,7 @@ import pg from "pg";
  * Migration SQL and the callback never run on the supplied database. A new
  * database for each suite also exercises every migration from an empty schema.
  */
-export async function withDisposablePostgres(run) {
+export async function withDisposablePostgres(run, { beforeMigration } = {}) {
   const adminUrl = process.env.TEST_DATABASE_ADMIN_URL ?? process.env.DATABASE_URL;
   if (!adminUrl)
     throw new Error("Set TEST_DATABASE_ADMIN_URL or DATABASE_URL for PostgreSQL tests.");
@@ -34,6 +34,8 @@ export async function withDisposablePostgres(run) {
       .map((entry) => entry.name)
       .sort();
     for (const directory of directories) {
+      // Upgrade fixtures may seed historical rows ONLY inside this owned database.
+      await beforeMigration?.({ directory, database });
       const sql = await readFile(new URL(`${directory}/migration.sql`, migrations), "utf8");
       await database.query(sql);
     }

@@ -15,7 +15,7 @@ import type {
   InventoryMasterScope,
 } from "../../application/inventory-master-reader.js";
 
-const unitSelect = { id: true, code: true, name: true, precision: true } as const;
+const unitSelect = { id: true, code: true, name: true, precision: true, dimension: true } as const;
 const conversionSelect = { id: true, fromUnitId: true, toUnitId: true, factor: true } as const;
 
 @Injectable()

@@ -23,7 +23,7 @@ import type {
 } from "../../application/inventory-unit-writer.js";
 import { InventoryUnitWriteError } from "../../domain/unit-write-error.js";
 
-const select = { id: true, code: true, name: true, precision: true } as const;
+const select = { id: true, code: true, name: true, precision: true, dimension: true } as const;
 
 @Injectable()
 export class PrismaInventoryUnitWriter implements InventoryUnitWriter {
@@ -56,7 +56,8 @@ export class PrismaInventoryUnitWriter implements InventoryUnitWriter {
             if (
               result.code !== input.code ||
               result.name !== input.name ||
-              result.precision !== input.precision
+              result.precision !== input.precision ||
+              result.dimension !== input.dimension
             )
               throw new Error("Invalid saved unit result.");
             return result;
@@ -90,7 +91,7 @@ export class PrismaInventoryUnitWriter implements InventoryUnitWriter {
                   ? { requestId: attempt.origin.requestId, correlationId: attempt.origin.requestId }
                   : {}),
                 metadata: buildAuditMetadata("inventory.unit.create", {
-                  after: { code: row.code, precision: row.precision },
+                  after: { code: row.code, precision: row.precision, dimension: row.dimension },
                 }),
               },
             });

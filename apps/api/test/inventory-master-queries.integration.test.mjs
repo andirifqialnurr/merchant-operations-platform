@@ -26,6 +26,7 @@ async function business(db, slug, count) {
       code: `u${i}`,
       name: `Unit ${i}`,
       precision: 6,
+      dimension: "COUNT",
     })),
   });
   const units = await db.inventoryUnit.findMany({
@@ -166,7 +167,13 @@ test("Inventory read queries keep real membership and PostgreSQL scope/decimal/p
             all,
             a.units.map((unit) => unit.id),
           );
-          assert.deepEqual(Object.keys(first.items[0]).sort(), ["code", "id", "name", "precision"]);
+          assert.deepEqual(Object.keys(first.items[0]).sort(), [
+            "code",
+            "dimension",
+            "id",
+            "name",
+            "precision",
+          ]);
           const foreignPosition = await units.execute(
             { limit: 100, cursor: b.units[0].id },
             identity,

@@ -132,8 +132,17 @@ test("create Inventory unit commits an authorized definition, audit and replay r
         "a new unit returns only its authoritative DTO and one critical correctly attributed audit/key",
         async () => {
           const ctx = attempt(a);
-          const result = await command.execute({ code: "kg", name: "Kilogram", precision: 3 }, ctx);
-          assert.deepEqual(Object.keys(result).sort(), ["code", "id", "name", "precision"]);
+          const result = await command.execute(
+            { code: "kg", name: "Kilogram", precision: 3, dimension: "MASS" },
+            ctx,
+          );
+          assert.deepEqual(Object.keys(result).sort(), [
+            "code",
+            "dimension",
+            "id",
+            "name",
+            "precision",
+          ]);
           const audit = await db.auditLog.findFirstOrThrow({
             where: { tenantId: a.tenantId, entityId: result.id, action: "inventory.unit.create" },
           });
@@ -142,7 +151,10 @@ test("create Inventory unit commits an authorized definition, audit and replay r
           assert.equal(audit.channel, "WEB");
           assert.equal(audit.requestId, ctx.origin.requestId);
           assert.equal(audit.correlationId, ctx.origin.requestId);
-          assert.deepEqual(audit.metadata, { critical: true, after: { code: "kg", precision: 3 } });
+          assert.deepEqual(audit.metadata, {
+            critical: true,
+            after: { code: "kg", precision: 3, dimension: "MASS" },
+          });
           const row = await db.idempotencyKey.findFirstOrThrow({
             where: { tenantId: a.tenantId, scope: scopeOf(a), key: ctx.idempotencyKey },
           });
@@ -164,7 +176,10 @@ test("create Inventory unit commits an authorized definition, audit and replay r
         async () => {
           const key = `normalized:${randomUUID()}`;
           const ctx = attempt(a, ` ${key} `);
-          const first = await command.execute({ code: " g ", name: " Gram ", precision: 6 }, ctx);
+          const first = await command.execute(
+            { code: " g ", name: " Gram ", precision: 6, dimension: "MASS" },
+            ctx,
+          );
           const record = await db.idempotencyKey.findFirstOrThrow({
             where: { tenantId: a.tenantId, scope: scopeOf(a), key },
           });
@@ -173,7 +188,10 @@ test("create Inventory unit commits an authorized definition, audit and replay r
             data: { name: "Updated label" },
           });
           assert.deepEqual(
-            await command.execute({ precision: 6, name: "Gram", code: "g" }, attempt(a, key)),
+            await command.execute(
+              { precision: 6, name: "Gram", code: "g", dimension: "MASS" },
+              attempt(a, key),
+            ),
             first,
           );
           assert.equal(
@@ -191,7 +209,10 @@ test("create Inventory unit commits an authorized definition, audit and replay r
             record,
           );
           await denied(
-            command.execute({ code: "G", name: "Gram", precision: 6 }, attempt(a, key)),
+            command.execute(
+              { code: "G", name: "Gram", precision: 6, dimension: "MASS" },
+              attempt(a, key),
+            ),
             "IDEMPOTENCY_KEY_REUSED",
           );
         },
@@ -199,7 +220,7 @@ test("create Inventory unit commits an authorized definition, audit and replay r
 
       await t.test("concurrent same-key creates have one ID/audit/completed result", async () => {
         const ctx = attempt(a);
-        const body = { code: "pcs", name: "Piece", precision: 0 };
+        const body = { code: "pcs", name: "Piece", precision: 0, dimension: "COUNT" };
         const results = await Promise.all(
           Array.from({ length: 8 }, () => command.execute(body, ctx)),
         );
@@ -236,8 +257,14 @@ test("create Inventory unit commits an authorized definition, audit and replay r
         async () => {
           const contexts = [attempt(a), attempt(a)];
           const results = await Promise.allSettled([
-            command.execute({ code: "ml", name: "Millilitre", precision: 6 }, contexts[0]),
-            command.execute({ code: "ML", name: "Millilitre", precision: 6 }, contexts[1]),
+            command.execute(
+              { code: "ml", name: "Millilitre", precision: 6, dimension: "VOLUME" },
+              contexts[0],
+            ),
+            command.execute(
+              { code: "ML", name: "Millilitre", precision: 6, dimension: "VOLUME" },
+              contexts[1],
+            ),
           ]);
           assert.equal(results.filter((row) => row.status === "fulfilled").length, 1);
           assert.equal(
@@ -268,11 +295,11 @@ test("create Inventory unit commits an authorized definition, audit and replay r
         async () => {
           const sharedKey = `shared:${randomUUID()}`;
           const first = await command.execute(
-            { code: "shared", name: "Shared", precision: 6 },
+            { code: "shared", name: "Shared", precision: 6, dimension: "COUNT" },
             attempt(a, sharedKey),
           );
           const foreign = await command.execute(
-            { code: "shared", name: "Shared", precision: 6 },
+            { code: "shared", name: "Shared", precision: 6, dimension: "COUNT" },
             attempt(b, sharedKey),
           );
           assert.notEqual(first.id, foreign.id);
@@ -303,26 +330,26 @@ test("create Inventory unit commits an authorized definition, audit and replay r
           };
           await denied(
             command.execute(
-              { code: "shared", name: "Shared", precision: 6 },
+              { code: "shared", name: "Shared", precision: 6, dimension: "COUNT" },
               attempt(manager, sharedKey),
             ),
             "INVENTORY_UNIT_CODE_TAKEN",
           );
           const own = await command.execute(
-            { code: "manager", name: "Manager unit", precision: 6 },
+            { code: "manager", name: "Manager unit", precision: 6, dimension: "COUNT" },
             attempt(manager, sharedKey),
           );
           assert.notEqual(first.id, own.id);
           await denied(
             command.execute(
-              { code: "bad", name: "Bad", precision: 6, tenantId: b.tenantId },
+              { code: "bad", name: "Bad", precision: 6, dimension: "COUNT", tenantId: b.tenantId },
               attempt(a),
             ),
             "VALIDATION_ERROR",
           );
           await denied(
             command.execute(
-              { code: "bad", name: "Bad", precision: 6 },
+              { code: "bad", name: "Bad", precision: 6, dimension: "COUNT" },
               attempt({ ...a, tenantId: b.tenantId }),
             ),
             "WORKSPACE_ACCESS_DENIED",
@@ -334,7 +361,7 @@ test("create Inventory unit commits an authorized definition, audit and replay r
         "revoked permission/scope/membership, device and entitlement refuse even replay without key updates",
         async () => {
           const ctx = attempt(a);
-          const body = { code: "guarded", name: "Guarded", precision: 6 };
+          const body = { code: "guarded", name: "Guarded", precision: 6, dimension: "COUNT" };
           await command.execute(body, ctx);
           const record = await db.idempotencyKey.findFirstOrThrow({
             where: { tenantId: a.tenantId, scope: scopeOf(a), key: ctx.idempotencyKey },
@@ -397,7 +424,10 @@ test("create Inventory unit commits an authorized definition, audit and replay r
           const ctx = attempt(a);
           try {
             await assert.rejects(
-              command.execute({ code: "audit_fail", name: "Failure", precision: 6 }, ctx),
+              command.execute(
+                { code: "audit_fail", name: "Failure", precision: 6, dimension: "COUNT" },
+                ctx,
+              ),
             );
             await absent(db, a, "audit_fail", ctx.idempotencyKey);
           } finally {
@@ -405,13 +435,19 @@ test("create Inventory unit commits an authorized definition, audit and replay r
               "DROP TRIGGER test_inventory_audit_failure ON audit_logs; DROP FUNCTION test_inventory_audit_failure()",
             );
           }
-          await command.execute({ code: "audit_fail", name: "Failure", precision: 6 }, ctx);
+          await command.execute(
+            { code: "audit_fail", name: "Failure", precision: 6, dimension: "COUNT" },
+            ctx,
+          );
           await database.query(`CREATE FUNCTION test_inventory_result_failure() RETURNS trigger AS $$ BEGIN IF NEW.code = 'result_fail' THEN NEW.name := 'unexpected'; END IF; RETURN NEW; END; $$ LANGUAGE plpgsql;
           CREATE TRIGGER test_inventory_result_failure BEFORE INSERT ON inventory_units FOR EACH ROW EXECUTE FUNCTION test_inventory_result_failure();`);
           const invalid = attempt(a);
           try {
             await denied(
-              command.execute({ code: "result_fail", name: "Result", precision: 6 }, invalid),
+              command.execute(
+                { code: "result_fail", name: "Result", precision: 6, dimension: "COUNT" },
+                invalid,
+              ),
               "IDEMPOTENCY_RESULT_UNAVAILABLE",
             );
             await absent(db, a, "result_fail", invalid.idempotencyKey);
@@ -431,7 +467,10 @@ test("create Inventory unit commits an authorized definition, audit and replay r
           CREATE TRIGGER test_inventory_completion_failure BEFORE UPDATE ON idempotency_keys FOR EACH ROW EXECUTE FUNCTION test_inventory_completion_failure();`);
           try {
             await assert.rejects(
-              command.execute({ code: "completion_fail", name: "Completion", precision: 6 }, ctx),
+              command.execute(
+                { code: "completion_fail", name: "Completion", precision: 6, dimension: "COUNT" },
+                ctx,
+              ),
             );
             await absent(db, a, "completion_fail", ctx.idempotencyKey);
           } finally {
@@ -459,6 +498,7 @@ test("create Inventory unit commits an authorized definition, audit and replay r
                       code: "serialization_fail",
                       name: "Serialization",
                       precision: 6,
+                      dimension: "COUNT",
                     },
                   });
                   return undefined;
@@ -475,13 +515,13 @@ test("create Inventory unit commits an authorized definition, audit and replay r
         "uncertain/expired/corrupt saved results fail closed without executing a new mutation",
         async () => {
           const ctx = attempt(a);
-          const body = { code: "blocked", name: "Blocked", precision: 6 };
+          const body = { code: "blocked", name: "Blocked", precision: 6, dimension: "COUNT" };
           const result = await command.execute(body, ctx);
           const record = await db.idempotencyKey.findFirstOrThrow({
             where: { tenantId: a.tenantId, scope: scopeOf(a), key: ctx.idempotencyKey },
           });
           const foreign = await command.execute(
-            { code: "foreign", name: "Foreign", precision: 6 },
+            { code: "foreign", name: "Foreign", precision: 6, dimension: "COUNT" },
             attempt(b),
           );
           const unitsBefore = await db.inventoryUnit.count();
@@ -493,6 +533,8 @@ test("create Inventory unit commits an authorized definition, audit and replay r
             [{ responseStatus: null }, "IDEMPOTENCY_RESULT_UNAVAILABLE"],
             [{ responseBody: { ...result, balance: "0" } }, "IDEMPOTENCY_RESULT_UNAVAILABLE"],
             [{ responseBody: { ...result, name: "Other" } }, "IDEMPOTENCY_RESULT_UNAVAILABLE"],
+            [{ responseBody: { ...result, dimension: null } }, "IDEMPOTENCY_RESULT_UNAVAILABLE"],
+            [{ responseBody: { ...result, dimension: "MASS" } }, "IDEMPOTENCY_RESULT_UNAVAILABLE"],
             [{ responseBody: { ...result, id: foreign.id } }, "IDEMPOTENCY_RESULT_UNAVAILABLE"],
             [{ requestHash: null }, "IDEMPOTENCY_KEY_REUSED"],
           ]) {
@@ -520,14 +562,14 @@ test("create Inventory unit commits an authorized definition, audit and replay r
           await assert.rejects(
             writer.create(
               { tenantId: undefined, actorId: a.userId },
-              { code: "bad", name: "Bad", precision: 6 },
+              { code: "bad", name: "Bad", precision: 6, dimension: "COUNT" },
               attempt(a),
             ),
           );
           await assert.rejects(
             writer.create(
               { tenantId: a.tenantId, actorId: undefined },
-              { code: "bad", name: "Bad", precision: 6 },
+              { code: "bad", name: "Bad", precision: 6, dimension: "COUNT" },
               attempt(a),
             ),
           );

@@ -163,7 +163,7 @@ Aturan:
 
 ---
 
-Command internal create unit B2b1 memakai permission `inventory.master.manage` + all-outlet scope dan menolak sesi perangkat, dengan fresh access juga sebelum replay. Permission default hanya untuk OWNER/MANAGER; migrasi katalog/grant belum diterapkan ke development, bukan aktivasi modul/capability. Unit/audit kritis/hasil idempotency adalah satu transaksi, scope key mencakup tenant/operation/actor, snapshot diverifikasi tanpa membocorkan row tenant lain. Tidak mengizinkan scope/actor/audit/balance/cost/latch dari body. [Batas/bukti](../milestones/M05-pembuatan-satuan.md#4-bukti-b2b1); HTTP/session wiring dan master lain belum tersedia.
+Command internal create unit B2b1 memakai permission `inventory.master.manage` + all-outlet scope dan menolak sesi perangkat, dengan fresh access juga sebelum replay. Permission default hanya untuk OWNER/MANAGER; migrasi katalog/grant belum diterapkan ke development, bukan aktivasi modul/capability. Unit/audit kritis/hasil idempotency adalah satu transaksi, scope key mencakup tenant/operation/actor, snapshot diverifikasi tanpa membocorkan row tenant lain. Tidak mengizinkan scope/actor/audit/balance/cost/latch dari body. [Batas/bukti](../milestones/M05-pembuatan-satuan.md#4-bukti-b2b1); HTTP/session wiring dan master lain belum tersedia. Prasyarat [B2b2a dimensi satuan](../milestones/M05-dimensi-satuan.md) menambah enum wajib pada create, NULL eksplisit untuk legacy read tanpa tebakan, immutability DB serta dimensi pada hash/audit/snapshot baru. Key/snapshot lama tidak diubah/dilepas; hasil tidak lengkap tetap fail closed. Predicate sama/diketahui bukan bukti scope/ownership/factor; writer conversion transaksional beserta guard terkait masih B2b2b.
 
 ## 8. Isolasi workspace
 

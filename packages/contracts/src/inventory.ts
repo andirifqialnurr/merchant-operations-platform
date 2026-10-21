@@ -10,6 +10,9 @@ export const INVENTORY_FACTOR_INTEGER_DIGITS = 18;
 
 export const inventoryUnitPrecisionSchema = z.number().int().min(0).max(INVENTORY_QUANTITY_SCALE);
 
+/** Explicit physical classification, never inferred from a unit's code or label. */
+export const inventoryUnitDimensionSchema = z.enum(["MASS", "VOLUME", "COUNT", "LENGTH", "AREA"]);
+
 /** Signed decimal for ledger/projection. Per-unit precision is checked by the domain. */
 export const inventoryQuantitySchema = z
   .string()
@@ -41,10 +44,14 @@ export const createInventoryUnitSchema = z
       .regex(/^[A-Za-z][A-Za-z0-9._-]*$/),
     name: z.string().trim().min(1).max(160),
     precision: inventoryUnitPrecisionSchema,
+    dimension: inventoryUnitDimensionSchema,
   })
   .strict();
 
-export const inventoryUnitSchema = createInventoryUnitSchema.extend({ id: z.uuid() }).strict();
+/** NULL is an unclassified legacy definition, never a compatible fallback dimension. */
+export const inventoryUnitSchema = createInventoryUnitSchema
+  .extend({ id: z.uuid(), dimension: inventoryUnitDimensionSchema.nullable() })
+  .strict();
 
 /** Scope, unit compatibility and ownership must still be proven by a future use case. */
 export const createInventoryUnitConversionSchema = z
@@ -110,5 +117,6 @@ export type InventoryUnitConversionListQuery = z.infer<
 >;
 export type CreateInventoryUnit = z.infer<typeof createInventoryUnitSchema>;
 export type InventoryUnit = z.infer<typeof inventoryUnitSchema>;
+export type InventoryUnitDimension = z.infer<typeof inventoryUnitDimensionSchema>;
 export type CreateInventoryUnitConversion = z.infer<typeof createInventoryUnitConversionSchema>;
 export type InventoryQuantity = z.infer<typeof inventoryQuantitySchema>;

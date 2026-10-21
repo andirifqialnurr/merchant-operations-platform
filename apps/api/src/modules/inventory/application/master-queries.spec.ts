@@ -24,6 +24,7 @@ const units: InventoryUnit[] = Array.from({ length: 3 }, (_, i) => ({
   code: `u${i}`,
   name: `Unit ${i}`,
   precision: 6,
+  dimension: "COUNT",
 }));
 const definitions: InventoryUnitConversion[] = [
   { id: randomUUID(), fromUnitId: units[0]!.id, toUnitId: units[1]!.id, factor: "0.000000000001" },

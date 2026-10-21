@@ -10,7 +10,7 @@ import {
   inventoryUnitPageSchema,
 } from "./inventory.ts";
 
-const unit = { id: randomUUID(), code: "g", name: "Gram", precision: 6 };
+const unit = { id: randomUUID(), code: "g", name: "Gram", precision: 6, dimension: "MASS" };
 const conversion = {
   id: randomUUID(),
   fromUnitId: randomUUID(),

@@ -77,8 +77,8 @@ test("conversion factors are positive exact decimal strings within numeric(30,12
     assert.equal(inventoryConversionFactorSchema.safeParse(factor).success, false);
 });
 
-test("unit creation owns only code/name/precision, never IDs, balance, cost, actor or scope", () => {
-  const unit = { code: "mL", name: " Milliliter ", precision: 3 };
+test("unit creation owns only code/name/precision/dimension, never IDs, balance, cost, actor or scope", () => {
+  const unit = { code: "mL", name: " Milliliter ", precision: 3, dimension: "VOLUME" };
   assert.deepEqual(createInventoryUnitSchema.parse(unit), { ...unit, name: "Milliliter" });
   for (const field of [
     "id",
@@ -94,7 +94,7 @@ test("unit creation owns only code/name/precision, never IDs, balance, cost, act
     assert.equal(createInventoryUnitSchema.safeParse({ ...unit, [field]: "1" }).success, false);
   for (const code of ["", " ", "kg g", "1kg", "<kg>", "a".repeat(25)])
     assert.equal(createInventoryUnitSchema.safeParse({ ...unit, code }).success, false);
-  const read = { id: randomUUID(), code: "pcs", name: "Piece", precision: 0 };
+  const read = { id: randomUUID(), code: "pcs", name: "Piece", precision: 0, dimension: "COUNT" };
   assert.deepEqual(inventoryUnitSchema.parse(read), read);
   assert.equal(inventoryUnitSchema.safeParse({ ...read, calculatedBalance: "0" }).success, false);
   assert.equal(inventoryUnitSchema.safeParse({ ...read, definitionLocked: true }).success, false);

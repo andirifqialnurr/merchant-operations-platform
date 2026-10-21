@@ -148,6 +148,8 @@ Catalog Kernel, Order Intake Kernel, Bill & Payment Ledger, Finance Core, Report
 
 Setiap modul memiliki tier **Basic, Pro, Advanced**. Tier menentukan fitur; paket, add-on, dan override menentukan kapasitas.
 
+Keputusan pengguna untuk Inventory setelah baseline `ddfe279`: satuan baru mempunyai dimensi eksplisit MASS/VOLUME/COUNT/LENGTH/AREA. Konversi baru hanya untuk dimensi sama dan diketahui; legacy tanpa dimensi tidak ditebak dari kode/nama. Dimensi diketahui immutable, tanpa konversi density/isi kemasan spesifik item otomatis. Rincian produk: PRD Modular §15.2; [checkpoint prasyarat](../milestones/M05-dimensi-satuan.md), bukan aktivasi fitur Inventory.
+
 ### 6.4 Perilaku kombinasi
 
 | Modul aktif     | Perilaku                                                                                        |

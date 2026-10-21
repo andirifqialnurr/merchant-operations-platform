@@ -1918,12 +1918,22 @@ enum InventoryRecordStatus {
   INACTIVE
 }
 
+enum InventoryUnitDimension {
+  MASS
+  VOLUME
+  COUNT
+  LENGTH
+  AREA
+}
+
 model InventoryUnit {
   id               String                    @id @default(dbgenerated("uuidv7()")) @db.Uuid
   tenantId         String                    @map("tenant_id") @db.Uuid
   code             String                    @db.VarChar(24)
   name             String                    @db.VarChar(160)
   precision        Int                       @db.SmallInt
+  /// NULL only for unclassified legacy rows; new inserts require an explicit dimension.
+  dimension        InventoryUnitDimension?
   /// Internal, irreversible first-reference latch; never a client input.
   definitionLocked Boolean                   @default(false) @map("definition_locked")
   createdAt        DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)

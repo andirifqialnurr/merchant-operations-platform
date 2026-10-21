@@ -2,6 +2,7 @@ import {
   commandChannelSchema,
   createInventoryUnitSchema,
   idempotencyKeySchema,
+  inventoryUnitDimensionSchema,
   inventoryUnitSchema,
   requestIdSchema,
 } from "@merchant/contracts";
@@ -55,7 +56,7 @@ export class CreateInventoryUnit {
         message: "The command origin does not match its authorized context.",
       });
     try {
-      return inventoryUnitSchema.parse(
+      return inventoryUnitSchema.extend({ dimension: inventoryUnitDimensionSchema }).parse(
         await this.writer.create(scope, parsed.data, {
           idempotencyKey: key.data,
           origin: {

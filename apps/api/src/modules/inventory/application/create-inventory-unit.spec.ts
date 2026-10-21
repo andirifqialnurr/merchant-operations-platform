@@ -21,7 +21,13 @@ function fixture() {
     origin: { actorId, requestId: " req-unit " },
     idempotencyKey: " unit-request-00001 ",
   };
-  const result: InventoryUnit = { id: randomUUID(), code: "g", name: "Gram", precision: 6 };
+  const result: InventoryUnit = {
+    id: randomUUID(),
+    code: "g",
+    name: "Gram",
+    precision: 6,
+    dimension: "MASS",
+  };
   const calls: unknown[] = [];
   const access: InventoryMasterWriteAccess = {
     authorize: async (identity) => {
@@ -59,7 +65,10 @@ async function denied(promise: Promise<unknown>, code: string) {
 test("unit create authorizes first, normalizes owned fields and binds origin before calling the atomic writer", async () => {
   const f = fixture();
   assert.deepEqual(
-    await f.command.execute({ code: " g ", name: " Gram ", precision: 6 }, f.context),
+    await f.command.execute(
+      { code: " g ", name: " Gram ", precision: 6, dimension: "MASS" },
+      f.context,
+    ),
     f.result,
   );
   assert.deepEqual(f.calls, [
@@ -67,7 +76,7 @@ test("unit create authorizes first, normalizes owned fields and binds origin bef
     [
       "write",
       { actorId: f.actorId, tenantId: f.tenantId },
-      { code: "g", name: "Gram", precision: 6 },
+      { code: "g", name: "Gram", precision: 6, dimension: "MASS" },
       {
         idempotencyKey: "unit-request-00001",
         origin: { actorId: f.actorId, channel: "API", requestId: "req-unit" },
@@ -105,13 +114,16 @@ test("strict unit action refuses identifiers, scope, audit, stock and derived fi
     "reason",
   ]) {
     await denied(
-      f.command.execute({ code: "g", name: "Gram", precision: 6, [field]: "1" }, f.context),
+      f.command.execute(
+        { code: "g", name: "Gram", precision: 6, dimension: "MASS", [field]: "1" },
+        f.context,
+      ),
       "VALIDATION_ERROR",
     );
   }
   for (const precision of [-1, 7, "6", 1.5, NaN])
     await denied(
-      f.command.execute({ code: "g", name: "Gram", precision }, f.context),
+      f.command.execute({ code: "g", name: "Gram", precision, dimension: "MASS" }, f.context),
       "VALIDATION_ERROR",
     );
   assert.ok(f.calls.every((call) => Array.isArray(call) && call[0] === "access"));
@@ -119,7 +131,7 @@ test("strict unit action refuses identifiers, scope, audit, stock and derived fi
 
 test("a valid key and consistent server origin are mandatory, not body metadata", async () => {
   const f = fixture();
-  const input = { code: "g", name: "Gram", precision: 6 };
+  const input = { code: "g", name: "Gram", precision: 6, dimension: "MASS" };
   await denied(
     f.command.execute(input, { ...f.context, idempotencyKey: "short" }),
     "IDEMPOTENCY_KEY_REQUIRED",
@@ -151,7 +163,10 @@ test("repository conflicts have stable neutral error codes; infrastructure failu
     f.writer.create = async () => {
       throw new InventoryUnitWriteError(code);
     };
-    await denied(f.command.execute({ code: "g", name: "Gram", precision: 6 }, f.context), code);
+    await denied(
+      f.command.execute({ code: "g", name: "Gram", precision: 6, dimension: "MASS" }, f.context),
+      code,
+    );
   }
   const f = fixture();
   const failure = new Error("infrastructure");
@@ -159,8 +174,27 @@ test("repository conflicts have stable neutral error codes; infrastructure failu
     throw failure;
   };
   await assert.rejects(
-    f.command.execute({ code: "g", name: "Gram", precision: 6 }, f.context),
+    f.command.execute({ code: "g", name: "Gram", precision: 6, dimension: "MASS" }, f.context),
     (error) => error === failure,
+  );
+});
+
+test("unit creation refuses missing or unknown dimensions before writer IO", async () => {
+  const f = fixture();
+  for (const dimension of [undefined, null, "OTHER", "mass", "kg"]) {
+    await denied(
+      f.command.execute({ code: "g", name: "Gram", precision: 6, dimension }, f.context),
+      "VALIDATION_ERROR",
+    );
+  }
+  assert.ok(f.calls.every((call) => Array.isArray(call) && call[0] === "access"));
+});
+
+test("a create result cannot masquerade as an unknown legacy unit", async () => {
+  const f = fixture();
+  f.writer.create = async () => ({ ...f.result, dimension: null });
+  await assert.rejects(
+    f.command.execute({ code: "g", name: "Gram", precision: 6, dimension: "MASS" }, f.context),
   );
 });
 
@@ -168,5 +202,7 @@ test("unit command output cannot leak ORM metadata even from a malformed port im
   const f = fixture();
   const leaked = { ...f.result, definitionLocked: false };
   f.writer.create = async () => leaked;
-  await assert.rejects(f.command.execute({ code: "g", name: "Gram", precision: 6 }, f.context));
+  await assert.rejects(
+    f.command.execute({ code: "g", name: "Gram", precision: 6, dimension: "MASS" }, f.context),
+  );
 });

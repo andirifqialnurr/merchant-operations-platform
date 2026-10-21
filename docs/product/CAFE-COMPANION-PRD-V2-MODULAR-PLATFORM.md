@@ -934,6 +934,8 @@ Inventory dapat digunakan sendiri untuk pencatatan stok sederhana dan dapat mene
 - Recipe/BOM link opsional.
 - Estimasi HPP opsional.
 
+**Keputusan pengguna — dimensi satuan (checkpoint M5 setelah `ddfe279`):** konversi dasar memerlukan dimensi satuan eksplisit (`MASS`, `VOLUME`, `COUNT`, `LENGTH`, `AREA`). Satuan baru wajib memilih dimensi; definisi lama tanpa dimensi tetap tidak diketahui, tidak ditebak dari kode/nama dan tidak dianggap kompatibel. Hanya pasangan berdimensi sama dan diketahui yang boleh menjadi konversi baru; dimensi sama bukan bukti factor benar atau ownership. Dimensi diketahui tidak boleh diubah untuk menafsirkan ulang referensi lama. Konversi lintas dimensi (misalnya massa–volume/density) dan isi kemasan spesifik item memerlukan kontrak tersendiri, bukan factor global yang diasumsikan otomatis. Ini validasi conversion dasar, bukan fitur stok lanjutan atau perubahan tier/kuota. [Kontrak teknis dan batas checkpoint](../milestones/M05-dimensi-satuan.md).
+
 ### 15.3 Requirement
 
 | ID      | Requirement                                                                                      |
