@@ -75,6 +75,11 @@ export const createInventoryUnitConversionSchema = z
     path: ["toUnitId"],
   });
 
+/** Pair/identity are immutable; only the explicit factor belongs to this edit. */
+export const updateInventoryUnitConversionSchema = z
+  .object({ factor: inventoryConversionFactorSchema })
+  .strict();
+
 /** Authoritative definition only, not a calculated quantity or proof of compatibility. */
 export const inventoryUnitConversionSchema = createInventoryUnitConversionSchema
   .safeExtend({ id: z.uuid() })
@@ -129,4 +134,5 @@ export type UpdateInventoryUnit = z.infer<typeof updateInventoryUnitSchema>;
 export type InventoryUnit = z.infer<typeof inventoryUnitSchema>;
 export type InventoryUnitDimension = z.infer<typeof inventoryUnitDimensionSchema>;
 export type CreateInventoryUnitConversion = z.infer<typeof createInventoryUnitConversionSchema>;
+export type UpdateInventoryUnitConversion = z.infer<typeof updateInventoryUnitConversionSchema>;
 export type InventoryQuantity = z.infer<typeof inventoryQuantitySchema>;

@@ -45,4 +45,4 @@ PRD §15, keputusan dimensi §15.2, schema B.6, backend/security dan NEXT M5 men
 
 ## 5. NEXT
 
-B2b3b update factor conversion untuk penggunaan mendatang dengan pair immutable, exact arithmetic dan audit/replay atomik. Master item/category/supplier/location dan limit resource terkait tetap terpisah sebelum endpoint. Tidak memulai route/reslicing atau memilih OD-05 di checkpoint update unit.
+NEXT saat B2b3a ditutup adalah B2b3b update factor conversion. Kini [B2b3b](./M05-perubahan-konversi.md) selesai teknis/terverifikasi: factor untuk penggunaan mendatang dengan pair immutable, exact string dan audit/replay atomik; NEXT aktif B2c1 query kategori Inventory berizin. Master item/category/supplier/location dan limit resource terkait tetap terpisah sebelum endpoint. Tidak memulai route/reslicing atau memilih OD-05 di checkpoint update unit.

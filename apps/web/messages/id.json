@@ -439,6 +439,7 @@
     "INVENTORY_UNIT_NOT_FOUND": "Satuan yang dipilih tidak tersedia.",
     "INVENTORY_UNIT_DIMENSIONS_INCOMPATIBLE": "Konversi memerlukan dua satuan dengan dimensi yang sama dan sudah ditentukan.",
     "INVENTORY_CONVERSION_PAIR_TAKEN": "Konversi untuk pasangan satuan ini sudah tersedia.",
+    "INVENTORY_CONVERSION_NOT_FOUND": "Konversi satuan yang dipilih tidak tersedia.",
     "INVENTORY_COMMAND_CONTEXT_INVALID": "Konteks permintaan tidak sesuai dengan pengguna yang berizin.",
     "IDEMPOTENCY_KEY_REUSED": "Permintaan ini sudah digunakan untuk data yang berbeda. Periksa hasil sebelumnya.",
     "INSTALLATION_SETUP_REQUIRED": "Modul ini belum dipasang atau belum selesai diatur.",

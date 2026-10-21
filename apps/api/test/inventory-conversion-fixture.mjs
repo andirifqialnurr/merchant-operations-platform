@@ -67,6 +67,7 @@ export async function fixture(db) {
     a: businesses[0],
     b: businesses[1],
     facts,
+    authorizer,
     writer,
     command: new CreateInventoryUnitConversion(authorizer, writer),
   };
@@ -100,12 +101,12 @@ export async function absent(db, identity, body, ctx) {
   });
   assert.ok(parents.every((row) => !row.definitionLocked));
 }
-export async function waitForBlocked(database, blockerPid) {
+export async function waitForBlocked(database, blockerPid, waiterPid = null) {
   const deadline = Date.now() + 5_000;
   do {
     const { rows } = await database.query(
-      "SELECT pid FROM pg_stat_activity WHERE $1::int = ANY(pg_blocking_pids(pid))",
-      [blockerPid],
+      "SELECT pid FROM pg_stat_activity WHERE $1::int = ANY(pg_blocking_pids(pid)) AND ($2::int IS NULL OR pid = $2::int)",
+      [blockerPid, waiterPid],
     );
     if (rows.length) return rows[0].pid;
     await setTimeout(10);

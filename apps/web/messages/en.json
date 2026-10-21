@@ -439,6 +439,7 @@
     "INVENTORY_UNIT_NOT_FOUND": "The selected unit is unavailable.",
     "INVENTORY_UNIT_DIMENSIONS_INCOMPATIBLE": "Conversion requires two units with the same known dimension.",
     "INVENTORY_CONVERSION_PAIR_TAKEN": "A conversion for this unit pair already exists.",
+    "INVENTORY_CONVERSION_NOT_FOUND": "The selected unit conversion is unavailable.",
     "INVENTORY_COMMAND_CONTEXT_INVALID": "The request context does not match the authorized user.",
     "IDEMPOTENCY_KEY_REUSED": "This request key was already used with different details. Check the earlier result.",
     "INSTALLATION_SETUP_REQUIRED": "This module is not installed or not fully set up yet.",
