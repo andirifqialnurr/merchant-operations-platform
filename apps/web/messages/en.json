@@ -435,6 +435,7 @@
     "IDEMPOTENCY_EXPIRED": "The saved result has expired. Check the data before sending a new request.",
     "IDEMPOTENCY_RESULT_UNAVAILABLE": "The saved request result cannot be verified. Contact an administrator.",
     "INVENTORY_UNIT_CODE_TAKEN": "This unit code is already in use.",
+    "INVENTORY_UNIT_DEFINITION_LOCKED": "The code and precision of a unit already in use cannot be changed.",
     "INVENTORY_UNIT_NOT_FOUND": "The selected unit is unavailable.",
     "INVENTORY_UNIT_DIMENSIONS_INCOMPATIBLE": "Conversion requires two units with the same known dimension.",
     "INVENTORY_CONVERSION_PAIR_TAKEN": "A conversion for this unit pair already exists.",

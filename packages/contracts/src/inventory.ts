@@ -48,6 +48,15 @@ export const createInventoryUnitSchema = z
   })
   .strict();
 
+/** Partial edit only; known dimensions and reference metadata are never client mutations. */
+export const updateInventoryUnitSchema = createInventoryUnitSchema
+  .pick({ code: true, name: true, precision: true })
+  .partial()
+  .strict()
+  .refine((value) => Object.values(value).some((field) => field !== undefined), {
+    message: "At least one unit field is required.",
+  });
+
 /** NULL is an unclassified legacy definition, never a compatible fallback dimension. */
 export const inventoryUnitSchema = createInventoryUnitSchema
   .extend({ id: z.uuid(), dimension: inventoryUnitDimensionSchema.nullable() })
@@ -116,6 +125,7 @@ export type InventoryUnitConversionListQuery = z.infer<
   typeof inventoryUnitConversionListQuerySchema
 >;
 export type CreateInventoryUnit = z.infer<typeof createInventoryUnitSchema>;
+export type UpdateInventoryUnit = z.infer<typeof updateInventoryUnitSchema>;
 export type InventoryUnit = z.infer<typeof inventoryUnitSchema>;
 export type InventoryUnitDimension = z.infer<typeof inventoryUnitDimensionSchema>;
 export type CreateInventoryUnitConversion = z.infer<typeof createInventoryUnitConversionSchema>;

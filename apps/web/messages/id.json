@@ -435,6 +435,7 @@
     "IDEMPOTENCY_EXPIRED": "Hasil permintaan sudah kedaluwarsa. Periksa data sebelum mengirim permintaan baru.",
     "IDEMPOTENCY_RESULT_UNAVAILABLE": "Hasil permintaan tersimpan tidak dapat diverifikasi. Hubungi pengelola.",
     "INVENTORY_UNIT_CODE_TAKEN": "Kode satuan sudah digunakan.",
+    "INVENTORY_UNIT_DEFINITION_LOCKED": "Kode dan presisi satuan yang sudah digunakan tidak dapat diubah.",
     "INVENTORY_UNIT_NOT_FOUND": "Satuan yang dipilih tidak tersedia.",
     "INVENTORY_UNIT_DIMENSIONS_INCOMPATIBLE": "Konversi memerlukan dua satuan dengan dimensi yang sama dan sudah ditentukan.",
     "INVENTORY_CONVERSION_PAIR_TAKEN": "Konversi untuk pasangan satuan ini sudah tersedia.",

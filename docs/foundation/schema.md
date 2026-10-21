@@ -355,6 +355,8 @@ Kontrak `inventory.ts` dan domain `modules/inventory/domain/quantity.ts` menetap
 
 Payload unit/conversion A tetap strict tanpa balance/cost/actor/timestamp/scope/latch. Guard DB B2b2b kini membuktikan syarat dimensi sama/diketahui, bukan kebenaran fisik factor atau sesi/izin/active-parent/limit/audit/idempotency; kontrol terkait tetap wajib pada use case/API sebelum master dapat diakses pengguna. Factor hanya definisi terarah eksplisit, tidak membuat reciprocal/path atau menghitung ulang mutasi lama. Status implementasi dan bukti B1 berada di dokumen checkpoint; migrasi hanya diuji di PostgreSQL disposable, bukan development.
 
+[B2b3a update unit](../milestones/M05-perubahan-satuan.md) tidak mengubah schema/migrasi: patch code/name/precision internal memakai row lock tenant-scoped sebelum guard domain; guard SQL CI code, reference latch/definition dan immutable dimension B1/B2b2a tetap berlaku. Nama bisa dikoreksi pada unit terpakai; code/precision hanya boleh berubah sebelum reference pertama. Dimensi/identity/latch/status bukan field patch. No-op tidak menulis row/timestamp/audit tetapi menyimpan original snapshot/key agar replay aman sesudah update/ref berikutnya. Legacy dimension NULL tetap tidak ditebak. Update/audit/result atomik diuji hanya di PostgreSQL disposable, belum endpoint atau modul aktif.
+
 ## B.7 Finance
 
 | Tabel                        | Kolom                                                                                                                                                                                                                                                          | Aturan                                                                                                               |
