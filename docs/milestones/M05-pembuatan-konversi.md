@@ -1,6 +1,6 @@
 # M5 — create direct conversion
 
-**Status:** Selesai teknis/terverifikasi — B2b2b, baseline `9f76b4e` setelah dimensi satuan `12ae8f4`; commit/push dicatat setelah gate akhir. Parent B2b/B2/BE-01/FT-01 belum selesai.
+**Status:** Selesai teknis/terverifikasi — B2b2b, baseline `9f76b4e` setelah dimensi satuan `12ae8f4`; implementasi `1c93bdb` dipush ke `origin/main`. Parent B2b/B2/BE-01/FT-01 belum selesai.
 
 ## 1. Kontrak sebelum implementasi
 
@@ -30,7 +30,7 @@ PRD §15 (termasuk keputusan dimensi di §15.2), Module Tiers §7, Packages & Li
 
 - [x] Source tests: normalization exact, permission sebelum IO/validasi, strict input/origin/key, error mapping, DTO privacy, audit critical/labels id/en, static migration.
 - [x] PostgreSQL disposable: migration legacy tanpa rewrite, scoped parents/dimensions, exact min/max factors, audit/key/latch atomik, same-key dan pair/reverse races, different actor/tenant, fresh refusal sebelum replay, original snapshot/corrupt results, rollback audit/result/completion, parent locks/race dan standalone/no runtime wiring.
-- [x] Root lint/boundary/warna/typecheck/test/format, Prisma validate, build API/web terisolasi; TODO/milestone diperbarui. Commit/push dicatat setelah gate akhir. Tidak ada JSX sehingga browser bukan gate.
+- [x] Root lint/boundary/warna/typecheck/test/format, Prisma validate, build API/web terisolasi; TODO/milestone diperbarui. Implementasi terverifikasi, di-commit dan dipush sebagai `1c93bdb` ke `origin/main`. Tidak ada JSX sehingga browser bukan gate.
 
 ## 4. Bukti dan batas
 
