@@ -363,6 +363,8 @@ Payload unit/conversion A tetap strict tanpa balance/cost/actor/timestamp/scope/
 
 [B2c2 create kategori Inventory](../milestones/M05-pembuatan-kategori.md) memakai model/index B1 existing tanpa migration: input hanya name trim, initial status ACTIVE eksplisit server, CI unique per tenant termasuk kategori inactive tetap conflict. Category/audit/key/result satu transaksi; audit tidak menduplikasi nama bebas. Replay memakai original id/name/ACTIVE yang divalidasi dan scoped existence, bukan current name/status setelah mutation terpisah. Tidak menambahkan hierarchy/slug/quota category, item relation atau kategori Catalog; update/lifecycle tetap checkpoint berikutnya.
 
+[B2c3a update nama kategori](../milestones/M05-perubahan-kategori.md) juga tanpa schema/migration baru: target tenant-scoped dikunci sebelum before snapshot, update hanya name dengan composite scoped key. CI name index B1 termasuk inactive tetap berlaku; identity/status/item FK tidak berubah dan hasil rename harus mempertahankan before status. No-op tidak menulis row/timestamp/audit tetapi result/key tetap disimpan. Original create/update snapshot tetap asli saat nama/status kemudian berubah. Audit hanya nameChanged flag; lifecycle kategori tetap command terpisah, bukan field rename.
+
 ## B.7 Finance
 
 | Tabel                        | Kolom                                                                                                                                                                                                                                                          | Aturan                                                                                                               |

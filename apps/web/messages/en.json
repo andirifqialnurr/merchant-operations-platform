@@ -435,6 +435,7 @@
     "IDEMPOTENCY_EXPIRED": "The saved result has expired. Check the data before sending a new request.",
     "IDEMPOTENCY_RESULT_UNAVAILABLE": "The saved request result cannot be verified. Contact an administrator.",
     "INVENTORY_CATEGORY_NAME_TAKEN": "This inventory category name is already in use.",
+    "INVENTORY_CATEGORY_NOT_FOUND": "The selected inventory category is unavailable.",
     "INVENTORY_UNIT_CODE_TAKEN": "This unit code is already in use.",
     "INVENTORY_UNIT_DEFINITION_LOCKED": "The code and precision of a unit already in use cannot be changed.",
     "INVENTORY_UNIT_NOT_FOUND": "The selected unit is unavailable.",

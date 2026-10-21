@@ -52,6 +52,7 @@ export async function fixture(db) {
     a: businesses[0],
     b: businesses[1],
     facts,
+    authorizer,
     writer,
     command: new CreateInventoryCategory(authorizer, writer),
     query: new ReadInventoryCategories(

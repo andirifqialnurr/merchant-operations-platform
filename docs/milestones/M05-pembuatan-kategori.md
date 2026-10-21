@@ -44,4 +44,4 @@ PRD §15 (category/item master mandiri), schema B.6, backend/security dan NEXT M
 
 ## 5. NEXT
 
-B2c3a update nama kategori transaksional berizin (CI scoped, original snapshot/audit/replay), lalu B2c3b lifecycle ACTIVE/INACTIVE dengan parent/item rules yang relevan. Item/supplier/location/LimitGate resource terkait tetap checkpoint terpisah sebelum endpoint; tidak membuka route/reslicing atau memilih OD-05 pada create kategori ini.
+NEXT saat B2c2 ditutup adalah B2c3a update nama kategori. Kini [B2c3a](./M05-perubahan-kategori.md) selesai teknis/terverifikasi: name-only/scoped lock/CI conflict/status dan relasi tetap, no-op/audit/original replay. NEXT aktif B2c3b lifecycle ACTIVE/INACTIVE dengan parent/item rules yang relevan. Item/supplier/location/LimitGate resource terkait tetap checkpoint terpisah sebelum endpoint; tidak membuka route/reslicing atau memilih OD-05 pada create kategori ini.
