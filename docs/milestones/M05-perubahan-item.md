@@ -1,6 +1,6 @@
 # M5-BE-01B2d3a — Update definisi item Inventory
 
-**Status:** Selesai teknis/terverifikasi, baseline `07e679e`; commit/push dicatat setelah gate akhir. Internal checkpoint, bukan HTTP/UI atau acceptance M5.
+**Status:** Selesai teknis/terverifikasi, baseline `07e679e`; implementasi `67ade6f` dipush ke `origin/main`. Internal checkpoint, bukan HTTP/UI atau acceptance M5.
 
 ## 1. Kontrak/inventaris sebelum implementasi
 
@@ -30,7 +30,7 @@ Replay memvalidasi DTO/target/patch dan scoped item + immutable base-unit bindin
 
 - [x] Contracts/domain/application: omission vs NULL/default hazards, canonical/precision/no-op/change flags, auth-first/target/key/origin/404/409/infrastructure/DTO privacy dan label id/en.
 - [x] PostgreSQL disposable: fields/status/base/createdAt/unit identity preserved, category active reassignment vs inactive retained/cleared, SKU CI/self/inactive/tenant races, null/zero/extremes, no-op exact timestamp, same-key/partial-update concurrency, original replay/corrupt keys/fresh refusal/quota-full editing, parent/row/audit lock barriers dan rollback.
-- [x] Root gates, Prisma validate, focused/full integration, isolated API/web build, restore next-env, TODO/evidence diperbarui; commit/push dicatat setelah gate akhir. Tidak schema/migration/grant/runtime/HTTP/UI/activation/development mutation/deploy.
+- [x] Root gates, Prisma validate, focused/full integration, isolated API/web build, restore next-env, TODO/evidence diperbarui; implementasi terverifikasi, di-commit dan dipush sebagai `67ade6f` ke `origin/main`. Tidak schema/migration/grant/runtime/HTTP/UI/activation/development mutation/deploy.
 
 ## 4. Bukti dan batas
 
