@@ -439,6 +439,7 @@
     "INVENTORY_CATEGORY_INACTIVE": "The selected inventory category is inactive.",
     "INVENTORY_MINIMUM_PRECISION_EXCEEDED": "The minimum stock exceeds the base unit precision.",
     "INVENTORY_ITEM_SKU_TAKEN": "The inventory item SKU is already in use.",
+    "INVENTORY_ITEM_NOT_FOUND": "The selected inventory item is unavailable.",
     "INVENTORY_UNIT_CODE_TAKEN": "This unit code is already in use.",
     "INVENTORY_UNIT_DEFINITION_LOCKED": "The code and precision of a unit already in use cannot be changed.",
     "INVENTORY_UNIT_NOT_FOUND": "The selected unit is unavailable.",

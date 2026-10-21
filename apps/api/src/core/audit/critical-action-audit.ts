@@ -23,6 +23,7 @@ export const CRITICAL_AUDIT_ACTIONS = [
   "inventory.category.update",
   "inventory.category.status_change",
   "inventory.item.create",
+  "inventory.item.update",
   "inventory.unit.create",
   "inventory.unit.update",
   "inventory.unit_conversion.create",

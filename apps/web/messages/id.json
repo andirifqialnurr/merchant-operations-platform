@@ -439,6 +439,7 @@
     "INVENTORY_CATEGORY_INACTIVE": "Kategori persediaan yang dipilih tidak aktif.",
     "INVENTORY_MINIMUM_PRECISION_EXCEEDED": "Ketelitian stok minimum melebihi ketelitian satuan dasar.",
     "INVENTORY_ITEM_SKU_TAKEN": "SKU item persediaan sudah digunakan.",
+    "INVENTORY_ITEM_NOT_FOUND": "Item persediaan yang dipilih tidak tersedia.",
     "INVENTORY_UNIT_CODE_TAKEN": "Kode satuan sudah digunakan.",
     "INVENTORY_UNIT_DEFINITION_LOCKED": "Kode dan presisi satuan yang sudah digunakan tidak dapat diubah.",
     "INVENTORY_UNIT_NOT_FOUND": "Satuan yang dipilih tidak tersedia.",

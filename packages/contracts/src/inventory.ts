@@ -140,6 +140,14 @@ export const createInventoryItemSchema = inventoryItemSchema
     minStock: inventoryItemSchema.shape.minStock.optional().default(null),
   })
   .strict();
+/** Partial edit without create defaults: omission preserves, NULL explicitly clears. */
+export const updateInventoryItemSchema = inventoryItemSchema
+  .pick({ name: true, sku: true, categoryId: true, minStock: true })
+  .partial()
+  .strict()
+  .refine((value) => Object.values(value).some((field) => field !== undefined), {
+    message: "At least one item field is required.",
+  });
 export const inventoryItemListQuerySchema = inventoryCategoryListQuerySchema
   .extend({ categoryId: z.uuid().optional(), baseUnitId: z.uuid().optional() })
   .strict();
@@ -183,6 +191,7 @@ export const inventoryItemPageSchema = createCursorPageSchema(inventoryItemSchem
   .strict()
   .refine(endCursorMatches);
 
+export type UpdateInventoryItem = z.infer<typeof updateInventoryItemSchema>;
 export type CreateInventoryItem = z.infer<typeof createInventoryItemSchema>;
 export type InventoryItem = z.infer<typeof inventoryItemSchema>;
 export type InventoryItemListQuery = z.infer<typeof inventoryItemListQuerySchema>;

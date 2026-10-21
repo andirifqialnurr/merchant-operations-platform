@@ -48,4 +48,4 @@ Replay memvalidasi DTO/input/original ACTIVE, item scoped existence dan original
 
 ## 5. NEXT
 
-B2d3a update definisi item: tentukan field yang masih boleh diedit setelah references/history sebelum coding; preserve base-unit history, scoped parents, minimum precision, audit/replay atomik. Lifecycle item/LimitGate reactivation, supplier/location tetap checkpoint terpisah. B2/BE-01/FT-01 belum selesai; tidak membuka route/reslicing atau memilih OD-05.
+NEXT saat create ditutup adalah B2d3a. Kini [B2d3a update definisi item](./M05-perubahan-item.md) selesai teknis/terverifikasi dengan partial metadata/threshold, immutable base/status dan audit/original replay atomik. NEXT aktif B2d3b lifecycle item. Kontrak B2d3a menetapkan field yang boleh diedit sebelum coding; preserve base-unit history, scoped parents, minimum precision, audit/replay atomik. Lifecycle item/LimitGate reactivation, supplier/location tetap checkpoint terpisah. B2/BE-01/FT-01 belum selesai; tidak membuka route/reslicing atau memilih OD-05.
