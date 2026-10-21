@@ -42,4 +42,4 @@ PRD §15 (conversion dasar), schema B.6, backend/security dan keputusan pengguna
 
 ## 5. NEXT
 
-B2b2b create direct conversion memakai dimensi ini untuk parent/ownership/compatibility dalam transaksi, factor eksak, audit/idempotency/conflict mapping. B2b2/B2b/B2/BE-01/FT-01 tetap terbuka; endpoint, update/lifecycle dan master lain tetap checkpoint terpisah.
+NEXT saat B2b2a ditutup adalah B2b2b create direct conversion. Kini [B2b2b](./M05-pembuatan-konversi.md) selesai teknis/terverifikasi: memakai dimensi ini untuk parent/ownership/compatibility dalam transaksi, factor eksak, audit/idempotency/conflict mapping dan guard DB. NEXT aktif B2b3a update unit berizin. B2b2 create conversion selesai teknis; B2b/B2/BE-01/FT-01 tetap terbuka; endpoint, update/lifecycle dan master lain tetap checkpoint terpisah.

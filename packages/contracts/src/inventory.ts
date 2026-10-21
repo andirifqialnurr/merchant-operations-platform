@@ -53,7 +53,7 @@ export const inventoryUnitSchema = createInventoryUnitSchema
   .extend({ id: z.uuid(), dimension: inventoryUnitDimensionSchema.nullable() })
   .strict();
 
-/** Scope, unit compatibility and ownership must still be proven by a future use case. */
+/** Syntax only: scope, ownership and compatibility require the command's stable parent checks. */
 export const createInventoryUnitConversionSchema = z
   .object({
     fromUnitId: z.uuid(),
