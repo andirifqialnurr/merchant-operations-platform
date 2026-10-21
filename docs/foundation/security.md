@@ -167,6 +167,8 @@ Command internal create unit B2b1 memakai permission `inventory.master.manage` +
 
 [B2c1 query kategori Inventory](../milestones/M05-kategori-inventory.md) menggunakan fresh authorizer read B2a existing, tanpa permission/grant baru: operational receive/adjust/stocktake atau master manage, capability/install/subscription dan identity aktif, device ditolak. Staf satu outlet boleh membaca definisi shared id/name/status tanpa relation/count/saldo/cost/contact; tidak menjadi hak mutation all-outlet. Tenant/query divalidasi juga oleh adapter; explicit status invalid tidak fallback unfiltered, cursor asing hanya posisi UUID. Select tiga kolom dan limit+1, response strict serta wrong-filter/unbounded port fail closed; tidak ada audit/idempotency/mutation dari query atau HTTP/aktivasi baru.
 
+[B2c2 create kategori Inventory](../milestones/M05-pembuatan-kategori.md) menggunakan fresh authorizer master/all-outlet/no-device existing, bukan permission baca operasional. Body name-only strict; status ACTIVE/ID/scope/origin dari server. CI collision termasuk kategori inactive menjadi satu 409 netral tanpa overwrite/reactivation. Category/critical audit/result/key atomik, audit hanya status awal tanpa nama bebas. Normalized name/key dan operation/actor/tenant scope menjaga replay hasil pertama; DTO/name/ACTIVE dan ID di tenant sendiri diverifikasi, DB checks di luar parser. Corrupt/expired/uncertain result tidak dieksekusi ulang/dilepas; audit/result/completion/serialization failure tidak meninggalkan write parsial. Tidak ada migration/grant/runtime/aktivasi baru.
+
 ## 8. Isolasi workspace
 
 - Setiap tabel domain memiliki `tenant_id` non-null.

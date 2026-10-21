@@ -13,6 +13,7 @@ test("classifies implemented critical write actions for audit logs", () => {
     "catalog_outlet_product.update",
     "entitlement.override",
     "membership.update",
+    "inventory.category.create",
     "inventory.unit.create",
     "inventory.unit.update",
     "inventory.unit_conversion.create",

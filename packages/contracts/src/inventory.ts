@@ -107,6 +107,8 @@ export const inventoryCategorySchema = z
     status: inventoryRecordStatusSchema,
   })
   .strict();
+/** Create owns only the name; initial status and identity are server decisions. */
+export const createInventoryCategorySchema = inventoryCategorySchema.pick({ name: true }).strict();
 export const inventoryCategoryListQuerySchema = inventoryUnitListQuerySchema
   .extend({ status: inventoryRecordStatusSchema.optional() })
   .strict();
@@ -146,6 +148,7 @@ export const inventoryCategoryPageSchema = createCursorPageSchema(inventoryCateg
   .refine(endCursorMatches);
 
 export type InventoryCategory = z.infer<typeof inventoryCategorySchema>;
+export type CreateInventoryCategory = z.infer<typeof createInventoryCategorySchema>;
 export type InventoryCategoryListQuery = z.infer<typeof inventoryCategoryListQuerySchema>;
 export type InventoryUnitConversion = z.infer<typeof inventoryUnitConversionSchema>;
 export type InventoryUnitListQuery = z.infer<typeof inventoryUnitListQuerySchema>;

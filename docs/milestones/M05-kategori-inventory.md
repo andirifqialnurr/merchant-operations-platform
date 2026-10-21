@@ -42,4 +42,4 @@ PRD §15 (category/item master mandiri), Module Tiers §7, schema B.6, backend/s
 
 ## 5. NEXT
 
-B2c2 create kategori Inventory transaksional berizin (CI name uniqueness scoped, strict input, audit/idempotency/fresh all-outlet master access), kemudian update/lifecycle kategori dan item/supplier/location/LimitGate terkait. Tidak memulai endpoint/reslicing atau memilih OD-05 dari query kategori ini.
+NEXT saat B2c1 ditutup adalah B2c2 create kategori Inventory. Kini [B2c2](./M05-pembuatan-kategori.md) selesai teknis/terverifikasi: CI name uniqueness scoped/strict name-only/ACTIVE server-owned dan audit/idempotency/fresh all-outlet master access. NEXT aktif B2c3a update nama kategori; lifecycle kategori dan item/supplier/location/LimitGate terkait tetap berikutnya. Tidak memulai endpoint/reslicing atau memilih OD-05 dari query kategori ini.

@@ -361,6 +361,8 @@ Payload unit/conversion A tetap strict tanpa balance/cost/actor/timestamp/scope/
 
 [B2c1 query kategori Inventory](../milestones/M05-kategori-inventory.md) tidak mengubah schema/migrasi: read internal hanya id/name/status `inventory_categories`, bukan kategori Catalog atau relation/count item. Query cursor/limit/status strict, status omitted berarti semua status; WHERE tenant + optional status/id position, ORDER BY id, maksimal limit+1. Scope/query divalidasi sebelum Prisma agar missing tenant/invalid status tidak menjadi broad query. Tidak menulis timestamp/status/master/audit/key/installation atau memperkenalkan quota kategori; mutation/lifecycle tetap checkpoint terpisah.
 
+[B2c2 create kategori Inventory](../milestones/M05-pembuatan-kategori.md) memakai model/index B1 existing tanpa migration: input hanya name trim, initial status ACTIVE eksplisit server, CI unique per tenant termasuk kategori inactive tetap conflict. Category/audit/key/result satu transaksi; audit tidak menduplikasi nama bebas. Replay memakai original id/name/ACTIVE yang divalidasi dan scoped existence, bukan current name/status setelah mutation terpisah. Tidak menambahkan hierarchy/slug/quota category, item relation atau kategori Catalog; update/lifecycle tetap checkpoint berikutnya.
+
 ## B.7 Finance
 
 | Tabel                        | Kolom                                                                                                                                                                                                                                                          | Aturan                                                                                                               |
