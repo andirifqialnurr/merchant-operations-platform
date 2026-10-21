@@ -1,6 +1,6 @@
 # M5 — dimensi satuan sebelum direct conversion
 
-**Status:** Selesai teknis/terverifikasi — prasyarat B2b2a setelah baseline `ddfe279`; commit/push dicatat setelah verifikasi akhir. Pengguna menyetujui penambahan dimensi melalui **“silahkan lanjutkan”** setelah celah kompatibilitas dijelaskan. B2b2 create conversion belum selesai.
+**Status:** Selesai teknis/terverifikasi — prasyarat B2b2a setelah baseline `ddfe279`, implementasi `12ae8f4` (dipush ke `origin/main`). Pengguna menyetujui penambahan dimensi melalui **“silahkan lanjutkan”** setelah celah kompatibilitas dijelaskan. B2b2 create conversion belum selesai.
 
 ## 1. Kontrak sebelum implementasi
 
@@ -29,7 +29,7 @@ PRD §15 (conversion dasar), schema B.6, backend/security dan keputusan pengguna
 
 - [x] Contracts dan source tests: explicit dimension, strict/legacy DTO, predicate dikenal/sama, hash/replay/audit/create/read dan tanpa perubahan izin.
 - [x] PostgreSQL disposable: upgrade data lama tanpa tebakan, new insert wajib dimensi, immutability/null/legacy latch, race dan rollback, replay/key lama fail closed, query scoped.
-- [x] Root lint/boundary/warna/typecheck/test/format, Prisma format/validate/generate dan build API/web; update TODO. Commit/push dicatat di bawah. Tidak menjalankan browser karena tidak ada JSX/HTTP/surface baru.
+- [x] Root lint/boundary/warna/typecheck/test/format, Prisma format/validate/generate dan build API/web; update TODO. Implementasi terverifikasi, di-commit dan dipush sebagai `12ae8f4` ke `origin/main`. Tidak menjalankan browser karena tidak ada JSX/HTTP/surface baru.
 
 ## 4. Bukti dan batas
 
@@ -37,7 +37,7 @@ PRD §15 (conversion dasar), schema B.6, backend/security dan keputusan pengguna
 - **7 test PostgreSQL baru (induk + 6 subtest)**: fixture historis disisipkan tepat sebelum migrasi baru melalui hook harness yang hanya menerima database disposable milik invocation; unit g/L yang pernah punya conversion lama tetap unknown. Semua kolom lama/latch/timestamp, conversion, audit dan key/hasil dibandingkan sebelum/sesudah dan tidak berubah. DTO read NULL dan scope tenant asing diuji; SQL/Prisma menolak dimensi baru kosong/unknown, lima dimensi exact create/audit/snapshot, known immutable meski belum dipakai, label tetap bisa dikoreksi, legacy referenced NULL tak bisa diklasifikasi, rollback klasifikasi dan race first reference.
 - Hash body menyertakan dimensi, replay normalized mengembalikan snapshot asli sesudah rename, beda dimensi conflict. Hash lama tetap reserved (`IDEMPOTENCY_KEY_REUSED`); snapshot tanpa dimensi dengan hash baru yang rusak gagal `IDEMPOTENCY_RESULT_UNAVAILABLE`, tanpa mutasi ulang. Suite create existing tetap memverifikasi permission/fresh access, revoked access sebelum replay, race, rollback audit/result/completion serta kini menolak snapshot dengan dimensi NULL/berbeda.
 - **38 test integrasi Inventory terfokus dan 81 integrasi PostgreSQL penuh lulus, 0 gagal/skip**. Run terfokus awal gagal karena key fixture baru lebih pendek dari minimum 16 karakter; key test diperbaiki dan suite sah diulang seluruhnya, bukan mengabaikan kegagalan. Entitlement facts fixture tetap disimulasikan, bukan instalasi/aktivasi atau test HTTP sesi.
-- Root gates lulus: **466 source API + 6 scripts, 62 contracts, 285 UI, 69 web TS + 10 scripts**, database 3 dan worker 10. Prisma format/generate/validate, build API dan web produksi terisolasi `.next/inventory-dimension-build` lulus; generated next-env dipulihkan dan typecheck diulang. Log `.cache/m5-dimension-*` Git-ignored. Tidak ada dependency/JSX/label UI baru sehingga browser/Storybook visual tidak dijalankan.
+- Root gates lulus: **466 source API + 6 scripts, 62 contracts, 285 UI, 69 web TS + 10 scripts**, database 3 dan worker 10. Prisma format/generate/validate, build API dan web produksi terisolasi `.next/inventory-dimension-build` lulus; generated next-env dipulihkan dan typecheck diulang. Log `.cache/m5-dimension-*` Git-ignored. Tidak ada dependency/JSX/label UI baru sehingga browser/Storybook visual tidak dijalankan. Warning deprecation `pg` pada regresi existing tetap tercatat, bukan klaim sudah diperbaiki. Pemeriksaan `git diff --check` dan 83 tautan file lokal lulus.
 - Belum writer atau guard DB compatibility conversion, endpoint/module wiring/manifest/capability delivery/ledger/UI/acceptance M5. Predicate baru adalah syarat perlu untuk checkpoint writer berikutnya, bukan klaim bahwa raw SQL conversion lama kini aman/kompatibel. Tidak ada migrasi development, deployment, grant baru atau perubahan data pengguna.
 
 ## 5. NEXT
