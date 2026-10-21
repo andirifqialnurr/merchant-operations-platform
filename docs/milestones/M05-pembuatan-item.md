@@ -1,6 +1,6 @@
 # M5-BE-01B2d2 — Create item Inventory
 
-**Status:** Selesai teknis/terverifikasi, baseline `8c026bc`; commit/push dicatat setelah gate akhir. Backend internal, bukan endpoint/UI atau acceptance M5.
+**Status:** Selesai teknis/terverifikasi, baseline `8c026bc`; implementasi `fe6473e` dipush ke `origin/main`. Backend internal, bukan endpoint/UI atau acceptance M5.
 
 ## 1. Kontrak dan inventaris
 
@@ -33,7 +33,7 @@ Replay memvalidasi DTO/input/original ACTIVE, item scoped existence dan original
 
 - [x] Contracts/source: field inventory/strict defaults/canonical input/precision, auth-first/errors/origin/key, counted policy snapshot/known hard dimension/bigint/no gauge dependency, audit privacy/id-en labels.
 - [x] PostgreSQL disposable: parents/scopes, legacy unit, null/zero/exact quantities/latch, SKU scopes/CI/inactive, race last quota slot/same key, replay after changes/quota and fresh refusals, reserved/corrupt keys, parent update/lifecycle lock races dan audit/result/completion rollback.
-- [x] Root gates/Prisma validate/full integration/build API/web terisolasi, restore next-env, TODO/evidence diperbarui; commit/push dicatat setelah gate akhir. Tidak migration/dev mutation/AppModule/manifest/HTTP/UI/deploy.
+- [x] Root gates/Prisma validate/full integration/build API/web terisolasi, restore next-env, TODO/evidence diperbarui; implementasi terverifikasi, di-commit dan dipush sebagai `fe6473e` ke `origin/main`. Tidak migration/dev mutation/AppModule/manifest/HTTP/UI/deploy.
 
 ## 4. Bukti dan batas
 
