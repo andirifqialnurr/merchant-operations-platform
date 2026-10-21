@@ -98,6 +98,19 @@ export const inventoryUnitConversionListQuerySchema = inventoryUnitListQuerySche
   .extend({ fromUnitId: z.uuid().optional(), toUnitId: z.uuid().optional() })
   .strict();
 
+/** Inventory-owned master state; reading a status does not authorize lifecycle mutations. */
+export const inventoryRecordStatusSchema = z.enum(["ACTIVE", "INACTIVE"]);
+export const inventoryCategorySchema = z
+  .object({
+    id: z.uuid(),
+    name: z.string().trim().min(1).max(160),
+    status: inventoryRecordStatusSchema,
+  })
+  .strict();
+export const inventoryCategoryListQuerySchema = inventoryUnitListQuerySchema
+  .extend({ status: inventoryRecordStatusSchema.optional() })
+  .strict();
+
 const inventoryMasterPageInfoSchema = z
   .object({ hasNextPage: z.boolean(), nextCursor: z.uuid().nullable() })
   .strict()
@@ -124,6 +137,16 @@ export const inventoryUnitConversionPageSchema = createCursorPageSchema(
   .strict()
   .refine(endCursorMatches);
 
+export const inventoryCategoryPageSchema = createCursorPageSchema(inventoryCategorySchema)
+  .extend({
+    items: z.array(inventoryCategorySchema).max(100),
+    pageInfo: inventoryMasterPageInfoSchema,
+  })
+  .strict()
+  .refine(endCursorMatches);
+
+export type InventoryCategory = z.infer<typeof inventoryCategorySchema>;
+export type InventoryCategoryListQuery = z.infer<typeof inventoryCategoryListQuerySchema>;
 export type InventoryUnitConversion = z.infer<typeof inventoryUnitConversionSchema>;
 export type InventoryUnitListQuery = z.infer<typeof inventoryUnitListQuerySchema>;
 export type InventoryUnitConversionListQuery = z.infer<

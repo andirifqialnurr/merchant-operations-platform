@@ -47,4 +47,4 @@ PRD §15/keputusan dimensi §15.2, schema B.6, backend/security dan NEXT M5 meng
 
 ## 5. NEXT
 
-B2c1 query kategori Inventory berizin/scoped sebagai checkpoint resource master berikutnya; mutation/lifecycle kategori/item/supplier/location beserta limit resource terkait tetap terpisah sebelum endpoint. Tidak membuka route/reslicing atau memilih OD-05 pada checkpoint update factor.
+NEXT saat B2b3b ditutup adalah B2c1 query kategori Inventory. Kini [B2c1](./M05-kategori-inventory.md) selesai teknis/terverifikasi: read scoped/status-filter/keyset dengan fresh authorization existing; NEXT aktif B2c2 create kategori transaksional; mutation/lifecycle kategori/item/supplier/location beserta limit resource terkait tetap terpisah sebelum endpoint. Tidak membuka route/reslicing atau memilih OD-05 pada checkpoint update factor.
