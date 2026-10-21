@@ -1,6 +1,6 @@
 # M5-BE-01B2d1 — Kontrak/query item Inventory
 
-**Status:** Selesai teknis/terverifikasi, baseline `6fda28a`; commit/push dicatat setelah gate akhir. Internal read-only checkpoint, bukan API/UI atau acceptance M5.
+**Status:** Selesai teknis/terverifikasi, baseline `6fda28a`; implementasi `9b45785` dipush ke `origin/main`. Internal read-only checkpoint, bukan API/UI atau acceptance M5.
 
 ## 1. Kontrak dan inventaris data
 
@@ -29,7 +29,7 @@ Tidak ada migration, mutation, audit/event/idempotency write, AppModule/manifest
 
 - [x] Strict contracts dan source use case: nullable/exact minStock, query bounds/filters, auth-first, leak rejection, bad port pagination/filter/order.
 - [x] PostgreSQL disposable: >100 rows, exact/empty pages, precision extremes/null/zero, parent inactive/unknown legacy dimension, cross-tenant filters/cursor, fresh revocations/device/mismatch, invalid adapter scope dan no writes.
-- [x] Root lint/boundaries/colors/typecheck/test/format, Prisma validate, full integration, isolated API/web production build; restore next-env. TODO dan evidence diperbarui; commit/push dicatat setelah gate akhir.
+- [x] Root lint/boundaries/colors/typecheck/test/format, Prisma validate, full integration, isolated API/web production build; restore next-env. TODO dan evidence diperbarui; implementasi terverifikasi, di-commit dan dipush sebagai `9b45785` ke `origin/main`.
 
 ## 4. Bukti dan batas
 
@@ -37,7 +37,7 @@ Tidak ada migration, mutation, audit/event/idempotency write, AppModule/manifest
 - **10 PostgreSQL tests baru (satu induk + sembilan subtest)** pada database disposable invocation-owned: 107 item lintas max/small keyset pages tanpa duplicate/skip; exact-limit/empty tanpa fake facts; seluruh kombinasi status/category/base-unit AND filters; foreign/missing parent empty, foreign/arbitrary cursor scoped position, UUID case-insensitive. Category inactive tetap terbaca pada existing active item. Legacy NULL-dimension unit/item di-seed melalui beforeMigration sebelum guard dimensi, bukan melemahkan guard atau menyisipkan unit baru tanpa dimensi.
 - Facade entitlement facts fixture + membership/role/user PostgreSQL nyata: empat permission existing untuk outlet-scoped staff; permission/membership/user/subscription/module/capability/install revocation menolak next page sebelum item IO; device/membership/workspace mismatch ditolak. Bukan HTTP/session atau aktivasi capability sungguhan.
 - Snapshot seluruh enam master (termasuk latch/timestamp), audit/key/outbox/install/usage counter/event identik sesudah reads. Catalog/POS/KDS tidak terpasang/tidak ditulis. No-op write semantics tidak berlaku di sini karena command mutasi belum ada; reader hanya SELECT.
-- **158 integrasi Inventory terfokus dan 201 integrasi PostgreSQL penuh lulus, 0 gagal/skip**. Root lint/boundaries/colors/typecheck/test/format dan Prisma validate lulus: **527 API source + 6 scripts, 85 contracts, 285 UI, 69 web TS + 10 scripts**, database 3, worker 10. Build API/web produksi terisolasi `.next/inventory-item-query-build` lulus; next-env dipulihkan sebelum final typecheck. `git diff --check` dan final format/typecheck lulus. Log `.cache/m5-item-query-*` Git-ignored; warning pg existing tidak diklaim diperbaiki. Type narrowing fixture dan historical seed/counter composite-order fixture dikoreksi sebelum full passing run, tanpa production policy/schema change.
+- **158 integrasi Inventory terfokus dan 201 integrasi PostgreSQL penuh lulus, 0 gagal/skip**. Root lint/boundaries/colors/typecheck/test/format dan Prisma validate lulus: **527 API source + 6 scripts, 85 contracts, 285 UI, 69 web TS + 10 scripts**, database 3, worker 10. Build API/web produksi terisolasi `.next/inventory-item-query-build` lulus; next-env dipulihkan sebelum final typecheck. `git diff --check`, final format/typecheck dan 162 tautan file lokal lulus. Log `.cache/m5-item-query-*` Git-ignored; warning pg existing tidak diklaim diperbaiki. Type narrowing fixture dan historical seed/counter composite-order fixture dikoreksi sebelum full passing run, tanpa production policy/schema change.
 - Tidak ada JSX/label UI baru (browser/visual tidak dijalankan), new dependency/grant/migration, runtime/HTTP/manifest wiring, mutation/LimitGate atau HPP/balance projection. Query-only completion bukan delivery capability/master-item CRUD/BE-01/FT-01/end-to-end/acceptance M5. Data development tidak dimigrasi/diubah.
 
 ## 5. NEXT
