@@ -119,6 +119,22 @@ export const inventoryCategoryListQuerySchema = inventoryUnitListQuerySchema
   .extend({ status: inventoryRecordStatusSchema.optional() })
   .strict();
 
+/** Master definition only: NULL threshold is unavailable, never an invented zero balance. */
+export const inventoryItemSchema = z
+  .object({
+    id: z.uuid(),
+    sku: z.string().trim().min(1).max(64).nullable(),
+    name: z.string().trim().min(1).max(160),
+    categoryId: z.uuid().nullable(),
+    baseUnitId: z.uuid(),
+    minStock: inventoryNonnegativeQuantitySchema.nullable(),
+    status: inventoryRecordStatusSchema,
+  })
+  .strict();
+export const inventoryItemListQuerySchema = inventoryCategoryListQuerySchema
+  .extend({ categoryId: z.uuid().optional(), baseUnitId: z.uuid().optional() })
+  .strict();
+
 const inventoryMasterPageInfoSchema = z
   .object({ hasNextPage: z.boolean(), nextCursor: z.uuid().nullable() })
   .strict()
@@ -153,6 +169,13 @@ export const inventoryCategoryPageSchema = createCursorPageSchema(inventoryCateg
   .strict()
   .refine(endCursorMatches);
 
+export const inventoryItemPageSchema = createCursorPageSchema(inventoryItemSchema)
+  .extend({ items: z.array(inventoryItemSchema).max(100), pageInfo: inventoryMasterPageInfoSchema })
+  .strict()
+  .refine(endCursorMatches);
+
+export type InventoryItem = z.infer<typeof inventoryItemSchema>;
+export type InventoryItemListQuery = z.infer<typeof inventoryItemListQuerySchema>;
 export type InventoryCategory = z.infer<typeof inventoryCategorySchema>;
 export type CreateInventoryCategory = z.infer<typeof createInventoryCategorySchema>;
 export type UpdateInventoryCategory = z.infer<typeof updateInventoryCategorySchema>;

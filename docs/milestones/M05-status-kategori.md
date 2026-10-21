@@ -46,4 +46,4 @@ PRD §15/INV-003–004, schema B.6, master B1, backend/security dan NEXT M5 meng
 
 ## 5. NEXT
 
-B2d1 kontrak/query item Inventory berizin/scoped dengan field inventory dan privacy HPP/cost yang ditetapkan sebelum coding; category/base-unit ownership/status serta limit item pada mutation checkpoint terpisah. Tidak membuka endpoint/route/reslicing atau memilih OD-05 dari lifecycle kategori ini.
+NEXT saat lifecycle ditutup adalah B2d1. Kini [B2d1 query item](./M05-query-item.md) selesai teknis/terverifikasi tanpa HPP/cost/balance/financial fields; NEXT aktif B2d2 create item. B2d1 menetapkan field inventory dan privacy sebelum coding; category/base-unit ownership/status serta limit item pada mutation checkpoint terpisah. Tidak membuka endpoint/route/reslicing atau memilih OD-05 dari lifecycle kategori ini.

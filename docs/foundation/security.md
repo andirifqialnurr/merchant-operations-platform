@@ -173,6 +173,8 @@ Command internal create unit B2b1 memakai permission `inventory.master.manage` +
 
 [B2c3b lifecycle kategori](../milestones/M05-status-kategori.md) memakai dedicated status-only command di bawah authorizer master/all-outlet/no-device existing. Target scoped row lock, actual before status dan hasil id/name dipertahankan, audit before/after status tanpa nama bebas/item count, row/audit/key/original snapshot atomik. No-op tetap reserved; replay memverifikasi target/status tujuan/scoped existence, bukan current name/status, sehingga tidak menerapkan ulang state lama. Tidak cascade ke item/FK/status/minimum/active-item usage dan tidak menambah kuota kategori; new active-parent assignment guard tetap milik command item berikutnya. Tidak ada migration/grant/runtime/aktivasi baru.
 
+[B2d1 item master query](../milestones/M05-query-item.md) memakai authorizer fresh baca existing, termasuk staf scoped-outlet tanpa saldo/biaya; bukan hak mutasi item/finance. DTO strict hanya id/sku/name/categoryId/baseUnitId/minStock/status; HPP/cost/price/margin/balance/contacts/ORM fields tidak dipilih/diterima, termasuk peek page. UUID tenant wajib sebelum Prisma IO; status/category/unit/cursor AND tenant, foreign/missing parent filter empty tanpa global existence lookup. Read relasi kategori inactive/legacy unit bukan bukti parent boleh dipilih untuk assignment baru. Tanpa new grant/migration/runtime/HTTP/activation.
+
 ## 8. Isolasi workspace
 
 - Setiap tabel domain memiliki `tenant_id` non-null.
