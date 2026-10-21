@@ -42,4 +42,4 @@ Tidak ada migration, mutation, audit/event/idempotency write, AppModule/manifest
 
 ## 5. NEXT
 
-B2d2 create item: field inventory/input vs derived/read-only ditetapkan sebelum implementasi, fresh master/all-outlet access, category/base-unit ownership/status/reference rules, minimum precision, active-item LimitGate, audit dan idempotency atomik. Tidak mulai sebelum checkpoint query ditutup; belum endpoint/UI atau stock integration/OD-05.
+NEXT saat query ditutup adalah B2d2. Kini [B2d2 create item](./M05-pembuatan-item.md) selesai teknis/terverifikasi, dengan input/parent/minimum/limit/audit/replay atomik. NEXT aktif B2d3a update definisi item. Kontrak B2d2 menetapkan field inventory/input vs derived/read-only sebelum implementasi, fresh master/all-outlet access, category/base-unit ownership/status/reference rules, minimum precision, active-item LimitGate, audit dan idempotency atomik. Tidak mulai sebelum checkpoint query ditutup; belum endpoint/UI atau stock integration/OD-05.

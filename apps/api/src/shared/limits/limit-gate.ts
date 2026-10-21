@@ -20,6 +20,17 @@ export interface LimitGate {
   ): Promise<void>;
 }
 
+/** Opt-in owner-transaction check. Resolve policy BEFORE opening a transaction;
+ * then supply a fresh owner count under the owner's serialization lock.
+ * This avoids nested pool IO and is not a reservation or a runtime gauge.
+ */
+export interface PreparedCountedLimit {
+  assertCanAdd(used: bigint, adding?: bigint): void;
+}
+export interface CountedLimitGate {
+  prepareCounted(tenantId: string, dimensionKey: string): Promise<PreparedCountedLimit>;
+}
+
 export const LIMIT_GATE = Symbol("LIMIT_GATE");
 
 /** For code that runs without the application, such as unit tests of a single service. */

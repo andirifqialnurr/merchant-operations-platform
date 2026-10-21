@@ -127,6 +127,65 @@ function setup(
   return { gauges, repository, service: new MeteringService(repository, entitlements, gauges) };
 }
 
+test("prepared hard-count policy checks the supplied owner count without a global gauge", async () => {
+  const dimensionKey = "inventory.items.active";
+  const limits = [{ dimensionKey, unlimited: false, value: 2n }];
+  const { service, gauges } = setup(limits);
+  gauges.register(dimensionKey, async () => {
+    throw new Error("Must not query outside owner TX");
+  });
+  const prepared = await service.prepareCounted(TENANT, dimensionKey);
+  prepared.assertCanAdd(1n);
+  assert.throws(
+    () => prepared.assertCanAdd(2n),
+    (error) => {
+      assert.ok(error instanceof HttpException);
+      assert.equal(error.getStatus(), 409);
+      assert.deepEqual(error.getResponse(), {
+        code: "LIMIT_REACHED",
+        details: { dimensionKey, limit: "2", usage: "2" },
+        message: "The limit for this resource has been reached.",
+      });
+      return true;
+    },
+  );
+  limits[0]!.value = 9n;
+  assert.throws(() => prepared.assertCanAdd(2n));
+  (await service.prepareCounted(TENANT, dimensionKey)).assertCanAdd(8n);
+});
+
+test("prepared count preserves absent/unlimited/null policy semantics and exact bigint bounds", async () => {
+  const dimensionKey = "inventory.items.active";
+  for (const limits of [
+    [],
+    [{ dimensionKey, unlimited: true, value: 0n }],
+    [{ dimensionKey, unlimited: false, value: null }],
+  ])
+    (await setup(limits).service.prepareCounted(TENANT, dimensionKey)).assertCanAdd(10n ** 30n);
+  const check = await setup([
+    { dimensionKey, unlimited: false, value: 9007199254740993n },
+  ]).service.prepareCounted(TENANT, dimensionKey);
+  check.assertCanAdd(9007199254740992n);
+  assert.throws(() => check.assertCanAdd(9007199254740993n));
+  assert.throws(() => check.assertCanAdd(-1n));
+  assert.throws(() => check.assertCanAdd(0n, 0n));
+  assert.throws(() => check.assertCanAdd(0n, -1n));
+  assert.throws(() => check.assertCanAdd(0 as unknown as bigint));
+  for (const value of [-1n, 2 as unknown as bigint, undefined as unknown as bigint])
+    await assert.rejects(
+      setup([{ dimensionKey, unlimited: false, value }]).service.prepareCounted(
+        TENANT,
+        dimensionKey,
+      ),
+    );
+});
+
+test("prepared count refuses unknown, metered and throttled dimensions before policy IO", async () => {
+  const { service } = setup();
+  for (const key of ["unknown", SALES, "report.exports.cycle"])
+    await assert.rejects(service.prepareCounted(TENANT, key));
+});
+
 const sale = (index: number, quantity = 1n, occurredAt = NOW): NewUsageEvent => ({
   dimensionKey: SALES,
   idempotencyKey: `sale-0000000000-${index}`,

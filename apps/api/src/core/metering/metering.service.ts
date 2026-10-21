@@ -11,6 +11,7 @@ import {
 import type { ActorCommandOrigin, CommandOrigin } from "../../shared/command/command-origin.js";
 import {
   USAGE_GAUGE_REGISTRY,
+  type CountedLimitGate,
   type LimitGate,
   type UsageGaugeRegistry,
 } from "../../shared/limits/limit-gate.js";
@@ -48,7 +49,7 @@ function cycleDimension(key: string): UsageDimension {
 
 /** What a workspace uses against what its package allows (prd.md 7.1). */
 @Injectable()
-export class MeteringService implements LimitGate, OnApplicationBootstrap {
+export class MeteringService implements LimitGate, CountedLimitGate, OnApplicationBootstrap {
   constructor(
     @Inject(METERING_REPOSITORY) private readonly repository: MeteringRepository,
     @Inject(EntitlementService) private readonly entitlements: EntitlementService,
@@ -92,6 +93,32 @@ export class MeteringService implements LimitGate, OnApplicationBootstrap {
         usage: used.toString(),
       });
     }
+  }
+
+  /** Policy snapshot only. The owner must count under its transaction lock;
+   * no external gauge/IO may run while that transaction holds a pool connection.
+   */
+  async prepareCounted(tenantId: string, dimensionKey: string) {
+    if (knownDimension(dimensionKey).enforcement !== "HARD_COUNT")
+      throw new Error(`${dimensionKey} is not a hard count.`);
+    const { limit } = await this.limitOf(tenantId, dimensionKey, new Date());
+    const maximum = !limit || limit.unlimited ? null : limit.value;
+    if (maximum !== null && (typeof maximum !== "bigint" || maximum < 0n))
+      throw new Error("A hard-count allowance must be a nonnegative bigint or unlimited.");
+    return {
+      assertCanAdd(used: bigint, adding = 1n) {
+        if (typeof used !== "bigint" || used < 0n || typeof adding !== "bigint" || adding <= 0n)
+          throw new Error(
+            "A counted limit requires nonnegative usage and a positive bigint increment.",
+          );
+        if (maximum !== null && used + adding > maximum)
+          throw accessDenied("LIMIT_REACHED", {
+            dimensionKey,
+            limit: maximum.toString(),
+            usage: used.toString(),
+          });
+      },
+    };
   }
 
   /**

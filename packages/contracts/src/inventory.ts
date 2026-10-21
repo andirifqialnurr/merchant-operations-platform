@@ -131,6 +131,15 @@ export const inventoryItemSchema = z
     status: inventoryRecordStatusSchema,
   })
   .strict();
+/** Status/identity are server-owned; minimum is a threshold, not opening stock. */
+export const createInventoryItemSchema = inventoryItemSchema
+  .pick({ name: true, sku: true, categoryId: true, baseUnitId: true, minStock: true })
+  .extend({
+    sku: inventoryItemSchema.shape.sku.optional().default(null),
+    categoryId: inventoryItemSchema.shape.categoryId.optional().default(null),
+    minStock: inventoryItemSchema.shape.minStock.optional().default(null),
+  })
+  .strict();
 export const inventoryItemListQuerySchema = inventoryCategoryListQuerySchema
   .extend({ categoryId: z.uuid().optional(), baseUnitId: z.uuid().optional() })
   .strict();
@@ -174,6 +183,7 @@ export const inventoryItemPageSchema = createCursorPageSchema(inventoryItemSchem
   .strict()
   .refine(endCursorMatches);
 
+export type CreateInventoryItem = z.infer<typeof createInventoryItemSchema>;
 export type InventoryItem = z.infer<typeof inventoryItemSchema>;
 export type InventoryItemListQuery = z.infer<typeof inventoryItemListQuerySchema>;
 export type InventoryCategory = z.infer<typeof inventoryCategorySchema>;

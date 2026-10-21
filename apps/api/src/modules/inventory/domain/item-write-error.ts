@@ -1,0 +1,17 @@
+export type InventoryItemWriteCode =
+  | "INVENTORY_UNIT_NOT_FOUND"
+  | "INVENTORY_CATEGORY_NOT_FOUND"
+  | "INVENTORY_CATEGORY_INACTIVE"
+  | "INVENTORY_MINIMUM_PRECISION_EXCEEDED"
+  | "INVENTORY_ITEM_SKU_TAKEN"
+  | "IDEMPOTENCY_KEY_REUSED"
+  | "IDEMPOTENCY_IN_PROGRESS"
+  | "IDEMPOTENCY_FAILED"
+  | "IDEMPOTENCY_EXPIRED"
+  | "IDEMPOTENCY_RESULT_UNAVAILABLE";
+
+export class InventoryItemWriteError extends Error {
+  constructor(readonly code: InventoryItemWriteCode) {
+    super(code);
+  }
+}
