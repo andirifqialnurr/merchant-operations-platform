@@ -1,6 +1,6 @@
 # M5 — lifecycle kategori Inventory
 
-**Status:** Selesai teknis/terverifikasi — B2c3b, baseline `f3af90d` setelah rename kategori `0dd60c8`; commit/push dicatat setelah gate akhir. Parent B2/B/BE-01/FT-01 belum selesai.
+**Status:** Selesai teknis/terverifikasi — B2c3b, baseline `f3af90d` setelah rename kategori `0dd60c8`; implementasi `68a4421` dipush ke `origin/main`. Parent B2/B/BE-01/FT-01 belum selesai.
 
 ## 1. Kontrak sebelum implementasi
 
@@ -30,7 +30,7 @@ PRD §15/INV-003–004, schema B.6, master B1, backend/security dan NEXT M5 meng
 
 - [x] Contracts/source: required strict status-only, dedicated command/auth-first/target/key/origin, stable errors/infrastructure mapping, DTO privacy dan critical audit.
 - [x] PostgreSQL disposable: dua transisi/no-op, unchanged name/item/FK/status/minimum/usage/history, CI reserved name, original lifecycle/create/rename replay/key isolation, fresh access denial, fault rollback, corrupt/reserved states, concurrent same-key/opposite status/rename/row-lock barriers.
-- [x] Root lint/boundary/warna/typecheck/test/format, Prisma validate, build API/web terisolasi; TODO/milestone diperbarui. Commit/push dicatat setelah gate akhir. Tanpa JSX/HTTP sehingga browser bukan gate.
+- [x] Root lint/boundary/warna/typecheck/test/format, Prisma validate, build API/web terisolasi; TODO/milestone diperbarui. Implementasi terverifikasi, di-commit dan dipush sebagai `68a4421` ke `origin/main`. Tanpa JSX/HTTP sehingga browser bukan gate.
 
 ## 4. Bukti dan batas
 
