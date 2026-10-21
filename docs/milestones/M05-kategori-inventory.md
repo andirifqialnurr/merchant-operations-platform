@@ -1,6 +1,6 @@
 # M5 — kategori Inventory
 
-**Status:** Selesai teknis/terverifikasi — B2c1 query kategori berizin, baseline `89aaeb1` setelah update factor `c91ba73`; commit/push dicatat setelah gate akhir. Parent B2/B/BE-01/FT-01 belum selesai.
+**Status:** Selesai teknis/terverifikasi — B2c1 query kategori berizin, baseline `89aaeb1` setelah update factor `c91ba73`; implementasi `30cb048` dipush ke `origin/main`. Parent B2/B/BE-01/FT-01 belum selesai.
 
 ## 1. Kontrak sebelum implementasi
 
@@ -28,7 +28,7 @@ PRD §15 (category/item master mandiri), Module Tiers §7, schema B.6, backend/s
 
 - [x] Contracts/source: strict query/status/DTO/page, auth-before-IO, bounded/filter port refusal, empty/partial page dan privacy failures.
 - [x] PostgreSQL disposable: all/ACTIVE/INACTIVE/keyset pages tanpa duplikasi/lompatan untuk data stabil, cross-tenant/foreign cursor, missing scope/invalid filter, real scoped membership/permissions dan fresh revocation/entitlement/device refusal sebelum reader, snapshot no-write/standalone.
-- [x] Root lint/boundary/warna/typecheck/test/format, Prisma validate, build API/web terisolasi; TODO/milestone diperbarui. Commit/push dicatat setelah gate akhir. Tanpa JSX/HTTP sehingga browser bukan gate.
+- [x] Root lint/boundary/warna/typecheck/test/format, Prisma validate, build API/web terisolasi; TODO/milestone diperbarui. Implementasi terverifikasi, di-commit dan dipush sebagai `30cb048` ke `origin/main`. Tanpa JSX/HTTP sehingga browser bukan gate.
 
 ## 4. Bukti dan batas
 
