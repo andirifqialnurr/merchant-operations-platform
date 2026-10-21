@@ -1,6 +1,6 @@
 # M5 — update satuan berizin
 
-**Status:** Selesai teknis/terverifikasi — B2b3a, baseline `18b8998` setelah create conversion `1c93bdb`; commit/push dicatat setelah gate akhir. Parent B2b/B2/BE-01/FT-01 belum selesai.
+**Status:** Selesai teknis/terverifikasi — B2b3a, baseline `18b8998` setelah create conversion `1c93bdb`; implementasi `b40ba26` dipush ke `origin/main`. Parent B2b/B2/BE-01/FT-01 belum selesai.
 
 ## 1. Kontrak sebelum implementasi
 
@@ -30,7 +30,7 @@ PRD §15, keputusan dimensi §15.2, schema B.6, backend/security dan NEXT M5 men
 
 - [x] Contracts/source: strict partial patch, immutable/hidden fields ditolak, locked/no-op domain, auth-first, UUID/key/origin, error mapping/DTO privacy/audit-label coverage.
 - [x] PostgreSQL disposable: scoped partial updates/CI conflict, rename terpakai vs blocked definition, snapshot replay/create replay, no-op, fresh refusal, concurrent updates/references, rollback audit/result/completion dan corrupt/reserved key fail closed, dimensi legacy tetap unknown.
-- [x] Root lint/boundary/warna/typecheck/test/format, Prisma validate, build API/web terisolasi; TODO/milestone diperbarui. Commit/push dicatat setelah gate akhir. Tidak ada JSX sehingga browser bukan gate.
+- [x] Root lint/boundary/warna/typecheck/test/format, Prisma validate, build API/web terisolasi; TODO/milestone diperbarui. Implementasi terverifikasi, di-commit dan dipush sebagai `b40ba26` ke `origin/main`. Tidak ada JSX sehingga browser bukan gate.
 
 ## 4. Bukti dan batas
 
