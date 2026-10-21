@@ -1,6 +1,6 @@
 # M5 — update faktor konversi
 
-**Status:** Selesai teknis/terverifikasi — B2b3b, baseline `5fdda72` setelah update unit `b40ba26`; commit/push dicatat setelah gate akhir. Parent B2b/B2/BE-01/FT-01 belum selesai.
+**Status:** Selesai teknis/terverifikasi — B2b3b, baseline `5fdda72` setelah update unit `b40ba26`; implementasi `c91ba73` dipush ke `origin/main`. Parent B2b/B2/BE-01/FT-01 belum selesai.
 
 ## 1. Kontrak sebelum implementasi
 
@@ -31,7 +31,7 @@ PRD §15/keputusan dimensi §15.2, schema B.6, backend/security dan NEXT M5 meng
 
 - [x] Contracts/source: strict single factor, exact normalization, auth-first/target/key/origin, stable 404/409/infrastructure mapping, DTO privacy/critical audit/labels id/en.
 - [x] PostgreSQL disposable: exact bounds/scoped immutable pair, no-op, original create/update replay, key isolation/corrupt states, fresh refusal, rollback audit/result/completion, concurrent updates/reverse pairs/create/parent locks, legacy unknown/incompatible ditolak tanpa rewrite.
-- [x] Root lint/boundary/warna/typecheck/test/format, Prisma validate, build API/web terisolasi, TODO/milestone diperbarui. Commit/push dicatat setelah gate akhir. Tanpa JSX sehingga browser bukan gate.
+- [x] Root lint/boundary/warna/typecheck/test/format, Prisma validate, build API/web terisolasi, TODO/milestone diperbarui. Implementasi terverifikasi, di-commit dan dipush sebagai `c91ba73` ke `origin/main`. Tanpa JSX sehingga browser bukan gate.
 
 ## 4. Bukti dan batas
 
