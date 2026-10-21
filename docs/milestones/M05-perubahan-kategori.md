@@ -1,6 +1,6 @@
 # M5 — update nama kategori Inventory
 
-**Status:** Selesai teknis/terverifikasi — B2c3a, baseline `7b960f2` setelah create kategori `9042956`; commit/push dicatat setelah gate akhir. Parent B2/B/BE-01/FT-01 belum selesai.
+**Status:** Selesai teknis/terverifikasi — B2c3a, baseline `7b960f2` setelah create kategori `9042956`; implementasi `0dd60c8` dipush ke `origin/main`. Parent B2/B/BE-01/FT-01 belum selesai.
 
 ## 1. Kontrak sebelum implementasi
 
@@ -29,7 +29,7 @@ PRD §15, schema B.6, backend/security dan NEXT M5 mengatur checkpoint ini. Owne
 
 - [x] Contracts/source: strict name-only/target/key/origin, auth-first, stable 404/409 vs infrastructure, DTO privacy/audit critical/labels id/en.
 - [x] PostgreSQL disposable: active/inactive rename/status+relation retention, no-op/CI conflict/race, same-key and different-key serialization, original create/update replay and key isolation, fresh access denial, rollback audit/result/status/completion, corrupt/reserved states fail closed, locks through audit and status read from locked row, standalone/no runtime wiring.
-- [x] Root lint/boundary/warna/typecheck/test/format, Prisma validate, build API/web terisolasi; TODO/milestone diperbarui. Commit/push dicatat setelah gate akhir. Tanpa JSX/HTTP sehingga browser bukan gate.
+- [x] Root lint/boundary/warna/typecheck/test/format, Prisma validate, build API/web terisolasi; TODO/milestone diperbarui. Implementasi terverifikasi, di-commit dan dipush sebagai `0dd60c8` ke `origin/main`. Tanpa JSX/HTTP sehingga browser bukan gate.
 
 ## 4. Bukti dan batas
 
