@@ -1,6 +1,6 @@
 # M5 — create kategori Inventory
 
-**Status:** Selesai teknis/terverifikasi — B2c2, baseline `a2de362` setelah query kategori `30cb048`; commit/push dicatat setelah gate akhir. Parent B2/B/BE-01/FT-01 belum selesai.
+**Status:** Selesai teknis/terverifikasi — B2c2, baseline `a2de362` setelah query kategori `30cb048`; implementasi `9042956` dipush ke `origin/main`. Parent B2/B/BE-01/FT-01 belum selesai.
 
 ## 1. Kontrak sebelum implementasi
 
@@ -29,7 +29,7 @@ PRD §15 (category/item master mandiri), schema B.6, backend/security dan NEXT M
 
 - [x] Contracts/source: strict name-only body/ACTIVE output, auth-first/key/origin, neutral conflict/infrastructure mapping, response privacy, critical audit/labels id/en.
 - [x] PostgreSQL disposable: atomic create/audit/result, normalized retries/original snapshot setelah rename/inactive, same-key race/CI different-key conflict termasuk inactive, tenant/actor/operation isolation, fresh refusal sebelum replay, rollback audit/result/completion/serialization, uncertain/expired/corrupt snapshot fail closed, standalone/no runtime wiring.
-- [x] Root lint/boundary/warna/typecheck/test/format, Prisma validate, build API/web terisolasi; TODO/milestone diperbarui. Commit/push dicatat setelah gate akhir. Tidak ada JSX/HTTP sehingga browser bukan gate.
+- [x] Root lint/boundary/warna/typecheck/test/format, Prisma validate, build API/web terisolasi; TODO/milestone diperbarui. Implementasi terverifikasi, di-commit dan dipush sebagai `9042956` ke `origin/main`. Tidak ada JSX/HTTP sehingga browser bukan gate.
 
 ## 4. Bukti dan batas
 
