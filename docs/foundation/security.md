@@ -171,6 +171,8 @@ Command internal create unit B2b1 memakai permission `inventory.master.manage` +
 
 [B2c3a update nama kategori](../milestones/M05-perubahan-kategori.md) memakai fresh master/all-outlet/no-device authorizer yang sama. Body name-only, target scoped row lock, CI collision termasuk inactive menjadi 409 netral dan missing/foreign target satu 404 aman. Rename memvalidasi hasil terhadap locked before status agar tidak menyelundupkan lifecycle change; audit hanya nameChanged flag tanpa nama bebas. Row/audit/key/original snapshot atomik; no-op tetap reserved tanpa row/timestamp/audit write. Replay memvalidasi target/name/status enum/scoped existence, bukan current mutable status, supaya tidak menulis ulang histori/hasil lama. Tidak ada lifecycle/grant/migration/runtime/aktivasi baru.
 
+[B2c3b lifecycle kategori](../milestones/M05-status-kategori.md) memakai dedicated status-only command di bawah authorizer master/all-outlet/no-device existing. Target scoped row lock, actual before status dan hasil id/name dipertahankan, audit before/after status tanpa nama bebas/item count, row/audit/key/original snapshot atomik. No-op tetap reserved; replay memverifikasi target/status tujuan/scoped existence, bukan current name/status, sehingga tidak menerapkan ulang state lama. Tidak cascade ke item/FK/status/minimum/active-item usage dan tidak menambah kuota kategori; new active-parent assignment guard tetap milik command item berikutnya. Tidak ada migration/grant/runtime/aktivasi baru.
+
 ## 8. Isolasi workspace
 
 - Setiap tabel domain memiliki `tenant_id` non-null.

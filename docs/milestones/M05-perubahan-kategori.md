@@ -45,4 +45,4 @@ PRD §15, schema B.6, backend/security dan NEXT M5 mengatur checkpoint ini. Owne
 
 ## 5. NEXT
 
-B2c3b lifecycle kategori ACTIVE/INACTIVE berizin dengan parent/item rules yang relevan, audit/transaksi/idempotency. Item/supplier/location/LimitGate terkait tetap checkpoint terpisah sebelum endpoint; tidak membuka route/reslicing atau memilih OD-05 pada rename kategori ini.
+NEXT saat B2c3a ditutup adalah B2c3b lifecycle kategori. Kini [B2c3b](./M05-status-kategori.md) selesai teknis/terverifikasi: dedicated ACTIVE/INACTIVE/no cascade item atau usage dan audit/transaksi/original replay atomik. NEXT aktif B2d1 kontrak/query item Inventory. Item/supplier/location/LimitGate terkait tetap checkpoint terpisah sebelum endpoint; tidak membuka route/reslicing atau memilih OD-05 pada rename kategori ini.

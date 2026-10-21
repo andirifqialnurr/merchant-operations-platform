@@ -111,6 +111,10 @@ export const inventoryCategorySchema = z
 export const createInventoryCategorySchema = inventoryCategorySchema.pick({ name: true }).strict();
 /** Rename owns the same single field; lifecycle is a separate command. */
 export const updateInventoryCategorySchema = createInventoryCategorySchema;
+/** Dedicated lifecycle workflow; create and rename do not own this field. */
+export const setInventoryCategoryStatusSchema = z
+  .object({ status: inventoryRecordStatusSchema })
+  .strict();
 export const inventoryCategoryListQuerySchema = inventoryUnitListQuerySchema
   .extend({ status: inventoryRecordStatusSchema.optional() })
   .strict();
@@ -152,6 +156,7 @@ export const inventoryCategoryPageSchema = createCursorPageSchema(inventoryCateg
 export type InventoryCategory = z.infer<typeof inventoryCategorySchema>;
 export type CreateInventoryCategory = z.infer<typeof createInventoryCategorySchema>;
 export type UpdateInventoryCategory = z.infer<typeof updateInventoryCategorySchema>;
+export type SetInventoryCategoryStatus = z.infer<typeof setInventoryCategoryStatusSchema>;
 export type InventoryCategoryListQuery = z.infer<typeof inventoryCategoryListQuerySchema>;
 export type InventoryUnitConversion = z.infer<typeof inventoryUnitConversionSchema>;
 export type InventoryUnitListQuery = z.infer<typeof inventoryUnitListQuerySchema>;

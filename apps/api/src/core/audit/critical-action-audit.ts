@@ -21,6 +21,7 @@ export const CRITICAL_AUDIT_ACTIONS = [
   "invitation.revoke",
   "inventory.category.create",
   "inventory.category.update",
+  "inventory.category.status_change",
   "inventory.unit.create",
   "inventory.unit.update",
   "inventory.unit_conversion.create",
